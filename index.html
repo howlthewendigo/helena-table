@@ -2084,6 +2084,23 @@
 #tool-turn .mini.off{opacity:.34}
 #tool-turn .sbx{border-bottom:1px solid #232a1b;background:#13170e;padding:11px 14px 13px}
 #tool-turn .sbx:last-child{border-bottom:none}
+#tool-turn .mtx{border-bottom:1px solid #232a1b;background:#13170e;padding:6px 14px 8px;box-shadow:inset 3px 0 0 var(--amber)}
+#tool-turn .mtx:last-child{border-bottom:none}
+#tool-turn .mtc > summary{cursor:pointer;font-size:var(--t-cap);line-height:1.5;color:var(--dim);overflow-wrap:anywhere}
+#tool-turn .mtc > summary .mt-t{font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--amber)}
+#tool-turn .mtc > summary .mt-ap{font-family:var(--f-data);color:var(--ink);border:1px solid var(--edge);border-radius:2px;padding:0 5px}
+#tool-turn .mt-b{margin-top:6px;font-size:var(--t-cap);line-height:1.55;color:var(--dim)}
+#tool-turn .mt-l{margin-bottom:5px}
+#tool-turn .mt-r{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0}
+#tool-turn .mt-p{margin:4px 0}
+#tool-turn .mt-s{margin-top:7px;border-top:1px solid #232a1b;padding-top:6px}
+#tool-turn .mt-ab{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;margin:4px 0}
+#tool-turn .mt-ab details{flex:1 1 220px;min-width:0}
+#tool-turn .mt-ab summary{cursor:pointer;color:var(--ink)}
+#tool-turn .mt-n{color:var(--faint);overflow-wrap:anywhere}
+#tool-turn .mt-o{margin:4px 0 2px;padding-left:20px}
+#tool-turn .mt-o li{margin:2px 0;color:var(--ink);overflow-wrap:anywhere}
+#tool-turn .mt-f{margin-top:6px}
 #tool-turn .sb-h{display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px}
 #tool-turn .sb-h .sb-n{font-size:var(--t-body);font-weight:700;letter-spacing:.03em;color:var(--amber)}
 #tool-turn .sb-h .sb-m{font-size:var(--t-cap);color:var(--faint)}
@@ -2252,6 +2269,29 @@
 #tool-map table .mono{font-variant-numeric:tabular-nums}
 @media (max-width:700px), (pointer:coarse){
 #tool-map button, #tool-map select, #tool-map input:not([type=checkbox]), #tool-map .toggles label{min-height:32px}
+}
+#tool-map svg.zm-blocks{width:auto;max-width:100%;max-height:72vh;margin:0 auto}
+#tool-map .bkbar{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;padding:8px 16px;
+         background:#171a13;border-bottom:1px solid var(--edge);font-size:var(--t-body)}
+#tool-map .bkbar[hidden]{display:none}
+#tool-map .bkbar label{display:flex;gap:5px;align-items:center;cursor:pointer;color:var(--dim)}
+#tool-map .bkbar input{width:auto}
+#tool-map .bkbar .bk-lab{color:var(--amber);font-size:var(--t-cap);letter-spacing:.12em;text-transform:uppercase}
+#tool-map .bkbar .bk-set{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+#tool-map .bkbar.bk-shut .bk-set{opacity:.55}
+#tool-map .bkbar button:disabled{opacity:.4;cursor:not-allowed}
+#tool-map #bk_hint{padding:6px 16px;margin:0;color:var(--ink)}
+#tool-map #bk_hint:empty{display:none}
+#tool-map .bk-from p{margin:5px 0;line-height:1.55}
+#tool-map .bk-from b{color:var(--amber);font-weight:600}
+#tool-map .bk-legend{margin-top:10px}
+#tool-map .bk-legend[hidden]{display:none}
+#tool-map .bk-legend p{margin:4px 0}
+#tool-map details.bk-mx{margin-top:8px}
+#tool-map details.bk-mx > summary{cursor:pointer;color:var(--dim);padding:7px 0;line-height:18px}
+#tool-map details.bk-mx > summary:hover{color:var(--amber)}
+@media (max-width:700px), (pointer:coarse){
+#tool-map .bkbar label{min-height:32px}
 }
 
 /* ===== dice ==================================================== */
@@ -5920,6 +5960,9 @@ end $$;
         <div class="gp-f"><span class="stencil">Major action this turn</span>
           <select id="gp-major" aria-label="Which major action of this turn the test is" title="Each extra major action costs 2 AP and its test is +1 Difficulty: the second is +1, the third +2 (Book One p.18)"></select></div>
         <div class="gp-f chk hidden" id="gp-sneak-f"><label title="Striking from hiding (Guide p.viii): against an enemy unaware of you, the attack is &minus;1 Difficulty (minimum 0), and it gains Vicious &mdash; or +2 CD if it already has Vicious"><input type="checkbox" id="gp-sneak"> Sneak attack</label></div>
+        <!-- the range step (Book One p.28): the band from the turn order, shown on an attack that carries it; the Overseer may change it -->
+        <div class="gp-f hidden" id="gp-range-f"><span class="stencil">Range to the target</span>
+          <select id="gp-range" aria-label="Range from the attacker to the target" title="Read off the map. Book One p.28: +1 Difficulty for each range band between the target and the weapon&rsquo;s ideal range. Change it here if the map has it wrong."><option value="">Not known</option><option value="C">Close</option><option value="M">Medium</option><option value="L">Long</option><option value="X">Extreme</option></select></div>
       </div>
       <div class="gp-diffs" id="gp-diffs" role="group" aria-label="The difficulty"></div>
       <p class="gp-note" id="gp-diff-note">Nothing else is offered until this is set.</p>
@@ -6060,6 +6103,12 @@ end $$;
 <section class="tool" id="tool-map" role="region" aria-labelledby="fold-h-map">
 <header>
   <h1>Zone Combat Map Generator</h1>
+  <div class="fld"><label for="style">Style</label>
+    <select id="style">
+      <option value="blocks" selected>Blocks &middot; line of sight</option>
+      <option value="zones">Zones &middot; organic</option>
+    </select>
+  </div>
   <div class="fld"><label>Environment</label><select id="env"></select></div>
   <div class="fld"><label>Map Scale</label>
     <select id="size">
@@ -6088,11 +6137,33 @@ end $$;
   <label><input type="checkbox" id="L_conn" checked> Connections</label>
   <label><input type="checkbox" id="L_spawn" checked> Deployment</label>
   <label><input type="checkbox" id="L_labels" checked> Labels</label>
-  <span class="hint" style="margin-left:auto">Click any zone to display its range bands (C / M / L / X).</span>
+  <span class="hint" id="bk_tip" style="margin-left:auto">Click any zone to display its range bands (C / M / L / X).</span>
 </div>
+<div class="bkbar" id="bk_bar" hidden>
+  <span class="bk-lab" id="bk_lab">Paint</span>
+  <span class="bk-set" role="radiogroup" aria-labelledby="bk_lab">
+    <label><input type="radio" name="bk_brush" id="bk_b_off" value="off" checked> Off</label>
+    <label><input type="radio" name="bk_brush" id="bk_b_wall" value="#"> Wall</label>
+    <label><input type="radio" name="bk_brush" id="bk_b_l" value="1"> Light</label>
+    <label><input type="radio" name="bk_brush" id="bk_b_m" value="2"> Medium</label>
+    <label><input type="radio" name="bk_brush" id="bk_b_h" value="3"> Heavy</label>
+    <label><input type="radio" name="bk_brush" id="bk_b_open" value="."> Open</label>
+    <button type="button" id="bk_undo" disabled>Undo</button>
+  </span>
+  <span class="bk-set" id="bk_kbd">
+    <label for="bk_block">Block</label><select id="bk_block"></select>
+    <label for="bk_kbrush">as</label><select id="bk_kbrush">
+      <option value="#">Wall</option><option value="1">Light cover</option><option value="2">Medium cover</option>
+      <option value="3">Heavy cover</option><option value=".">Open</option>
+    </select>
+    <button type="button" id="bk_go">Paint</button>
+  </span>
+</div>
+<p class="hint" id="bk_hint" role="status" aria-live="polite"></p>
 
 <main>
   <div id="stage"></div>
+  <div class="card bk-legend" id="bk_legend" hidden></div>
   <div class="notes">
     <div class="card" id="c_zones"></div>
     <div class="card" id="c_range"></div>
@@ -31039,6 +31110,8 @@ function fightGo(){
   var HT = turnApi(), tEl = $("cs-fight-t"), nEl = $("cs-fight-n");
   var cid = c.id, wname = String(w.name || "").trim() || "weapon";
   var opts = { target:tEl ? String(tEl.value || "") : "" };
+  /* the range step (Book One p.28): the weapon's own Range box goes with the declaration, as the sheet carries it */
+  opts.weaponRange = String(w.range == null ? "" : w.range);
   if(nEl) opts.rounds = CH.ammoSpend(w, +nEl.value || 0);
   opts.onResult = function(rep, card){ return fightHeard(cid, rep, card); };
   var r = null;
@@ -38122,7 +38195,8 @@ var TT = {
                     ? (ep.immobile ? Math.max(1, ep.step) : ep.step)
                     : Math.max(0, Math.round(+extra.encumbranceStep || 0));
     var encImm  = extra.encumbranceImmobile == null ? ep.immobile : !!extra.encumbranceImmobile;
-    return { source:"turn-tracker", kind:"attack",
+    /* MAP_LOS (Howl 2026-10-13): the range fields and noBuy ride only when a caller sends them (TT.mapFields) */
+    return TT.mapFields({ source:"turn-tracker", kind:"attack",
              id:extra.id == null ? "" : String(extra.id),
              attacker:pick(attacker), target:tpick(target),
              weapon:w,
@@ -38210,7 +38284,7 @@ var TT = {
              pool:extra.pool == null || extra.pool === "" || !isFinite(+extra.pool) ? null : Math.max(2, Math.round(+extra.pool)),
              poolWhy:extra.poolWhy ? String(extra.poolWhy) : "",
              round:extra.round == null ? null : extra.round,
-             note:extra.note || "" };
+             note:extra.note || "" }, extra);
   },
   /* WAVE 19, F3 (Zoe 2026-10-12, ruled): A SWARM'S ATTACK FROM ITS TURN-ORDER ROW CARRIES THE SWARM BONUS.  The stat block
      prints "+1d20 and +1 CD while they last" (swarmState, published by the Encounter pane's door as read().swarm); the row
@@ -38407,6 +38481,27 @@ var TT = {
                note:on.text + " The Dice pane settles that one without dice." };
     var mod = RL.difficultyWith(base, { encumbrance:on.applies ? on.step : 0,
                                         ease:decl.difficultyEase, marked:decl.difficultyMark });
+    /* MAP_LOS (Howl 2026-10-13: THE RANGE STEP AUTOMATED): a declaration that carries the range fields takes Book One p.28's range
+       step here too — the drawer's own pure RL.rangeStep, the one arithmetic its roll step adds (+1 Difficulty per band between the
+       target and the weapon's ideal range; a weapon with no range, a melee blow or a token off the map: nothing added, and its note
+       said).  A Difficulty past the 5 this roll can carry goes to the Dice pane, whose roll step has no ceiling. */
+    var rsx = null;
+    if(spec && (spec.rangeBand !== undefined || spec.weaponRange !== undefined) && typeof RL.rangeStep === "function"){
+      try{ rsx = RL.rangeStep({ band:spec.rangeBand, weaponRange:spec.weaponRange, weapon:decl.weapon, mode:decl.mode,
+                                target:(spec.target && spec.target.name) || "" }); }catch(e){ rsx = null; }
+    }
+    var rStep = rsx && rsx.known ? Math.max(0, Math.round(+rsx.step || 0)) : 0;
+    if(rStep){
+      var wantR = mod.want + rStep;
+      if(wantR > 5)
+        return { ok:false, reason:"range", handoff:true, spec:spec, decl:decl,
+                 note:String(rsx.note || "") + " That makes Difficulty " + wantR + ", past the 5 a roll here can carry — the Dice pane's guided roll carries it." };
+      var partsR = (mod.parts || []).concat(["+" + rStep + " " + (rsx.part || "range") + " (Book One p.28)"]);
+      mod = { base:mod.base, encumbrance:mod.encumbrance, ease:mod.ease, marked:mod.marked, range:rStep, want:wantR,
+              applied:Math.max(0, Math.min(5, wantR)), lost:0, floored:wantR < 0, moved:true, parts:partsR,
+              text:"Difficulty " + mod.base + " " + partsR.join(", ") + " = <b>" + Math.max(0, Math.min(5, wantR)) + "</b>" +
+                   (wantR < 0 ? " — it stops at 0." : "") };
+    }
     t = RL.setDifficulty(t, mod.applied);
     if(t.refused)
       return { ok:false, reason:"difficulty", handoff:true, spec:spec, decl:decl, note:String(t.refused) };
@@ -38502,6 +38597,8 @@ var TT = {
     var apEarned = Math.max(0, Math.round(+((t.result && t.result.ap) || 0)));
 
     var over = [];
+    /* MAP_LOS: what the range step did, said whenever the declaration carried the range fields and nothing was added */
+    if(rsx && !rStep && rsx.note) over.push(String(rsx.note).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
     if(mod.applied > 0)
       over.push("Rolled flat: " + (2 + Math.max(0, Math.round(+t.freeDice || 0))) + "d20" +
                 (t.freeDice ? " (+" + t.freeDice + "d20 " + (decl.freeWhy ? "from " + decl.freeWhy : "free") + ")" : "") +
@@ -38905,7 +39002,258 @@ var TT = {
       : "A creature's HP, its DR and a swarm's arithmetic live in the Encounter pane, which publishes no door for them on this build. " +
         "The number is here; take it off there.";
     return out;
-  }
+  },
+
+  /* ============ MAP_LOS (Howl 2026-10-13; MAP_LOS_BRIEF.md R7, and HOWL'S ANSWERS: sight + walking, THE RANGE STEP AUTOMATED)
+     WHAT THE MAP KNOWS ABOUT AN ATTACK.  The map's public door is window.HELENA_MAP (build-suite.js, MAP-DOOR) — style()
+     "zones"|"blocks", sees(a, b), band(a, b) "C"|"M"|"L"|"X"|null, moves(a, b), coverFrom(z, from), visibleFrom(z) — a zone being
+     the number a token's zone carries.  Who stands where is the tokens' (TT.zoneOfRow: a swarm by its first member on the map).
+     PURE: the door and the tokens are handed in.
+       mapLook(HM, tokens, attacker, target, zone) -> { mapped, style, blocks, from, to, sees, band, moves, fromCode, toCode, blockedAt }
+           mapped  both stand in zones the map knows (its band() answers); `zone` (optional) aims at a zone instead (a Blast's)
+           sees    the door's sees() on a Blocks map; true on a Zones map (walls never stop a shot there)
+       sightGate(look, guided)  true when the attack is REFUSED: a Blocks map, both on it, no line of sight, and not the
+                                Overseer's Guided roll.  Book One p.38: "you can only be attacked by something that can see you";
+                                p.27: a ranged attack's target must be visible.  Never on a Zones map, never with a token off it. */
+  BANDS: ["C", "M", "L", "X"],
+  BAND_WORDS: { C:"Close", M:"Medium", L:"Long", X:"Extreme" },
+  mapDoor: function(HM){
+    return (HM && typeof HM.style === "function" && typeof HM.sees === "function" && typeof HM.band === "function") ? HM : null;
+  },
+  /* a zone as the table reads it: a Blocks map's code ("D3"), a Zones map's name or code, else the label its disc carries */
+  zoneCode: function(HM, z, label){
+    var M = null, i;
+    try{ M = HM && typeof HM.map === "function" ? HM.map() : null; }catch(e){ M = null; }
+    var zs = M && Array.isArray(M.zones) ? M.zones : [];
+    for(i = 0; i < zs.length; i++) if(zs[i] && +zs[i].id === +z) return String(zs[i].name || zs[i].code || label || ("zone " + z));
+    return label ? String(label) : (z == null ? "" : "zone " + z);
+  },
+  mapLook: function(HM, tokens, a, t, zone){
+    var out = { mapped:false, style:"", blocks:false, from:null, to:null, sees:null, band:null, moves:null, fromCode:"", toCode:"", blockedAt:"" };
+    var D = TT.mapDoor(HM);
+    if(!D || !a) return out;
+    try{ out.style = String(D.style() || ""); }catch(e){ return out; }
+    out.blocks = out.style === "blocks";
+    var za = TT.zoneOfRow(tokens, a);
+    var zt = (zone != null && zone !== "" && isFinite(+zone)) ? { zone:+zone, label:"" } : TT.zoneOfRow(tokens, t);
+    if(!za || !zt) return out;
+    var b = null;
+    try{ b = D.band(za.zone, zt.zone); }catch(e){ b = null; }
+    b = b == null ? "" : String(b).toUpperCase();
+    if(TT.BANDS.indexOf(b) < 0) return out;                  /* a zone the map does not have: nothing is known */
+    out.mapped = true; out.band = b; out.from = za.zone; out.to = zt.zone;
+    var s = true;
+    try{ s = D.sees(za.zone, zt.zone) !== false; }catch(e){ s = true; }
+    out.sees = out.blocks ? s : true;
+    if(typeof D.moves === "function"){
+      var mv = null;
+      try{ mv = D.moves(za.zone, zt.zone); }catch(e){ mv = null; }
+      out.moves = (mv == null || mv === "" || !isFinite(+mv)) ? null : Math.max(0, Math.round(+mv));
+    }
+    out.fromCode = TT.zoneCode(D, za.zone, za.label);
+    out.toCode = TT.zoneCode(D, zt.zone, zt.label);
+    if(!out.sees && typeof D.sight === "function"){
+      try{ var g = D.sight(za.zone, zt.zone); if(g && g.blockedAt) out.blockedAt = String(g.blockedAt); }catch(e){}
+    }
+    return out;
+  },
+  sightGate: function(look, guided){ return !!(look && look.blocks && look.mapped && look.sees === false && !guided); },
+  sightNote: function(look, who, whom, preview){
+    var a = String(who || "The attacker"), b = String(whom || "the target");
+    return a + " cannot see " + b + ": " + (look && look.blockedAt ? "a wall at " + look.blockedAt : "a wall") + " stands between " +
+           ((look && look.fromCode) || "its block") + " and " + ((look && look.toCode) || "the target’s") +
+           " (Book One p.27: a ranged attack’s target must be visible). " + (preview ? "Declare it will refuse it." : "Nothing was declared.") +
+           " Move, or the Overseer presses Guided to roll it anyway.";
+  },
+  /* THE RANGE FIELDS A DECLARATION CARRIES — the drawer's contract beside its RL.declare: { rangeBand, weaponRange }, and the roll
+     step adds Book One p.28's range step itself (RL.rangeStep: +1 Difficulty per band between the target and the weapon's ideal
+     range) whenever both halves are known, and says why when one is not.  rangeBand: the band off the map, null with a token off it.
+     weaponRange: the weapon's range as it is carried — the sheet's Range box, or a stat block's parsed band ("Range Reach" sent as
+     "Reach"); the drawer reads the weapon's own line after it.  `mapped`: somebody stands on the map — a table that never placed a
+     token sends neither field and declares exactly as before.  -> { rangeBand, weaponRange } or null */
+  rangeFields: function(look, w, mapped){
+    if(!mapped) return null;
+    var p = w && w.parsed && typeof w.parsed === "object" ? w.parsed : null, wr = "";
+    if(w && w.creature){ var r = p && p.range ? String(p.range) : ""; wr = r === "R" ? "Reach" : r; }
+    else wr = (w && w.range != null) ? String(w.range) : "";
+    return { rangeBand:(look && look.mapped) ? look.band : null, weaponRange:wr };
+  },
+  /* attackSpec's optional fields, added only when a caller sends them, so every older declaration is the object it always was */
+  mapFields: function(spec, extra){
+    extra = extra || {};
+    if(extra.rangeBand !== undefined || extra.weaponRange !== undefined){
+      var b = extra.rangeBand == null ? "" : String(extra.rangeBand).toUpperCase();
+      spec.rangeBand = TT.BANDS.indexOf(b) >= 0 ? b : null;
+      spec.weaponRange = extra.weaponRange == null ? "" : String(extra.weaponRange).slice(0, 200);
+    }
+    if(extra.noBuy) spec.noBuy = String(extra.noBuy).slice(0, 240);
+    return spec;
+  },
+
+  /* ============ THE MONSTER TURN CARD (Howl, 2026-10-13; he chose both parts) — THE PURE HALF.  The table's ruling stands: creatures
+     have no Luck, and the Overseer's pool of Action Points (no maximum) is the monsters' resource.  On every creature's turn the
+     order's card shows that pool and one-press spends with their costs, the creature's special abilities by name, and — part two —
+     its best attack on each character it can see, with one plain line of why.  It is advice: the Overseer decides, and the card
+     never acts by itself.
+       cardD20(base, bought, have)   Book One p.15: the first d20 bought costs 1 AP, the second 2, the third 3, and a test is never
+                                     more than 5d20.  base: the pool its next attack starts at (2; a swarm's 2 + its bonus).
+                                     -> { can, cost, room, bought, full, note }
+       cardPool(pf, bought, why)     the declaration's pool fields with the card's bought d20s in them, and noBuy, so the drawer's
+                                     buy step sells no more at its own prices (they were bought here, at the book's). */
+  cardD20: function(base, bought, have){
+    base = Math.max(1, Math.min(5, Math.round(+base || 2)));
+    bought = Math.max(0, Math.round(+bought || 0));
+    have = Math.max(0, Math.round(+have || 0));
+    var room = Math.max(0, Math.min(3, 5 - base) - bought), cost = bought + 1;
+    var out = { can:false, cost:cost, room:room, bought:bought, full:room <= 0, note:"" };
+    if(out.full) out.note = "Its next attack is " + Math.min(5, base + bought) + "d20 — a test is never more than 5d20 (Book One p.15), so no more can be bought.";
+    else if(have < cost) out.note = "The Overseer’s pool holds " + have + " AP, and the next d20 costs " + cost + " (Book One p.15).";
+    else out.can = true;
+    return out;
+  },
+  cardPool: function(pf, bought, why){
+    bought = Math.max(0, Math.round(+bought || 0));
+    pf = pf || { pool:null, poolWhy:"", freeDice:0, freeWhy:"" };
+    if(!bought) return pf;
+    var said = bought + " d20" + (bought === 1 ? "" : "s") + " bought on the turn card" + (why ? " (" + why + ")" : "");
+    var o = { pool:pf.pool, poolWhy:pf.poolWhy || "", freeDice:+pf.freeDice || 0, freeWhy:pf.freeWhy || "", noBuy:"" };
+    if(o.pool != null){ o.pool = Math.min(5, Math.round(+o.pool || 2) + bought); o.poolWhy = o.poolWhy ? o.poolWhy + "; " + said : said; }
+    else { o.freeDice = o.freeDice + bought; o.freeWhy = o.freeWhy ? o.freeWhy + "; " + said : said; }
+    /* no full stop: the drawer adds its own after it */
+    o.noBuy = "This attack’s d20s were bought on the creature’s turn card — " + said + " — so buy any more there, at Book One p.15’s prices";
+    return o;
+  },
+  /* a stat block's special abilities, every one by name, so none is forgotten; one that prints an AP spend ("may spend 2 AP to…",
+     "spend up to 3 AP to…") carries it, for the card's presses.  -> [{ name, text, ap, upTo }] */
+  abilitiesOf: function(list){
+    return (Array.isArray(list) ? list : []).map(function(a){
+      var s = String(a == null ? "" : a).trim(), j = s.indexOf(":");
+      var name = (j > 0 && j <= 48) ? s.slice(0, j).trim() : "", text = name ? s.slice(j + 1).trim() : s;
+      var m = /\bspend(?:s|ing)?\s+(up to\s+)?(\d+)\s*(?:AP|Action Points?)\b/i.exec(s);
+      return { name:name || text.split(/[.;:]/)[0].slice(0, 48).trim(), text:text,
+               ap:m ? Math.max(1, Math.min(9, Math.round(+m[2]))) : 0, upTo:!!(m && m[1]) };
+    }).filter(function(a){ return !!(a.name || a.text); });
+  },
+  /* THE CHANCE TO HIT, exact: n d20 against a target number, needing `diff` successes — a 1 counts two (the drawer's creature roll:
+     the printed TN whole, untagged, so it criticals on a 1 only); Difficulty 0 needs no roll (Book One p.14). */
+  hitChance: function(n, tn, diff){
+    n = Math.max(1, Math.min(5, Math.round(+n || 2)));
+    tn = Math.max(0, Math.min(20, Math.round(+tn || 0)));
+    diff = Math.max(0, Math.round(+diff || 0));
+    if(!diff) return 1;
+    var p2 = tn >= 1 ? 1 / 20 : 0, p1 = tn >= 2 ? (tn - 1) / 20 : 0, p0 = 1 - p1 - p2, dist = [1], k, s;
+    for(k = 0; k < n; k++){
+      var nx = [];
+      for(s = 0; s < dist.length + 2; s++) nx[s] = 0;
+      for(s = 0; s < dist.length; s++){ nx[s] += dist[s] * p0; nx[s + 1] += dist[s] * p1; nx[s + 2] += dist[s] * p2; }
+      dist = nx;
+    }
+    var p = 0;
+    for(s = diff; s < dist.length; s++) p += dist[s];
+    return Math.max(0, Math.min(1, p));
+  },
+  /* WHAT A HIT LEAVES PAST DR, ON AVERAGE: a combat die averages 5/6 of a point and 1/3 of an Effect (its six faces, Book One p.15);
+     Vicious is +1 a Effect, Piercing X ignores X DR a Effect, the cover included (the existing Piercing-reaches-cover ruling).
+     o = { dr, cover, pierce, vicious, noEffects }.  Immune (dr Infinity): 0. */
+  cdAverage: function(cd, o){
+    o = o || {};
+    cd = Math.max(0, +cd || 0);
+    if(o.dr === Infinity) return 0;
+    var dr = Math.max(0, +o.dr || 0), cover = Math.max(0, +o.cover || 0);
+    var eff = o.noEffects ? 0 : cd / 3;
+    var raw = cd * 5 / 6 + (o.vicious ? eff : 0);
+    var left = Math.max(0, dr + cover - Math.max(0, +o.pierce || 0) * eff);
+    return Math.max(0, raw - left);
+  },
+  /* one printed attack as the card weighs it (weaponsFor's row; `sw` the swarm's bonus: +bonus CD, TT.swarmWeapon's rule) */
+  cardAttack: function(x, sw){
+    var p = (x && x.parsed) || {}, w = (x && x.w) || {};
+    var fx = String(w.effects || p.rest || "");
+    var b = sw ? Math.max(0, Math.round(+sw.bonus || 0)) : 0, pm = /\bPiercing\s*(\d+)?/i.exec(fx), ty = String(p.type || w.type || "");
+    var thrown = /\bThrown\b/i.test(fx);
+    return { name:String((x && x.name) || w.name || "attack"), tn:p.tn == null ? null : Math.round(+p.tn),
+             cd:Math.max(0, Math.round(+(p.cd != null ? p.cd : w.cd) || 0)) + b,
+             melee:String(p.mode || w.mode || "") === "melee" && !thrown, thrown:thrown,
+             blast:/\bBlast\b/i.test(fx), vicious:/\bVicious\b/i.test(fx), pierce:pm ? (pm[1] ? Math.round(+pm[1]) : 1) : 0,
+             type:/^en/i.test(ty) ? "En" : /^rad/i.test(ty) ? "Rad" : "Phys", w:w };
+  },
+  /* about N: a whole number, "under 1" for a sliver, never a decimal on screen */
+  about: function(v){ if(v == null || !isFinite(+v)) return "?"; var r = Math.round(+v); return (r === 0 && +v > 0.05) ? "under 1" : String(r); },
+  /* a chance as a whole percent, never "0%" for a chance that is there nor "100%" for one that can still miss */
+  pct: function(c){ c = Math.max(0, Math.min(1, +c || 0)); var r = Math.round(c * 100); return (r === 0 && c > 0) ? "under 1%" : (r === 100 && c < 1) ? "over 99%" : r + "%"; },
+  /* PART TWO: BEST ATTACK AND WHY.  in = { attacks:[cardAttack], pool (its next attack's d20s), step (the +difficulty its major
+     actions earned), fromZone, chars:[{ id, name, def, dr:{ Phys, En, Rad }|null, cover, zone, code, band, sees, moves, marked,
+     onMap, mapped, blocks }], range:function(attack, band) -> RL.rangeStep's answer or null, onMap (the creature stands on it) }.
+     Who is weighed: on a Blocks map everyone in its line of sight; otherwise everyone on the map; a creature off the map, everyone.
+     For each, every attack: the chance to hit (TN, pool, against Defense + the major step + the range step − Marked) and the
+     expected damage past DR (Blast: everyone in that zone, a miss still landing half its CD with no effects); the best by expected
+     damage, an attack it can make now first.  -> { rows (most first), hidden:[{ name, why }], off:[names] } */
+  cardBest: function(inp){
+    inp = inp || {};
+    var atks = (inp.attacks || []).filter(function(a){ return a && a.tn != null; });
+    var chars = inp.chars || [], rows = [], hidden = [], off = [];
+    var pool = Math.max(1, Math.min(5, Math.round(+inp.pool || 2))), step = Math.max(0, Math.round(+inp.step || 0));
+    chars.forEach(function(t){
+      if(inp.onMap && !t.onMap){ off.push(t.name); return; }
+      if(t.blocks && t.mapped && t.sees === false){ hidden.push({ name:t.name, code:t.code || "" }); return; }
+      var best = null;
+      atks.forEach(function(a){
+        var r = { attack:a.name, chance:null, total:null, each:[], reach:true, diff:null, rs:null, why:"", blast:a.blast };
+        if(a.melee && t.band && t.band !== "C"){
+          r.reach = false;
+          r.why = a.name + " cannot reach " + t.name + " from here (" + TT.BAND_WORDS[t.band] + " range; a melee attack is made within Reach)" +
+                  (t.moves != null ? " — " + t.moves + (t.moves === 1 ? " move" : " moves") + " to close" : "") + ".";
+        }else if(t.def == null){
+          r.why = t.name + "’s Defense is not on a sheet here, so the chance is not counted.";
+        }else{
+          var rs = (typeof inp.range === "function" && t.band) ? inp.range(a, t.band) : null;
+          var rstep = rs && rs.known ? Math.max(0, Math.round(+rs.step || 0)) : 0;
+          r.rs = rs;
+          r.diff = Math.max(0, t.def + step + rstep - (t.marked ? 1 : 0));
+          r.chance = TT.hitChance(pool, a.tn, r.diff);
+          var victims = (a.blast && t.zone != null) ? chars.filter(function(q){ return q.onMap && q.zone === t.zone; }) : [t];
+          if(!victims.length) victims = [t];
+          var tot = 0, known = true;
+          victims.forEach(function(q){
+            if(!q.dr){ known = false; r.each.push({ name:q.name, dmg:null }); return; }
+            var dr = q.dr[a.type], hit = TT.cdAverage(a.cd, { dr:dr, cover:q.cover, pierce:a.pierce, vicious:a.vicious });
+            var miss = a.blast ? TT.cdAverage(Math.ceil(a.cd / 2), { dr:dr, cover:q.cover, noEffects:true }) : 0;
+            r.each.push({ name:q.name, dmg:hit });
+            tot += r.chance * hit + (1 - r.chance) * miss;
+          });
+          r.total = known ? tot : null;
+          var pct = TT.pct(r.chance);
+          var bits = ["Defense " + t.def];
+          if(step) bits.push("+" + step + " " + (step > 1 ? "for its extra major actions" : "its second major action"));
+          if(rstep) bits.push("+" + rstep + " range (" + TT.BAND_WORDS[t.band] + ")");
+          if(t.marked) bits.push("−1 Marked");
+          var how = pct + " to hit (Difficulty " + r.diff + ": " + bits.join(", ") + ")";
+          var each = r.each.map(function(q){ return q.dmg == null ? "?" : TT.about(q.dmg); });
+          var same = each.every(function(v){ return v === each[0]; });
+          if(a.blast && victims.length > 1)
+            r.why = a.name + " on " + (t.code || t.name + "’s zone") + ": hits " + TT.andList(victims.map(function(q){ return q.name; })) +
+                    ", about " + (same ? each[0] + " each" : each.join(" / ")) + " past DR on a hit — " + how +
+                    (inp.fromZone != null && t.zone === inp.fromZone ? "; it stands in the blast too" : "") + ".";
+          else
+            r.why = a.name + " at " + t.name + ": " + how + ", about " + each[0] + " past DR on a hit" +
+                    (a.blast && inp.fromZone != null && t.zone === inp.fromZone ? "; it stands in the blast too" : "") + ".";
+          if(!known) r.why += " " + TT.andList(r.each.filter(function(q){ return q.dmg == null; }).map(function(q){ return q.name; })) + "’s DR is not on a sheet here.";
+        }
+        var score = function(z){ return z.total != null ? z.total : (z.chance != null ? z.chance / 1000 : -1); };
+        if(!best || (r.reach && !best.reach) || (r.reach === best.reach && score(r) > score(best))) best = r;
+      });
+      if(best) rows.push({ id:t.id, name:t.name, code:t.code || "", band:t.band, attack:best.attack, chance:best.chance, total:best.total,
+                           each:best.each, reach:best.reach, diff:best.diff, blast:best.blast, why:best.why });
+    });
+    rows.sort(function(a, b){
+      if(a.reach !== b.reach) return a.reach ? -1 : 1;
+      var x = a.total != null ? a.total : -1, y = b.total != null ? b.total : -1;
+      if(y !== x) return y - x;
+      return (b.chance || 0) - (a.chance || 0);
+    });
+    return { rows:rows, hidden:hidden, off:off };
+  },
+  andList: function(a){ a = (a || []).filter(Boolean); return a.length < 2 ? (a[0] || "") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1]; }
 };
 /* HELENA_TURN:end */
 if(typeof window !== "undefined") window.HELENA_TURN = TT;
@@ -39696,8 +40044,16 @@ function render(){
       sx.innerHTML = statBlockHtml(e, gmLocked);
       host.appendChild(sx);
     }
+    /* THE MONSTER TURN CARD (Howl 2026-10-13): on a creature's turn, the Overseer's card under its row (and its stat block) — an
+       open Attack panel is drawn above it, straight under the row, so the card never stands between the row and Declare it */
+    if(cur === id && running && !gmLocked && e.kind !== "char" && typeof mtCardFor === "function"){
+      var mtc = null;
+      try{ mtc = mtCardFor(e, list); }catch(err){ mtc = null; }
+      if(mtc) host.appendChild(mtc);
+    }
   });
   wireStatBlocks();
+  if(typeof wireMonsterCard === "function") wireMonsterCard();
 
   /* WAVE 16, F3 (Zoe 2026-10-06, ruled): THE PANEL BESIDE ITS ROW.  A row's Attack (or Hide) panel was drawn in
      the read-out under the whole list — MEASURED on the walkthrough's build at 1280x800: 2,800px down the page
@@ -40790,8 +41146,12 @@ function hereSpec(e, x, target){
   /* PROJECT H, FIGHT (R6): the swarm's real pool, as the row's Declare sends it (TT.poolFields) */
   var pf = typeof TT.poolFields === "function" ? TT.poolFields(swx, typeof drawerTakesPool === "function" && drawerTakesPool())
                                                : { pool:null, poolWhy:"", freeDice:swx.freeDice, freeWhy:swx.freeWhy };
+  /* MAP_LOS: the band and the weapon's range for the range step, and the turn card's d20s — exactly as the row's Declare sends them */
+  var rgf = typeof rangeFor === "function" ? rangeFor(e, x, target, null) : null;
+  if(typeof mtPoolFor === "function"){ var mtp = mtPoolFor(e, pf); if(mtp && mtp !== pf) pf = mtp; }
   var spec = TT.attackSpec(e, swx.w, target, {
     id:declId(e, target, x),
+    rangeBand:rgf ? rgf.rangeBand : undefined, weaponRange:rgf ? rgf.weaponRange : undefined, noBuy:pf.noBuy || "",
     freeDice:pf.freeDice, freeWhy:pf.freeWhy, pool:pf.pool, poolWhy:pf.poolWhy,
     mode:(pp && pp.mode) ? pp.mode : plan.mode,
     ammoSpent:0,
@@ -40860,6 +41220,14 @@ function rollHere(e, wi, tid){
     render();
     return;
   }
+  /* MAP_LOS (R7): a target it cannot see, on a Blocks map, is refused by name before anything is rolled — Guided, beside this
+     button, is the Overseer's override (sightRefusal) */
+  var sightNo = typeof sightRefusal === "function" ? sightRefusal(e, target, false, null) : null;
+  if(sightNo){
+    sbOut[key] = '<div class="sb-out warn"><b>Not rolled here.</b> ' + esc(sightNo.note) + "</div>";
+    render();
+    return;
+  }
   var built = hereSpec(e, x, target);
   /* PROJECT H, FIGHT (Zoe 2026-10-13, ruled: R5): A CREATURE'S BLAST ROLLED HERE LANDS ON THE TARGET'S ZONE — everyone the Zone
      Map stands in it, one roll, each once (applyMany); a target off the map is hit alone, as before.  Another zone, or someone
@@ -40877,6 +41245,7 @@ function rollHere(e, wi, tid){
     render();
     return;
   }
+  if(typeof mtUsed === "function") mtUsed(e);        /* THE TURN CARD: its bought d20s were rolled here */
   /* THE ACTION POINTS IT EARNED GO INTO THE POOL NOW — see creditAP.  Before the read-out
      is built, so the read-out says what actually landed rather than what was counted.
      TRACK S (follow-up 3): a character's share lost to Fatigue's tooth is named apart from the cap's
@@ -40934,8 +41303,11 @@ function rollHere(e, wi, tid){
 function rollGuided(e, wi, tid){
   var list = combatants(), ord = orderOf(list);
   sbPick[e.id] = tid;
-  openAttack(e, list, ord, wi, tid);
+  /* MAP_LOS (R7): Guided is the Overseer's override — the panel it opens declares with no sight gate, and says so (guidedNext) */
+  guidedNext = true;
+  try{ openAttack(e, list, ord, wi, tid); }finally{ guidedNext = false; }
 }
+var guidedNext = false;
 
 function luckyTiming(e, ord){
   var luck = luckOf(e);
@@ -40957,6 +41329,298 @@ function luckyTiming(e, ord){
   });
   tick("turn", "— " + e.name + " spent 1 Luck for Lucky Timing and acts now");
 }
+
+/* MAPLOS:begin — MAP_LOS (Howl 2026-10-13; MAP_LOS_BRIEF.md R7, and HOWL'S ANSWERS): THE TURN ORDER READS THE MAP'S DOOR.
+   window.HELENA_MAP (build-suite.js, MAP-DOOR) answers style / sees / band / moves for the zones the tokens stand in, and
+   TT.mapLook is the one reader of it.  Three things follow:
+     R7      AN ATTACK ON A TARGET THE ATTACKER CANNOT SEE, ON A BLOCKS MAP, IS REFUSED BY NAME before anything is spent — in the
+             row's Declare it (which the sheet's Attack in a fight presses, through declareFor: refused "sight") and in a stat
+             block's Roll here.  The Overseer's Guided roll stays the override: the stat block's Guided opens the panel marked
+             guided, and the refusal card carries the Overseer's own "Guided — roll it anyway".  No gate on a Zones map, and none
+             with either token off the map (sees() answers true for a zone it does not know).
+     RANGE   the attack's band rides to the drawer as rangeBand, with the weapon's own range as weaponRange, and the roll step adds
+             Book One p.28's range step itself (RL.rangeStep); the panel says what it will do before the press.  Sent only while
+             somebody stands on the map, so a table that never placed a token declares exactly as before.
+     BLAST   the Blast's zone list names each zone as the map does (a Blocks map's code, zoneWord) and says which one the attacker
+             cannot see; a Blast at a zone out of its sight is refused like any other attack. */
+function mapNow(){ return (typeof window !== "undefined" && window.HELENA_MAP) ? window.HELENA_MAP : null; }
+function mapUsed(){ return typeof TT.zonesOf === "function" && TT.zonesOf(tokenList()).length > 0; }
+function lookFor(e, target, zone){ return typeof TT.mapLook === "function" ? TT.mapLook(mapNow(), tokenList(), e, target, zone) : null; }
+/* a Blocks map's zone code off its model ("D3"), for zoneWord — "" on a Zones map or for a zone the map does not have */
+function mapBlockCode(z){
+  var HM = mapNow(), M = null, i;
+  try{ if(!HM || typeof HM.style !== "function" || HM.style() !== "blocks" || typeof HM.map !== "function") return ""; M = HM.map(); }catch(e){ return ""; }
+  var zs = M && Array.isArray(M.zones) ? M.zones : [];
+  for(i = 0; i < zs.length; i++) if(zs[i] && +zs[i].id === +z) return String(zs[i].code || "");
+  return "";
+}
+/* R7: { look, note } when the attack is refused for want of sight, else null.  `zone` aims at a Blast's zone instead of the target */
+function sightRefusal(e, target, guided, zone){
+  if(guided || !e || (!target && (zone == null || zone === ""))) return null;
+  var lk = lookFor(e, target, zone);
+  if(!lk || typeof TT.sightGate !== "function" || !TT.sightGate(lk, false)) return null;
+  var whom = (zone != null && zone !== "") ? (lk.toCode || "that zone") : (target && target.name);
+  return { look:lk, note:TT.sightNote(lk, e.name, whom) };
+}
+/* the declaration's range fields for this attacker, weapon and target (or Blast zone) — null while nobody stands on the map */
+function rangeFor(e, x, target, zone){
+  if(!x || !x.w || typeof TT.rangeFields !== "function") return null;
+  return TT.rangeFields(lookFor(e, target, zone), x.w, mapUsed());
+}
+/* the drawer's own range step for those fields (RL.rangeStep) — null on a drawer without it, or with no fields to send */
+function rangeStepOf(e, x, target, zone, mode){
+  var f = rangeFor(e, x, target, zone), R = typeof window !== "undefined" ? window.HELENA_ROLL : null;
+  if(!f || !(R && typeof R.rangeStep === "function")) return null;
+  try{ return R.rangeStep({ band:f.rangeBand, weaponRange:f.weaponRange, weapon:x.w, mode:mode || "", target:target ? target.name : "" }); }catch(err){ return null; }
+}
+/* the +N the roll step will add for the range — the Attack panel's arithmetic line counts it */
+function rangeStepNow(e, x, target, zone, mode){
+  var rs = rangeStepOf(e, x, target, zone, mode);
+  return rs && rs.known ? Math.max(0, Math.round(+rs.step || 0)) : 0;
+}
+/* the Attack panel's map line: the sight (a Blocks map), the band and the moves, and what the roll step does with the range */
+function rangeLine(e, x, target, zone, mode, guided){
+  if(!e || !x || !mapUsed()) return "";
+  /* PRESSED (round 3 finisher, 1280x800): with nobody and no zone named there is no range to speak of yet - the panel said "the
+     range to the target is not on the map (a token is off it, or there is no map)" over a map with every token on it */
+  if(!target && (zone == null || zone === "")) return "";
+  var lk = lookFor(e, target, zone), rs = rangeStepOf(e, x, target, zone, mode), out = [];
+  var whom = (zone != null && zone !== "") ? ((lk && lk.toCode) || "that zone") : ((target && target.name) || "the target");
+  if(lk && lk.blocks && lk.mapped && lk.sees === false)
+    out.push(guided
+      ? "<b>Guided — the Overseer’s override.</b> " + esc(e.name) + " cannot see " + esc(whom) + " (a wall stands between " +
+        esc(lk.fromCode) + " and " + esc(lk.toCode) + "), and the roll goes ahead."
+      : "<b>No line of sight.</b> " + esc(TT.sightNote(lk, e.name, whom, true)));
+  if(lk && lk.mapped)
+    out.push("<b>" + esc(TT.BAND_WORDS[lk.band] || lk.band) + " range</b>" + (lk.moves != null ? " — " + lk.moves + (lk.moves === 1 ? " move" : " moves") + " away" : "") +
+             (lk.blocks ? " (" + esc(lk.fromCode) + " to " + esc(lk.toCode) + ")" : "") + ".");
+  if(rs && rs.note) out.push(esc(rs.note) + (rs.known && rs.step ? " <b>The roll adds it itself.</b>" : ""));
+  return out.length ? '<div class="diff" style="margin-top:5px">' + out.join(" ") + "</div>" : "";
+}
+/* a Blast's zone list: a zone the attacker cannot see says so */
+function zoneSightWord(e, z){
+  var lk = lookFor(e, null, z);
+  return (lk && lk.blocks && lk.mapped && lk.sees === false) ? " — out of its sight" : "";
+}
+/* the declaration's mode, as the row's Declare works it out: a stat block's parsed mode, else the sheet's own rule (Thrown is
+   "melee" in the pipeline's one word for both) — the drawer's range step reads it */
+function atkMode(e, x){
+  if(!x) return "";
+  var p = x.parsed || null;
+  if(e && e.kind !== "char" && p && p.mode) return String(p.mode);
+  var CH = typeof window !== "undefined" ? window.HELENA_CHAR : null;
+  try{ if(CH && typeof CH.attackMode === "function") return String(CH.attackMode(x.w) || ""); }catch(err){}
+  var w = x.w || {};
+  return (/\b(melee|unarmed)\b/i.test(String(w.skill || "")) || /\bThrown\b/i.test(String(w.effects || "") + " " + String(w.qualities || ""))) ? "melee" : "ranged";
+}
+/* the refusal card's override, for the Overseer: the panel marked guided and its Declare it pressed */
+var SIGHT_GO = '<div style="margin-top:6px"><button class="mini pri" data-sightgo="1">Guided — roll it anyway</button> ' +
+               '<span style="color:var(--faint)">the Overseer’s override — the dice drawer opens on this attack anyway</span></div>';
+function wireSight(){
+  var out = $("tt-out"), b = out && typeof out.querySelector === "function" ? out.querySelector("[data-sightgo]") : null;
+  if(!b) return;
+  b.onclick = function(){
+    if(!writable() || !atk) return;
+    atk.guided = true;
+    var g = $("tt-atk-go");
+    if(g && typeof g.onclick === "function") g.onclick();
+  };
+}
+/* MAPLOS:end */
+
+/* MONSTERCARD:begin — THE MONSTER TURN CARD (Howl, 2026-10-13; he chose both parts).  ON EVERY CREATURE'S TURN, the Overseer's card
+   rides under that creature's row in the order (and under its stat block, when that is open) — never between the row and its
+   Declare it: an open Attack panel is drawn straight under the row, above the card, and the card is no overlay, so it covers
+   neither Declare it nor the drawer.  It is the Overseer's (a player's device draws none), it is folded by default once it has been
+   read (folded once on this device), and it never acts by itself.
+     (1) PROMPT THE AP POOL.  The table's ruling stands: creatures have no Luck, and the Overseer's AP pool (no maximum) is the
+         monsters' resource.  The card shows that pool and one-press spends with their costs: a d20 for its next attack this turn
+         (1, 2, 3 AP — Book One p.15 — saying when the 5d20 cap is reached; the dice ride to the declaration as its pool, and the
+         drawer then sells no more at its own prices), an extra major action (2 AP; a swarm's several — the row's own boxes,
+         extraMajorFor), extra damage dice where the rules allow them (a melee or thrown hit, bought after it in the drawer, Book One
+         p.18), and every special ability on its stat block by name, with a press for any that prints an AP spend.
+     (2) BEST ATTACK AND WHY.  For each character it can see (a Blocks map: in its line of sight; otherwise everyone on the map), its
+         best attack — the chance to hit and the expected damage past that character's DR — sorted, with one plain line of why
+         (TT.cardBest).
+   Local bags, as sbOut is: the d20s bought on this device's card for a turn (mtBags, keyed by the turn), and which turn's card is
+   open (mtOpen). */
+var mtBags = Object.create(null), mtOpen = Object.create(null);
+var MT_READ_KEY = "helena-turn-card-read";
+function mtSig(e){ return String(e && e.id) + "|" + st.phase + "|" + st.round + "|" + st.idx; }
+function mtPeek(e){ return e ? (mtBags[mtSig(e)] || null) : null; }
+function mtBag(e){ var k = mtSig(e); return mtBags[k] || (mtBags[k] = { bought:0, paid:0, spent:[] }); }
+function mtRead(){ try{ return !!(window.localStorage && window.localStorage.getItem(MT_READ_KEY) === "1"); }catch(err){ return false; } }
+function mtMarkRead(){ try{ if(window.localStorage) window.localStorage.setItem(MT_READ_KEY, "1"); }catch(err){} }
+function mtBase(e){ var sw = typeof swarmOf === "function" ? swarmOf(e) : null; return Math.min(5, 2 + (sw ? sw.bonus : 0)); }
+/* the declaration's pool with this turn's card-bought d20s in it (TT.cardPool) — pf itself when none are waiting */
+function mtPoolFor(e, pf){
+  if(!e || e.kind === "char") return pf;
+  var b = mtPeek(e);
+  if(!b || !b.bought || typeof TT.cardPool !== "function") return pf;
+  return TT.cardPool(pf, b.bought, b.paid + " AP");
+}
+/* a declaration took them: the next attack buys its own (each test buys its own dice, Book One p.15) */
+function mtUsed(e){ var b = mtPeek(e); if(b && b.bought){ b.bought = 0; b.paid = 0; } }
+/* what TT.cardBest weighs: the creature's printed attacks, and every character with the sheet's Defense, DR and the cover it has */
+function mtInput(e, list, pool){
+  var toks = tokenList(), HM = mapNow(), CH = window.HELENA_CHAR, R = window.HELENA_ROLL;
+  var sw = typeof swarmOf === "function" ? swarmOf(e) : null, me = TT.zoneOfRow(toks, e);
+  var chars = (list || []).filter(function(r){ return r && r.kind === "char"; }).map(function(r){
+    var lk = TT.mapLook(HM, toks, e, r), c = charOf(r.ref), dv = TT.defenseOf(r, ctx()), tz = TT.zoneOfRow(toks, r), dr = null, cov = 0;
+    if(c && CH && typeof CH.armourDR === "function"){
+      try{ dr = { Phys:CH.armourDR(c, "Phys"), En:CH.armourDR(c, "En"), Rad:CH.armourDR(c, "Rad") }; }catch(err){ dr = null; }
+    }
+    if(tz && me && CH && typeof CH.coverFor === "function"){
+      try{ var cv = CH.coverFor(r.id, e.id); cov = cv ? Math.max(0, Math.round(+cv.cover || 0)) : 0; }catch(err){ cov = 0; }
+    }
+    return { id:r.id, name:r.name, def:dv.value, dr:dr, cover:cov, zone:tz ? tz.zone : null,
+             code:lk.mapped ? lk.toCode : (tz ? zoneWord(tz.zone, tz.label) : ""), band:lk.mapped ? lk.band : null,
+             sees:lk.sees, moves:lk.moves, marked:markStep(r) ? 1 : 0, onMap:!!tz, mapped:lk.mapped, blocks:lk.blocks };
+  });
+  var range = (R && typeof R.rangeStep === "function") ? function(a, band){
+    var f = TT.rangeFields({ mapped:true, band:band }, a.w, true);
+    try{ return R.rangeStep({ band:band, weaponRange:f ? f.weaponRange : "", weapon:a.w, mode:a.w.mode || (a.melee ? "melee" : "ranged") }); }catch(err){ return null; }
+  } : null;
+  return { attacks:weaponsFor(e).map(function(x){ return TT.cardAttack(x, sw); }), pool:pool, step:TT.usedOf(st, e.id).diff,
+           fromZone:me ? me.zone : null, chars:chars, range:range, onMap:!!me };
+}
+function mtCardHtml(e, list){
+  var rec = statOf(e.ref), ap = purseFor(e), base = mtBase(e), b = mtPeek(e) || { bought:0, paid:0, spent:[] };
+  var q = TT.cardD20(base, b.bought, ap), used = TT.usedOf(st, e.id), cap = majorCapOf(e);
+  var abs = TT.abilitiesOf(rec && rec.abilities), ws = weaponsFor(e);
+  var plan = TT.cardBest(mtInput(e, list, Math.min(5, base + b.bought)));
+  var best = plan.rows[0] || null;
+  var top = !best ? (ws.length ? "no character in its sight." : "its stat block prints no attack to weigh.")
+          : !best.reach ? "nothing it can reach from here — " + best.why
+          : (best.total != null && best.total < 0.5) ? "no good shot from here — " + best.why
+          : best.why;
+  var sig = mtSig(e), open = Object.prototype.hasOwnProperty.call(mtOpen, sig) ? !!mtOpen[sig] : !mtRead();
+  var h = '<details class="mtc" data-mtsig="' + esc(sig) + '"' + (open ? " open" : "") + ">" +
+    '<summary><span class="mt-t">Turn card — ' + esc(e.name) + '</span> <span class="mt-ap">Overseer’s AP ' + ap + "</span> " +
+    '<span class="mt-top">Best: ' + esc(top) + "</span></summary>" +
+    '<div class="mt-b">' +
+    '<div class="mt-l"><b>The Overseer’s Action Points: ' + ap + "</b> — creatures have no Luck; this pool is theirs, with no maximum.</div>";
+  /* (1) the spends */
+  h += '<div class="mt-r">' +
+    '<button class="mini" data-mtact="d20"' + (q.can ? "" : " disabled") + ">Buy a d20 for its next attack — " + q.cost + " AP</button>" +
+    (q.can ? "" : ' <span class="mt-n">' + esc(q.note) + "</span>") +
+    (b.bought ? ' <span class="mt-n"><b>Its next attack rolls ' + Math.min(5, base + b.bought) + "d20</b> — " + b.bought + " bought here (" + b.paid + " AP).</span>" +
+                ' <button class="mini" data-mtact="d20back">Put them back (+' + b.paid + " AP)</button>" : "") +
+    "</div>";
+  var majFull = used.major >= cap.max, majShort = ap < 2;
+  h += '<div class="mt-r">' +
+    '<button class="mini" data-mtact="major"' + (majFull || majShort ? " disabled" : "") + ">Extra major action — 2 AP</button> " +
+    '<span class="mt-n">' + (majFull
+      ? "It has taken all " + cap.max + " major actions this turn can hold" + (cap.swarm ? " — one per member still standing beyond the first." : " (Book One p.18).")
+      : majShort ? "The Overseer’s pool holds " + ap + " AP; an extra major action costs 2 (Book One p.18)."
+      : (cap.swarm ? (cap.max - Math.max(1, used.major)) + " more this turn — a swarm takes one for each member still standing beyond the first; " : "") +
+        "each is +1 Difficulty more on its tests this turn (Book One p.18).") + "</span></div>";
+  var hand = ws.filter(function(x){ var a = TT.cardAttack(x, null); return a.melee || a.thrown; }).map(function(x){ return x.name; });
+  h += '<div class="mt-p mt-n">' + (hand.length
+    ? "<b>+1 CD per AP, up to +3</b>, on a melee or thrown hit — " + esc(TT.andList(hand)) + " — bought in the dice drawer after the hit, never before (Book One p.18)."
+    : "Extra damage dice: none of its attacks is melee or thrown, so the rules sell it none (Book One p.18).") + "</div>";
+  /* its special abilities, every one by name */
+  if(abs.length)
+    h += '<div class="mt-s"><b>Its special abilities</b> — every one on its stat block, so none is forgotten:' +
+      abs.map(function(a, i){
+        var btn = "";
+        if(a.ap) for(var k = a.upTo ? 1 : a.ap; k <= a.ap; k++)
+          btn += ' <button class="mini" data-mtact="ab" data-mti="' + i + '" data-mtn="' + k + '"' + (ap < k ? " disabled" : "") + ">Spend " + k + " AP</button>";
+        return '<div class="mt-ab"><details><summary><b>' + esc(a.name) + "</b></summary><div class=\"mt-n\">" + esc(a.text) + "</div></details>" + btn + "</div>";
+      }).join("") + "</div>";
+  if(b.spent.length)
+    h += '<div class="mt-p mt-n">Spent on this card this turn: ' + esc(b.spent.map(function(s){ return s.name + " " + s.ap + " AP"; }).join(", ")) +
+         ' <button class="mini" data-mtact="undo">Give back the last (+' + b.spent[b.spent.length - 1].ap + " AP)</button></div>";
+  /* (2) best attack and why */
+  h += '<div class="mt-s"><b>Best attack on each character it can see</b> — the chance to hit and the damage past DR:';
+  /* PRESSED (round 3 finisher): a Blast on a block two characters share is the best attack on each of them - the same line, said once */
+  var said = [];
+  var lines = plan.rows.filter(function(r){ if(said.indexOf(r.why) >= 0) return false; said.push(r.why); return true; });
+  if(lines.length)
+    h += '<ol class="mt-o">' + lines.map(function(r){ return "<li>" + esc(r.why) + "</li>"; }).join("") + "</ol>";
+  else h += ' <span class="mt-n">' + esc(ws.length ? "No character is in its sight." : "Its stat block prints no attack with a target number, so nothing is weighed.") + "</span>";
+  if(plan.hidden.length) h += '<div class="mt-n">Out of its sight: ' + esc(plan.hidden.map(function(x){ return x.name + (x.code ? " (" + x.code + ")" : ""); }).join(", ")) + ".</div>";
+  if(plan.off.length) h += '<div class="mt-n">Not on the map, so not weighed: ' + esc(TT.andList(plan.off)) + ".</div>";
+  h += "</div>" +
+    '<div class="mt-n mt-f">Advice only: the Overseer decides, and this card never acts by itself — an attack is still declared from the row’s Attack or the stat block.</div>' +
+    "</div></details>";
+  return h;
+}
+function mtCardFor(e, list){
+  if(!e || e.kind === "char" || typeof TT.cardBest !== "function") return null;
+  var el = document.createElement("div");
+  el.className = "mtx";
+  el.setAttribute("data-mtfor", e.id);
+  el.innerHTML = mtCardHtml(e, list);
+  return el;
+}
+function mtSay(cls, hd, body){ msg = { cls:cls, hd:hd, body:body }; render(); }
+function mtD20(e){
+  if(!writable()){ mutate(function(){}); return; }
+  var b = mtBag(e), base = mtBase(e), q = TT.cardD20(base, b.bought, purseFor(e));
+  if(!q.can){ mtSay("warn", "No d20 bought — " + esc(e.name), esc(q.note)); return; }
+  var paid = spendAP(e, q.cost);
+  if(paid < q.cost){ var back = paid ? refundAP(e, paid) : 0; mtSay("warn", "Not paid", "The pool only had " + paid + " of the " + q.cost + " AP — no d20 was bought" + (back ? ", and the " + back + " AP went back." : ".")); return; }
+  b.bought++; b.paid += q.cost;
+  tick("turn", "— " + e.name + " bought a d20 for its next attack (" + q.cost + " AP)");
+  mtSay("good", "A d20 bought — " + esc(e.name), "<b>" + q.cost + " AP</b> came off the Overseer’s pool: its next attack this turn rolls <b>" +
+        Math.min(5, base + b.bought) + "d20</b> (Book One p.15). The dice ride to the drawer as its pool, so the drawer sells no more for that attack.");
+}
+function mtD20Back(e){
+  var b = mtPeek(e);
+  if(!b || !b.bought || !writable()) return;
+  var n = b.bought, back = refundAP(e, b.paid);
+  b.bought = 0; b.paid = 0;
+  mtSay("good", "Put back — " + esc(e.name), "The " + n + " d20" + (n === 1 ? "" : "s") + " bought on the card went back: <b>+" + back + " AP</b> to the Overseer’s pool.");
+}
+function mtMajor(e){
+  var r = extraMajorFor(e.id);
+  if(!r || !r.ok) mtSay("warn", "No extra major action — " + esc(e.name), esc((r && r.note) || "It was not bought."));
+}
+function mtAbility(e, i, n){
+  if(!writable()){ mutate(function(){}); return; }
+  var rec = statOf(e.ref), ab = TT.abilitiesOf(rec && rec.abilities)[i];
+  n = Math.max(0, Math.round(+n || 0));
+  if(!ab || !ab.ap || !n || n > ab.ap) return;
+  var have = purseFor(e);
+  if(have < n){ mtSay("warn", esc(ab.name) + " — not spent", "The Overseer’s pool holds " + have + " AP; " + esc(ab.name) + " asks " + n + "."); return; }
+  var paid = spendAP(e, n);
+  if(paid < n){ var back = paid ? refundAP(e, paid) : 0; mtSay("warn", "Not paid", "The pool only had " + paid + " of the " + n + " AP — nothing was spent" + (back ? ", and the " + back + " AP went back." : ".")); return; }
+  mtBag(e).spent.push({ name:ab.name, ap:n });
+  tick("turn", "— " + e.name + " spent " + n + " AP: " + ab.name);
+  mtSay("good", esc(ab.name) + " — " + esc(e.name), "<b>" + n + " AP</b> came off the Overseer’s pool. What it does is the stat block’s: " + esc(ab.text));
+}
+function mtUndo(e){
+  var b = mtPeek(e);
+  if(!b || !b.spent.length || !writable()) return;
+  var last = b.spent.pop(), back = refundAP(e, last.ap);
+  mtSay("good", "Given back — " + esc(e.name), "The " + last.ap + " AP spent on " + esc(last.name) + " went back: <b>+" + back + " AP</b> to the Overseer’s pool.");
+}
+function wireMonsterCard(){
+  var host = $("tt-list");
+  if(!host || typeof host.querySelectorAll !== "function") return;
+  Array.prototype.forEach.call(host.querySelectorAll(".mtx"), function(box){
+    var id = box.getAttribute("data-mtfor"), d = box.querySelector("details.mtc");
+    if(d) d.addEventListener("toggle", function(){
+      var sig = d.getAttribute("data-mtsig");
+      if(sig) mtOpen[sig] = !!d.open;
+      if(!d.open) mtMarkRead();
+    });
+    Array.prototype.forEach.call(box.querySelectorAll("[data-mtact]"), function(n){
+      n.onclick = function(ev){
+        if(ev && typeof ev.preventDefault === "function") ev.preventDefault();
+        var e = entryOf(combatants(), id), a = n.getAttribute("data-mtact");
+        if(!e) return;
+        if(a === "d20") mtD20(e);
+        else if(a === "d20back") mtD20Back(e);
+        else if(a === "major") mtMajor(e);
+        else if(a === "ab") mtAbility(e, Math.round(+n.getAttribute("data-mti") || 0), Math.round(+n.getAttribute("data-mtn") || 0));
+        else if(a === "undo") mtUndo(e);
+      };
+    });
+  });
+}
+/* MONSTERCARD:end */
 
 /* -------------------------------------------------------------- declare an attack */
 var atk = null;                                    // {id} — which row opened the panel
@@ -41868,6 +42532,8 @@ function zoneWord(z, stored){
   var TK = (typeof window !== "undefined") ? window.SUITE_TOKENS : null, n = null;
   if(z == null) return "";
   try{ if(TK && typeof TK.zoneName === "function") n = TK.zoneName(z); }catch(e){ n = null; }
+  /* MAP_LOS: a Blocks map's zone is its code ("D3"), read off the map's model when the token layer names it nothing */
+  if(!n && typeof mapBlockCode === "function") n = mapBlockCode(z);
   return n ? String(n) : (stored ? String(stored) : "zone " + z);
 }
 /* one target of a several-target answer, through applyResult, and the card it wrote */
@@ -42445,7 +43111,7 @@ function atkDiffLine(diff){
 }
 function openAttack(e, list, ord, pick, tgtId){
   var ws = weaponsFor(e);
-  atk = { id:e.id };
+  atk = { id:e.id, guided:typeof guidedNext !== "undefined" && !!guidedNext };   /* MAP_LOS (R7): opened by Guided, the Overseer's override */
   bzWant = null; bzOff = {};                 /* PROJECT H, FIGHT (R5): a new panel follows its target's zone, everyone ticked */
   /* WAVE 10 — `pick` and `tgtId` are the stat block's Guided button handing over what the
      Overseer already chose, so the panel opens on the same attack and the same target rather
@@ -42479,6 +43145,8 @@ function openAttack(e, list, ord, pick, tgtId){
        difficulty of any attacks made against you."  Every creature record carries a
        `def` and the suite has never read one. */
     '<div id="tt-atk-def" style="margin-top:7px"></div>' +
+    /* MAP_LOS: the map's line — the sight on a Blocks map, the band and the moves, and the roll step's range step (rangeLine) */
+    '<div id="tt-atk-rng"></div>' +
     /* Q10 — the raw string, printed where it cannot be missed, whenever the grammar
        could not read all of it.  An invisible 95% is worse than a visible one. */
     '<div id="tt-atk-raw" style="margin-top:6px"></div>' +
@@ -42651,6 +43319,15 @@ function wirePanel(){
   if(!e){ panel = null; return; }
   var ws = weaponsFor(e);
   function chosen(){ return ws[wsel ? (Math.round(+wsel.value) || 0) : 0] || null; }
+  /* MAP_LOS: the zone a Blast aims at (the panel's pick, else its target's) — the range and the sight are read to it; null for
+     any other attack, which is read to its target */
+  function panelZone(){
+    var xz = chosen();
+    if(!(xz && xz.w && typeof atkBlast === "function" && atkBlast(xz.w)) || typeof TT.blastZone !== "function") return null;
+    var bz = TT.blastZone(tokenList(), list, entryOf(list, tsel ? tsel.value : ""), typeof bzWant === "undefined" ? null : bzWant,
+                          typeof bzOff === "undefined" ? {} : bzOff);
+    return bz && bz.zone != null ? bz.zone : null;
+  }
   /* WAVE 7.  The sneak state is RECOMPUTED whenever the target or the weapon moves,
      because both decide it: the target carries `unaware`, and the weapon decides
      whether Vicious is gained or doubled up.  The checkbox is pre-set from the two
@@ -42714,9 +43391,14 @@ function wirePanel(){
            handed the Defense as targetDefense) starts there, adds the rest, has no 0-5 ceiling and no buttons to type it - so the
            card says that, and not "the pipeline clamps at 5" or "press another number", which are the older drawer's */
         var sums = typeof window !== "undefined" && !!(window.HELENA_ROLL && typeof window.HELENA_ROLL.rollDifficulty === "function");
+        /* MAP_LOS (Howl 2026-10-13: THE RANGE STEP AUTOMATED): the roll step adds Book One p.28's range step itself — counted here
+           too, so the number this card says the roll starts at is the number it starts at */
+        var rg2 = (sums && typeof rangeStepNow === "function") ? (+rangeStepNow(e, x, tgt, panelZone(), atkMode(e, x)) || 0) : 0;
+        want += rg2;
         var land = Math.max(0, sums ? want : Math.min(5, want));
         var moves = [];
         if(load2) moves.push("+" + load2 + " for the load");
+        if(rg2) moves.push("+" + rg2 + " for the range (Book One p.28)");
         if(sneakOn2) moves.push("−1 for the sneak attack");
         if(mk2) moves.push("−1 because the target is Marked (Guide p.liii)");
         d.innerHTML = '<span class="def"><b>Difficulty starts at ' + dv.value + "</b></span> " +
@@ -42731,6 +43413,9 @@ function wirePanel(){
                 : " <b>The Overseer can still press another number.</b>");
       }
     }
+    /* MAP_LOS: the map's line under it — the sight, the band, the moves and the range step (rangeLine) */
+    var rgl = $("tt-atk-rng");
+    if(rgl) rgl.innerHTML = typeof rangeLine === "function" ? (rangeLine(e, x, tgt, panelZone(), atkMode(e, x), !!(atk && atk.guided)) || "") : "";
 
     /* Q9 — the damage-type choice, only where there is one */
     var types = (x && x.w && x.w.types) || [];
@@ -42770,7 +43455,8 @@ function wirePanel(){
     var bz = TT.blastZone(tokenList(), list, tgt, typeof bzWant === "undefined" ? null : bzWant, bzOff);
     if(!bz.mapped){ el.innerHTML = ""; return ""; }
     var zopts = '<option value=""' + (bz.zone == null ? " selected" : "") + ">— the named target alone —</option>" +
-      bz.zones.map(function(q){ return '<option value="' + q.zone + '"' + (q.zone === bz.zone ? " selected" : "") + ">" + esc(zoneWord(q.zone, q.label)) + "</option>"; }).join("");
+      bz.zones.map(function(q){ return '<option value="' + q.zone + '"' + (q.zone === bz.zone ? " selected" : "") + ">" + esc(zoneWord(q.zone, q.label)) +
+                                       (typeof zoneSightWord === "function" ? (zoneSightWord(e, q.zone) || "") : "") + "</option>"; }).join("");   /* MAP_LOS */
     el.innerHTML = (bz.zone == null
       ? '<div class="diff" style="margin-top:5px">' + esc(bz.why) + "</div>"
       : '<div class="diff" id="tt-atk-bzrule" style="margin-top:5px">' +
@@ -42825,6 +43511,7 @@ function wirePanel(){
   if(sbox) sbox.onchange = function(){ sneakTouched = true; paintSneak(); paintWave8(); };
   refresh();
   $("tt-atk-x").onclick = function(){ panel = null; render(); };
+  if(typeof wireSight === "function") wireSight();      /* MAP_LOS (R7): the refusal card's Guided override */
   /* PROJECT H, FIGHT (R5): a new target is a new zone to follow, everyone in it ticked (paintBlast) */
   if(tsel) tsel.onchange = function(){ bzWant = null; bzOff = {}; refresh(); };
   go.onclick = function(){
@@ -42849,6 +43536,22 @@ function wirePanel(){
       msg = { cls:"warn", hd:"Not declared — " + esc(e.name), body:esc(refuse) + " Nothing was declared and nothing was spent." };
       render();
       return { r:{ ok:false, refused:true, why:(target ? "blast" : "target"), note:refuse }, spec:{ id:null, ammoSpent:0, difficulty:null, defenseWhy:"" }, spent:0, target:target };
+    }
+    /* MAP_LOS (R7, Book One p.27 and p.38): NO LINE OF SIGHT, NO ATTACK — refused by name here, before a round, a unit or an AP is
+       spent and before anything locks: on a Blocks map, with both tokens on it, a target (or a Blast's zone) the attacker cannot see.
+       A panel Guided opened is the Overseer's override, and the refusal carries the Overseer's own press for it (SIGHT_GO).  No gate
+       on a Zones map, or with either token off the map (sightRefusal / TT.sightGate). */
+    var sightNo = typeof sightRefusal === "function" ? sightRefusal(e, target, !!(atk && atk.guided), panelZone()) : null;
+    if(sightNo){
+      msg = { cls:"warn", hd:"Not declared — " + esc(e.name), body:esc(sightNo.note) + (writable() && typeof SIGHT_GO === "string" ? SIGHT_GO : "") };
+      render();
+      /* PRESSED (headless Edge, 1280x800): the card lands in the read-out under the list, out of the order's view — so its
+         override (or, on a player's device, the card itself) is brought into the order's cell, as F1 brings Declare it */
+      try{
+        var so = $("tt-out"), sgo = so && typeof so.querySelector === "function" ? (so.querySelector("[data-sightgo]") || so.querySelector(".card")) : null;
+        if(sgo && typeof ctlReveal === "function") ctlReveal(sgo);
+      }catch(err){}
+      return { r:{ ok:false, refused:true, why:"sight", note:sightNo.note }, spec:{ id:null, ammoSpent:0, difficulty:null, defenseWhy:"" }, spent:0, target:target };
     }
     /* the declaration's id, named BEFORE the rounds come off — the rounds door stamps it (WAVE 16, A1) */
     var did = declId(e, target, x), stampId = did.split(":")[0];
@@ -42955,8 +43658,13 @@ function wirePanel(){
        starts from the declaration's pool (TT.poolFields; an older drawer still gets the bonus as free dice) */
     var pf = typeof TT.poolFields === "function" ? TT.poolFields(swx, typeof drawerTakesPool === "function" && drawerTakesPool())
                                                  : { pool:null, poolWhy:"", freeDice:swx.freeDice, freeWhy:swx.freeWhy };
+    /* MAP_LOS: the attack's band off the map and the weapon's own range, for the roll step's range step (rangeFor); and THE TURN
+       CARD's d20s, bought for this creature's next attack, in its pool (mtPoolFor) */
+    var rgf = typeof rangeFor === "function" ? rangeFor(e, x, target, panelZone()) : null;
+    var mtp = typeof mtPoolFor === "function" ? (mtPoolFor(e, pf) || pf) : pf;
     var spec = TT.attackSpec(e, swx.w, target, {
       id:did,
+      rangeBand:rgf ? rgf.rangeBand : undefined, weaponRange:rgf ? rgf.weaponRange : undefined, noBuy:mtp !== pf ? mtp.noBuy : "",
       freeDice:pf.freeDice, freeWhy:pf.freeWhy, pool:pf.pool, poolWhy:pf.poolWhy,
       mode:(e.kind === "char" || !p || !p.mode) ? plan.mode : p.mode,
       ammoSpent:spent, difficultyStep:used.diff, majorIndex:1 + used.diff,
@@ -42995,6 +43703,11 @@ function wirePanel(){
       round:st.phase === "opening" ? "opening" : st.round,
       note:plan.note
     });
+    /* THE TURN CARD's bought d20s ride in the pool the drawer's buy step starts from (attackSpec's own clamps) */
+    if(mtp !== pf){
+      spec.pool = mtp.pool == null || !isFinite(+mtp.pool) ? null : Math.max(2, Math.min(5, Math.round(+mtp.pool)));
+      spec.poolWhy = String(mtp.poolWhy || ""); spec.freeDice = Math.max(0, Math.round(+mtp.freeDice || 0)); spec.freeWhy = String(mtp.freeWhy || "");
+    }
     /* WAVE 16, A1: the sheet that declared through declareFor hears what the drawer answered (and, through declSent,
        what the Overseer decided) on its own read-out — after the order has applied it, with the card it wrote */
     spec.onResult = function(rep){ applyResult(rep); };
@@ -43048,6 +43761,8 @@ function wirePanel(){
       unitBack = ub && ub.ok ? Math.max(0, Math.round(+ub.back || 0)) : 0;
       if(unitBack){ unitOff = false; unitLine = ""; }
     }
+    /* THE TURN CARD: the d20s it bought went with this declaration (a refused one keeps them for the next) */
+    if(!r.refused && mtp !== pf && typeof mtUsed === "function") mtUsed(e);
     panel = null;
     if(r.ok)
       msg = { cls:(dropNote ? "warn" : "good"), hd:(dropNote ? "Declared — and one was dropped" : "Declared"),
@@ -43306,7 +44021,11 @@ if(SY && typeof SY.onOwners === "function") SY.onOwners(function(){ bleedPassSoo
                                    Apply or Reject on a hit this device sent (the "turn" line encReqApply emits)
         refused "blast"            a Blast is rolled on its holder's sheet in a fight (Zoe's builder ruling; BLAST_ROW)
         refused "rounds"           the sheet's rounds door refused the spend (another device's sheet, the row moved)
-        and the rounds go through HELENA_CHAR.spendRounds / returnRounds, stamped with the declaration's id. */
+        and the rounds go through HELENA_CHAR.spendRounds / returnRounds, stamped with the declaration's id.
+     MAP_LOS (Howl 2026-10-13, R7) added:
+        refused "sight"            on a Blocks map, with both tokens on it, the target is out of the attacker's line of sight —
+                                   refused by name before anything is spent (note: who cannot see whom, between which blocks,
+                                   Book One p.27); the Overseer's Guided roll is the override.  Never on a Zones map or off it. */
 function heldHere(ref){
   var c = charOf(ref), name = (c && c.name) || "That character";
   if(!c) return { ok:false, why:"There is no sheet for that character on this device." };
@@ -45367,6 +46086,7 @@ function coverStr(z){
   return ['N','E','S','W'].map(f=>f+':'+COVER[z.cover[f]].key).join(' ');
 }
 function writeNotes(M){
+  if(M&&M.kind==='blocks') return writeNotesBlocks(M);
   const Z=M.zones;
   /* zones */
   let h=`<h3>Zone Roster</h3><table><tr><th>#</th><th>Zone</th><th>Cover N/E/S/W</th><th>Cap</th><th>Notes</th></tr>`;
@@ -45459,6 +46179,625 @@ function writeNotes(M){
 }
 
 /* ============================================================================
+   BLOCKS: THE SECOND MAP STYLE (2026-10-14, MAP_LOS_BRIEF.md and the answers to its two questions, 2026-10-13)
+   A Blocks map is W x H square blocks over the same 1080 x 720 map area: Skirmish 6 x 4 (blocks of 180 units),
+   Standard 9 x 6 (120), Battlefield 12 x 8 (90).  Each block is one character of a string read row by row:
+     '.' open, a zone      '#' wall, stops sight and feet      '1' '2' '3' Light / Medium / Heavy cover, stops feet, not sight
+   Only open blocks are zones.  A zone's id is 1000 + 100*row + column (D3 is 1203): it never moves when the GM paints
+   elsewhere, and it can never match a Zones map's id (0..~30).  The model is built from the STORED string, so a saved
+   Blocks map never moves when this generator changes.  genBlocks has its own random stream: buildMap's RNG, and so every
+   saved Zones map, is never touched (tests/fixtures/organic-maps.json holds them byte for byte).
+   The law is Book One's (the Guide has no zone, range, movement or sight procedure of its own): p.25 Move is one zone,
+   p.26 Sprint two; p.27 a ranged attack's target must be visible; p.28 Close is the same zone, Medium the adjacent one,
+   Long two away, Extreme three or more, the table's last band; p.38 a character can only be attacked by something that can
+   see them, and an obstacle costs 1-3 AP to cross by its height.  The rulings that make that literal on a grid:
+     R1 walls stop sight and feet; cover blocks stop feet, not sight.
+     R2 range is blocks counted straight, the bigger of across and down: 0 Close, 1 Medium (diagonals too), 2 Long,
+        3 or more Extreme - the last band, so a Blocks map prints no "past Extreme" (R6).
+     R3 sight is the straight line between block centres; any wall it passes through blocks it; a line exactly through a
+        corner is blocked only when both corner blocks are walls; A sees B exactly when B sees A.
+     R4 moves are blocks walked over open blocks, diagonals allowed except between two blocked corners: Move 1, Sprint 2.
+        Climbing a cover block is the Overseer's obstacle call; the count goes around.  The count is advice.
+     R5 cover is the block beside the target on the side the shot comes from: Light 1, Medium 2, Heavy 3, a wall 3; the
+        map edge and an open block give none.  The faces are stamped exactly as a Zones map's are, so the token layer's
+        reader (zoneBands, coverFacing, zoneCoverInfo) and the damage it feeds work unchanged.
+   ========================================================================== */
+const BLOCK_DIMS={s:{w:6,h:4},m:{w:9,h:6},l:{w:12,h:8}};
+/* roughly what share of the grid is wall and cover, by the environment's kind, before density */
+const BLOCK_FILL={interior:{wall:0.30,cover:0.08},street:{wall:0.26,cover:0.12},mixed:{wall:0.18,cover:0.14},outdoor:{wall:0.10,cover:0.18}};
+const BK_NAME={'.':'open','#':'wall','1':'Light cover','2':'Medium cover','3':'Heavy cover'};
+const BK_HEAD=60, BK_STRIP=112;
+const BK_FLOOR=['#7d8f5a','#5f7f8f'];
+const BK_BAND_COL=['#8fd7ee','#7ac74f','#f0b429','#e05c4b'];
+function blockDims(size){ const k=BLOCK_DIMS[size]?size:'m'; return {key:k,w:BLOCK_DIMS[k].w,h:BLOCK_DIMS[k].h}; }
+function blockCode(x,y){ return String.fromCharCode(65+x)+(y+1); }
+function blockId(x,y){ return 1000+100*y+x; }
+function blockFace(c){ return c==='#'?3:(c==='1'?1:c==='2'?2:c==='3'?3:0); }
+function blockDist(A,B){ return Math.max(Math.abs(B.gx-A.gx),Math.abs(B.gy-A.gy)); }
+function blockBand(A,B){ return Math.min(3,blockDist(A,B)); }
+
+/* blocks walked from (sx,sy) over open blocks, 8 directions, never squeezing between two blocked corners: -1 = unreached */
+function blockWalk(tiles,w,h,sx,sy){
+  const d=new Int16Array(w*h).fill(-1);
+  const open=(x,y)=>x>=0&&y>=0&&x<w&&y<h&&tiles[y*w+x]==='.';
+  if(!open(sx,sy)) return d;
+  const q=[sy*w+sx]; d[q[0]]=0;
+  for(let head=0;head<q.length;head++){
+    const c=q[head], x=c%w, y=(c/w)|0;
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      if(!dx&&!dy)continue;
+      const nx=x+dx, ny=y+dy;
+      if(!open(nx,ny))continue;
+      if(dx&&dy&&!open(x+dx,y)&&!open(x,y+dy))continue;
+      const ni=ny*w+nx; if(d[ni]>=0)continue;
+      d[ni]=d[c]+1; q.push(ni);
+    }
+  }
+  return d;
+}
+
+/* the starting blocks for a seed.  Walls (1x1 to 2x2) never stand in the first or the last column, which are the two
+   deployment edges; neither does cover, so both edges are open from end to end.  Then every open block is made one
+   walkable group: the first blocked tile, in scan order, that touches both the reached group and a stranded open block
+   is opened, and again until none is stranded (behind a thick wall, the reached group's blocked neighbour nearest the
+   stranded blocks is opened instead). */
+function genBlocks(envKey,size,dens,seed){
+  const env=ENVS[envKey]||ENVS.vault, D=blockDims(size), w=D.w, h=D.h, N=w*h;
+  const R=mulberry32(hashStr(String(seed)+'|'+envKey+'|blocks'));
+  const rI=(a,b)=>a+Math.floor(R()*(b-a+1));
+  const t=new Array(N).fill('.');
+  const F=BLOCK_FILL[env.kind]||BLOCK_FILL.mixed, k=(+dens>0?+dens:1);
+  const wantWall=Math.round(F.wall*N*k), wantCover=Math.round(F.cover*N*k);
+  let walls=0, cover=0;
+  for(let guard=0;walls<wantWall&&guard<500;guard++){
+    const rw=rI(1,2), rh=rI(1,2), x0=rI(1,w-1-rw), y0=rI(0,h-rh);
+    for(let y=y0;y<y0+rh;y++)for(let x=x0;x<x0+rw;x++){ const i=y*w+x; if(t[i]!=='#'){ t[i]='#'; walls++; } }
+  }
+  for(let guard=0;cover<wantCover&&guard<500;guard++){
+    const i=rI(0,h-1)*w+rI(1,w-2);
+    if(t[i]!=='.')continue;
+    t[i]=String(MAT_COVER[env.mats[rI(0,env.mats.length-1)]]||1); cover++;
+  }
+  const open=i=>t[i]==='.';
+  const n4=i=>{ const x=i%w, y=(i/w)|0, o=[]; if(x>0)o.push(i-1); if(x<w-1)o.push(i+1); if(y>0)o.push(i-w); if(y<h-1)o.push(i+w); return o; };
+  for(let guard=0;guard<N;guard++){
+    let s=-1; for(let i=0;i<N;i++) if(open(i)){ s=i; break; }
+    if(s<0)break;
+    const d=blockWalk(t,w,h,s%w,(s/w)|0), lost=[];
+    for(let i=0;i<N;i++) if(open(i)&&d[i]<0) lost.push(i);
+    if(!lost.length)break;
+    let pick=-1;
+    for(let i=0;i<N&&pick<0;i++){
+      if(open(i))continue;
+      const nb=n4(i);
+      if(nb.some(j=>d[j]>=0)&&nb.some(j=>open(j)&&d[j]<0)) pick=i;
+    }
+    if(pick<0){
+      let best=Infinity;
+      for(let i=0;i<N;i++){
+        if(open(i)||!n4(i).some(j=>d[j]>=0))continue;
+        const x=i%w, y=(i/w)|0;
+        let near=Infinity; for(const j of lost){ const v=Math.max(Math.abs(j%w-x),Math.abs(((j/w)|0)-y)); if(v<near)near=v; }
+        if(near<best){ best=near; pick=i; }
+      }
+    }
+    if(pick<0)break;
+    t[pick]='.';
+  }
+  return t.join('');
+}
+
+/* a stored Blocks slice, checked before anything is built from it: one of the three grids, the size it names (when it
+   names one) agreeing, exactly w*h blocks, nothing but . # 1 2 3, an environment this generator knows.  null otherwise,
+   and the caller keeps the map it has. */
+function parseBlocks(d){
+  if(!d||typeof d!=='object'||!d.seed||!Object.prototype.hasOwnProperty.call(ENVS,String(d.env))) return null;
+  const w=+d.w, h=+d.h;
+  let key=null;
+  for(const k of Object.keys(BLOCK_DIMS)) if(BLOCK_DIMS[k].w===w&&BLOCK_DIMS[k].h===h) key=k;
+  if(!key||(d.size!=null&&String(d.size)!==key)) return null;
+  if(typeof d.tiles!=='string'||d.tiles.length!==w*h||!/^[.#123]*$/.test(d.tiles)) return null;
+  const dens=+d.dens;
+  return {env:String(d.env), seed:String(d.seed), size:key, dens:(isFinite(dens)&&dens>0)?dens:1, w, h, tiles:d.tiles};
+}
+
+/* the model a Blocks map is: its zones carry id, code, name ('' - every reader shows the code), the grid position, the
+   centre (cx, cy: the token layer's bearing) and cover {N,E,S,W}, exactly the fields the token layer reads */
+function blockModel(envKey,seed,size,dens,w,h,tiles){
+  const env=ENVS[envKey]||ENVS.vault, B=MAP_W/w, T=String(tiles);
+  const at=(x,y)=>(x<0||y<0||x>=w||y>=h)?'.':T[y*w+x];
+  const zones=[], byId={};
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    if(T[y*w+x]!=='.')continue;
+    const z={id:blockId(x,y), code:blockCode(x,y), name:'', gx:x, gy:y, x0:x*B, y0:y*B, cx:(x+0.5)*B, cy:(y+0.5)*B,
+             cover:{N:blockFace(at(x,y-1)),E:blockFace(at(x+1,y)),S:blockFace(at(x,y+1)),W:blockFace(at(x-1,y))}};
+    zones.push(z); byId[z.id]=z;
+  }
+  return {kind:'blocks', env, envKey, seed:String(seed), sizeKey:size, dens:+dens, w, h, B, tiles:T, zones, n:zones.length, byId,
+          deployA:zones.filter(z=>z.gx===0).map(z=>z.id), deployB:zones.filter(z=>z.gx===w-1).map(z=>z.id), walks:{}};
+}
+
+/* THE SIGHT WALK, integers only (the contract the turn order and the tests rely on).  Every block the straight line
+   between the two centres passes through, in order; the first wall found is the one named. */
+function blockSight(M,A,B){
+  const w=M.w, T=M.tiles, wall=(x,y)=>T[y*w+x]==='#';
+  const bx=B.gx, by=B.gy, dx=bx-A.gx, dy=by-A.gy, nx=Math.abs(dx), ny=Math.abs(dy), sx=Math.sign(dx), sy=Math.sign(dy);
+  let x=A.gx, y=A.gy, ix=0, iy=0;
+  while(ix<nx||iy<ny){
+    const d=(1+2*ix)*ny-(1+2*iy)*nx;
+    if(d===0){
+      if(wall(x+sx,y)&&wall(x,y+sy)) return {clear:false, blockedAt:blockCode(x+sx,y)};
+      x+=sx; y+=sy; ix++; iy++;
+    } else if(d<0){ x+=sx; ix++; }
+    else { y+=sy; iy++; }
+    if(!(x===bx&&y===by)&&wall(x,y)) return {clear:false, blockedAt:blockCode(x,y)};
+  }
+  return {clear:true, blockedAt:null};
+}
+/* moves from a zone to every zone ({id: blocks walked}, null = no way through), worked once per zone per model */
+function blockMoves(M,A){
+  if(M.walks[A.id]) return M.walks[A.id];
+  const d=blockWalk(M.tiles,M.w,M.h,A.gx,A.gy), out={};
+  for(const z of M.zones){ const v=d[z.gy*M.w+z.gx]; out[z.id]=v>=0?v:null; }
+  return (M.walks[A.id]=out);
+}
+/* everything one pair of blocks says: the map's sight(a, b) */
+function blockView(M,A,B){
+  const s=blockSight(M,A,B), dist=blockDist(A,B), b=Math.min(3,dist), mv=blockMoves(M,A)[B.id];
+  return {clear:s.clear, dist, band:BANDK[b], bandName:BAND[b], moves:mv==null?null:mv, blockedAt:s.blockedAt, from:A.code, to:B.code};
+}
+function movesWord(m){ return m==null?'no way through':m+(m===1?' move':' moves'); }
+
+/* ---- what this page knows of the Table.  The standalone page has no tokens and no room, so these answer "none" and
+   "yes"; the suite rebinds them by name (build-suite.js, the map's epilogue). ---- */
+function blockOccupants(id){ return []; }       /* the names standing in a block */
+function paintGate(){ return ''; }            /* '' when this device may paint the map, else why it may not */
+function strokeDone(){}                         /* after every stroke and every Undo: the suite saves the map once here */
+
+/* ---- the page's own state for a Blocks map ---- */
+let STYLE='blocks', BRUSH='off', PREV=null, STROKE=null;
+const BRUSH_ID={'off':'bk_b_off','#':'bk_b_wall','1':'bk_b_l','2':'bk_b_m','3':'bk_b_h','.':'bk_b_open'};
+const BRUSH_WORD={'#':'Wall','1':'Light cover','2':'Medium cover','3':'Heavy cover','.':'Open'};
+const TIP_ZONES='Click any zone to display its range bands (C / M / L / X).';
+const TIP_BLOCKS='Click a block to see what it can see: its range (C / M / L / X) and moves on every other block, and # where a wall hides one.';
+const SIZE_TXT={zones:{s:'Skirmish · 6-8 zones',m:'Standard · 9-12 zones',l:'Battlefield · 13-17 zones'},
+                blocks:{s:'Skirmish · 6 × 4 blocks',m:'Standard · 9 × 6 blocks',l:'Battlefield · 12 × 8 blocks'}};
+function bkEl(id){ return document.getElementById(id); }
+/* the Style select is the truth when it is on the page; STYLE keeps it for a page without one */
+function styleOf(){ const el=bkEl('style'); if(el&&(el.value==='zones'||el.value==='blocks')) STYLE=el.value; return STYLE; }
+function setStyle(s){ STYLE=s==='zones'?'zones':'blocks'; const el=bkEl('style'); if(el) el.value=STYLE; sizeLabels(); }
+function sizeLabels(){
+  const el=bkEl('size'); if(!el||!el.options) return;
+  for(const o of Array.from(el.options)){ const t=SIZE_TXT[STYLE][o.value]; if(t) o.textContent=t; }
+}
+function blockHint(s){ const el=bkEl('bk_hint'); if(el) el.textContent=s||''; }
+function brushOn(){ return BRUSH!=='off'&&!!(MAP&&MAP.kind==='blocks'); }
+function setBrush(b){
+  BRUSH=Object.prototype.hasOwnProperty.call(BRUSH_WORD,b)?b:'off';
+  const r=bkEl(BRUSH_ID[BRUSH]); if(r) r.checked=true;
+  const svg=document.querySelector('#stage svg.zm-blocks');
+  if(svg&&svg.classList) svg.classList.toggle('bk-painting',BRUSH!=='off');
+}
+function chooseBrush(b){
+  if(b!=='off'){ const why=paintGate(); if(why){ setBrush('off'); blockHint(why); return false; } }
+  setBrush(b);
+  blockHint(BRUSH==='off' ? 'Paint is off: a click on a block shows what it can see, and tokens move again.'
+    : BRUSH_WORD[BRUSH]+' brush: press and drag across blocks to paint them; each stroke is saved once. Tokens stay put until Paint is Off.');
+  return true;
+}
+/* the map as one record: what Undo puts back */
+function mapRecord(M,why){
+  if(!M) return null;
+  const r={why, style:M.kind==='blocks'?'blocks':'zones', seed:M.seed, env:M.envKey, size:M.sizeKey, dens:M.dens};
+  if(r.style==='blocks'){ r.w=M.w; r.h=M.h; r.tiles=M.tiles; }
+  return r;
+}
+function syncUndo(){ const u=bkEl('bk_undo'); if(u) u.disabled=!PREV; }
+function keepUndo(){ PREV=mapRecord(MAP,'generate'); syncUndo(); }
+function forgetUndo(){ PREV=null; syncUndo(); }
+function setVal(id,v){ const el=bkEl(id); if(el&&v!=null) el.value=String(v); }
+function restoreRecord(rec){
+  const was=MAP?MAP.kind||'zones':null;
+  setVal('env',rec.env); setVal('size',rec.size); setVal('dens',rec.dens); setVal('seed',rec.seed);
+  if(rec.style==='blocks') MAP=blockModel(rec.env,rec.seed,rec.size,rec.dens,rec.w,rec.h,rec.tiles);
+  else MAP=buildMap(rec.env,rec.size,+rec.dens,rec.seed);
+  SELECTED=-1;
+  blocksUi(was);
+  paint();
+  writeNotes(MAP);
+}
+/* Undo: this device's last stroke or last Generate, one step, saved once like a stroke */
+function undoMap(){
+  if(!PREV){ blockHint('Nothing to undo on this device.'); return false; }
+  const rec=PREV; PREV=null;
+  restoreRecord(rec);
+  blockHint('Undone: the map is back as it was before your last '+(rec.why==='stroke'?'stroke':'Generate')+'.');
+  strokeDone();
+  return true;
+}
+/* a Blocks map the room holds, built from its STORED blocks (never from the seed) */
+function showBlocks(p){
+  const was=MAP?MAP.kind||'zones':null, keep=(MAP&&MAP.kind==='blocks'&&MAP.seed===p.seed)?SELECTED:-1;
+  MAP=blockModel(p.env,p.seed,p.size,p.dens,p.w,p.h,p.tiles);
+  SELECTED=(keep>=0&&MAP.byId[keep])?keep:-1;
+  blocksUi(was);
+  paint();
+  writeNotes(MAP);
+}
+/* the controls that belong to a Blocks map: shown with one, put away (and the brush put down) with a Zones map */
+function blocksUi(was){
+  const on=!!(MAP&&MAP.kind==='blocks');
+  const bar=bkEl('bk_bar'); if(bar) bar.hidden=!on;
+  const lg=bkEl('bk_legend'); if(lg&&!on){ lg.hidden=true; lg.innerHTML=''; }
+  const tip=bkEl('bk_tip'); if(tip) tip.textContent=on?TIP_BLOCKS:TIP_ZONES;
+  if(!on&&BRUSH!=='off') setBrush('off');
+  setStyle(on?'blocks':'zones');
+  syncUndo(); syncBar();
+  if(was!==null) blockHint('');                 /* a new map: the last map's paint words are not about this one */
+}
+/* the paint bar: greyed out, with the map's own note, where this device may not paint; the keyboard list of blocks */
+function syncBar(){
+  const bar=bkEl('bk_bar'); if(!bar) return;
+  const why=MAP&&MAP.kind==='blocks'?paintGate():'';
+  if(bar.classList) bar.classList.toggle('bk-shut',!!why);
+  ['bk_b_wall','bk_b_l','bk_b_m','bk_b_h','bk_b_open','bk_go','bk_block','bk_kbrush'].forEach(id=>{ const el=bkEl(id); if(el) el.disabled=!!why; });
+  const lab=bkEl('bk_lab'); if(lab) lab.textContent=why?'Paint · '+why:'Paint';
+  if(why&&BRUSH!=='off') setBrush('off');
+  const sel=bkEl('bk_block');
+  if(sel&&MAP&&MAP.kind==='blocks'){
+    const keep=sel.value, o=[];
+    for(let i=0;i<MAP.w*MAP.h;i++) o.push('<option value="'+i+'">'+blockCode(i%MAP.w,(i/MAP.w)|0)+' — '+BK_NAME[MAP.tiles[i]]+'</option>');
+    sel.innerHTML=o.join('');
+    if(keep!=='' && keep!=null && +keep<MAP.w*MAP.h) sel.value=keep;
+  }
+}
+function wireBlocksUi(){
+  const st=bkEl('style');
+  if(st&&st.addEventListener) st.addEventListener('change',()=>{ STYLE=st.value==='zones'?'zones':'blocks'; sizeLabels(); });
+  sizeLabels();
+  Object.keys(BRUSH_ID).forEach(b=>{ const r=bkEl(BRUSH_ID[b]); if(r&&r.addEventListener) r.addEventListener('change',()=>{ if(r.checked) chooseBrush(b); }); });
+  const u=bkEl('bk_undo'); if(u) u.onclick=()=>undoMap();
+  const go=bkEl('bk_go'); if(go) go.onclick=()=>keyPaint();
+}
+/* the keyboard's twin of a stroke: Block [D3] as [Wall] [Paint] - one block, one save */
+function keyPaint(){
+  if(!MAP||MAP.kind!=='blocks') return null;
+  const sel=bkEl('bk_block'), br=bkEl('bk_kbrush');
+  const i=sel?+sel.value:NaN, ch=br&&BRUSH_WORD[br.value]?br.value:'#';
+  if(!(i>=0&&i<MAP.w*MAP.h)) return null;
+  return applyStroke([i],ch);
+}
+/* ONE STROKE: every block the press crossed, painted at once and saved once.  A wall or cover block over a block someone
+   stands in is refused by name and that block stays open; the rest of the stroke lands. */
+function applyStroke(list,ch){
+  if(!MAP||MAP.kind!=='blocks'||!BRUSH_WORD[ch]) return {ok:false, changed:[], refused:[]};
+  const why=paintGate();
+  if(why){ blockHint(why); setBrush('off'); paint(); return {ok:false, changed:[], refused:[], why}; }
+  const t=MAP.tiles.split(''), w=MAP.w, changed=[], refused=[];
+  for(const i of list){
+    if(!(i>=0&&i<t.length)||t[i]===ch)continue;
+    const code=blockCode(i%w,(i/w)|0);
+    if(ch!=='.'&&t[i]==='.'){
+      const who=blockOccupants(blockId(i%w,(i/w)|0))||[];
+      if(who.length){ refused.push({code, who:who.slice()}); continue; }
+    }
+    t[i]=ch; changed.push(code);
+  }
+  const say=[];
+  if(changed.length) say.push('Painted '+changed.join(', ')+(ch==='.'?' open.':' as '+BRUSH_WORD[ch].toLowerCase()+'.'));
+  refused.forEach(r=>{
+    const many=r.who.length>1, names=many?r.who.slice(0,-1).join(', ')+' and '+r.who[r.who.length-1]:r.who[0];
+    say.push(names+(many?' stand in ':' stands in ')+r.code+' — move the token'+(many?'s':'')+' first.');
+  });
+  if(!changed.length&&!refused.length) say.push('Nothing to paint: '+(list.length>1?'those blocks are':'that block is')+' '+(ch==='.'?'open':BRUSH_WORD[ch].toLowerCase())+' already.');
+  if(!changed.length){ blockHint(say.join(' ')); paint(); return {ok:false, changed, refused}; }
+  PREV=mapRecord(MAP,'stroke');
+  const sel=SELECTED;
+  MAP=blockModel(MAP.envKey,MAP.seed,MAP.sizeKey,MAP.dens,MAP.w,MAP.h,t.join(''));
+  SELECTED=MAP.byId[sel]?sel:-1;
+  syncUndo(); syncBar();
+  paint();
+  writeNotes(MAP);
+  blockHint(say.join(' '));
+  strokeDone();
+  return {ok:true, changed, refused};
+}
+/* the block under a pointer, in the grid's own space: the grid group's getScreenCTM().inverse() and nothing else
+   (getCTM already carries the viewBox scale in Edge - the token layer's lesson) */
+function blockAtPoint(svg,cx,cy){
+  const g=svg&&svg.querySelector?svg.querySelector('#bk_grid'):null;
+  if(!g||!g.getScreenCTM||!MAP||MAP.kind!=='blocks') return -1;
+  const m=g.getScreenCTM(); if(!m) return -1;
+  let p; try{ p=new DOMPoint(cx,cy).matrixTransform(m.inverse()); }catch(e){ return -1; }
+  const x=Math.floor(p.x/MAP.B), y=Math.floor(p.y/MAP.B);
+  return (x>=0&&y>=0&&x<MAP.w&&y<MAP.h)?y*MAP.w+x:-1;
+}
+function strokeMark(i){
+  if(!STROKE||!STROKE.svg) return;
+  const g=STROKE.svg.querySelector('#bk_grid'); if(!g) return;
+  const B=MAP.B, x=i%MAP.w, y=(i/MAP.w)|0, r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  const at={x:x*B+4,y:y*B+4,width:B-8,height:B-8,fill:'#f0b429','fill-opacity':'.18',stroke:'#f0b429','stroke-width':6,'stroke-dasharray':'10 6','pointer-events':'none','data-stroke':blockCode(x,y)};
+  for(const k in at) r.setAttribute(k,String(at[k]));
+  g.appendChild(r);
+}
+function strokeAdd(i){ if(!STROKE||i<0||STROKE.seen[i]) return; STROKE.seen[i]=1; STROKE.list.push(i); strokeMark(i); }
+function strokeDown(e,svg){
+  if(!brushOn()||(e.button!=null&&e.button!==0)) return;
+  const why=paintGate(); if(why){ setBrush('off'); blockHint(why); syncBar(); return; }
+  e.preventDefault(); e.stopPropagation();          /* the press is the brush's: no token drag starts under it, no page pan */
+  try{ svg.setPointerCapture(e.pointerId); }catch(x){}
+  STROKE={seen:{}, list:[], svg};
+  strokeAdd(blockAtPoint(svg,e.clientX,e.clientY));
+}
+function strokeMove(e,svg){ if(!STROKE) return; e.preventDefault(); strokeAdd(blockAtPoint(svg,e.clientX,e.clientY)); }
+function strokeUp(e,svg){
+  if(!STROKE) return;
+  if(e.type==='pointerup') strokeAdd(blockAtPoint(svg,e.clientX,e.clientY));
+  const s=STROKE; STROKE=null;
+  try{ svg.releasePointerCapture(e.pointerId); }catch(x){}
+  if(s.list.length) applyStroke(s.list,BRUSH);
+}
+
+/* ---- the drawing ---- */
+function renderBlocks(M,opt){
+  opt=opt||{};
+  const E=M.env, B=M.B, w=M.w, h=M.h, T=M.tiles;
+  const lblY=Math.max(30,Math.round(B*0.3)), sfs=Math.round(Math.max(18,B*0.2));
+  const O=[];
+  O.push(`<svg xmlns="http://www.w3.org/2000/svg" class="zm-blocks${BRUSH!=='off'?' bk-painting':''}" viewBox="0 0 ${MAP_W} ${BK_HEAD+MAP_H}" width="${MAP_W}" height="${BK_HEAD+MAP_H}" font-family="Segoe UI, system-ui, sans-serif" data-grid="${w}x${h}">`);
+  O.push(`<style>
+    svg.zm-blocks .zl{font-size:28px;font-weight:700;fill:#f2eedc;paint-order:stroke;stroke:#000b;stroke-width:5px}
+    svg.zm-blocks .ttl{font-size:20px;font-weight:700;fill:#f0b429;letter-spacing:.1em}
+    svg.zm-blocks .sub{font-size:11.5px;fill:#9aa08a;letter-spacing:.06em}
+    svg.zm-blocks .bk-cv{font-size:${sfs+8}px;font-weight:700;paint-order:stroke;stroke:#000c;stroke-width:4px}
+    svg.zm-blocks .bk-b{font-size:${sfs}px;font-weight:700;paint-order:stroke;stroke:#000c;stroke-width:4px}
+    svg.zm-blocks .bk-m{font-size:${sfs}px;fill:#f2eedc;paint-order:stroke;stroke:#000c;stroke-width:4px}
+    svg.zm-blocks .bk-x{font-size:${sfs+6}px;font-weight:700;fill:#f2eedc;paint-order:stroke;stroke:#000;stroke-width:4px}
+    svg.zm-blocks .lg{font-size:13px;fill:#ded9c4}
+    svg.zm-blocks .lgh{font-size:12px;fill:#f0b429;letter-spacing:.13em;font-weight:700}
+    svg.zm-blocks .zone{cursor:pointer}
+    svg.zm-blocks.bk-painting{touch-action:none;cursor:crosshair}
+    svg.zm-blocks.bk-painting .zone{cursor:crosshair}
+  </style>`);
+  O.push(`<rect x="0" y="0" width="${MAP_W}" height="${BK_HEAD}" fill="#15180f"/>`);
+  O.push(`<text class="ttl" x="16" y="27">${esc(E.label.toUpperCase())}</text>`);
+  O.push(`<text class="sub" x="16" y="46">FALLOUT 2d20 BLOCK MAP · ${w} × ${h} BLOCKS · ${M.n} ZONES · SEED ${esc(M.seed)} · SAME BLOCK = CLOSE, NEXT = MEDIUM, 2 = LONG, 3 OR MORE = EXTREME</text>`);
+  O.push(`<line x1="0" y1="${BK_HEAD}" x2="${MAP_W}" y2="${BK_HEAD}" stroke="#3a4032" stroke-width="2"/>`);
+  O.push(`<g id="bk_grid" transform="translate(0,${BK_HEAD})">`);
+  O.push(`<rect width="${MAP_W}" height="${MAP_H}" fill="${E.floor}"/>`);
+  const sq=(x0,y0,s)=>`M${x0} ${y0}h${s}v${s}h-${s}z`;
+  const faced=M.zones.filter(z=>z.cover.N||z.cover.E||z.cover.S||z.cover.W);
+  O.push('<defs>');
+  O.push('<pattern id="bk_hatch" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="14" stroke="#000" stroke-opacity=".6" stroke-width="6"/></pattern>');
+  for(const z of faced) O.push('<clipPath id="zc'+z.id+'"><path d="'+sq(z.x0,z.y0,B)+'"/></clipPath>');   /* the same #zc<id> a Zones map's bands sit in */
+  O.push('</defs>');
+  /* the zones: one open block each */
+  for(const z of M.zones)
+    O.push(`<g class="zone" data-z="${z.id}"><path d="${sq(z.x0,z.y0,B)}" fill="${BK_FLOOR[(z.gx+z.gy)%2]}" fill-opacity=".3"/></g>`);
+  /* walls and cover blocks */
+  const wallFill=MAT_FILL[E.shell]||MAT_FILL[3];
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const c=T[y*w+x], x0=x*B, y0=y*B;
+    if(c==='#') O.push(`<path d="${sq(x0,y0,B)}" fill="${wallFill}" stroke="#0e100c" stroke-width="3" data-block="${blockCode(x,y)}" data-kind="wall"/>`);
+    else if(c!=='.'){
+      const v=+c, C=COVER[v];
+      O.push(`<path d="${sq(x0,y0,B)}" fill="${MAT_FILL[v]}" data-block="${blockCode(x,y)}" data-kind="cover" data-cover-block="${C.key}"/>`);
+      O.push(`<path d="${sq(x0+7,y0+7,B-14)}" fill="none" stroke="${C.col}" stroke-width="5" stroke-dasharray="${C.dash}" pointer-events="none"/>`);
+      O.push(`<text class="bk-cv" x="${x0+B/2}" y="${y0+B/2+sfs*0.4}" text-anchor="middle" fill="${C.col}" pointer-events="none">${C.key}</text>`);
+    }
+  }
+  /* the grid's lines */
+  const gl=[];
+  for(let x=1;x<w;x++) gl.push(`M${x*B} 0v${MAP_H}`);
+  for(let y=1;y<h;y++) gl.push(`M0 ${y*B}h${MAP_W}`);
+  O.push(`<path d="${gl.join('')}" stroke="#0e100c" stroke-opacity=".6" stroke-width="2" fill="none" pointer-events="none"/>`);
+  /* deployment: column A the players', the last column the enemies' (blue and violet are used nowhere else) */
+  if(layerOn('L_spawn')){
+    O.push(`<rect x="0" y="0" width="${B}" height="${MAP_H}" fill="#5aa9e6" fill-opacity=".2" pointer-events="none" data-spawn="PLAYER:A"/>`);
+    O.push(`<rect x="${(w-1)*B}" y="0" width="${B}" height="${MAP_H}" fill="#c86fd4" fill-opacity=".2" pointer-events="none" data-spawn="ENEMY:${String.fromCharCode(64+w)}"/>`);
+  }
+  /* the cover a block's face gives, clipped inside the block and stamped as a Zones map's bands are */
+  if(layerOn('L_cover')){
+    for(const z of faced){
+      O.push(`<g clip-path="url(#zc${z.id})" pointer-events="none">`);
+      const F={N:`M${z.x0} ${z.y0}h${B}`, E:`M${z.x0+B} ${z.y0}v${B}`, S:`M${z.x0} ${z.y0+B}h${B}`, W:`M${z.x0} ${z.y0}v${B}`};
+      for(const f of ['N','E','S','W']){
+        const v=z.cover[f]; if(!v)continue;
+        const C=COVER[v];
+        O.push(`<path d="${F[f]}" data-face="${f}" data-cover="${C.key}" fill="none" stroke="${C.col}" stroke-width="16" stroke-opacity=".85" stroke-dasharray="${C.dash}"/>`);
+      }
+      O.push('</g>');
+    }
+  }
+  if(layerOn('L_labels'))
+    for(const z of M.zones) O.push(`<text class="zl" x="${z.cx}" y="${z.y0+lblY}" text-anchor="middle" pointer-events="none">${z.code}</text>`);
+  /* what the selected block can see: every other block's range letter (top left) and moves (bottom right); a block it
+     cannot see is dimmed, hatched and marked # - never colour alone */
+  const A=SELECTED>=0&&M.byId?M.byId[SELECTED]:null;
+  if(A){
+    const mv=blockMoves(M,A);
+    for(const z of M.zones){
+      if(z===A)continue;
+      const s=blockSight(M,A,z), b=blockBand(A,z), m=mv[z.id];
+      if(!s.clear){
+        O.push(`<g data-nosight="${z.code}" pointer-events="none"><path d="${sq(z.x0,z.y0,B)}" fill="#000" fill-opacity=".4"/><path d="${sq(z.x0,z.y0,B)}" fill="url(#bk_hatch)"/>`+
+               `<text class="bk-x" x="${z.x0+B-8}" y="${z.y0+sfs+6}" text-anchor="end">#</text></g>`);
+      }
+      O.push(`<text class="bk-b" x="${z.x0+8}" y="${z.y0+sfs+4}" fill="${BK_BAND_COL[b]}" pointer-events="none" data-band="${BANDK[b]}">${BANDK[b]}</text>`);
+      O.push(`<text class="bk-m" x="${z.x0+B-8}" y="${z.y0+B-8}" text-anchor="end" pointer-events="none">${m==null?'—':m}</text>`);
+    }
+    O.push(`<path d="${sq(A.x0+3,A.y0+3,B-6)}" fill="none" stroke="#f0b429" stroke-width="6" pointer-events="none" data-sel="${A.code}"/>`);
+  }
+  O.push(`<rect width="${MAP_W}" height="${MAP_H}" fill="none" stroke="#3a4032" stroke-width="2" pointer-events="none"/>`);
+  O.push('</g>');
+  if(opt.strip) O.push(blocksStrip(M));
+  O.push('</svg>');
+  return O.join('');
+}
+/* the legend, as a strip under the grid - on an exported or printed SVG/PNG only; on screen it is the card below the map */
+function blocksStrip(M){
+  const last=String.fromCharCode(64+M.w), O=[];
+  O.push(`<g transform="translate(0,${BK_HEAD+MAP_H})"><rect width="${MAP_W}" height="${BK_STRIP}" fill="#16190f"/>`);
+  O.push(`<rect x="14" y="12" width="26" height="14" fill="${MAT_FILL[M.env.shell]||MAT_FILL[3]}" stroke="#0e100c"/>`);
+  O.push(`<text class="lg" x="48" y="24">Wall: stops sight and feet.   L / M / H: Light / Medium / Heavy cover, stops feet, not sight.   Every open block is one zone.</text>`);
+  O.push(`<text class="lg" x="14" y="46">Cover: the block beside the target on the side the shot comes from. Light 1, Medium 2, Heavy 3, a wall 3.</text>`);
+  O.push(`<text class="lg" x="14" y="68">Range in blocks, counted straight: same block Close, next (diagonals too) Medium, 2 Long, 3 or more Extreme (Book One p.28).</text>`);
+  O.push(`<text class="lg" x="14" y="90">Moves are blocks walked around walls and cover: Move 1, Sprint 2 (Book One pp.25-26). Players deploy in column A, enemies in column ${last}.</text>`);
+  O.push('</g>');
+  return O.join('');
+}
+function blocksExportStrip(s){
+  try{
+    const VH=BK_HEAD+MAP_H+BK_STRIP;
+    s.setAttribute('viewBox','0 0 '+MAP_W+' '+VH); s.setAttribute('height',String(VH));
+    const doc=new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg">'+blocksStrip(MAP)+'</svg>','image/svg+xml');
+    const g=doc.documentElement.firstElementChild;
+    if(g) s.appendChild(s.ownerDocument.importNode(g,true));
+  }catch(e){}
+}
+function exportDims(){ return (MAP&&MAP.kind==='blocks')?{w:MAP_W,h:BK_HEAD+MAP_H+BK_STRIP}:{w:SVG_W,h:SVG_H}; }
+function blocksLegend(M){
+  const C=COVER, sw=c=>`<span class="swatch" style="background:${c}"></span>`;
+  return `<h3>Reading a Blocks map</h3>`+
+    `<p class="hint">${sw(MAT_FILL[M.env.shell]||MAT_FILL[3])}<b>Wall</b> stops sight and feet. ${sw(C[1].col)}${sw(C[2].col)}${sw(C[3].col)}<b>L / M / H</b> Light, Medium or Heavy cover stops feet, not sight. Every open block is one zone.</p>`+
+    `<p class="hint"><b>Cover</b> counts when the block beside the target, on the side the shot comes from, is cover or wall: Light 1, Medium 2, Heavy 3, a wall 3. Shoot from a side with nothing beside the target and it has none.</p>`+
+    `<p class="hint"><b>Range</b> is blocks counted straight: the same block Close, the next block (diagonals too) Medium, 2 Long, 3 or more Extreme, the last band (Book One p.28). <b>Moves</b> are blocks walked around walls and cover: a Move is 1, a Sprint 2 (Book One pp.25&ndash;26).</p>`+
+    `<p class="hint"><b>Click a block</b> with Paint off: every other block shows its range letter top left and its moves bottom right (&mdash; is no way through), and a block it cannot see is hatched and marked <b>#</b>. A wall in between ends the shot: a target is attacked only by something that can see it (Book One p.38).</p>`;
+}
+function paintBlocks(){
+  const st=document.getElementById('stage'); if(!st) return;
+  STROKE=null;
+  st.innerHTML=renderBlocks(MAP);
+  const lg=bkEl('bk_legend'); if(lg){ lg.innerHTML=blocksLegend(MAP); lg.hidden=false; }
+  document.querySelectorAll('#stage .zone').forEach(g=>{
+    g.addEventListener('click',()=>{
+      if(brushOn()) return;                       /* with a brush chosen the press painted; it did not select */
+      const z=+g.getAttribute('data-z');
+      SELECTED = SELECTED===z?-1:z;
+      paint();
+    });
+  });
+  const svg=document.querySelector('#stage svg.zm-blocks');
+  if(svg&&svg.addEventListener){
+    svg.addEventListener('pointerdown',e=>strokeDown(e,svg));
+    svg.addEventListener('pointermove',e=>strokeMove(e,svg));
+    svg.addEventListener('pointerup',e=>strokeUp(e,svg));
+    svg.addEventListener('pointercancel',e=>strokeUp(e,svg));
+  }
+  syncFrom();
+}
+
+/* ---- the notes ---- */
+function fromList(M,A){
+  const groups=[[],[],[],[]], hidden=[], mv=blockMoves(M,A);
+  for(const z of M.zones){
+    if(z===A)continue;
+    const s=blockSight(M,A,z), b=blockBand(A,z), m=movesWord(mv[z.id]);
+    if(s.clear) groups[b].push(z.code+' ('+m+')');
+    else hidden.push(z.code+' '+BAND[b]+' &mdash; no sight (wall '+s.blockedAt+') &middot; '+m);
+  }
+  const sees=groups[1].length+groups[2].length+groups[3].length;
+  let o=`<p class="hint">From <b>${A.code}</b>: it sees ${sees} of the ${M.n-1} other blocks. Each block&rsquo;s moves are blocks walked around walls and cover (a Move is 1, a Sprint 2).</p>`;
+  const LAB=['','Medium &middot; the next block','Long &middot; 2 blocks','Extreme &middot; 3 or more'];
+  for(let b=1;b<=3;b++) if(groups[b].length) o+=`<p><b>${LAB[b]}</b> ${groups[b].join(' &middot; ')}</p>`;
+  if(hidden.length) o+=`<p><b>No sight</b> ${hidden.join(' &middot; ')}</p>`;
+  return o;
+}
+function syncFrom(){
+  if(!MAP||MAP.kind!=='blocks') return;
+  const sel=bkEl('bk_from'), list=bkEl('bk_fromlist'); if(!sel||!list) return;
+  const A=MAP.byId[SELECTED]||MAP.byId[MAP.deployA[0]]||MAP.zones[0]; if(!A) return;
+  sel.value=String(A.id);
+  list.innerHTML=fromList(MAP,A);
+}
+function blocksMatrix(M){
+  const CC={0:'#8a8f7a',1:'#7ac74f',2:'#f0b429',3:'#e05c4b'};
+  let m=`<table><tr><th></th>${M.zones.map(z=>`<th>${z.code}</th>`).join('')}</tr>`;
+  for(const a of M.zones){
+    const mv=blockMoves(M,a);
+    m+=`<tr><th>${a.code}</th>`;
+    for(const b of M.zones){
+      const s=blockSight(M,a,b), bd=blockBand(a,b);
+      const tip=`${a.code} → ${b.code}: ${BAND[bd]}${s.clear?'':', no sight (wall '+s.blockedAt+')'}, ${movesWord(mv[b.id])}`;
+      m+=`<td class="mono" style="color:${s.clear?CC[bd]:'var(--faint)'};text-align:center" title="${tip}">${s.clear?BANDK[bd]:'#'}</td>`;
+    }
+    m+='</tr>';
+  }
+  return m+'</table>';
+}
+function writeNotesBlocks(M){
+  const Z=M.zones, w=M.w, last=String.fromCharCode(64+w);
+  /* the roster: every block with cover on a side; the rest named in one line */
+  let h=`<h3>Zone Roster</h3><p class="hint">${M.n} open blocks, each one zone, named by its column and row.</p>`+
+        `<table><tr><th>Block</th><th>Cover N/E/S/W</th><th>Notes</th></tr>`;
+  const bare=[];
+  for(const z of Z){
+    const c=z.cover;
+    if(!(c.N||c.E||c.S||c.W)){ bare.push(z.code); continue; }
+    const dep=z.gx===0?'<span class="tag" style="color:#5aa9e6">PLAYER DEPLOY</span>':z.gx===w-1?'<span class="tag" style="color:#c86fd4">ENEMY DEPLOY</span>':'&mdash;';
+    h+=`<tr><td class="mono">${z.code}</td><td class="mono">${coverStr(z)}</td><td>${dep}</td></tr>`;
+  }
+  h+='</table>';
+  if(bare.length) h+=`<p class="hint">No cover on any side: ${bare.join(', ')}.</p>`;
+  h+='<details class="zm-why" data-why="cover"><summary>why &mdash; which cover a shot takes</summary><p class="hint">Cover counts when the block beside the target, on the side the shot comes <b>from</b>, is cover or wall: '+
+     'a block showing <span class="mono">N:H</span> is in Heavy Cover against anything firing from the north. Light 1, Medium 2, Heavy 3, a wall 3; the map edge and an open block give none. '+
+     'A shot from inside the same block takes the target&rsquo;s best side.</p></details>';
+  document.getElementById('c_zones').innerHTML=h;
+
+  /* range and sight: the From list is the phone's matrix; the whole matrix is built only when it is opened */
+  let r=`<h3>Range &amp; Sight</h3><div class="fld"><label for="bk_from">From</label><select id="bk_from">${Z.map(z=>`<option value="${z.id}">${z.code}</option>`).join('')}</select></div>`+
+        `<div class="bk-from" id="bk_fromlist"></div>`+
+        `<details class="bk-mx" id="bk_mx"><summary>The whole range matrix (rows shoot; # is no sight)</summary><div id="bk_mxbody" style="overflow:auto"></div></details>`;
+  r+='<details class="zm-why" data-why="range"><summary>why &mdash; the letters, and the #</summary><p class="hint">C Close (the same block) · M Medium (the next block, diagonals too) · L Long (2 blocks) · X Extreme (3 or more). '+
+     'Extreme is the last band (Book One p.28): there is nothing past it. <span class="mono">#</span> means a wall stands on the straight line between the two block centres, so there is no shot: '+
+     'a target is attacked only by something that can see it (Book One p.38). Cover blocks never block sight. A line exactly through a corner is stopped only where both corner blocks are walls.</p></details>';
+  document.getElementById('c_range').innerHTML=r;
+  const fs=bkEl('bk_from');
+  if(fs&&fs.addEventListener) fs.addEventListener('change',()=>{ SELECTED=+fs.value; paint(); syncFrom(); });
+  const mx=bkEl('bk_mx');
+  if(mx&&mx.addEventListener) mx.addEventListener('toggle',()=>{ const b=bkEl('bk_mxbody'); if(mx.open&&b&&!b.firstChild) b.innerHTML=blocksMatrix(M); });
+  syncFrom();
+
+  /* encounter setup */
+  const dA=M.deployA.map(id=>M.byId[id].code), dB=M.deployB.map(id=>M.byId[id].code);
+  let walk=null;
+  for(const a of M.deployA){ const mv=blockMoves(M,M.byId[a]); for(const b of M.deployB){ const v=mv[b]; if(v!=null&&(walk==null||v<walk)) walk=v; } }
+  let d=`<h3>Encounter Setup</h3><p class="hint"><b style="color:#5aa9e6">Players</b> deploy anywhere in column <b>A</b> (${dA.join(', ')||'no open block'}).<br>`+
+        `<b style="color:#c86fd4">Enemies</b> deploy anywhere in column <b>${last}</b> (${dB.join(', ')||'no open block'}).<br>`+
+        `They start ${w-1} blocks apart, at <b>Extreme</b> range, and `+(walk==null?'<b>no walk joins the two edges</b> (a painted wall closes the way)':`the shortest walk between them is <b>${walk} moves</b>`)+
+        ', so turn one is movement, not shooting.</p>';
+  d+='<details class="zm-why" data-why="movement"><summary>why &mdash; where you can walk</summary><p class="hint"><b>Movement.</b> Moves are blocks walked over open blocks &mdash; diagonals too, but never squeezed '+
+     'between two blocked corners &mdash; around every wall and cover block. A Move is 1 block and a Sprint 2 (Book One pp.25&ndash;26). Climbing over a cover block instead is an obstacle '+
+     'that costs 1 to 3 AP by its height (Book One p.38): the Overseer&rsquo;s call. The count is advice; a token can still be placed anywhere.</p></details>';
+  document.getElementById('c_deploy').innerHTML=d;
+
+  /* plain text: the map as rows, then the matrix */
+  const pad=(s,n)=>{ s=String(s); while(s.length<n) s+=' '; return s; };
+  const T=[];
+  T.push(M.env.label+'  —  seed '+M.seed+'  —  Blocks '+w+' x '+M.h+'  —  '+M.n+' zones');
+  T.push('Range in blocks, counted straight: same block Close, next block (diagonals too) Medium, 2 Long, 3 or more Extreme.');
+  T.push('Extreme is the last band (Book One p.28): there is nothing past it.');
+  T.push('Sight: a wall on the straight line between two block centres stops the shot (#); cover blocks never do.');
+  T.push('Cover is the block beside the target on the side the shot comes FROM: Light 1, Medium 2, Heavy 3, a wall 3.');
+  T.push('Moves are blocks walked around walls and cover: Move 1, Sprint 2.');
+  T.push('');
+  T.push('MAP  (# wall, 1 2 3 Light / Medium / Heavy cover, . open)');
+  const cols=[]; for(let x=0;x<w;x++) cols.push(String.fromCharCode(65+x));
+  T.push('     '+cols.join(' '));
+  for(let y=0;y<M.h;y++) T.push('  '+pad(y+1,3)+M.tiles.slice(y*w,(y+1)*w).split('').join(' '));
+  T.push('');
+  T.push('DEPLOY  Players: column A   Enemies: column '+last);
+  T.push('');
+  T.push('ZONES WITH COVER');
+  for(const z of Z){ const c=z.cover; if(c.N||c.E||c.S||c.W) T.push('  '+pad(z.code,4)+'cover '+coverStr(z)); }
+  T.push('');
+  T.push('RANGE MATRIX (rows = shooter; # = no sight)');
+  T.push('      '+Z.map(z=>pad(z.code,4)).join(''));
+  for(const a of Z) T.push('  '+pad(a.code,4)+Z.map(b=>pad(blockSight(M,a,b).clear?BANDK[blockBand(a,b)]:'#',4)).join(''));
+  document.getElementById('gmtext').value=T.join('\n');
+}
+
+/* ============================================================================
    UI
    ========================================================================== */
 function newSeed(){
@@ -45474,13 +46813,20 @@ function regenerate(keepSeed){
   const seedIn=document.getElementById('seed');
   if(!keepSeed||!seedIn.value.trim()) seedIn.value=newSeed();
   const seed=seedIn.value.trim();
+  const was=MAP?MAP.kind||'zones':null;
+  if(styleOf()==='blocks'){
+    const D=blockDims(document.getElementById('size').value), dens=parseFloat(document.getElementById('dens').value);
+    MAP=blockModel(key,seed,D.key,dens,D.w,D.h,genBlocks(key,D.key,dens,seed));
+  } else
   MAP=buildMap(key,document.getElementById('size').value,
                parseFloat(document.getElementById('dens').value),seed);
   SELECTED=-1;
+  blocksUi(was);
   paint();
   writeNotes(MAP);
 }
 function paint(){
+  if(MAP&&MAP.kind==='blocks') return paintBlocks();
   document.getElementById('stage').innerHTML=render(MAP);
   document.querySelectorAll('#stage .zone').forEach(g=>{
     g.addEventListener('click',()=>{
@@ -45496,8 +46842,10 @@ function paint(){
   sel.innerHTML='<option value="__rand">◆ Random environment</option>'+
     Object.keys(ENVS).map(k=>`<option value="${k}">${esc(ENVS[k].label)}</option>`).join('');
   sel.value='downtown';
-  document.getElementById('gen').onclick=()=>regenerate(true);
-  document.getElementById('reroll').onclick=()=>regenerate(false);
+  /* a Generate is one step Undo can take back (this device only, MAP_LOS_BRIEF.md §8) */
+  document.getElementById('gen').onclick=()=>{ keepUndo(); regenerate(true); };
+  document.getElementById('reroll').onclick=()=>{ keepUndo(); regenerate(false); };
+  wireBlocksUi();
   document.getElementById('prt').onclick=()=>window.print();
   /* stage 6: a printed map carries its rules — every shut "why" opens for the page */
   window.addEventListener('beforeprint',()=>document.querySelectorAll('details.zm-why').forEach(d=>{d.open=true;}));
@@ -45519,6 +46867,7 @@ function paint(){
     if(!svg)return null;
     const s=svg.cloneNode(true);
     s.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    if(MAP&&MAP.kind==='blocks') blocksExportStrip(s);   /* the Blocks legend rides under the grid on paper */
     return '<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(s);
   }
   document.getElementById('svgx').onclick=()=>{
@@ -45540,8 +46889,8 @@ function paint(){
     const img=new Image();
     img.onload=()=>{
       try{
-        const S=2, c=document.createElement('canvas');
-        c.width=SVG_W*S; c.height=SVG_H*S;
+        const S=2, c=document.createElement('canvas'), XD=exportDims();
+        c.width=XD.w*S; c.height=XD.h*S;
         const ctx=c.getContext('2d');
         ctx.fillStyle='#12140f'; ctx.fillRect(0,0,c.width,c.height);
         ctx.drawImage(img,0,0,c.width,c.height);
@@ -45573,14 +46922,22 @@ function paint(){
     LAYERS.forEach(function(k){ var cb = g("L_" + k); o[k] = cb ? !!cb.checked : true; });
     return o;
   }
+  /* A BLOCKS MAP IS STORED AS ITS BLOCKS (2026-10-14): { style:"blocks", seed, env, size, dens, layers, w, h, tiles }, the
+     tiles one character a block read row by row, so a painted map is the map every device shows and no later change to
+     the generator can move it.  A Zones map's slice is exactly today's - no style key at all - so a saved Zones map is
+     written and read as it always was. */
   function inputs(){
     if(!MAP) return null;
+    if(MAP.kind === "blocks")
+      return { style:"blocks", seed:MAP.seed, env:MAP.envKey, size:MAP.sizeKey, dens:MAP.dens, layers:layerState(), w:MAP.w, h:MAP.h, tiles:MAP.tiles };
     return { seed:MAP.seed, env:MAP.envKey, size:MAP.sizeKey, dens:MAP.dens, layers:layerState() };
   }
-  // the four values buildMap actually consumes; layers only repaint
+  // the four values buildMap actually consumes, and a Blocks map's style and blocks; layers only repaint.  Without the
+  // blocks a GM's paint would repaint the old drawing on every other device - attacks refused on one, allowed on another
   function sameMap(a, b){
     return !!(a && b && a.seed === b.seed && a.env === b.env &&
-              String(a.size) === String(b.size) && +a.dens === +b.dens);
+              String(a.size) === String(b.size) && +a.dens === +b.dens &&
+              (a.style === "blocks") === (b.style === "blocks") && String(a.tiles || "") === String(b.tiles || ""));
   }
   window.HELENA_MAP = {
     inputs: inputs,
@@ -45588,6 +46945,84 @@ function paint(){
     map: function(){ return MAP; },
     shared: function(){ return T ? T.get(TKEY) : null; }
   };
+  /* MAP-DOOR:begin - THE MAP'S PUBLIC DOOR (the Blocks map, MAP_LOS_BRIEF.md, 2026-10-14).  The token layer, the turn
+     order and the roll drawer ask the map these six questions and nothing else; every answer is a plain copy.  A zone is
+     the number a token's zone carries (a Zones map's 0..n-1, a Blocks map's 1000 + 100*row + column).
+       style()                  -> "zones" | "blocks"
+       sees(zoneA, zoneB)       -> true | false, symmetric.  A Zones map: always true (walls never stop a shot there).
+                                   An unknown zone (off the map, unplaced): true - the map cannot know, so it never gates.
+       band(zoneA, zoneB)       -> "C" | "M" | "L" | "X", or null for an unknown zone.  A Zones map keeps today's matrix.
+       moves(zoneA, zoneB)      -> blocks walked around walls and cover (Move 1, Sprint 2), or null: no way through, an
+                                   unknown zone, or a Zones map (which counts no moves).
+       coverFrom(zone, fromZone)-> 0..3, the cover the zone's face toward fromZone gives (the token layer's own rule:
+                                   whichever of across or down is bigger, a tie across); same zone or none: the best face.
+       visibleFrom(zone)        -> [zone ids] it can see, itself included; a Zones map: every zone; unknown: [].
+     (No backticks here: this rides in a template literal.) */
+  function zoneOf(z){
+    if(!MAP || !MAP.zones || z == null || z === "") return null;
+    var id = +z, zs = MAP.zones;
+    if(MAP.byId) return Object.prototype.hasOwnProperty.call(MAP.byId, id) ? MAP.byId[id] : null;   /* a Blocks map's index */
+    for(var i = 0; i < zs.length; i++) if(+zs[i].id === id) return zs[i];
+    return null;
+  }
+  function isBlocks(){ return !!(MAP && MAP.kind === "blocks"); }
+  function doorBand(a, b){
+    var A = zoneOf(a), B = zoneOf(b);
+    if(!A || !B) return null;
+    var d = MAP.bands && MAP.bands[A.id] ? MAP.bands[A.id][B.id] : null;
+    if(d == null) return null;
+    return BANDK[bandOf(d)];
+  }
+  function doorFace(A, B){
+    var dx = B.cx - A.cx, dy = B.cy - A.cy;
+    if(!isFinite(dx) || !isFinite(dy) || (dx === 0 && dy === 0)) return null;
+    return Math.abs(dx) >= Math.abs(dy) ? (dx >= 0 ? "E" : "W") : (dy >= 0 ? "S" : "N");
+  }
+  function doorCover(z, from){
+    var A = zoneOf(z); if(!A || !A.cover) return 0;
+    var B = zoneOf(from), f = (B && B !== A) ? doorFace(A, B) : null;
+    var c = A.cover, best = 0;
+    if(f) return Math.max(0, Math.min(3, +c[f] || 0));
+    ["N", "E", "S", "W"].forEach(function(k){ var v = Math.max(0, Math.min(3, +c[k] || 0)); if(v > best) best = v; });
+    return best;
+  }
+  window.HELENA_MAP.style = function(){ return isBlocks() ? "blocks" : "zones"; };
+  window.HELENA_MAP.kind = window.HELENA_MAP.style;
+  window.HELENA_MAP.sees = function(a, b){
+    if(!isBlocks()) return true;
+    var A = zoneOf(a), B = zoneOf(b);
+    if(!A || !B || A === B) return true;
+    return !!blockSight(MAP, A, B).clear;
+  };
+  window.HELENA_MAP.band = function(a, b){
+    if(!isBlocks()) return doorBand(a, b);
+    var A = zoneOf(a), B = zoneOf(b);
+    return (A && B) ? BANDK[blockBand(A, B)] : null;
+  };
+  window.HELENA_MAP.moves = function(a, b){
+    if(!isBlocks()) return null;
+    var A = zoneOf(a), B = zoneOf(b);
+    if(!A || !B) return null;
+    var m = blockMoves(MAP, A)[B.id];
+    return m == null ? null : m;
+  };
+  window.HELENA_MAP.coverFrom = function(z, from){ return doorCover(z, from); };
+  window.HELENA_MAP.visibleFrom = function(z){
+    var A = zoneOf(z);
+    if(!A) return [];
+    if(!isBlocks()) return MAP.zones.map(function(x){ return +x.id; });
+    return MAP.zones.filter(function(x){ return x === A || blockSight(MAP, A, x).clear; }).map(function(x){ return +x.id; });
+  };
+  /* beside the six: sight(a, b) is everything one pair says on a Blocks map, for a refusal that names the wall -
+     { clear, dist, band "C".."X", bandName, moves (null = no way through), blockedAt "E3" or null, from "B3", to "F3" };
+     null on a Zones map or for an unknown zone.  painting() is true while a paint brush is chosen (tokens stay put). */
+  window.HELENA_MAP.sight = function(a, b){
+    if(!isBlocks()) return null;
+    var A = zoneOf(a), B = zoneOf(b);
+    return (A && B) ? blockView(MAP, A, B) : null;
+  };
+  window.HELENA_MAP.painting = function(){ return brushOn(); };
+  /* MAP-DOOR:end */
   /* PROJECT C stage 2 (Decision 2): the pane's one live number on its header is the zone
      count, off HELENA_MAP.zones() — reported after every regenerate, remote ones included
      (apply() goes through the same binding), and once now for the map init() already drew.
@@ -45666,10 +47101,37 @@ function paint(){
   document.addEventListener("suite-mode", followMode);
   followMode();
   /* MAP-LAZY:end */
+  /* BLOCKS-HOOKS:begin - WHAT THE PAINT BRUSH ASKS THE TABLE (2026-10-14).  The generator's page has no tokens and no
+     room, so its own answers are "nobody stands there", "you may paint" and "nothing to save"; here they are the
+     Table's.  Who stands in a block is the token layer's occupants(zone) when it has one, else the saved tokens'
+     own zones.  (No backticks here: this rides in a template literal.) */
+  function savedTokens(){
+    try{ var SS = window.SUITE_STATE, st = SS && typeof SS.get === "function" ? SS.get() : null; return (st && Array.isArray(st.tokens)) ? st.tokens : []; }catch(e){ return []; }
+  }
+  blockOccupants = function(id){
+    var TK = window.SUITE_TOKENS;
+    try{ if(TK && typeof TK.occupants === "function"){ var r = TK.occupants(id); if(Array.isArray(r)) return r.map(String); } }catch(e){}
+    return savedTokens().filter(function(t){ return t && t.zone != null && +t.zone === +id; }).map(function(t){ return String(t.name || t.id); });
+  };
+  var __strokeLive = strokeDone;
+  strokeDone = function(){ __strokeLive(); reportZones(); };
+  /* BLOCKS-HOOKS:end */
   if(!T) return;
 
   var __regen = regenerate;
   regenerate = function(keepSeed){ __regen(keepSeed); commit(); };
+  /* A STROKE IS ONE WRITE: the generator calls strokeDone() by name once per stroke and once per Undo, so the map is
+     saved once - never once a block.  A player in a GM room paints nothing: the brush is put down with the map's own
+     note, and should a write still be refused, commit() puts the room's map back (r.shared). */
+  var __stroke = strokeDone;
+  strokeDone = function(){ __stroke(); commit(); };
+  var GM_PAINTS = "The map belongs to the GM — only the GM paints it";
+  paintGate = function(){ try{ return T.canWrite(TKEY) ? "" : GM_PAINTS; }catch(e){ return ""; } };
+  (function(){
+    var bar = g("bk_bar");
+    if(bar && typeof bar.addEventListener === "function"){ bar.addEventListener("pointerenter", syncBar); bar.addEventListener("focusin", syncBar); }
+  })();
+  syncBar();
 
   /* A remote map must not eat what the player is typing.  __regen reads the four header
      controls out of the DOM, so they have to hold the room's values while it runs — but
@@ -45709,8 +47171,16 @@ function paint(){
     el.value = String(want);
   }
   document.addEventListener("focusout", function(e){ reconcileField(e.target); }, true);
+  /* A Blocks slice is built from its STORED blocks (parseBlocks, then blockModel), never from its seed, which would roll
+     the seed's starting blocks and lose every painted one.  A slice whose blocks do not read is refused whole: the
+     map on screen stays and the hint line says so.  A slice with no style is a Zones map, applied exactly as before. */
   function apply(d){
     if(!d || !d.seed) return;
+    var blocks = d.style === "blocks", p = blocks ? parseBlocks(d) : null;
+    if(blocks && !p){
+      blockHint("The map the room holds could not be read - its blocks are damaged - so the map on screen was kept. A Generate on the GM's device sends a whole one.");
+      return;
+    }
     applying = true;
     var held = heldByUser();
     try{
@@ -45722,8 +47192,11 @@ function paint(){
       g("seed").value = d.seed;
       var L = d.layers || {};
       LAYERS.forEach(function(k){ var cb = g("L_" + k); if(cb && typeof L[k] === "boolean") cb.checked = L[k]; });
+      setStyle(blocks ? "blocks" : "zones");
+      if(!sameMap(before, d)) forgetUndo();          /* another device's map: this device's one-step Undo would undo theirs */
+      if(blocks){ if(sameMap(before, d)) paint(); else { showBlocks(p); reportZones(); } }
       // same four inputs => the same map is already on screen; only repaint the layers
-      if(sameMap(before, d)) paint(); else __regen(true);
+      else if(sameMap(before, d)) paint(); else __regen(true);
     } finally { giveBack(held); applying = false; }
   }
   function commit(){
@@ -46030,6 +47503,8 @@ var API = {
     t.difficulty = s ? clampInt(s.applied, 0, API.MAX_DIFFICULTY) : clampInt(n, 0, 5);
     t.mods = s ? { attack:!!s.attack, base:s.base, majorIndex:s.majorIndex, extra:s.extra, sneak:s.sneak,
                    encumbrance:s.encumbrance, marked:s.marked, applied:t.difficulty, sum:String(s.sum || ""), line:String(s.line || "") } : null;
+    /* the range step it was rolled with (Book One p.28): the step, and the band it was read at ("" not known; null not carried) */
+    if(t.mods){ t.mods.range = Math.max(0, int(s.rangeStep, 0)); t.mods.rangeBand = s.range ? (s.range.band || "") : null; }
     if(at(t) < 1) t.stage = "dice";
     return ok(t);
   },
@@ -46122,11 +47597,17 @@ var API = {
     var sneak = (m.attack && m.sneak) ? 1 : 0;
     var enc = Math.max(0, int(m.encumbrance, 0));
     var mark = m.attack ? Math.max(0, int(m.marked, 0)) : 0;
-    var want = b + extra + enc - sneak - mark;
+    /* THE RANGE STEP (Book One p.28), on an attack whose declaration carries the range fields — see rangeStep, below.  Absent
+       (every caller before the map knew a band): no range part and no note, exactly as before. */
+    var rs = (m.attack && (m.rangeBand !== undefined || m.weaponRange !== undefined))
+      ? API.rangeStep({ band:m.rangeBand, weaponRange:m.weaponRange, weapon:m.weapon, mode:m.mode, target:m.defenseOf, unset:!!m.rangeUnset }) : null;
+    var rng = rs && rs.known ? rs.step : 0;
+    var want = b + extra + rng + enc - sneak - mark;
     var applied = Math.min(API.MAX_DIFFICULTY, Math.max(0, want));
     var who = String(m.defenseOf == null ? "" : m.defenseOf).trim();
     var parts = [];
     if(extra || waived) parts.push({ n:extra, what:API.majorWord(n) + " action" + (waived ? " (Action Boy/Girl)" : "") });
+    if(rng)   parts.push({ n:rng,    what:rs.part });
     if(enc)   parts.push({ n:enc,    what:"carrying too much" });
     if(sneak) parts.push({ n:-sneak, what:"sneak attack" });
     if(mark)  parts.push({ n:-mark,  what:"Marked" });
@@ -46134,8 +47615,134 @@ var API = {
     var head = atk ? (who ? who + "’s " : "") + "Defense " + b : (parts.length ? "declared " + b : "");
     var sum = [head].concat(said).filter(Boolean).join(", ") + (want < 0 ? " (minimum 0)" : "");
     return { attack:atk, base:b, majorIndex:n, extra:extra, waived:waived, sneak:sneak, encumbrance:enc, marked:mark,
+             range:rs, rangeStep:rng,
              want:want, applied:applied, floored:want < 0, moved:applied !== b, parts:parts, sum:sum,
              line:"Difficulty " + applied + (sum ? ": " + sum : "") };
+  },
+
+  /* ==========================================================================
+     THE RANGE STEP, AUTOMATED (Book One p.28).  A ranged or thrown weapon has an IDEAL RANGE — Close (the same zone), Medium
+     (the next), Long (two away) or Extreme (three or more; the table stops there) — and an attack is +1 Difficulty for each
+     range band between the target and that ideal range, nearer or further.  The roll step ADDS it whenever both halves are
+     known: the band between attacker and target (the turn order reads it off the map's door, HELENA_MAP.band) and the
+     weapon's own ideal range.  Either half missing: a plain note and nothing added.  NOTHING HERE INVENTS A RANGE.
+     THE WEAPON'S RANGE IS READ AS IT IS CARRIED (rangeOfWeapon, in this order; the first that names one band wins):
+       1  `weaponRange` as the turn order sent it — the sheet's Range box, or a stat block's line
+       2  the weapon's own `range` (the sheet's Range box: free text, six characters at most, placeholder "C/M/L"; the
+          catalogue fills one letter, C / M / L / X)
+       3  a Thrown quality in its effects or qualities — "Thrown (M)", "Thrown (Close)": the Guide's Thrown (C/M) says its
+          ideal range is the range listed (a grenade's Range box is often blank and its effects carry it)
+       4  a stat block's printed line (weapon.raw) — data/creatures.js prints "Range M", "Range Medium", "Long Range",
+          "Range L." ("Range Reach" is a melee reach, not a band)
+     A box reading one band letter or word is read ("M", "m", "Medium", "(L)"); a box reading anything else ("C/M", "30m") is
+     said back as it reads and not read; a line naming two different bands is not read either.
+     BALANCED (the Guide's quality: "this weapon may be thrown at targets up to Medium range with no increase in Difficulty"):
+     at Close or Medium a Balanced weapon takes no step its ideal range would give it.
+     A MELEE attack with no range (the declaration's mode "melee" and no Thrown quality, or a "Range Reach") takes none and says
+     why: Book One p.28's step is for ranged and thrown weapons.
+       rangeStep({ band, weaponRange, weapon, mode, target }) -> { known, step, band, ideal, bandWord, idealWord, said, from,
+                                                                   why, part, note }
+         why   "step" (added) · "ideal" (at its ideal range) · "balanced" · "band" (no band known) · "weapon" (no range
+               filled in) · "unread" (a box that names no one band) · "melee"
+         part  the sum line's words ("range: Long for a Medium weapon"), "" unless a step is added
+         note  one plain sentence for the roll step */
+  RANGE_BANDS: ["C", "M", "L", "X"],
+  RANGE_WORDS: { C:"Close", M:"Medium", L:"Long", X:"Extreme" },
+  bandOf: function(v){
+    var s = String(v == null ? "" : v).trim().toLowerCase();
+    if(s === "c" || s === "close") return "C";
+    if(s === "m" || s === "med" || s === "medium") return "M";
+    if(s === "l" || s === "long") return "L";
+    if(s === "x" || s === "ext" || s === "extreme") return "X";
+    return null;
+  },
+  /* one piece of text as a weapon carries its range: a Range box, or a stat block's whole line */
+  rangeOfText: function(text){
+    var s = String(text == null ? "" : text).replace(/\s+/g, " ").trim();
+    if(!s || /^(?:-+|–|—|n\/?a|none)$/i.test(s)) return { band:null, blank:true, said:"" };
+    var W = "(C|M|L|X|Close|Med|Medium|Long|Ext|Extreme)";
+    var one = new RegExp("^(?:Range:? ?)?\\(? ?" + W + " ?\\)?\\.?$", "i").exec(s);
+    if(one) return { band:API.bandOf(one[1]), said:s };
+    if(/^(?:Range:? ?)?Reach\.?$/i.test(s)) return { band:null, reach:true, said:s };
+    var res = [new RegExp("\\bRange:? ?\\(?" + W + "\\b", "ig"),
+               new RegExp("\\b(Close|Medium|Long|Extreme) Range\\b", "ig"),
+               new RegExp("\\bThrown ?\\( ?" + W + " ?\\)", "ig")];
+    var first = null, said = "", two = false, i, m, b;
+    for(i = 0; i < res.length; i++){
+      while((m = res[i].exec(s))){
+        b = API.bandOf(m[1]);
+        if(!b) continue;
+        if(!first){ first = b; said = m[0]; }
+        else if(b !== first) two = true;
+      }
+    }
+    if(first && !two) return { band:first, said:said };
+    if(two) return { band:null, two:true, said:s };
+    if(/\bRange:? ?Reach\b/i.test(s)) return { band:null, reach:true, said:"Range Reach" };
+    var line = s.length > 12;                                /* longer than any Range box: a line that names no range */
+    return { band:null, unread:!line, line:line, said:s };
+  },
+  rangeOfWeapon: function(sent, weapon){
+    var w = weapon || {}, unread = null, reach = false, i, r;
+    var src = [{ t:sent, from:"sent", box:true }, { t:w.range, from:"range", box:true },
+               { t:String(w.effects || "") + " " + String(w.qualities || ""), from:"qualities" }, { t:w.raw, from:"line" }];
+    for(i = 0; i < src.length; i++){
+      r = API.rangeOfText(src[i].t);
+      if(r.band) return { band:r.band, said:r.said, from:src[i].from, reach:false, unread:null };
+      if(r.reach) reach = true;
+      if(src[i].box && unread == null && (r.unread || r.two)) unread = r.said;
+    }
+    return { band:null, said:"", from:"", reach:reach, unread:unread };
+  },
+  rangeStep: function(o){
+    o = o || {};
+    var w = o.weapon || {};
+    var name = String(w.name || "").trim();
+    var the = name ? (/['’]s\b/.test(name) ? name : "the " + name) : "";      /* "Joel's Sharp Rifle", not "the Joel's…" */
+    var its = the ? the + "’s" : "this weapon’s";
+    var band = API.bandOf(o.band), wr = API.rangeOfWeapon(o.weaponRange, w);
+    var out = { known:false, step:0, band:band, ideal:wr.band, bandWord:band ? API.RANGE_WORDS[band] : "",
+                idealWord:wr.band ? API.RANGE_WORDS[wr.band] : "", said:wr.said, from:wr.from, why:"", part:"", note:"" };
+    var idx = function(x){ return API.RANGE_BANDS.indexOf(x); };
+    var book = band && wr.band ? Math.abs(idx(band) - idx(wr.band)) : 0;
+    var thrown = API.hasQuality(w, "Thrown");
+    if(band && API.hasQuality(w, "Balanced") && (band === "C" || band === "M") && (wr.band ? book > 0 : band === "M")){
+      out.known = true; out.why = "balanced";
+      out.note = "Range " + out.bandWord + ": " + (the || "this weapon") + " is Balanced — it may be thrown up to Medium " +
+                 "with no added Difficulty, so no range step.";
+      return out;
+    }
+    if(!wr.band && (wr.reach || (o.mode === "melee" && !thrown))){
+      out.why = "melee";
+      out.note = "No range step: a melee attack is made within Reach (Book One p.28’s range step is for ranged and thrown weapons).";
+      return out;
+    }
+    if(!band){
+      var tgt = String(o.target == null ? "" : o.target).trim();
+      out.why = "band";
+      out.note = o.unset   /* the map gave a band and the Overseer set the choice to Not known */
+        ? "No range step: the range to " + (tgt || "the target") + " is set to Not known here, so nothing is added."
+        : "No range step: the range to " + (tgt || "the target") + " is not on the map (a token is off it, or there is no map), so nothing is added.";
+      return out;
+    }
+    if(!wr.band){
+      out.why = wr.unread != null ? "unread" : "weapon";
+      out.note = wr.unread != null
+        ? "No range step: " + its + " range reads “" + wr.unread + "”, which is not one band (C, M, L or X), so nothing is added."
+        : "No range step: " + (the || "this weapon") + " has no range filled in, so nothing is added.";
+      return out;
+    }
+    out.known = true; out.step = book;
+    if(!book){
+      out.why = "ideal";
+      out.note = "Range " + out.bandWord + " is " + its + " ideal range (it reads “" + wr.said + "”): no range step (Book One p.28).";
+      return out;
+    }
+    out.why = "step";
+    out.part = "range: " + out.bandWord + " for " + (wr.band === "X" ? "an " : "a ") + out.idealWord + " weapon";
+    out.note = "The range step (Book One p.28): the target is at " + out.bandWord + " and " + its + " ideal range is " + out.idealWord +
+               " (it reads “" + wr.said + "”) — +" + book + " Difficulty, one for each band between them.";
+    return out;
   },
 
   /* WHICH TESTS THE LOAD TOUCHES.  Guide L153: "+1 Difficulty to every Strength and
@@ -46853,7 +48460,9 @@ var API = {
            side can re-parse the ORIGINAL rather than a string rebuilt from tokens;
            `types` is the dual-type list behind the attacker's choice. */
         raw: w.raw == null ? "" : String(w.raw),
-        types: Array.isArray(w.types) ? w.types.slice() : []
+        types: Array.isArray(w.types) ? w.types.slice() : [],
+        /* the sheet's Range box, as the sheet carries it (free text) — read by rangeStep, never guessed at */
+        range: w.range == null ? "" : String(w.range).slice(0, 40)
       } : null,
       mode: spec.mode === "ranged" ? "ranged" : (spec.mode === "melee" ? "melee" : ""),
       ammoSpent: Math.max(0, int(spec.ammoSpent, 0)),
@@ -46964,6 +48573,25 @@ var API = {
       poolWhy: String(spec.poolWhy || "").slice(0, 120),
       weaponIndex: (spec.weaponIndex == null || spec.weaponIndex === "" || !isFinite(+spec.weaponIndex) || +spec.weaponIndex < 0) ? null
                  : Math.round(+spec.weaponIndex),
+      /* ======================================================================================================================
+         THE RANGE STEP (Book One p.28) — THE CONTRACT WITH THE TURN ORDER.  The declaration ACCEPTS { rangeBand, weaponRange }:
+           rangeBand    "C" | "M" | "L" | "X" (a band word is read too) — the band from the attacker's zone to the target's,
+                        as the map's door answers it (HELENA_MAP.band(zoneA, zoneB)); null when the map cannot say (no map,
+                        a token off it or unplaced).
+           weaponRange  the weapon's range as it is carried: the sheet's Range box ("M", "Long", free text) or a stat block's
+                        printed line ("…, Range M, Fire Rate 5").  Blank or absent: the weapon's own `range`, its Thrown (M)
+                        quality and its printed line are read instead (rangeOfWeapon).
+           rangeWhy     optional, a few words the roll step may print beside the band ("2 blocks").
+         Either key present (even null) and the declaration is an attack: the roll step adds +1 Difficulty for each band between
+         the target and the weapon's ideal range when both are known, says it in the sum line ("+1 range: Long for a Medium
+         weapon"), shows the band in a "Range to the target" choice the Overseer may change until the dice are thrown, and
+         prints a plain note when either half is missing — adding nothing.  Neither key present: exactly as before, no range
+         step and no note.  HELENA_ROLL.rangeStep({ band, weaponRange, weapon, mode, target }) is the same arithmetic, pure,
+         for any reader that wants the step without a declaration (a monster card's chance to hit). */
+      rangeSent: spec.kind === "attack" && (spec.rangeBand !== undefined || spec.weaponRange !== undefined),
+      rangeBand: API.bandOf(spec.rangeBand),
+      weaponRange: spec.weaponRange == null ? "" : String(spec.weaponRange).slice(0, 200),
+      rangeWhy: String(spec.rangeWhy || "").slice(0, 80),
       round: spec.round == null ? null : spec.round,
       text: String(spec.note || "")
     };
@@ -47099,6 +48727,9 @@ var API = {
       difficultyLine: (t.mods && t.mods.line) ? String(t.mods.line) : "",
       majorIndex: (t.mods && t.mods.majorIndex) ? t.mods.majorIndex : (d.majorIndex || 1),
       sneak: (t.mods && t.mods.attack) ? !!t.mods.sneak : !!d.sneak,
+      /* the range step the roll added (Book One p.28) and the band it was read at — added fields only */
+      rangeStep: (t.mods && t.mods.range) ? t.mods.range : 0,
+      rangeBand: (t.mods && t.mods.rangeBand) ? t.mods.rangeBand : (d.rangeBand || null),
       ap: r ? r.ap : 0,
       complications: r ? r.complications : 0,
       complicationsApplied: (t.complicationsApplied || []).slice(),
@@ -48251,6 +49882,9 @@ function paintDecl(){
   /* PROJECT H, FIGHT (session 3's play, 2026-10-13): a thrown blade SWUNG in the hand is a melee attack and the line says so —
      Zoe's tomahawk swung on STR read "thrown" (thrown is on AGI, STR in the hand: the sheet's CH.spendsUnit reads the same) */
   if(decl.mode) bits.push(decl.mode === "melee" && RL.hasQuality(decl.weapon, "Thrown") && !declSwung(decl) ? "thrown" : decl.mode);
+  /* the range step (Book One p.28): the band the roll step is reading, as the Overseer now has it */
+  if(typeof rangeOn === "function" && rangeOn() && rangeSel)
+    bits.push("at " + RL.RANGE_WORDS[rangeSel] + " range" + (decl.rangeWhy && rangeSel === decl.rangeBand ? " (" + esc(decl.rangeWhy) + ")" : ""));
   if(decl.ammoSpent) bits.push(plural(decl.ammoSpent, "round", "rounds") + " already off the sheet before the roll");
   if(decl.round != null) bits.push(decl.round === "opening" ? "opening turn" : "round " + esc(String(decl.round)));
   var h = bits.join(" &middot; ") + ".";
@@ -48861,7 +50495,8 @@ function resetAll(){
   T = null; cur = 1; pick = []; banked = false; bankLine = ""; step2done = false; paid = 0;
   declared = null;
   majorSel = 1; sneakOn = false;     /* PROJECT H, FIGHT: a fresh test is a first major action, no sneak attack */
-  cmdOn = false;                     /* …and nobody's Command (R10): the tick is pressed for the attack it is for */
+  rangeSel = "";                     /* …and no range: the next declaration brings its own band, or none */
+  cmdOn = false;                    /* …and nobody's Command (R10): the tick is pressed for the attack it is for */
   decl = null; declCb = null; declSent = ""; dmg = null; dmgBuy = 0; dmgPaid = 0;
   dmgClosed = false;
   /* SKEPTIC (close pass, 2026-09-22): "From perks or traits" is a fact about the ROLLER,
@@ -48912,8 +50547,21 @@ var declared = null;                 /* the number the Overseer actually pressed
    roll by hand on its first major action — goes the old way (difficultyWith), exactly as before. */
 var majorSel = 1;                    /* which major action of the turn this test is (1 = the first) */
 var sneakOn = false;                 /* the sneak attack tick — read on an attack against a known Defense */
+/* THE RANGE STEP (Book One p.28; RL.rangeStep and the declaration's contract beside RL.declare): on an attack whose declaration
+   carries { rangeBand, weaponRange }, the band starts where the turn order put it (#gp-range, "" = not known) and the Overseer
+   may change it until the dice are thrown; the step is added when the weapon's ideal range is known too, and said in the sum. */
+var rangeSel = "";
+function rangeOn(){ return !!(decl && decl.kind === "attack" && decl.rangeSent); }
+function rangeNow(){
+  return rangeOn() ? RL.rangeStep({ band:rangeSel, weaponRange:decl.weaponRange, weapon:decl.weapon, mode:decl.mode,
+                                    target:(decl.target && decl.target.name) || "", unset:!!decl.rangeBand && !rangeSel }) : null;
+}
+function rangeAdds(){ var r = rangeNow(); return !!(r && r.known && r.step > 0); }
+function rangeNoteHtml(r){
+  return r && r.note ? '<span class="gp-note" id="gp-range-note" style="display:block;margin-top:4px">' + esc(r.note) + "</span>" : "";
+}
 function defAtk(){ return !!(decl && decl.kind === "attack" && decl.targetDefense != null); }
-function sumPath(){ return defAtk() || majorSel > 1 || !!(decl && decl.majorSent); }
+function sumPath(){ return defAtk() || majorSel > 1 || !!(decl && decl.majorSent) || (typeof rangeAdds === "function" && rangeAdds()); }
 function sneakNow(){ return defAtk() ? sneakOn : !!(decl && decl.sneak); }
 /* the perk on the ROLLER's sheet (a creature has none): "you do not suffer the increased skill test difficulty during your
    second action" — the second action's +1 waived */
@@ -48926,7 +50574,11 @@ function sumNow(typed){
     defenseOf:(decl && decl.target && decl.target.name) || "", typed:typed, majorIndex:majorSel,
     waive:actionBoy(charById($("gp-who").value)),
     sneak:defAtk() ? sneakOn : !!(decl && decl.difficultyEase), encumbrance:on.applies ? on.step : 0,
-    marked:decl ? decl.difficultyMark : 0 });
+    marked:decl ? decl.difficultyMark : 0,
+    /* the range step: only on a declaration that carries the range fields (absent: undefined, and no range part) */
+    rangeBand:rangeOn() ? rangeSel : undefined, weaponRange:rangeOn() ? decl.weaponRange : undefined,
+    rangeUnset:rangeOn() && !!decl.rangeBand && !rangeSel,
+    weapon:decl ? decl.weapon : null, mode:decl ? decl.mode : "" });
 }
 function declareSum(d){
   var typed = (d == null || d === "" || !isFinite(+d)) ? (declared != null ? declared : 0) : +d;
@@ -48944,6 +50596,7 @@ function declareSum(d){
   if(s.attack) h += '<span class="gp-note" style="display:block;margin-top:4px">' +
     (decl && decl.defenseWhy ? esc(decl.defenseWhy) + " " : "") +
     "An attack’s Difficulty is the target’s Defense (Book One p.48), and this step adds the rest — nobody types it.</span>";
+  h += rangeNoteHtml(s.range);           /* the range step (Book One p.28): what it added, or why nothing */
   if(on.applies && on.immobile)
     h += '<span class="gp-note warn" style="display:block;margin-top:4px"><b>' + esc(on.text) +
          "</b> The Guide settles this one without dice.</span>";
@@ -48961,6 +50614,9 @@ function modsMoved(){
   var mj = $("gp-major"), sn = $("gp-sneak");
   majorSel = Math.max(1, Math.min(RL.MAX_MAJOR, Math.round(+(mj && mj.value) || 1)));
   sneakOn = !!(sn && sn.checked);
+  var rg = $("gp-range");                 /* the range to the target, as the Overseer now has it (Book One p.28) */
+  if(rg && rangeOn()) rangeSel = RL.bandOf(rg.value) || "";
+  if(declNoTn !== null && defAtk()) declNoTn = sumNow(0).applied;   /* the number a roller with no numbers waits to press */
   if(T && T.difficulty != null && RL.can(T, "difficulty")){
     if(defAtk()) return declareDifficulty(null);
     if(declared != null) return declareDifficulty(declared);
@@ -48980,6 +50636,9 @@ function paintMods(){
   }
   if(sf && sf.classList) sf.classList.toggle("hidden", !defAtk());
   if(sn) sn.checked = !!sneakOn;
+  var rf = $("gp-range-f"), rg = $("gp-range");
+  if(rf && rf.classList) rf.classList.toggle("hidden", !rangeOn());
+  if(rg && String(rg.value) !== String(rangeSel)) rg.value = String(rangeSel);
 }
 function declareDifficulty(d){
   if(!T) T = RL.newTest(spec());
@@ -48996,6 +50655,7 @@ function declareDifficulty(d){
     ? "Difficulty 0 needs no roll: automatically successful, no complications, and <b>no Action Points</b>. The Overseer may still call for one."
     : "Difficulty <b>" + mod.applied + "</b> — " + esc(RL.difficultyExample(mod.applied));
   if(mod.text) h += '<span class="gp-note" style="display:block;margin-top:4px">' + mod.text + "</span>";
+  if(typeof rangeNow === "function") h += rangeNoteHtml(rangeNow());   /* why no range step was added (a step takes the sum path) */
   if(on.applies && on.immobile)
     h += '<span class="gp-note warn" style="display:block;margin-top:4px"><b>' + esc(on.text) +
          "</b> The Guide settles this one without dice.</span>";
@@ -49256,6 +50916,7 @@ panel.addEventListener("change", function(e){
   if(id === "gp-attr" || id === "gp-attrx"){ fromSheet("gp-"); }
   if(id === "gp-a-attr" || id === "gp-a-attrx"){ fromSheet("gp-a-"); }
   if(id === "gp-pool" || id === "gp-free"){ reprice(); return; }
+  if(id === "gp-range"){ modsMoved(); return; }                        /* the range to the target (Book One p.28) */
   if(id === "gp-major" || id === "gp-sneak"){ modsMoved(); return; }   /* PROJECT H, FIGHT (R2, R3) */
   if(id === "gp-cmd"){ cmdOn = !!e.target.checked; reprice(); return; }   /* PROJECT H, FIGHT (R10): the Command's free d20 */
   paint();
@@ -49383,6 +51044,7 @@ RL.open = function(sp){
      (absent: the first), and on an attack against a known Defense the sneak attack (its flag, or the old seam's -1) */
   majorSel = d.majorIndex || 1;
   sneakOn = d.kind === "attack" && d.targetDefense != null && (!!d.sneak || d.difficultyEase > 0);
+  rangeSel = d.rangeSent ? (d.rangeBand || "") : "";   /* the range step: the band the turn order read off the map */
 
   /* WHOSE POOL.  A character spends the party's Action Points, a creature the
      Overseer's — the same rule step 7 has always used for the extra damage dice, and
@@ -49447,6 +51109,7 @@ RL.open = function(sp){
     T = back.T; paid = Math.max(0, Math.round(+back.paid || 0)); step2done = true; cur = 5; pick = [];
     declared = T.difficulty;
     if(T.mods){ majorSel = T.mods.majorIndex || majorSel; if(T.mods.attack) sneakOn = !!T.mods.sneak; }   /* PROJECT H: as thrown */
+    if(T.mods && T.mods.rangeBand != null && d.rangeSent) rangeSel = T.mods.rangeBand;   /* the band it was thrown at */
     cmdOn = !!(T.commanded && T.commanded.dice);                  /* R10: a Command thrown with the dice is still ticked */
     showGuided();
     paint();
@@ -58334,6 +59997,177 @@ function compSay(tok, sy){
          " or the Overseer may move " + keeper + "’s companion.";
 }
 
+/* ---- BLOCK 6 (MAP TOKENS, 2026-10-14): tokens on a Blocks map ----
+
+   The map gained a second style beside the organic zones: a grid of square blocks, each open block one zone, walls that
+   stop sight and feet, cover blocks that stop feet and not sight.  This file draws the tokens on it, and four things are
+   new here.  Everything else a token does - its disc, its read-out, its drag, its drop rules - is the Zones map's, unchanged.
+
+     1  WHERE A TOKEN STANDS IS THE BLOCK'S OWN ID.  The map numbers an open block 1000 + 100*row + column (D3 is 1203), from
+        its grid position and nothing else, so painting a wall somewhere else never renumbers it and a token never moves by
+        itself.  If the block a token stands in is painted into a wall or cover, it is no zone any more: the token goes to
+        the off-map tray exactly as a token stranded by a regenerate always has, and the strip's line says so BY NAME -
+        "Rex stood in D3, now a wall - in the off-map tray; place again."  strandLine() writes that sentence.
+     2  COVER IS THE MAP'S ANSWER.  On a Blocks map a shot from another block takes HELENA_MAP.coverFrom(target, shooter):
+        the block beside the target on the shot's side - Light 1, Medium 2, Heavy 3, a wall 3.  A shot within one block
+        keeps today's same-zone rule (the best side), and a Zones map never asks the door at all: its cover is read as it
+        was, from the bands the generator draws.
+     3  WHAT CAN IT SEE.  A block clicked shows the map's own view of it: ringed amber, every other block's range letter
+        and moves, and every block it cannot see dimmed, hatched and marked "#" (never colour alone).  A TOKEN pressed now
+        asks the map for that same view of the block it stands in (its sheet or stat block still opens), and the bar's
+        "What can it see?" list is the keyboard's way to it.  Where the map draws no view of its own, this layer draws one
+        from HELENA_MAP.visibleFrom - one view, never two.  It is how a GM shows the table what an enemy standing there
+        sees, and how a player plans a route out of it.
+     4  THE WALK, AS ADVICE.  Dragging a token over a Blocks map says how many blocks it walks around walls and cover to get
+        there (HELENA_MAP.moves): a Move is 1, a Sprint 2 (Book One pp.25-26).  The keyboard's zone list says it beside
+        each block.  It is advice: a token still drops anywhere, as it always has.
+
+   THE DOOR IS ASKED DEFENSIVELY.  door() wraps HELENA_MAP's six answers (style, sees, band, moves, coverFrom, visibleFrom);
+   absent, wrong type or throwing, each one answers as a Zones map does today - sight always clear, no moves, no gate - so
+   a build where the map's door has not landed, or a saved Zones map, draws exactly what it drew yesterday.  A companion's
+   token (cp:) is a token like any other here: it is walked, ringed, stranded and named the same way. */
+var BLOCK_COLS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+var TILE_WORD = { "#":"a wall", "1":"Light cover", "2":"Medium cover", "3":"Heavy cover" };
+function door(HM){
+  function call(name, args){
+    var f = HM && HM[name];
+    if(typeof f !== "function") return undefined;
+    try{ return f.apply(HM, args || []); }catch(e){ return undefined; }
+  }
+  var blocks = call("style") === "blocks";
+  var M = call("map");
+  var has = {};
+  if(M && Array.isArray(M.zones)) M.zones.forEach(function(z){ if(z && z.id != null) has[+z.id] = true; });
+  function known(z){ return z != null && z !== "" && has[+z] === true; }
+  return {
+    blocks: blocks,
+    model: M || null,
+    has: known,
+    /* sight: a Zones map, an unknown zone or a door that cannot answer is clear - the map cannot know, so it never gates */
+    sees: function(a, b){ if(!blocks || !known(a) || !known(b)) return true; return call("sees", [+a, +b]) !== false; },
+    band: function(a, b){ var r = call("band", [+a, +b]); return /^[CMLX]$/.test(String(r)) ? String(r) : null; },
+    /* blocks walked, or null: no way through, an unknown zone, a Zones map, or no answer */
+    moves: function(a, b){
+      if(!blocks || !known(a) || !known(b)) return null;
+      var r = call("moves", [+a, +b]);
+      if(r == null || r === "" || typeof r === "boolean") return null;
+      r = +r;
+      return isFinite(r) && r >= 0 ? Math.round(r) : null;
+    },
+    /* the cover a block's face toward the shooter gives, 0..3, or null when the map does not answer it */
+    coverFrom: function(z, from){
+      if(!blocks || !known(z)) return null;
+      var r = call("coverFrom", [+z, from == null || from === "" ? null : +from]);
+      if(r == null || r === "" || typeof r === "boolean") return null;
+      r = +r;
+      return isFinite(r) ? Math.max(0, Math.min(3, Math.round(r))) : null;
+    },
+    /* the zones a block sees, itself included, or null when the map cannot say */
+    visibleFrom: function(z){
+      if(!blocks || !known(z)) return null;
+      var r = call("visibleFrom", [+z]);
+      if(!Array.isArray(r)) return null;
+      var out = [];
+      r.forEach(function(x){ if(x != null && isFinite(+x)) out.push(+x); });
+      return out;
+    }
+  };
+}
+/* a block's grid place and its code off its id (1000 + 100*row + column): D3 is 1203 */
+function blockXY(id){
+  id = +id;
+  if(!isFinite(id) || id < 1000 || Math.floor(id) !== id) return null;
+  var k = id - 1000;
+  return { x:k % 100, y:Math.floor(k / 100) };
+}
+function blockCode(id){
+  var p = blockXY(id);
+  return p && p.x < BLOCK_COLS.length ? BLOCK_COLS.charAt(p.x) + (p.y + 1) : null;
+}
+/* what the map's stored blocks hold at that id now: "." open, "#" wall, "1" / "2" / "3" cover, or null */
+function tileAt(M, id){
+  var p = blockXY(id);
+  if(!p || !M || typeof M.tiles !== "string") return null;
+  var w = Math.floor(+M.w);
+  if(!(w > 0) || p.x >= w) return null;
+  return M.tiles.charAt(p.y * w + p.x) || null;
+}
+/* the strip's line when tokens lose the block they stood in: by name, what the block is now, and where they went */
+function strandLine(newly, M, switched){
+  newly = (newly || []).filter(function(t){ return t && t.name; });
+  if(!newly.length) return "";
+  var tail = " — in the off-map tray; place again.";
+  if(switched) return "The map is " + switched + " now: " + (newly.length === 1 ? newly[0].name + " waits" : "every token waits") + " in the off-map tray; place again.";
+  var parts = newly.map(function(t){
+    var code = t.zoneLabel || blockCode(t.zone) || ("zone " + t.zone);
+    return { name:String(t.name), code:String(code), word:TILE_WORD[tileAt(M, t.zone)] || null };
+  });
+  if(parts.length === 1){
+    var p = parts[0];
+    return p.name + " stood in " + p.code + (p.word ? ", now " + p.word : ", a block this map has not got") + tail;
+  }
+  var shown = parts.slice(0, 3).map(function(q){ return q.name + " (" + q.code + (q.word ? ", now " + q.word : "") + ")"; });
+  var more = parts.length - shown.length;
+  return shown.join(", ") + (more > 0 ? " and " + more + " more" : "") + tail;
+}
+/* the walk in words, for the zone list and a drop: Book One's Move is 1 block, its Sprint 2 */
+function movesWord(m){
+  if(m == null || !isFinite(+m) || +m < 0) return "no way through";
+  m = Math.round(+m);
+  if(m === 0) return "here";
+  if(m === 1) return "1 move (a Move)";
+  if(m === 2) return "2 moves (a Sprint)";
+  return m + " moves (more than a Sprint)";
+}
+/* the walk on a dragged disc: short, because it sits on the map */
+function movesShort(m){
+  if(m == null || !isFinite(+m) || +m < 0) return "no way";
+  m = Math.round(+m);
+  return m === 0 ? "here" : m === 1 ? "1 · Move" : m === 2 ? "2 · Sprint" : m + " moves";
+}
+/* tokens in a block wrap into rows inside it, so a crowd never spills sideways into the next block: per row
+   max(1, floor((B - 8) / 26)) at the 26-unit step, rows 34 units apart.  Offsets from the zone's anchor. */
+var ROW_STEP = 34;
+function rowPlan(n, B){
+  n = Math.max(0, Math.floor(+n || 0));
+  var per = Math.floor((+B - 8) / 26);
+  if(!isFinite(per)) per = n;
+  per = Math.max(1, per);
+  var out = [], i;
+  for(i = 0; i < n; i++){
+    var r = Math.floor(i / per), k = Math.min(per, n - r * per), j = i - r * per;
+    out.push({ dx:(j - (k - 1) / 2) * 26, dy:r * ROW_STEP });
+  }
+  return out;
+}
+/* sight between two zones, as the turn order asks it: {known:false} where the map cannot know (a Zones map, a token off
+   the map or not placed), else the map's own answers */
+function sightOf(D, za, zb){
+  if(!D || !D.blocks || !D.has(za) || !D.has(zb)) return { known:false };
+  return { known:true, clear:D.sees(za, zb), band:D.band(za, zb), moves:D.moves(za, zb), from:blockCode(za), to:blockCode(zb) };
+}
+/* the open blocks a block cannot see (never itself), or null when the map cannot say */
+function hiddenFrom(D, z, ids){
+  var vis = D ? D.visibleFrom(z) : null;
+  if(!vis) return null;
+  var seen = {}; vis.forEach(function(x){ seen[+x] = true; });
+  return (ids || []).filter(function(x){ return +x !== +z && !seen[+x]; }).map(Number);
+}
+/* who stands in a zone, by name - the paint brush asks before it walls a block in */
+function occupantsIn(list, zone){
+  var out = [];
+  if(zone == null || zone === "") return out;
+  (list || []).forEach(function(t){ if(t && t.zone != null && +t.zone === +zone && t.name) out.push(String(t.name)); });
+  return out;
+}
+/* COVER ON A BLOCKS MAP: the map's door for a shot from another block; null - today's reader stands - for a Zones map,
+   no shooter, a shot within one block (the best side, today's same-zone rule) or a door with no answer */
+function blocksCover(D, z, fromZone){
+  if(!D || !D.blocks) return null;
+  if(fromZone == null || fromZone === "" || +fromZone === +z) return null;
+  return D.coverFrom(z, fromZone);
+}
+
 var API = { strip:strip, place:place, remove:remove, inZone:inZone, offMap:offMap, initials:initials, tokId:tokId ,
             coverDR:coverDR, coverName:coverName, coverFacing:coverFacing, bandCover:bandCover,
             HP_DOWN:HP_DOWN, HP_HURT:HP_HURT, HP_BAND:HP_BAND, COND:COND, COND_ORDER:COND_ORDER,
@@ -58351,6 +60185,10 @@ var API = { strip:strip, place:place, remove:remove, inZone:inZone, offMap:offMa
 /* BLOCK 5: the companion's token, all pure */
 API.COMP_KEY = COMP_KEY; API.compId = compId; API.compName = compName; API.companions = companions; API.withComps = withComps;
 API.placeComp = placeComp; API.compPrune = compPrune; API.compHp = compHp; API.compSay = compSay;
+/* BLOCK 6: tokens on a Blocks map, all pure */
+API.door = door; API.blockXY = blockXY; API.blockCode = blockCode; API.tileAt = tileAt; API.TILE_WORD = TILE_WORD;
+API.strandLine = strandLine; API.movesWord = movesWord; API.movesShort = movesShort; API.rowPlan = rowPlan; API.ROW_STEP = ROW_STEP;
+API.sightOf = sightOf; API.hiddenFrom = hiddenFrom; API.occupantsIn = occupantsIn; API.blocksCover = blocksCover;
 root.SUITE_TOKENS = API;
 
 /* ------------------------------------------------------------- DOM */
@@ -58405,6 +60243,9 @@ style.textContent =
   "#tool-map .zm-zone{flex:none;width:15em;max-width:100%;min-height:32px;background:#242a1b;color:#e8e4d4;border:1px solid var(--zm-field);border-radius:3px;font:inherit;font-size:12px;padding:4px 6px}" +
   "#tool-map .zm-zone:disabled{color:var(--zm-faint)}" +
   "#tool-map .zm-zone:focus-visible{outline:2px solid #f0b429;outline-offset:2px}" +
+  /* BLOCK 6: what a block can see, from the keyboard — on a Blocks map only; a Zones map's bar is the bar it was */
+  "#tool-map .zm-sight{flex:none;width:12em;max-width:100%;min-height:32px;background:#242a1b;color:#e8e4d4;border:1px solid var(--zm-field);border-radius:3px;font:inherit;font-size:12px;padding:4px 6px}" +
+  "#tool-map .zm-sight:focus-visible{outline:2px solid #f0b429;outline-offset:2px}#tool-map .zm-sight[hidden]{display:none}" +
   "#tool-map .zm-hint.on{color:#f0b429}" +
   /* WAVE 6 TRACK C: the chip is the read-out a phone can actually read.  The map is drawn
      to fit the panel, so at 375px the whole thing is at a quarter size; these are real CSS
@@ -58439,6 +60280,8 @@ document.head.appendChild(style);
 var bar = document.createElement("div"); bar.className = "zm-bar"; bar.id = "zm-bar";
 bar.innerHTML = '<span class="zm-h">Tokens</span><div class="zm-strip" id="zm-strip"></div>' +
   '<select class="zm-zone" id="zm-zone" aria-label="Put the picked token in a zone" disabled><option value="">Pick a token, then its zone</option></select>' +
+  /* BLOCK 6: the sight view's keyboard twin, shown on a Blocks map only */
+  '<select class="zm-sight" id="zm-sight" aria-label="Show what a token standing in a block can see" hidden><option value="">What can it see? Pick a block</option></select>' +
   '<span class="zm-tray-h" id="zm-tray-h" hidden>Off map</span><div class="zm-tray" id="zm-tray" hidden></div>' +
   '<span class="zm-hint" id="zm-hint">Pick a token, then click a zone. Drag a token between zones; click one to open its sheet or stat block.</span>';
 panel.insertBefore(bar, main);
@@ -58456,7 +60299,8 @@ if(stage) stage.setAttribute("data-kbd-alt", "zm-zone");
 function renderZoneList(picked){
   if(!zoneSel) return;
   var zs = mapZones() || [], want = "", opts = "";
-  zs.forEach(function(z){ if(z && z.id != null){ var n = zoneTitle(z) || ("zone " + z.id); want += z.id + "|" + n + ";"; opts += '<option value="' + esc(String(z.id)) + '">' + esc(n) + "</option>"; } });
+  var walk = typeof walkFrom === "function" ? walkFrom(picked) : null;     /* BLOCK 6: on a Blocks map each block says the walk to it */
+  zs.forEach(function(z){ if(z && z.id != null){ var n = zoneTitle(z) || ("zone " + z.id); if(walk) n += " — " + walk(z.id); want += z.id + "|" + n + ";"; opts += '<option value="' + esc(String(z.id)) + '">' + esc(n) + "</option>"; } });
   var lead = picked ? "Put " + picked.name + " in\u2026" : (zs.length ? "Pick a token, then its zone" : "No map yet \u2014 press Generate");
   if(zoneSel.getAttribute("data-zones") !== want || zoneSel.getAttribute("data-lead") !== lead){
     zoneSel.innerHTML = '<option value="">' + esc(lead) + "</option>" + opts;
@@ -58555,6 +60399,218 @@ function refuse(text){
   renderStrip();
 }
 function unrefuse(){ if(refused){ refused = ""; try{ if(refusedT) clearTimeout(refusedT); }catch(e){} refusedT = null; } }
+
+/* ---- BLOCK 6, THE DOM HALF: the sight view, the walk on a drag, the strand line, the paint pause ----
+   Every one of these asks door(HELENA_MAP) afresh and does nothing at all on a Zones map, so a Zones map's strip, bar,
+   layer and drag are exactly what they were.  Nothing here writes the store: the sight view is this device's reading
+   position (never shared, never saved), the walk is advice, and the strand line is said, not acted on. */
+var sightZone = null, sightTok = null, strandSeen = null, strandStyle = null;
+var sightSel = document.getElementById("zm-sight");
+var PAINT_HINT = "Painting — tokens stay put until Paint is Off.";
+function mapDoorNow(){ return door(root.HELENA_MAP); }
+/* the map's paint brush is up: token placement and dragging pause (the press is the paint's) */
+function painting(){
+  var HM = root.HELENA_MAP;
+  try{ return !!(HM && typeof HM.painting === "function" && HM.painting()); }catch(e){ return false; }
+}
+/* said on the strip's hint line until the next press (or a few seconds), without a redraw of its own */
+function notice(text){
+  refused = String(text || "");
+  try{ if(refusedT) clearTimeout(refusedT); }catch(e){}
+  refusedT = setTimeout(function(){ refusedT = null; if(refused){ refused = ""; renderStrip(); } }, 12000);
+}
+/* the zone list's walk beside each block, for the picked token: null off a Blocks map or for a token not on it */
+function walkFrom(picked){
+  if(!picked || picked.zone == null) return null;
+  var D = mapDoorNow();
+  if(!D.blocks || !D.has(picked.zone)) return null;
+  return function(z){ return movesWord(D.moves(+picked.zone, +z)); };
+}
+/* the sight view's origin: a block, or a token followed to wherever it stands */
+function sightOrigin(){
+  if(sightTok){ var t = tokOf(sightTok); return t && t.zone != null ? +t.zone : null; }
+  return sightZone;
+}
+function setSight(zone, tokId){
+  sightZone = zone == null || zone === "" ? null : +zone;
+  sightTok = tokId || null;
+  renderSight();
+  drawLayer();
+}
+/* ONE VIEW, THE MAP'S.  A block clicked with no token picked is the map's own: the generator rings it and shows, on every
+   other block, its range letter, its moves, and "#" with a hatch where a wall hides it.  So a token pressed asks the map
+   for exactly that view of the block it stands in - a click on that block, sent through the map's own handler (driving
+   lets it past the stage's capture-phase click, which would otherwise place a picked chip there or swallow it) - and the
+   keyboard's list does the same.  Only where the map draws no view of its own does this layer draw one (drawSight), so the
+   table never sees two.  genSel() reads which block the map's drawing has selected, off its data-sel mark. */
+var driving = false;
+function genSel(){
+  var svg = svgEl(); if(!svg) return null;
+  var el = svg.querySelector("[data-sel]"); if(!el) return null;
+  var code = String(el.getAttribute("data-sel")), zs = mapZones() || [];
+  for(var i = 0; i < zs.length; i++) if(zs[i] && String(zs[i].code) === code) return +zs[i].id;
+  return null;
+}
+function selectBlock(z){
+  var svg = svgEl(); if(!svg || z == null) return false;
+  var g = svg.querySelector('g.zone[data-z="' + (+z) + '"]');
+  if(!g || typeof g.dispatchEvent !== "function") return false;
+  driving = true;
+  try{ g.dispatchEvent(new MouseEvent("click", { bubbles:true, cancelable:true })); }catch(e){ driving = false; return false; }
+  driving = false;
+  return true;
+}
+/* show what a block sees (z), or put the view away (null): the map's own view where it draws one, else this layer's */
+function chooseSight(z){
+  var cur = genSel();
+  if(z == null || z === ""){ if(cur != null) selectBlock(cur); setSight(null, null); return null; }
+  z = +z;
+  if(painting()){ refuse(PAINT_HINT); renderSight(); return null; }   /* a brush is up: the press would paint, so no view */
+  if(cur !== z) selectBlock(z);
+  if(genSel() === z){ sightZone = null; sightTok = null; renderSight(); drawLayer(); return z; }
+  setSight(z, null);
+  return z;
+}
+/* a token pressed (it opens, as ever): on a Blocks map, what an enemy standing there sees.  Pressed again, the view goes */
+function sightFromToken(id){
+  var D = mapDoorNow(); if(!D.blocks) return false;
+  var t = tokOf(id); if(!t || t.zone == null || !D.has(t.zone)) return false;
+  var z = +t.zone, before = genSel();
+  if(selectBlock(z)){
+    var now = genSel();
+    if(now === z || (before === z && now == null)){ sightZone = null; sightTok = null; renderSight(); return true; }
+  }
+  if(sightTok === id) setSight(null, null); else setSight(null, id);    /* the map drew no view of its own: this layer's */
+  return true;
+}
+/* the keyboard twin: a list of the blocks, the chosen one's line saying what it cannot see */
+function sightLine(D, o, zs, who){
+  var hid = hiddenFrom(D, o, zs.map(function(z){ return +z.id; }));
+  return (who ? who + " in " : "") + (blockCode(o) || String(o)) + " — " +
+         (hid == null ? "the map cannot say" : hid.length ? hid.length + (hid.length === 1 ? " block" : " blocks") + " out of sight (#)" : "sees every block");
+}
+function renderSight(){
+  if(!sightSel) return;
+  var D = mapDoorNow();
+  if(!D.blocks){ sightZone = null; sightTok = null; if(!sightSel.hidden) sightSel.hidden = true; return; }
+  if(sightSel.hidden) sightSel.hidden = false;
+  var zs = mapZones() || [], mine = genSel(), o = mine != null ? mine : sightOrigin();
+  if(o != null && !D.has(o)){ o = null; sightZone = null; }
+  var who = mine == null && sightTok ? (tokOf(sightTok) || {}).name : "";
+  var lead = o == null ? "What can it see? Pick a block" : "Put the sight view away", want = lead + ";", opts = "";
+  zs.forEach(function(z){
+    if(!z || z.id == null) return;
+    var n = (+z.id === o ? sightLine(D, o, zs, who) : (blockCode(z.id) || zoneTitle(z) || String(z.id)));
+    want += z.id + "|" + n + ";";
+    opts += '<option value="' + esc(String(z.id)) + '">' + esc(n) + "</option>";
+  });
+  if(sightSel.getAttribute("data-zones") !== want){
+    sightSel.innerHTML = '<option value="">' + esc(lead) + "</option>" + opts;
+    sightSel.setAttribute("data-zones", want);
+  }
+  sightSel.value = o == null ? "" : String(o);
+}
+if(sightSel) sightSel.addEventListener("change", function(){ var v = sightSel.value; chooseSight(v === "" ? null : +v); });
+/* a zone's drawn box in the layer's space (a Blocks map's zone path is one square) */
+function boxOf(zp, lay){
+  if(!zp || !zp.path) return null;
+  var b; try{ b = zp.path.getBBox(); }catch(e){ return null; }
+  var m = toLayer(zp.path, lay);
+  var p0 = new DOMPoint(b.x, b.y), p1 = new DOMPoint(b.x + b.width, b.y + b.height);
+  if(m){ p0 = p0.matrixTransform(m); p1 = p1.matrixTransform(m); }
+  var x0 = Math.min(p0.x, p1.x), y0 = Math.min(p0.y, p1.y), x1 = Math.max(p0.x, p1.x), y1 = Math.max(p0.y, p1.y);
+  return x1 > x0 && y1 > y0 ? { x0:x0, y0:y0, x1:x1, y1:y1, w:x1 - x0, h:y1 - y0 } : null;
+}
+/* the rows a crowd takes inside its block: rowPlan's offsets, or null (a Zones map keeps its one centred row) */
+function blockRows(zp, lay, n){
+  var D = mapDoorNow(); if(!D.blocks) return null;
+  var b = boxOf(zp, lay); if(!b) return null;
+  return rowPlan(n, b.w);
+}
+/* the map's own drawing already shows a block's view (its ring, or what it cannot see): say nothing twice */
+function genSight(lay){
+  var svg = svgEl(); if(!svg) return false;
+  var own = false;
+  Array.prototype.forEach.call(svg.querySelectorAll("[data-nosight], [data-sel]"), function(el){ if(!lay.contains(el)) own = true; });
+  if(!own) Array.prototype.forEach.call(svg.querySelectorAll("text"), function(t){ if(!own && !lay.contains(t) && (t.textContent || "").trim() === "#") own = true; });
+  return own;
+}
+/* the sight view, drawn under the tokens where the map draws none of its own: every open block the origin cannot see
+   dimmed, hatched and marked "#" (a mark and a pattern, never colour alone), the origin ringed amber.  Inert, like every
+   mark this layer draws.  With the map's own view up it draws nothing at all - one view, never two. */
+function drawSight(g){
+  var D = mapDoorNow(); if(!D.blocks) return -1;
+  var o = sightOrigin(); if(o == null || !D.has(o)) return -1;
+  if(genSight(g)) return -2;
+  var boxes = {}, ids = [];
+  zonePaths().forEach(function(zp){ var b = boxOf(zp, g); if(b){ boxes[zp.z] = b; ids.push(zp.z); } });
+  var me = boxes[+o]; if(!me) return -1;
+  var hid = hiddenFrom(D, o, ids) || [];
+  var sg = mk("g", { "data-sight":String(o) });
+  g.insertBefore(sg, g.firstChild);
+  if(hid.length){
+    var defs = mk("defs", {}), pat = mk("pattern", { id:"zm-sight-hatch", patternUnits:"userSpaceOnUse", width:9, height:9, patternTransform:"rotate(45)" });
+    pat.appendChild(mk("rect", { x:0, y:0, width:3, height:9, fill:"#0b0c08", "fill-opacity":0.8 }));
+    defs.appendChild(pat); sg.appendChild(defs);
+  }
+  hid.forEach(function(z){
+    var b = boxes[z]; if(!b) return;
+    var hg = mk("g", { "data-nosight":String(z) });
+    hg.appendChild(mk("rect", { x:b.x0.toFixed(1), y:b.y0.toFixed(1), width:b.w.toFixed(1), height:b.h.toFixed(1), fill:"#0b0c08", "fill-opacity":0.45 }));
+    hg.appendChild(mk("rect", { x:b.x0.toFixed(1), y:b.y0.toFixed(1), width:b.w.toFixed(1), height:b.h.toFixed(1), fill:"url(#zm-sight-hatch)" }));
+    var fs = Math.max(12, Math.min(26, b.w * 0.24));
+    var tx = mk("text", { x:(b.x0 + fs * 0.4).toFixed(1), y:(b.y1 - fs * 0.35).toFixed(1), "font-size":fs.toFixed(1), "font-weight":700,
+                          fill:"#f2eedc", stroke:"#0b0c08", "stroke-width":3, "paint-order":"stroke" });
+    tx.textContent = "#";
+    hg.appendChild(tx);
+    sg.appendChild(hg);
+  });
+  sg.appendChild(mk("rect", { x:(me.x0 + 2).toFixed(1), y:(me.y0 + 2).toFixed(1), width:Math.max(0, me.w - 4).toFixed(1), height:Math.max(0, me.h - 4).toFixed(1),
+                              fill:"none", stroke:"#f0b429", "stroke-width":4, "data-sight-from":String(o) }));
+  return hid.length;
+}
+function sightOn(){ var D = mapDoorNow(); var o = sightOrigin(); return D.blocks && o != null && D.has(o); }
+/* the walk on the dragged disc: how many blocks to the block under the pointer, around walls and cover - advice */
+function dragWalk(e){
+  if(!drag || !drag.moved || !drag.el) return;
+  var D = mapDoorNow(); if(!D.blocks) return;
+  var t = tokOf(drag.id), from = t && t.zone != null ? +t.zone : drag.zone;
+  if(from == null || !D.has(from)) return;
+  var zp = zoneAt(e.clientX, e.clientY), z = zp ? zp.z : null;
+  if(z === drag.walkZ) return;
+  drag.walkZ = z;
+  var lab = drag.el.querySelector(".zm-walk");
+  if(z == null){ if(lab && lab.parentNode) lab.parentNode.removeChild(lab); return; }
+  /* big enough to read under a moving pointer: 20 units is about 10 px on a laptop's Fight map (pressed at 1280x800) */
+  var txt = movesShort(D.moves(from, z)), w = 11.5 * txt.length + 16;
+  if(!lab){
+    lab = mk("g", {}); lab.setAttribute("class", "zm-dec zm-walk");
+    lab.appendChild(mk("rect", { x:-w / 2, y:-52, width:w, height:28, rx:4, fill:"#15180f", stroke:"#f0b429", "stroke-width":2 }));
+    lab.appendChild(mk("text", { x:0, y:-31, "text-anchor":"middle", "font-size":20, "font-weight":700, fill:"#f0b429" }));
+    drag.el.appendChild(lab);
+  }
+  var r = lab.querySelector("rect"), tx = lab.querySelector("text");
+  if(r){ r.setAttribute("x", (-w / 2).toFixed(1)); r.setAttribute("width", w.toFixed(1)); }
+  if(tx) tx.textContent = txt;
+  lab.setAttribute("data-walk", String(z));
+}
+/* tokens whose block went away since the last draw (painted into a wall or cover, or a map that changed style), said by
+   name.  Only a Blocks map says it: a Zones map's regenerate strands tokens to the tray, silently, as it always has. */
+function strandCheck(list, ids){
+  var D = mapDoorNow(), style = D.blocks ? "blocks" : "zones";
+  if(!ids || !ids.length) return "";
+  var has = {}; ids.forEach(function(z){ has[+z] = true; });
+  var now = {};
+  (list || []).forEach(function(t){ if(t && t.id && t.zone != null && has[+t.zone]) now[t.id] = +t.zone; });
+  var said = "";
+  if(strandSeen && (D.blocks || strandStyle === "blocks")){
+    var newly = (list || []).filter(function(t){ return t && t.id && t.zone != null && !has[+t.zone] && strandSeen[t.id] === +t.zone; });
+    var switched = strandStyle && strandStyle !== style ? (D.blocks ? "a Blocks map" : "a Zones map") : null;
+    if(newly.length) said = strandLine(newly, D.model, switched);
+  }
+  strandSeen = now; strandStyle = style;
+  return said;
+}
 /* WAVE 6 TRACK C: everything BLOCK 3 needs to answer, gathered from the live store on each
    draw and never cached.  The encounter's HP map and roster come out of its own shared
    slice (tools.encounter) — the same object the builder writes and a room replicates — so
@@ -58622,11 +60678,13 @@ function renderStrip(){
   trayEl.innerHTML = tray;
   trayEl.hidden = trayH.hidden = !tray;
   renderMini(list, ids);                                      /* stage 2: the strip state's who-is-where */
+  if(typeof strandCheck === "function"){ var sl = strandCheck(list, ids); if(sl) notice(sl); }   /* BLOCK 6: a block walled under a token, said by name */
   var picked = sel ? tokOf(sel) : null;
   hintEl.className = "zm-hint" + (picked ? " on" : "");
   hintEl.textContent = picked ? "Click a zone to put " + picked.name + " there." : "Pick a token, then click a zone. Drag a token between zones; click one to open its sheet or stat block.";
   if(refused){ hintEl.className = "zm-hint no"; hintEl.textContent = refused; }     /* BLOCK 5: said by name */
   renderZoneList(picked);
+  if(typeof renderSight === "function") renderSight();        /* BLOCK 6: the sight view's keyboard twin (a Blocks map only) */
   reserveBar(list, ids);
 }
 /* SKEPTIC 5B, finding 4 reopened.  min-height:60px / max-height:112px reserves the FLOOR
@@ -58698,6 +60756,8 @@ function reserveBar(list, ids){
     measureBar.innerHTML = '<span class="zm-h">Tokens</span><div class="zm-strip">' + html + "</div>" +
       /* A-R3: the zone list stands in the bar too, at its fixed width */
       '<select class="zm-zone" disabled><option>Pick a token, then its zone</option></select>' +
+      /* BLOCK 6: on a Blocks map the sight list stands in the bar too, at its own fixed width */
+      (typeof sightSel !== "undefined" && sightSel && !sightSel.hidden ? '<select class="zm-sight" disabled><option>What can it see? Pick a block</option></select>' : "") +
       /* the hint swaps between two sentences as a chip is picked and let go; the reserve
          takes the longer of the two, so that swap cannot move the map either. */
       '<span class="zm-hint">' + esc(HINT_IDLE.length >= hintEl.textContent.length ? HINT_IDLE : hintEl.textContent) + "</span>";
@@ -58911,17 +60971,21 @@ function drawLayer(){
   if(panel.hidden) return;                                   // getBBox on a hidden panel reads zeros
   var toks = tokens().filter(function(t){ return t && t.id && t.zone != null; });
   toks = toks.concat(compList().filter(function(t){ return t.zone != null; }));   /* BLOCK 5: named companions, where they stand */
-  if(!toks.length) return;
+  var sight = typeof sightOn === "function" && sightOn();     /* BLOCK 6: the sight view draws with nobody on the map too */
+  if(!toks.length && !sight) return;
   var g = document.createElementNS(NS, "g"); g.setAttribute("id", "zm-layer");
   svg.appendChild(g);                                        // in the tree FIRST: anchors are measured in this layer's space
+  if(sight) drawSight(g);                                     /* BLOCK 6: under the tokens, inert */
   var ctx = hpCtx();                                         // WAVE 6 TRACK C: the live numbers, read once per draw
   var byZ = {}; zonePaths().forEach(function(z){ byZ[z.z] = z; });
   var groups = {}; toks.forEach(function(t){ (groups[t.zone] = groups[t.zone] || []).push(t); });
   Object.keys(groups).forEach(function(z){
     var zp = byZ[z]; if(!zp) return;                          // a zone this map lacks (regenerated): the chip still says where it was
     var a = anchor(zp, g), list = groups[z], n = list.length, step = 26;
+    var rows = typeof blockRows === "function" ? blockRows(zp, g, n) : null;   /* BLOCK 6: a crowd wraps inside its block */
     list.forEach(function(t, i){
       var x = a.x + (i - (n - 1) / 2) * step, y = a.y, ch = t.kind === "char";
+      if(rows && rows[i]){ x = a.x + rows[i].dx; y = a.y + rows[i].dy; }
       var tg = document.createElementNS(NS, "g");
       tg.setAttribute("class", "zm-tok " + t.kind + (flash === t.id ? " flash" : ""));
       tg.setAttribute("data-tok", t.id); tg.setAttribute("data-zone", String(zp.z));
@@ -59004,6 +61068,7 @@ function onChipClick(e){
   var pick = b.getAttribute("data-pick"), off = b.getAttribute("data-off");
   unrefuse();                                                   /* BLOCK 5: a new press clears the last refusal */
   if(off){ var t = tokOf(off); if(t) takeOff(t); if(sel === off) sel = null; return; }
+  if(pick && typeof painting === "function" && painting()){ sel = null; refuse(PAINT_HINT); return; }   /* BLOCK 6: no placing while a brush is up */
   /* BLOCK 5: a companion this device may not move is refused at the pick, by name — not after a zone is chosen */
   if(pick){ var pk = tokOf(pick), no = pk ? compSay(pk, SY) : ""; if(no){ sel = null; refuse(no); return; } }
   if(pick){
@@ -59021,7 +61086,9 @@ trayEl.addEventListener("click", onChipClick);
 /* a click on a zone with a chip picked places it; capture phase, so the generator's own
    zone click (range bands) does not fire for it */
 stage.addEventListener("click", function(e){
+  if(driving) return;                                         /* BLOCK 6: this layer asking the map for a block's view: the map's own */
   if(swallowClick){ swallowClick = false; e.stopPropagation(); e.preventDefault(); return; }
+  if(painting()){ if(sel){ sel = null; refuse(PAINT_HINT); } return; }   /* BLOCK 6: the press is the brush's; nothing is placed */
   if(!sel) return;
   /* FORGIVING, exactly as a drop is (BUG 2).  A tap's click is synthesised at INTEGER
      coordinates: at 820x1180, seed "wave5b-touch", a point isPointInFill accepts at
@@ -59047,6 +61114,7 @@ function onMove(e){
   if(!drag.moved){ if(Math.sqrt(dx * dx + dy * dy) < 4) return; drag.moved = true; drag.el.setAttribute("class", drag.el.getAttribute("class") + " dragging"); }
   var p = ptInLayer(e.clientX, e.clientY);
   if(p) drag.el.setAttribute("transform", "translate(" + (p.x + drag.gx).toFixed(1) + "," + (p.y + drag.gy).toFixed(1) + ")");
+  dragWalk(e);                                                /* BLOCK 6: the walk to the block under the pointer, as advice */
   e.preventDefault();
 }
 /* A FINGER IS NOT A MOUSE.  On a touch screen the browser owns the gesture until a listener
@@ -59069,7 +61137,7 @@ function onUp(e){
      with a chip picked the same finger both opened a sheet and placed that chip in the zone
      underneath.  Opening swallows the click, exactly as a completed drag does. */
   if(!d.moved){ swallowClick = true; setTimeout(function(){ swallowClick = false; }, 0);
-                if(renderPending) redraw(); open(d.id); return; }
+                if(renderPending) redraw(); sightFromToken(d.id); open(d.id); return; }   /* BLOCK 6: and what it sees */
   swallowClick = true; setTimeout(function(){ swallowClick = false; }, 0);
   var zp = e.type === "pointerup" ? dropZone(e.clientX, e.clientY) : null, tok = tokOf(d.id);
   /* WHERE IT IS NOW, not where it was when the finger went down.  d.zone is the data-zone
@@ -59086,6 +61154,7 @@ function onUp(e){
 }
 stage.addEventListener("pointerdown", function(e){
   var tg = e.target && e.target.closest ? e.target.closest("g.zm-tok") : null; if(!tg || e.button) return;
+  if(painting()){ refuse(PAINT_HINT); return; }              /* BLOCK 6: a brush is up — the press is the paint's, the token stays */
   var home = tg.getAttribute("transform") || "", m = XY.exec(home), p = ptInLayer(e.clientX, e.clientY);
   var hx = m ? +m[1] : 0, hy = m ? +m[2] : 0;
   drag = { id:tg.getAttribute("data-tok"), zone:+tg.getAttribute("data-zone"), x0:e.clientX, y0:e.clientY,
@@ -59232,6 +61301,10 @@ function zoneCoverInfo(z, fromZone){
   var bands = zoneBands(z);
   if(!bands) return { cover:0, face:null, name:"", bands:null };
   var face = facingBetween(z, fromZone), cover = bandCover(bands, face);
+  /* BLOCK 6: on a Blocks map a shot from another block takes the map's answer — the block beside the target on the shot's
+     side (Light 1, Medium 2, Heavy 3, a wall 3).  A Zones map, a shot within one block and no shooter keep the line above. */
+  var bc = blocksCover(mapDoorNow(), z, fromZone);
+  if(bc != null) cover = bc;
   return { cover:cover, face:face, name:coverName(cover), bands:bands };
 }
 root.SUITE_TOKENS.zoneCover = function(z, fromZone){ return zoneCoverInfo(z, fromZone).cover; };
@@ -59245,6 +61318,31 @@ root.SUITE_TOKENS.placeIn = function(id, z){ var tok = tokOf(id), zp = null; zon
   if(tok && zp) moveTo(tok, zp); return !!(tok && zp); };
 /* stage 6: the current map's name for a zone, for any reader (the sheet's cover line included) */
 root.SUITE_TOKENS.zoneName = function(z){ return zoneTitle(modelZone(z)); };
+/* BLOCK 6: what the rest of the suite may ask about tokens on a Blocks map — every answer a copy, nothing written.
+     occupants(zone)      -> the names of every token standing in that zone (characters, creatures, companions): the map's
+                             paint brush asks before it walls a block in
+     sightBetween(a, b)   -> {known:false} where the map cannot know (a Zones map, either token off the map or not placed),
+                             else {known:true, clear, band, moves, from, to} — a and b are token ids ("c:…", "e:…", "cp:…")
+     seenBy(id)           -> {known:false}, or {known:true, zone, from, sees:[token ids it can see], hidden:[token ids it cannot]}
+     showSight(z, tokId)  -> put the sight view on a block (or a token), or away with no arguments; sight() -> its origin */
+root.SUITE_TOKENS.occupants = function(z){ return occupantsIn(allList(), z); };
+root.SUITE_TOKENS.sightBetween = function(a, b){
+  var ta = tokOf(a), tb = tokOf(b);
+  if(!ta || !tb || ta.zone == null || tb.zone == null) return { known:false };
+  return sightOf(mapDoorNow(), +ta.zone, +tb.zone);
+};
+root.SUITE_TOKENS.seenBy = function(id){
+  var t = tokOf(id), D = mapDoorNow();
+  if(!t || t.zone == null || !D.blocks || !D.has(t.zone)) return { known:false };
+  var sees = [], hidden = [];
+  allList().forEach(function(o){
+    if(!o || o.id === t.id || o.zone == null || !D.has(o.zone)) return;
+    (D.sees(+t.zone, +o.zone) ? sees : hidden).push(o.id);
+  });
+  return { known:true, zone:+t.zone, from:blockCode(t.zone), sees:sees, hidden:hidden };
+};
+root.SUITE_TOKENS.showSight = function(z, tokId){ if(tokId) sightFromToken(String(tokId)); else chooseSight(z == null ? null : z); return root.SUITE_TOKENS.sight().zone; };
+root.SUITE_TOKENS.sight = function(){ var m = genSel(); return { zone:m != null ? m : sightOrigin(), token:m != null ? null : sightTok, map:m != null }; };
 redraw();
 })(typeof window !== "undefined" ? window : this);
 
