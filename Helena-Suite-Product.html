@@ -1421,6 +1421,9 @@
 #tool-char .cs-tick input{margin:0}
 #tool-char .cs-tick input:checked + span{color:var(--amber)}
 #tool-char .cs-tick + small{color:var(--faint);font-size:11px;flex:1;text-align:right}
+#tool-char .cs-stealth{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;margin:0 0 8px}
+#tool-char .cs-stealth[hidden]{display:none}
+#tool-char .cs-stealth .cs-tick + small{text-align:left;color:var(--dim)}
 #tool-char .cs-printnotes{display:none}
 #tool-char .cs-night{border-color:var(--blue);color:var(--blue)}
 #tool-char .cs-night:hover{background:#12202b;border-color:var(--blue);color:var(--blue)}
@@ -2477,6 +2480,8 @@
 #tool-dice .gp-note em{color:var(--amber);font-style:normal}
 #tool-dice .gp-note.warn{color:var(--oxide-ink)}
 #tool-dice .gp-note.good{color:var(--verdigris)}
+#tool-dice .gp-mods{margin:0 0 8px}
+#tool-dice .gp-note .gp-sum{display:block;color:var(--amber);font-weight:700;letter-spacing:.04em}
 #tool-dice details.gp-why{margin-top:6px}
 #tool-dice details.gp-why > summary{display:inline-flex;align-items:center;gap:6px;min-height:32px;cursor:pointer;list-style:none;
        font-size:var(--t-cap);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
@@ -4731,6 +4736,13 @@ end $$;
             <div class="cs-cbadge"><span>Defense</span><div class="cs-gear"><b id="cs-def">1</b></div></div>
             <div class="cs-cbadge"><span>Initiative</span><div class="cs-gear"><b id="cs-init">10</b></div></div>
           </div>
+          <!-- PROJECT H, FIGHT (Zoe 2026-10-13, R1): the Stealth suit's field, beside Defense — shown only on a sheet wearing one
+               (CH.stealthSuit), stored on the sheet as stealthOn, and read by every attack through CH.defenseOf.  cs-hint: a moment
+               in a fight, not the printed sheet's — the print stylesheet already drops every hint, so the three pages stand -->
+          <div class="cs-hint cs-stealth" id="cs-stealth-row" hidden>
+            <label class="cs-tick" title="The Stealth suit (Guide p.cxxvii): while the field runs, attacks and searches against you suffer +2 Difficulty. Ticked, this sheet&rsquo;s Defense is 2 higher and every attack against it reads that. A search against you &mdash; a Sneak-opposed PER test &mdash; is the Overseer&rsquo;s to apply by hand."><input type="checkbox" id="cs-stealth" data-f="stealthOn"><span>Stealth field on</span></label>
+            <small id="cs-stealth-say"></small>
+          </div>
           <!-- the Initiative arithmetic, printed the way the turn tracker prints it, so a
                player can see where an encumbered number went (CRB p.48). -->
           <div class="cs-enc" id="cs-init-line"></div>
@@ -5435,6 +5447,12 @@ end $$;
 
     <section class="gp-step locked" id="gp-s1">
       <h3><b>1</b> The Overseer declares the difficulty</h3>
+      <!-- PROJECT H, FIGHT (R2, R3): which major action of the turn this is, and the sneak attack — the roll step adds them -->
+      <div class="gp-setup gp-mods" id="gp-mods">
+        <div class="gp-f"><span class="stencil">Major action this turn</span>
+          <select id="gp-major" aria-label="Which major action of this turn the test is" title="Each extra major action costs 2 AP and its test is +1 Difficulty: the second is +1, the third +2 (Book One p.18)"></select></div>
+        <div class="gp-f chk hidden" id="gp-sneak-f"><label title="Striking from hiding (Guide p.viii): against an enemy unaware of you, the attack is &minus;1 Difficulty (minimum 0), and it gains Vicious &mdash; or +2 CD if it already has Vicious"><input type="checkbox" id="gp-sneak"> Sneak attack</label></div>
+      </div>
       <div class="gp-diffs" id="gp-diffs" role="group" aria-label="The difficulty"></div>
       <p class="gp-note" id="gp-diff-note">Nothing else is offered until this is set.</p>
       <div class="gp-acts hidden" id="gp-d0-acts">
@@ -21451,7 +21469,47 @@ var CH = {
   },
   initiative: function(per, agi){ return (+per || 0) + (+agi || 0); },
   defense:    function(agi){ return (+agi || 0) >= 9 ? 2 : 1; },
-  maxHp:      function(end, lck, level){ return (+end || 0) + (+lck || 0) + Math.max(0, (+level || 1) - 1); },
+  /* ============================================================ PROJECT H, FIGHT (Zoe 2026-10-13, ruled: R0, R1) — THE DEFENSE DOOR
+     THE CONTRACT, published for the turn order and the drawer.  Every caller reads a character's Defense HERE, never c.special.A
+     and never c.stealthOn directly:
+       HELENA_CHAR.defenseOf(c)          -> the Defense every attack on this sheet starts at: CH.defense(AGI) (Book One p.48), +2
+                                            while the stealth field is ticked on a Stealth suit (CH.stealthField).  null: no sheet.
+       HELENA_CHAR.defenseLine(c, name)  -> { value, base, agi, stealth, why } — the same number and its sentence, e.g.
+                                            "Defense 3 — Zoe’s Agility 7 is Defense 1 (Book One p.48), +2 while the stealth field
+                                            is on (Guide p.cxxvii)."
+       HELENA_CHAR.defenseFor(charId)    -> defenseLine of the sheet the store holds under that id, or null when none does (bound
+                                            outside this block, beside HELENA_CHAR.open: it reads the store).
+     The turn order reaches it for a charId by the sheet it already reads (TT.defenseOf: ctx.charOf(entry.ref)), then
+     window.HELENA_CHAR.defenseLine(c, entry.name) — or HELENA_CHAR.defenseFor(entry.ref) — and hands the number to the drawer as
+     the declaration's `targetDefense` (src/dice-roller.html, beside RL.declare).
+     THE TICK (R1): c.stealthOn, a boolean on the sheet, written ONLY through the sheet's own write door (edit(), the box's data-f
+     binding), so it rides the room's chars slice to every device and every attack against her reads it.  Absent = off; hardened
+     when present and never added when absent (normalise — a default would land on every sheet at every boot).  It shows, and
+     counts, only on a sheet whose armour is a Stealth suit — armour key "stealth", or a name starting "Stealth" (Zoe's "Stealth
+     Suit (Laminated + Shadowed)"): take the suit off and the +2 goes with it, whatever the stored tick says.  Guide p.cxxvii, the
+     Stealth suit: "attacks and searches against you suffer +2 Difficulty" — attacks read it here; a search against her (a
+     Sneak-opposed PER test) is the Overseer's to apply by hand, and the tick's title says so. */
+  STEALTH_DEF: 2,
+  stealthSuit: function(c){
+    var a = c && typeof c === "object" ? c.armour : null;
+    if(!a || typeof a !== "object") return false;
+    if(String(a.key == null ? "" : a.key).trim().toLowerCase() === "stealth") return true;
+    return /^stealth/i.test(String(a.name == null ? "" : a.name).trim());
+  },
+  stealthField: function(c){ return !!(c && typeof c === "object" && c.stealthOn === true && CH.stealthSuit(c)); },
+  defenseOf: function(c){
+    if(!c || typeof c !== "object") return null;
+    return CH.defense((c.special || {}).A) + (CH.stealthField(c) ? CH.STEALTH_DEF : 0);
+  },
+  defenseLine: function(c, name){
+    if(!c || typeof c !== "object") return null;
+    var agi = +((c.special || {}).A) || 0, base = CH.defense(agi), on = CH.stealthField(c);
+    var v = base + (on ? CH.STEALTH_DEF : 0), who = String(name == null ? (c.name || "") : name).trim();
+    return { value:v, base:base, agi:agi, stealth:on,
+             why:"Defense " + v + " — " + (who ? who + "’s " : "") + "Agility " + agi + " is Defense " + base + " (Book One p.48)" +
+                 (on ? ", +2 while the stealth field is on (Guide p.cxxvii)" : "") + "." };
+  },
+  maxHp:     function(end, lck, level){ return (+end || 0) + (+lck || 0) + Math.max(0, (+level || 1) - 1); },
   damageLane: function(attr){ var v = +attr || 0; return v >= 11 ? 3 : v >= 9 ? 2 : v >= 7 ? 1 : 0; },
   carry:      function(str){ return 12 + (+str || 0); },
   armourHp:   function(phys, en, rarity){ return Math.max(4, 2 * ((+phys || 0) + (+en || 0)) + 2 * (+rarity || 0)); },
@@ -24902,6 +24960,9 @@ function normalise(c){
     if(!isList(c.traits)) delete c.traits;
     else c.traits = CH.traitsClean(c.traits);
   }
+  /* PROJECT H, FIGHT (R1): the stealth field's tick, hardened when PRESENT and never added when absent (the same rule) — a
+     boolean or nothing; anything else off a file or the wire reads as off */
+  if(c.stealthOn != null) c.stealthOn = c.stealthOn === true;
   if(c.created != null){
     var cwr = c.created;
     if(!isRec(cwr) || typeof cwr.id !== "string" || !cwr.id) delete c.created;
@@ -25234,6 +25295,15 @@ function select(id){ cur = id; try{ localStorage.setItem(CUR, id); }catch(e){} r
    a token) lands with Combat and Health open and the Combat card on the screen — cardsLand,
    in the SHEETCARDS block.  The door itself is unchanged: the same sheet is selected. */
 window.HELENA_CHAR.open = function(id){ if(chars().some(function(c){ return c.id === id; })){ select(id); if(typeof cardsLand === "function") cardsLand(); } };
+/* PROJECT H, FIGHT (R0, R1) — THE DEFENSE DOOR BY ID (the contract is beside CH.defenseOf): the Defense the store's sheet under
+   this id carries — its AGI rule, +2 while its stealth field is on — as CH.defenseLine's { value, base, agi, stealth, why }, or
+   null when no sheet holds the id.  Read-only: it writes nothing and normalises nothing. */
+window.HELENA_CHAR.defenseFor = function(id){
+  if(id == null || id === "") return null;
+  var l = chars(), i;
+  for(i = 0; i < l.length; i++) if(l[i] && String(l[i].id) === String(id)) return CH.defenseLine(l[i]);
+  return null;
+};
 /* PROJECT C stage 4: open one card of the OPEN sheet as an arrival and bring it on the screen —
    the Camp pane's survival glance calls open(id), shows the Characters pane, then this with "surv" */
 window.HELENA_CHAR.openCard = function(k){ if(!k || typeof cardsLand !== "function") return false; cardsLand(String(k)); return true; };
@@ -25460,6 +25530,23 @@ function setVal(id, v){
   if(String(el.value) !== want) el.value = want;
 }
 
+/* PROJECT H, FIGHT (Zoe 2026-10-13, R1): the stealth field's tick beside Defense.  Shown only on a sheet wearing a Stealth suit
+   (CH.stealthSuit); its box is bound to c.stealthOn by data-f, so a press goes through edit() — the sheet's own write door, which
+   refuses a sheet this device may not write — and rides the room to every device.  The line says what it does to Defense. */
+function stealthPaint(c){
+  var dl = CH.defenseLine(c), def = $("cs-def");
+  if(def && dl) def.title = dl.why;
+  var row = $("cs-stealth-row"); if(!row) return false;
+  var suit = CH.stealthSuit(c);
+  row.hidden = !suit;
+  if(!suit) return false;
+  setVal("cs-stealth", c.stealthOn === true);
+  var say = $("cs-stealth-say");
+  if(say) say.textContent = dl.stealth
+    ? "Defense " + dl.value + ": " + dl.base + " for Agility " + dl.agi + ", +2 for the field. Every attack on " + (String(c.name || "").trim() || "this sheet") + " reads it."
+    : "Off: Defense " + dl.value + ". Ticked, Defense " + (dl.value + CH.STEALTH_DEF) + " (Guide p.cxxvii).";
+  return true;
+}
 /* Ruling 5: the pool readout (hp/max +armour) and the two-band bar.  The bar's length is
    Max HP plus the worn set's Armour HP max; Health fills first, Armour HP sits after it. */
 function renderPool(c, max){
@@ -25485,7 +25572,8 @@ function renderDerived(){
     initEl.textContent = initL.text;
     initEl.className = "cs-enc" + (initL.immobile ? " stuck" : initL.step ? " over" : "");
   }
-  $("cs-def").textContent  = CH.defense(sp.A);
+  $("cs-def").textContent  = CH.defenseOf(c);
+  stealthPaint(c);                 // PROJECT H, FIGHT (R1): the tick beside Defense, and what it does to it
   /* PROJECT H, TRACK C (C-R4): the gear is still the STR lane, plus Heavy Handed's +1 CD on a sheet that holds it; the Luck
      maximum is CH.luckMax, one fewer for Gifted — the figure the Luck door fills to (both unchanged on a sheet with no traits) */
   var heavyM = CH.traitMelee(c);
@@ -28549,7 +28637,9 @@ function fightGo(){
   var fu = now && now.weapons[i] ? CH.unitsAt(now, i) : null;
   out.innerHTML = rollModLine(c, w, "attack") +
     '<div class="cs-qual" id="cs-fight-said"><b>Declared</b> — ' + esc(wname) + " at " + esc(r.target ? r.target.name : "the target") +
-    (r.difficulty == null ? "; the Overseer declares the difficulty." : ", difficulty " + r.difficulty + " (its Defense).") +
+    /* PROJECT H, FIGHT (R4): the roll step's own sum line when the turn order passes it on (the drawer's filled.difficultyLine) */
+    (r.difficultyLine ? " — " + esc(r.difficultyLine) + "." :
+     r.difficulty == null ? "; the Overseer declares the difficulty." : ", difficulty " + r.difficulty + " (its Defense).") +
     (r.ammoSpent ? " " + r.ammoSpent + " round" + (r.ammoSpent === 1 ? "" : "s") + " came off the sheet" +
       (left == null ? "" : " (" + left + " left)") + ", once — they ride to the damage roll." : "") +
     (fu ? " " + esc(fu.name || wname) + ": " + (fu.have < 1 ? "none left" : fu.have + " left") + " on the sheet." : "") +
@@ -33278,7 +33368,7 @@ function cardNumbers(c, ctx){
      against the level ("3 perks · level 4 — one unspent?"); nothing is disabled by it */
   var unspent = CH.perksUnspent(c);
   if(unspent) n.perks += " · level " + CH.levelNum(c) + " — " + (unspent === 1 ? "one" : unspent) + " unspent?";
-  n.combat = "Init " + CH.initiativeLine(c).value + " · Def " + CH.defense(sp.A);
+  n.combat = "Init " + CH.initiativeLine(c).value + " · Def " + (CH.defenseOf ? CH.defenseOf(c) : CH.defense(sp.A));   // PROJECT H, FIGHT (R1)
   n.health = (+c.hp || 0) + "/" + CH.effMax(c) + " HP";
   var a = c.armour || {};
   if(!String(a.name || "").trim()) n.armour = "none worn";
@@ -35326,6 +35416,15 @@ var TT = {
       var agi = (c.special && c.special.A != null) ? +c.special.A : null;
       if(agi == null || !isFinite(agi))
         return { value:null, from:"", why:(entry.name || "That target") + "'s sheet records no Agility, so its Defense cannot be read." };
+      /* PROJECT H, FIGHT (Zoe 2026-10-13, ruled; Howl: "when determining an attack … just add the person's defense"):
+         A CHARACTER'S DEFENSE IS THE SHEET'S OWN ANSWER.  The sheet publishes its Defense door (ctx.defOf, the page's
+         reader of it) and that is the number an attack on a character opens at - 0 + Defense - so the Stealth suit's tick
+         on the sheet (Guide p.cxxvii: "attacks and searches against you suffer +2 Difficulty") reaches every attack made
+         against its wearer, from any device in the room, with no second copy of the rule here.  The door's own parts are
+         said beside the number.  A build whose sheet publishes no door (or a door that cannot answer) keeps the AGI
+         rule below, as before. */
+      var dd = TT.defenseDoor(ctx, entry, c, agi);
+      if(dd) return dd;
       var d = agi >= 9 ? 2 : 1;
       return { value:d, from:"AGI " + agi, sheet:true,
                why:"Defense " + d + " — " + (entry.name || "the target") + " has Agility " + agi +
@@ -35338,6 +35437,24 @@ var TT = {
     return { value:v, from:"the stat block",
              why:"Defense " + v + " — printed on " + (entry.name || "the target") +
                  "'s stat block (Book One p.48: Defense is the basic difficulty of any attack made against you)." };
+  },
+  /* the sheet's Defense door, read for TT.defenseOf: ctx.defOf(ref, sheet, name) is the page's reader of it (HELENA_CHAR.defenseLine
+     - { value, base, agi, stealth, why } - for the sheet the order already holds, else HELENA_CHAR.defenseFor(ref)).  The number
+     and its sentence are the sheet's own, so the turn order says what the sheet says.  null when there is no door, it throws, or it
+     gives no number - the caller then keeps the AGI rule.  PURE: the door is the context's. */
+  defenseDoor: function(ctx, entry, c, agi){
+    if(!(ctx && typeof ctx.defOf === "function")) return null;
+    var r = null;
+    try{ r = ctx.defOf(entry.ref, c, entry.name || ""); }catch(err){ r = null; }
+    if(r == null) return null;
+    var o = typeof r === "object" ? r : { value:r };
+    var v = o.value;
+    if(v == null || v === "" || !isFinite(+v)) return null;
+    v = Math.max(0, Math.round(+v));
+    return { value:v, from:"the sheet", sheet:true, door:true, stealth:o.stealth === true,
+             base:(o.base != null && isFinite(+o.base)) ? Math.max(0, Math.round(+o.base)) : null,
+             why:(typeof o.why === "string" && o.why) ? o.why
+               : "Defense " + v + " — read off " + (entry.name || "the target") + "'s sheet (Book One p.48)." };
   },
 
   /* ---- declaring an attack ---------------------------------------------------
@@ -35557,6 +35674,15 @@ var TT = {
              defense:extra.defense == null || extra.defense === ""
                ? null : Math.max(0, Math.min(5, Math.round(+extra.defense || 0))),
              defenseWhy:extra.defenseWhy || "",
+             /* PROJECT H, FIGHT (Zoe 2026-10-13, ruled): the drawer's own name for it - an attack opens at 0 + the target's
+                Defense (the sheet's door for a character, the Stealth suit's tick included) */
+             targetDefense:extra.defense == null || extra.defense === ""
+               ? null : Math.max(0, Math.min(5, Math.round(+extra.defense || 0))),
+             /* …and which major action of the attacker's turn this is (1 = the first; the order's own count, difficultyStep + 1).
+                Once the drawer starts at a Defense it ADDS the second major action's +1 itself (Book One p.18) rather than
+                printing it for the Overseer to press, so the count has to cross with the Defense or the +1 would be lost. */
+             majorIndex:extra.majorIndex == null || extra.majorIndex === ""
+               ? null : Math.max(1, Math.round(+extra.majorIndex || 1)),
              /* WAVE 8 — HOUSE §K, the attribute damage lane, which the guided
                 pipeline has never had.  The sheet applies it (CH.damageLane) and
                 RL.damagePool did not, so a STR 9 character's sledge dealt 2 CD LESS
@@ -35750,9 +35876,12 @@ var TT = {
                                                                      : (spec && spec.difficultyStep)) || 0)));
     if(step > 0)
       return { ok:false, reason:"step", handoff:true, spec:spec, decl:decl,
+               /* PROJECT H, FIGHT (2026-10-13): a drawer that works the Difficulty out (RL.rollDifficulty) adds this +1 itself
+                  from the declaration's majorIndex - the handoff stands, and says where the +1 is added */
                note:"This combatant took a second major action this turn, so this test is +" + step +
-                    " difficulty (Book One p.18) — a number the software prints and the Overseer presses, " +
-                    "never one it adds on its own. The Dice pane is where that button is." };
+                    " difficulty (Book One p.18) — " + (typeof RL.rollDifficulty === "function"
+                      ? "the Dice pane's guided roll adds it; rolling here would not, so it goes there."
+                      : "a number the software prints and the Overseer presses, never one it adds on its own. The Dice pane is where that button is.") };
     var on = RL.encumbranceOn(decl.attr, decl.encumbranceStep, decl.encumbranceImmobile);
     if(on.applies && on.immobile)
       return { ok:false, reason:"immobile", handoff:true, spec:spec, decl:decl,
@@ -36163,8 +36292,17 @@ function encFor(e){
   if(!e || e.kind !== "char") return null;
   return TT.encPenalty(encOf(charOf(e.ref)));
 }
-function ctx(){ return { charOf:charOf, statOf:statOf, bonus:st.bonus, over:st.over, encOf:encOf }; }
-function natural(){ return { charOf:charOf, statOf:statOf, bonus:st.bonus, over:{}, encOf:encOf }; }
+/* PROJECT H, FIGHT (Zoe 2026-10-13, ruled): a character's Defense through the sheet's published door - HELENA_CHAR.defenseLine
+   for the sheet this order already reads (the Stealth suit's tick included), else HELENA_CHAR.defenseFor by its id.  TT.defenseOf
+   reads it, and keeps the AGI rule when there is no door. */
+function defOf(ref, c, name){
+  var CH = window.HELENA_CHAR;
+  if(!CH) return null;
+  if(c && typeof CH.defenseLine === "function") return CH.defenseLine(c, name);
+  return typeof CH.defenseFor === "function" ? CH.defenseFor(String(ref)) : null;
+}
+function ctx(){ return { charOf:charOf, statOf:statOf, bonus:st.bonus, over:st.over, encOf:encOf, defOf:defOf }; }
+function natural(){ return { charOf:charOf, statOf:statOf, bonus:st.bonus, over:{}, encOf:encOf, defOf:defOf }; }
 function combatants(){
   return TT.assemble(charList(), rosterList(), tokenList())
            .filter(function(e){ return !st.hidden[e.id]; });
@@ -37871,7 +38009,7 @@ function hereSpec(e, x, target){
     freeDice:swx.freeDice, freeWhy:swx.freeWhy,
     mode:(pp && pp.mode) ? pp.mode : plan.mode,
     ammoSpent:0,
-    difficultyStep:used.diff,
+    difficultyStep:used.diff, majorIndex:1 + used.diff,
     encumbrance:encOf(charOf(e.ref)),
     sneak:sa.on,
     difficultyEase:sa.on ? 1 : 0,
@@ -39178,10 +39316,14 @@ function weaponsFor(e){
    row on every render (skeptic pass, 2026-09-24) */
 function atkDiffLine(diff){
   diff = Math.max(0, Math.round(+diff || 0));
+  /* PROJECT H, FIGHT (Zoe 2026-10-13, ruled): the Attack panel's declaration carries which major action this is (majorIndex), and
+     a drawer that works the Difficulty out (RL.rollDifficulty) ADDS its +1 - so on that build the line says so; on an older drawer
+     it is printed for the Overseer to press, as it always was */
+  var adds = typeof window !== "undefined" && !!(window.HELENA_ROLL && typeof window.HELENA_ROLL.rollDifficulty === "function");
   return diff
     ? '<div style="margin-top:5px" class="diff">This turn is +' + diff +
-      " difficulty — a second major action was taken (Book One p.18). <b>Printed, not added</b>: the " +
-      "Overseer declares the number.</div>"
+      " difficulty — a second major action was taken (Book One p.18). " +
+      (adds ? "<b>The roll adds it itself.</b>" : "<b>Printed, not added</b>: the Overseer declares the number.") + "</div>"
     : "";
 }
 function openAttack(e, list, ord, pick, tgtId){
@@ -39448,7 +39590,11 @@ function wirePanel(){
         /* the load only on the roll's own attribute being STR or AGI (TT.encTouches — the drawer's rule) */
         var load2 = TT.encTouches((x && x.parsed && x.parsed.attr) || (x && x.w && x.w.attr) || "") ? (ep2.step || 0) : 0;
         var want = dv.value + load2 - (sneakOn2 ? 1 : 0) - mk2;
-        var land = Math.max(0, Math.min(5, want));
+        /* PROJECT H, FIGHT (Zoe 2026-10-13, ruled): a drawer that works an attack's Difficulty out itself (RL.rollDifficulty,
+           handed the Defense as targetDefense) starts there, adds the rest, has no 0-5 ceiling and no buttons to type it - so the
+           card says that, and not "the pipeline clamps at 5" or "press another number", which are the older drawer's */
+        var sums = typeof window !== "undefined" && !!(window.HELENA_ROLL && typeof window.HELENA_ROLL.rollDifficulty === "function");
+        var land = Math.max(0, sums ? want : Math.min(5, want));
         var moves = [];
         if(load2) moves.push("+" + load2 + " for the load");
         if(sneakOn2) moves.push("−1 for the sneak attack");
@@ -39458,10 +39604,11 @@ function wirePanel(){
           (want !== dv.value
             ? " Then " + moves.join(" and ") +
               " → <b>" + land + "</b>" +
-              (want > 5 ? " — the book asks for " + want + " and the pipeline clamps at 5, so " +
+              (want > 5 && !sums ? " — the book asks for " + want + " and the pipeline clamps at 5, so " +
                           (want - 5) + " of the penalty cannot be carried, and it says so rather than hiding it." : "")
             : "") +
-          " <b>The Overseer can still press another number.</b>";
+          (sums ? " <b>The roll starts there and adds the rest itself — nobody types it.</b>"
+                : " <b>The Overseer can still press another number.</b>");
       }
     }
 
@@ -39648,7 +39795,7 @@ function wirePanel(){
       id:did,
       freeDice:swx.freeDice, freeWhy:swx.freeWhy,
       mode:(e.kind === "char" || !p || !p.mode) ? plan.mode : p.mode,
-      ammoSpent:spent, difficultyStep:used.diff,
+      ammoSpent:spent, difficultyStep:used.diff, majorIndex:1 + used.diff,
       /* the load applies to a STR or AGI test; the far end knows the attribute and
          decides.  Immobile is the same rule at its top: step carries, and the pipeline
          refuses a STR or AGI roll outright rather than rolling a foregone failure.
@@ -42674,11 +42821,17 @@ var API = {
   },
 
   /* ---------------------------------------------------------- step 1 */
-  setDifficulty: function(test, n){
+  setDifficulty: function(test, n, opts){
     if(!API.can(test, "difficulty"))
       return refuse(test, "The difficulty is declared before the dice leave the cup");
     var t = copy(test);
-    t.difficulty = clampInt(n, 0, 5);
+    /* PROJECT H, FIGHT (R4, 2026-10-13): opts.sum is rollDifficulty's answer — the roll step's own sum, floored at 0 and not
+       capped at 5 — carried on the test (t.mods) so the roll line, the result, the report and a reload all say what made it.
+       Without it this is the 0-5 it always was. */
+    var s = opts && opts.sum ? opts.sum : null;
+    t.difficulty = s ? clampInt(s.applied, 0, API.MAX_DIFFICULTY) : clampInt(n, 0, 5);
+    t.mods = s ? { attack:!!s.attack, base:s.base, majorIndex:s.majorIndex, extra:s.extra, sneak:s.sneak,
+                   encumbrance:s.encumbrance, marked:s.marked, applied:t.difficulty, sum:String(s.sum || ""), line:String(s.line || "") } : null;
     if(at(t) < 1) t.stage = "dice";
     return ok(t);
   },
@@ -42730,6 +42883,61 @@ var API = {
                               (want - 5) + " of the penalty could not be carried." : "") +
                   (want < 0 ? " \u2014 \u201creduced by 1 (minimum 0)\u201d, so it stops at 0." : ""))
                : "" };
+  },
+
+  /* ==========================================================================
+     PROJECT H, FIGHT (Zoe 2026-10-13, ruled: R0, R2, R3, R4; revised on Howl's word) — THE ROLL STEP DOES THE ARITHMETIC.
+     R0  AN ATTACK'S DIFFICULTY IS THE TARGET'S DEFENSE (Book One p.48: "your Defense statistic is the basic difficulty of any
+         attacks made against you").  Base 0 + the target's Defense — the sheet's HELENA_CHAR.defenseOf for a character (its
+         stealth field's +2 already in it, Guide p.cxxvii), the stat block's printed Defense for a creature.  Nobody types it.
+     R2  EXTRA MAJOR ACTIONS: the n-th major action in one turn is +(n-1) (Book One p.18: an extra major action costs 2 AP and
+         its test is +1 Difficulty; a swarm's third is +2).  The perk Action Boy/Girl ("you do not suffer the increased skill
+         test difficulty during your second action") waives the second action's +1 — `waive`, read off the roller's sheet.
+     R3  SNEAK ATTACK: -1, minimum 0 (Guide p.viii, Striking from hiding) — on an attack only.
+         The two applied modifiers the drawer already carried ride on unchanged, each its own part: carrying too much (+1 a
+         step, Strength and Agility tests only — Guide p.vii) and a Marked target (-1, Guide p.liii).
+     R4  SAID IN ONE PLAIN LINE, minimum 0 and NO CEILING (R4 names a floor and no cap — a swarm's fourth major action against
+         Zoe's stealth field asks for 6):
+           "Difficulty 4: Zoe’s Defense 3, +1 second action"        an attack, its Defense the base
+           "Difficulty 0: Defense 1, −1 sneak attack"               an unnamed target
+           "Difficulty 3: declared 2, +1 second action"            a test that is not an attack keeps its typed Difficulty,
+                                                                   plus the extra major and nothing else (the load excepted,
+                                                                   as before: a Strength or Agility test)
+     m = { attack, defense (n|null), defenseOf (a name), typed (0-5), majorIndex (1 = the first), waive, sneak, encumbrance,
+           marked }.  An attack with a Defense starts at it; anything else starts at `typed`.  PURE — the turn order's
+     roll-in-place may call this for the one arithmetic.  difficultyWith is left exactly as it was (the old seam's path and
+     its 0-5 clamp are pinned); a declaration that sends none of the new fields never reaches this. */
+  ORDINALS: ["", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"],
+  MAX_MAJOR: 10,
+  MAX_DIFFICULTY: 20,
+  majorWord: function(n){
+    n = clampInt(n, 1, API.MAX_MAJOR);
+    return API.ORDINALS[n] || (n + "th");
+  },
+  rollDifficulty: function(m){
+    m = m || {};
+    var atk = !!m.attack && m.defense != null && m.defense !== "" && isFinite(+m.defense);
+    var b = atk ? clampInt(m.defense, 0, API.MAX_DIFFICULTY) : clampInt(m.typed, 0, 5);
+    var n = clampInt(m.majorIndex == null || m.majorIndex === "" ? 1 : m.majorIndex, 1, API.MAX_MAJOR);
+    var waived = !!m.waive && n >= 2;
+    var extra = Math.max(0, n - 1 - (waived ? 1 : 0));
+    var sneak = (m.attack && m.sneak) ? 1 : 0;
+    var enc = Math.max(0, int(m.encumbrance, 0));
+    var mark = m.attack ? Math.max(0, int(m.marked, 0)) : 0;
+    var want = b + extra + enc - sneak - mark;
+    var applied = Math.min(API.MAX_DIFFICULTY, Math.max(0, want));
+    var who = String(m.defenseOf == null ? "" : m.defenseOf).trim();
+    var parts = [];
+    if(extra || waived) parts.push({ n:extra, what:API.majorWord(n) + " action" + (waived ? " (Action Boy/Girl)" : "") });
+    if(enc)   parts.push({ n:enc,    what:"carrying too much" });
+    if(sneak) parts.push({ n:-sneak, what:"sneak attack" });
+    if(mark)  parts.push({ n:-mark,  what:"Marked" });
+    var said = parts.map(function(p){ return (p.n < 0 ? "−" + (-p.n) : "+" + p.n) + " " + p.what; });
+    var head = atk ? (who ? who + "’s " : "") + "Defense " + b : (parts.length ? "declared " + b : "");
+    var sum = [head].concat(said).filter(Boolean).join(", ") + (want < 0 ? " (minimum 0)" : "");
+    return { attack:atk, base:b, majorIndex:n, extra:extra, waived:waived, sneak:sneak, encumbrance:enc, marked:mark,
+             want:want, applied:applied, floored:want < 0, moved:applied !== b, parts:parts, sum:sum,
+             line:"Difficulty " + applied + (sum ? ": " + sum : "") };
   },
 
   /* WHICH TESTS THE LOAD TOUCHES.  Guide L153: "+1 Difficulty to every Strength and
@@ -43462,6 +43670,25 @@ var API = {
       freeAsked: Math.max(0, int(spec.freeDice, 0)),
       freeWhy: String(spec.freeWhy || "").slice(0, 120),
       sneak: !!spec.sneak,
+      /* ======================================================================================================================
+         PROJECT H, FIGHT (Zoe 2026-10-13, ruled: R0, R2, R3, R4) — THE DECLARATION'S THREE NEW FIELDS.  THE CONTRACT:
+           majorIndex     n >= 1: which major action of the attacker's turn this is (1 = the first).  The roll step ADDS
+                          +(n-1) (rollDifficulty; Action Boy/Girl on the roller's sheet waives the second's +1).  Absent: 1 —
+                          and the old `difficultyStep` note (printed, not added) stands exactly as it was.
+           sneak          bool (already carried: Vicious, or +2 CD if the weapon has it).  With targetDefense it is also the
+                          -1 Difficulty (minimum 0), once — `difficultyEase` is not added on top of it.  Absent: false.
+           targetDefense  n or null, on kind "attack": the target's Defense — HELENA_CHAR.defenseOf (defenseLine / defenseFor)
+                          for a character, the stat block's printed Defense for a creature; `defenseWhy` may carry its sentence.
+                          Present: the Difficulty is 0 + targetDefense + (n-1) - sneak (+ the load on a Strength or Agility
+                          test, - a Marked target), minimum 0, no ceiling — worked out and shown in one line with its parts,
+                          with no buttons to type it; `difficulty` and `defense` are not read.  Absent: the drawer's existing
+                          behaviour (the Overseer presses 0-5; `difficulty` / `defense` start it).
+         Every existing caller sends none of them and is unchanged.  The roll step shows a "Major action this turn" choice and
+         (on such an attack) a "Sneak attack" tick, both prefilled from these, both changeable until the dice are thrown. */
+      majorIndex: (spec.majorIndex == null || spec.majorIndex === "" || !isFinite(+spec.majorIndex)) ? 1 : clampInt(spec.majorIndex, 1, API.MAX_MAJOR),
+      majorSent: !(spec.majorIndex == null || spec.majorIndex === "" || !isFinite(+spec.majorIndex)),
+      targetDefense: (spec.targetDefense == null || spec.targetDefense === "" || !isFinite(+spec.targetDefense)) ? null
+                   : clampInt(spec.targetDefense, 0, API.MAX_DIFFICULTY),
       round: spec.round == null ? null : spec.round,
       text: String(spec.note || "")
     };
@@ -43590,6 +43817,11 @@ var API = {
       successes: r ? r.successes : 0,
       difficulty: r ? r.difficulty : null,
       difficultyStep: Math.max(0, int(d.difficultyStep, 0)),
+      /* PROJECT H, FIGHT (R4): what made the Difficulty, when the roll step worked it out — its one line, the major action it
+         counted and whether the sneak attack was applied (the drawer's own tick may have changed it).  Added fields only. */
+      difficultyLine: (t.mods && t.mods.line) ? String(t.mods.line) : "",
+      majorIndex: (t.mods && t.mods.majorIndex) ? t.mods.majorIndex : (d.majorIndex || 1),
+      sneak: (t.mods && t.mods.attack) ? !!t.mods.sneak : !!d.sneak,
       ap: r ? r.ap : 0,
       complications: r ? r.complications : 0,
       complicationsApplied: (t.complicationsApplied || []).slice(),
@@ -44459,6 +44691,15 @@ function paintTn(){
 }
 function paintDiffs(){
   var h = "", i, d, on;
+  /* PROJECT H, FIGHT (R0): an attack against a known Defense has ONE button — the sum, shown with its parts.  It is pressed
+     for you as the declaration opens; only a roller with no numbers of its own (declNoTn) waits for the Overseer to press it
+     once the target number is set.  (typeof: this painter is lifted alone by the older tests.) */
+  if(typeof defAtk === "function" && defAtk()){
+    var s = sumNow(0), lit = !!(T && T.difficulty != null);
+    $("gp-diffs").innerHTML = '<button type="button" class="gp-diff" data-dsum="1" aria-pressed="' + (lit ? "true" : "false") + '"' +
+      ' aria-label="' + esc(s.line) + '"><b>' + s.applied + "</b><span>" + esc(s.sum) + "</span></button>";
+    return;
+  }
   for(i = 0; i < RL.DIFFICULTIES.length; i++){
     d = RL.DIFFICULTIES[i];
     /* WAVE 7.  The lit button is the one the OVERSEER PRESSED, not the one the
@@ -44539,6 +44780,7 @@ function paintRollNote(){
   var n = RL.BASE_POOL + T.freeDice + T.bought;
   $("gp-roll-note").innerHTML =
     "<b>" + n + "d20</b> at target number <b>" + T.tn + "</b>, against difficulty <b>" + T.difficulty + "</b>" +
+    (T.mods && T.mods.sum ? " (" + esc(T.mods.sum) + ")" : "") +          /* PROJECT H, FIGHT (R4): what made it */
     (T.freeDice ? " (" + plural(T.freeDice, "die", "dice") + " " + freeFrom(T.freeDice) + ")" : "") +
     (T.bought ? ", " + plural(T.bought, "die", "dice") + " bought for " + T.apCost + " AP" : "") +
     (T.assist ? ", plus " + esc(T.assist.name) + "&rsquo;s single d20 at TN " + T.assist.tn : "") + ".";
@@ -44634,11 +44876,21 @@ function paintDecl(){
   var h = bits.join(" &middot; ") + ".";
   /* CRB p.18: a second major action makes any test you must attempt +1 difficulty.  It
      is said here and NOT added to the Overseer's button — see the seam's note. */
-  if(decl.difficultyStep) h += ' <span class="gp-note warn" style="display:inline">This turn is +' +
+  /* PROJECT H, FIGHT (R0-R4): with the roll step's sum in charge (a known Defense, or the major action counted) the three old
+     notes below would contradict it — "this does not move it", "press another difficulty to overrule it" — so it says its own:
+     where the attack's Difficulty starts, and the sneak attack it applies.  Without it the old notes stand exactly as they were. */
+  var dAtk = typeof defAtk === "function" && defAtk(), sumOn = typeof sumPath === "function" && sumPath();   /* lifted alone by older tests */
+  if(dAtk) h += ' <span class="gp-note" style="display:inline"><b>' +
+    esc(decl.target && decl.target.name ? decl.target.name + "’s Defense " : "Defense ") + decl.targetDefense +
+    "</b> is where this attack’s Difficulty starts (Book One p.48); the roll step adds the rest and says it in one line.</span>";
+  if(dAtk && sneakOn) h +=' <span class="gp-note" style="display:inline"><b>Sneak attack</b>: &minus;1 Difficulty (minimum 0), and the attack ' +
+    (RL.hasQuality(decl.weapon, "Vicious") ? "already has Vicious, so the damage pool gains <b>+2&#9635;</b>" : "<b>gains Vicious</b>") +
+    " (Guide p.viii, Striking from hiding).</span>";
+  if(decl.difficultyStep && !sumOn) h += ' <span class="gp-note warn" style="display:inline">This turn is +' +
     decl.difficultyStep + " difficulty: a second major action was taken (Book One p.18). The Overseer declares the number; this does not move it.</span>";
   /* WAVE 7.  Each applied modifier gets its OWN line, because "the Overseer can see
      and override either" only means something if either can be seen on its own. */
-  if(decl.difficultyEase) h += ' <span class="gp-note" style="display:inline"><b>Sneak attack</b>: the ' +
+  if(decl.difficultyEase && !dAtk) h +=' <span class="gp-note" style="display:inline"><b>Sneak attack</b>: the ' +
     "target was unaware and the attacker was hiding, so the difficulty is &minus;" + decl.difficultyEase +
     " to a minimum of 0, and the attack " +
     (RL.hasQuality(decl.weapon, "Vicious")
@@ -44649,7 +44901,7 @@ function paintDecl(){
      BASIC DIFFICULTY of any attack made against you, and the suite has never read one;
      saying so on the card is the difference between a number the tool worked out and a
      number the Overseer is being asked to trust. */
-  if(decl.defense != null) h += ' <span class="gp-note" style="display:inline"><b>Defense ' +
+  if(decl.defense != null && !dAtk) h +=' <span class="gp-note" style="display:inline"><b>Defense ' +
     decl.defense + "</b> is the base difficulty here" + (decl.defenseWhy ? " &mdash; " + esc(decl.defenseWhy) : ".") +
     " <b>Applied as the starting number, not added to one</b> — press another difficulty to overrule it.</span>";
   /* WAVE 19, F2: the declaration's own bonus d20s, and what the cap ate of them */
@@ -44696,6 +44948,7 @@ function paintOut(){
   h += '<div class="gp-verdict"><span class="big">' + r.successes + '</span>' +
        '<span class="word ' + (r.passed ? "pass" : "fail") + '">' + (r.passed ? "Passed" : "Failed") + '</span>' +
        '<span>against difficulty ' + r.difficulty + '</span></div>';
+  if(T.mods && T.mods.line) h += ln("Difficulty", esc(T.mods.line));     /* PROJECT H, FIGHT (R4): the sum, said again */
   if(!r.rolledAtAll){
     h += ln("Rule", r.line);
     $("gp-out").innerHTML = h;
@@ -44770,7 +45023,9 @@ function paintComp(){
    tracker did it), and Action Points buy extra damage dice AFTER the hit and only on
    a melee or thrown attack (CRB p.18).  A miss buys nothing and rolls nothing — it
    goes straight back so the tracker can record it. */
-function dmgPool(){ return RL.damagePool(decl, { extraCd:dmgBuy, sneak:!!(decl && decl.sneak) }); }
+/* PROJECT H, FIGHT (R3): the sneak attack the roll step applied — the step's own tick on an attack against a known Defense,
+   the declaration's flag otherwise (sneakNow) — is the one that gives Vicious, or +2 CD on a weapon that has it */
+function dmgPool(){ return RL.damagePool(decl, { extraCd:dmgBuy, sneak:typeof sneakNow === "function" ? sneakNow() : !!(decl && decl.sneak) }); }
 /* WAVE 17, Z4 (Zoe 2026-10-07, ruled; Guide L1645-1647): a DECLARED Blast whose thrown dice MISSED owes its half dice
    (RL.blastMissPool) as a hit owes its damage — step 7 offers them; the miss goes back with them, or without them when
    the Overseer presses the skip.  A hand-rolled test has no step 7, and a test nobody threw dice for (difficulty 0, the
@@ -45083,6 +45338,7 @@ function paint(){
   paintScene();
   paintDecl();
   paintDropped();                    /* WAVE 17, Z2: a declaration the last reload dropped */
+  if(typeof paintMods === "function") paintMods();   /* PROJECT H, FIGHT (R2, R3): the major action and the sneak attack tick */
   paintDiffs();
   paintBuy();
   paintAssistTn();
@@ -45119,6 +45375,7 @@ function resetAll(){
   drawerClosed();                    /* a fresh hand-rolled test is nobody's declaration */
   T = null; cur = 1; pick = []; banked = false; bankLine = ""; step2done = false; paid = 0;
   declared = null;
+  majorSel = 1; sneakOn = false;     /* PROJECT H, FIGHT: a fresh test is a first major action, no sneak attack */
   decl = null; declCb = null; declSent = ""; dmg = null; dmgBuy = 0; dmgPaid = 0;
   dmgClosed = false;
   /* SKEPTIC (close pass, 2026-09-22): "From perks or traits" is a fact about the ROLLER,
@@ -45159,8 +45416,88 @@ function resetAll(){
    the ambush would have been a tool biased against the table it serves.
    Each modifier prints on its own line, and so does anything the 0-5 clamp ate. */
 var declared = null;                 /* the number the Overseer actually pressed */
+/* ==================================================================================================================
+   PROJECT H, FIGHT (Zoe 2026-10-13, ruled: R0, R2, R3, R4) — THE ROLL STEP ADDS IT UP.  See RL.rollDifficulty and the
+   declaration's contract beside RL.declare.  Two inputs of the step's own, prefilled from the declaration and changeable
+   until the dice are thrown: which major action of the turn this is (#gp-major) and, on an attack against a known Defense,
+   the sneak attack (#gp-sneak).  The sum path is taken when the declaration is an attack with a `targetDefense` (its
+   Difficulty is shown, never typed: one button carrying the sum), or when the major action is not the first (a typed
+   Difficulty plus the extra major), or when the declaration sent `majorIndex`.  Anything else — every existing caller, a
+   roll by hand on its first major action — goes the old way (difficultyWith), exactly as before. */
+var majorSel = 1;                    /* which major action of the turn this test is (1 = the first) */
+var sneakOn = false;                 /* the sneak attack tick — read on an attack against a known Defense */
+function defAtk(){ return !!(decl && decl.kind === "attack" && decl.targetDefense != null); }
+function sumPath(){ return defAtk() || majorSel > 1 || !!(decl && decl.majorSent); }
+function sneakNow(){ return defAtk() ? sneakOn : !!(decl && decl.sneak); }
+/* the perk on the ROLLER's sheet (a creature has none): "you do not suffer the increased skill test difficulty during your
+   second action" — the second action's +1 waived */
+function actionBoy(c){
+  return !!(c && (c.perks || []).some(function(p){ return p && /^\s*action\s+(boy|girl)\b/i.test(String(p.name || "")); }));
+}
+function sumNow(typed){
+  var on = encOnNow(), atk = !!(decl && decl.kind === "attack");
+  return RL.rollDifficulty({ attack:atk, defense:defAtk() ? decl.targetDefense : null,
+    defenseOf:(decl && decl.target && decl.target.name) || "", typed:typed, majorIndex:majorSel,
+    waive:actionBoy(charById($("gp-who").value)),
+    sneak:defAtk() ? sneakOn : !!(decl && decl.difficultyEase), encumbrance:on.applies ? on.step : 0,
+    marked:decl ? decl.difficultyMark : 0 });
+}
+function declareSum(d){
+  var typed = (d == null || d === "" || !isFinite(+d)) ? (declared != null ? declared : 0) : +d;
+  var s = sumNow(typed), on = encOnNow();
+  T = RL.setDifficulty(T, s.applied, { sum:s });
+  if(T.refused){ $("gp-diff-note").innerHTML = esc(T.refused); paint(); return false; }
+  declared = s.attack ? null : s.base;
+  banked = false; bankLine = "";
+  var h = '<b class="gp-sum" id="gp-sum">' + esc(s.line) + "</b>" +
+    (s.applied === 0
+      ? "Difficulty 0 needs no roll: automatically successful, no complications, and <b>no Action Points</b>. The Overseer may still call for one."
+      : s.attack ? ""                      /* an attack's line is its sum; the book's examples are for a Difficulty somebody picks */
+      : s.applied <= 5 ? esc(RL.difficultyExample(s.applied))
+      : "Beyond the five the book prints an example for — the dice are thrown against " + s.applied + ".");
+  if(s.attack) h += '<span class="gp-note" style="display:block;margin-top:4px">' +
+    (decl && decl.defenseWhy ? esc(decl.defenseWhy) + " " : "") +
+    "An attack’s Difficulty is the target’s Defense (Book One p.48), and this step adds the rest — nobody types it.</span>";
+  if(on.applies && on.immobile)
+    h += '<span class="gp-note warn" style="display:block;margin-top:4px"><b>' + esc(on.text) +
+         "</b> The Guide settles this one without dice.</span>";
+  else if(on.text)
+    h += '<span class="gp-note" style="display:block;margin-top:4px">' + esc(on.text) + "</span>";
+  if(paid) h += " <em>" + paid + " AP is already spent on this test's dice and does not come back.</em>";
+  $("gp-diff-note").innerHTML = h;
+  if(step2done) cur = Math.max(cur, 3);
+  else cur = s.applied === 0 ? 1 : 2;
+  paint();
+  return true;
+}
+/* the two inputs moved: a Difficulty already set is worked out again (pre-roll only — step 1 is locked once the dice fly) */
+function modsMoved(){
+  var mj = $("gp-major"), sn = $("gp-sneak");
+  majorSel = Math.max(1, Math.min(RL.MAX_MAJOR, Math.round(+(mj && mj.value) || 1)));
+  sneakOn = !!(sn && sn.checked);
+  if(T && T.difficulty != null && RL.can(T, "difficulty")){
+    if(defAtk()) return declareDifficulty(null);
+    if(declared != null) return declareDifficulty(declared);
+  }
+  paint();
+  return false;
+}
+function paintMods(){
+  var mj = $("gp-major"), sn = $("gp-sneak"), sf = $("gp-sneak-f");
+  if(mj){
+    if(mj.options && mj.options.length !== RL.MAX_MAJOR){
+      var h = "", i;
+      for(i = 1; i <= RL.MAX_MAJOR; i++) h += '<option value="' + i + '">' + RL.majorWord(i) + (i > 1 ? " · +" + (i - 1) : "") + "</option>";
+      mj.innerHTML = h;
+    }
+    if(String(mj.value) !== String(majorSel)) mj.value = String(majorSel);
+  }
+  if(sf && sf.classList) sf.classList.toggle("hidden", !defAtk());
+  if(sn) sn.checked = !!sneakOn;
+}
 function declareDifficulty(d){
   if(!T) T = RL.newTest(spec());
+  if(typeof sumPath === "function" && sumPath()) return declareSum(d);   /* PROJECT H, FIGHT (typeof: lifted alone by older tests) */
   var on = encOnNow();
   var ease = decl ? Math.max(0, Math.round(+decl.difficultyEase || 0)) : 0;
   var mark = decl ? Math.max(0, Math.round(+decl.difficultyMark || 0)) : 0;
@@ -45192,6 +45529,7 @@ panel.addEventListener("click", function(e){
 
   /* ---- step 1: the difficulty, and nothing before it ---- */
   if(b.hasAttribute("data-d")){ declareDifficulty(+b.getAttribute("data-d")); return; }
+  if(b.hasAttribute("data-dsum")){ declareDifficulty(null); return; }      /* PROJECT H, FIGHT (R0): the sum, never typed */
   if(b.id === "gp-d0-auto"){ T = RL.autoSucceed(T); cur = 6;
     if(decl && !T.refused) reportBack("resolved");
     handAnswered();
@@ -45384,7 +45722,7 @@ panel.addEventListener("click", function(e){
        sheet's own Damage button added it correctly.  Two answers for one weapon is
        worse than either.  `raw` keeps the faces' own total so the read-out can show
        the arithmetic instead of a number that does not match the dice on screen. */
-    var vic = RL.viciousFrom(decl.weapon, cdr.effects, decl.sneak);
+    var vic = RL.viciousFrom(decl.weapon, cdr.effects, sneakNow());
     /* Q9 (WAVE8_ANSWERS): a dual damage type — seven instances, all plasma — is the
        ATTACKER'S CHOICE, declared before the DR is read, and the card records which.
        `typePick` is that choice, made in the Turn Order tab's panel; with no choice to
@@ -45423,6 +45761,7 @@ panel.addEventListener("change", function(e){
   if(id === "gp-attr" || id === "gp-attrx"){ fromSheet("gp-"); }
   if(id === "gp-a-attr" || id === "gp-a-attrx"){ fromSheet("gp-a-"); }
   if(id === "gp-pool" || id === "gp-free"){ reprice(); return; }
+  if(id === "gp-major" || id === "gp-sneak"){ modsMoved(); return; }   /* PROJECT H, FIGHT (R2, R3) */
   paint();
 });
 panel.addEventListener("input", function(e){
@@ -45492,7 +45831,10 @@ if(TOOLS && typeof TOOLS.subscribe === "function"){
       skillRank come over explicitly; when they are sent they win, because the caller
       knows something this panel does not.  A character's sheet still fills everything
       the caller left out.
-   3. THE +1 FROM A SECOND MAJOR ACTION IS PRINTED, NOT ADDED.  See RL.declare. */
+   3. THE +1 FROM A SECOND MAJOR ACTION IS PRINTED, NOT ADDED.  See RL.declare.
+      PROJECT H, FIGHT (Zoe 2026-10-13, R2/R4): …for a declaration that sends `difficultyStep` only.  One that sends
+      `majorIndex` has it ADDED by the roll step, and one that sends `targetDefense` starts at the target's Defense — the
+      contract is beside RL.declare. */
 /* `options` is missing whenever the control is not a real <select> — the free-text
    fallback this file already supports, and the DOM stand-in the tests drive the door
    with.  Without the guard a declaration threw here instead of opening.  */
@@ -45541,6 +45883,10 @@ RL.open = function(sp){
   decl = d;
   dropped = null;                    /* WAVE 17, Z2: a new declaration retires the note of the one a reload dropped */
   declCb = (typeof sp.onResult === "function") ? sp.onResult : null;
+  /* PROJECT H, FIGHT (R2, R3): the roll step's two inputs start where the declaration put them — the major action it counts
+     (absent: the first), and on an attack against a known Defense the sneak attack (its flag, or the old seam's -1) */
+  majorSel = d.majorIndex || 1;
+  sneakOn = d.kind === "attack" && d.targetDefense != null && (!!d.sneak || d.difficultyEase > 0);
 
   /* WHOSE POOL.  A character spends the party's Action Points, a creature the
      Overseer's — the same rule step 7 has always used for the extra damage dice, and
@@ -45597,12 +45943,14 @@ RL.open = function(sp){
     $("gp-rank").value = "0";
     $("gp-tag").checked = false;
     declNoTn = d.difficulty == null ? 0 : d.difficulty;
+    if(defAtk()) declNoTn = sumNow(0).applied;        /* PROJECT H, FIGHT (R0): the sum is the number it waits to press */
   }
 
   if(back){
     /* the dice as they fell, at the Luck step: Resolve (or a Luck re-roll the sheet pays for) answers it */
     T = back.T; paid = Math.max(0, Math.round(+back.paid || 0)); step2done = true; cur = 5; pick = [];
     declared = T.difficulty;
+    if(T.mods){ majorSel = T.mods.majorIndex || majorSel; if(T.mods.attack) sneakOn = !!T.mods.sneak; }   /* PROJECT H: as thrown */
     showGuided();
     paint();
     return { ok:true, id:d.id, kind:d.kind, opened:true, resumed:true, free:Math.max(0, Math.round(+T.freeDice || 0)),
@@ -45611,6 +45959,7 @@ RL.open = function(sp){
   }
   showGuided();
   if(d.difficulty != null && !noNumbers) declareDifficulty(d.difficulty);
+  else if(defAtk() && !noNumbers) declareDifficulty(null);   /* PROJECT H, FIGHT (R0): at the sum, at once — nobody presses it */
   else paint();
 
   return { ok:true, id:d.id, kind:d.kind, opened:true,
@@ -45618,7 +45967,8 @@ RL.open = function(sp){
            filled:{ sheet:!!who.value, weapon:gotWeapon,
                     attr:$("gp-attr") ? fv("gp-", "attr") : "", skill:fv("gp-", "skill"),
                     tn:(+$("gp-attrv").value || 0) + (+$("gp-rank").value || 0),
-                    difficulty:d.difficulty },
+                    difficulty:(T && T.mods && T.difficulty != null) ? T.difficulty : d.difficulty,
+                    difficultyLine:(T && T.mods && T.mods.line) || "" },     /* PROJECT H, FIGHT (R4): the sum it opened at */
            needsTn:noNumbers,
            note:(noNumbers
                   ? "No sheet backs this roller and no target number came with the declaration, so the " +
