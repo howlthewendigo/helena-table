@@ -4520,6 +4520,7 @@ end $$;
     <div class="cs-panel-f">
       <button class="cs-mini" id="cs-div-later">Leave it and decide later</button>
       <button class="cs-mini" id="cs-div-again">Check again</button>
+      <button class="cs-mini" id="cs-div-quiet">The room is my save &mdash; stop asking</button>
       <span class="cs-hint" style="margin:0">Nothing here is resolved for you. Closing this changes nothing on either side.</span>
     </div>
   </div>
@@ -30514,7 +30515,9 @@ function renderDivergence(){
   }
   /* DIV holds what is ON SCREEN, so a filtered-away row must go from it too: divergeAct
      indexes DIV.items by the row the player clicked. */
-  if(!view || view.signature === DIV_HIDDEN){ DIV = view; box.hidden = true; return; }
+  /* THE ROOM IS THE SAVE (the website's one-save rule): a device whose player pressed "The room is my save"
+     never has this panel open by itself again.  It hides the comparison and writes nothing to either side. */
+  if(!view || view.signature === DIV_HIDDEN || (typeof divQuiet === "function" && divQuiet())){ DIV = view; box.hidden = true; return; }
   box.hidden = false;
   var more = Math.max(0, (+view.total || 0) - (+view.shown || view.count));
   $("cs-div-head").textContent = view.title ||
@@ -31314,6 +31317,15 @@ $("cs-reset").onclick = function(){ RST = !RST; renderReset(); };
 $("cs-rst-cancel").onclick = function(){ RST = false; renderReset(); };
 $("cs-rst-export").onclick = exportChar;
 $("cs-rst-go").onclick = resetSheet;
+/* "The room is my save — stop asking": one flag on this device, read by renderDivergence.  Nothing is written to the
+   room or to the old copy on this device. */
+var DIV_QUIET_KEY = "helena-div-quiet";
+function divQuiet(){ try{ return localStorage.getItem(DIV_QUIET_KEY) === "1"; }catch(e){ return false; } }
+function divStopAsking(){
+  try{ localStorage.setItem(DIV_QUIET_KEY, "1"); }catch(e){}
+  renderDivergence();
+  ioSay("<b>The room is this device's save.</b> This comparison will not open by itself here again. Nothing was written to the room or to your old copy.", "ok");
+}
 function divLater(){
   if(DIV) DIV_HIDDEN = DIV.signature;      // this exact set of differences, and no other
   renderDivergence();
@@ -31321,6 +31333,7 @@ function divLater(){
 }
 $("cs-div-close").onclick = divLater;
 $("cs-div-later").onclick = divLater;
+$("cs-div-quiet").onclick = divStopAsking;
 $("cs-div-again").onclick = function(){
   DIV_DONE = Object.create(null);
   var v = refreshDivergence();
