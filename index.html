@@ -5245,7 +5245,7 @@ end $$;
                (CH.stealthSuit), stored on the sheet as stealthOn, and read by every attack through CH.defenseOf.  cs-hint: a moment
                in a fight, not the printed sheet's — the print stylesheet already drops every hint, so the three pages stand -->
           <div class="cs-hint cs-stealth" id="cs-stealth-row" hidden>
-            <label class="cs-tick" title="The Stealth suit (Guide p.cxxvii): while the field runs, attacks and searches against you suffer +2 Difficulty. Ticked, this sheet&rsquo;s Defense is 2 higher and every attack against it reads that. A search against you &mdash; a Sneak-opposed PER test &mdash; is the Overseer&rsquo;s to apply by hand."><input type="checkbox" id="cs-stealth" data-f="stealthOn"><span>Stealth field on</span></label>
+            <label class="cs-tick" title="The Stealth suit (Guide p.cxxvii): while the field runs, attacks and searches against you suffer +2 Difficulty. It holds only while you stand still and take no action: any action on your turn (an attack, an action box) clears the tick, and you tick it again on a turn you do nothing. Ticked, this sheet&rsquo;s Defense is 2 higher and every attack against it reads that. A search against you &mdash; a Sneak-opposed PER test &mdash; is the Overseer&rsquo;s to apply by hand."><input type="checkbox" id="cs-stealth" data-f="stealthOn"><span>Stealth field on</span></label>
             <small id="cs-stealth-say"></small>
           </div>
           <!-- the Initiative arithmetic, printed the way the turn tracker prints it, so a
@@ -27698,6 +27698,24 @@ window.HELENA_CHAR.defenseFor = function(id){
   for(i = 0; i < l.length; i++) if(l[i] && String(l[i].id) === String(id)) return CH.defenseLine(l[i]);
   return null;
 };
+/* Z002 (Zoe 2026-10-21, ruled on Howl's word; Guide p.cxxvii) — THE STEALTH FIELD DROPS WHEN ITS WEARER ACTS.  The suit's +2
+   Defense holds only while she stands still and takes no action, so any action on her turn clears c.stealthOn: the sheet's own
+   Attack (doAttack), an attack the turn order declares for her, an action box it marks on her row (src/turn-tracker.html,
+   stealthActed).  Written through the store under the sheet's lock, like applyDamage: a sheet this device may not write is left
+   alone, and a tick already off writes nothing.  She re-ticks it on a turn she does nothing.  -> true when a tick was cleared. */
+window.HELENA_CHAR.stealthAct = function(charId){
+  if(charId == null || charId === "") return false;
+  var on = chars().some(function(x){ return x && String(x.id) === String(charId) && x.stealthOn === true; });
+  if(!on) return false;
+  var done = false;
+  S.update(function(m){
+    var c = null; (m.chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)) c = x; });
+    if(!c || c.stealthOn !== true) return;
+    if(typeof locked === "function" && locked(c)) return;
+    c.stealthOn = false; done = true;
+  });
+  return done;
+};
 /* PROJECT C stage 4: open one card of the OPEN sheet as an arrival and bring it on the screen —
    the Camp pane's survival glance calls open(id), shows the Characters pane, then this with "surv" */
 window.HELENA_CHAR.openCard = function(k){ if(!k || typeof cardsLand !== "function") return false; cardsLand(String(k)); return true; };
@@ -27937,8 +27955,8 @@ function stealthPaint(c){
   setVal("cs-stealth", c.stealthOn === true);
   var say = $("cs-stealth-say");
   if(say) say.textContent = dl.stealth
-    ? "Defense " + dl.value + ": " + dl.base + " for Agility " + dl.agi + ", +2 for the field. Every attack on " + (String(c.name || "").trim() || "this sheet") + " reads it."
-    : "Off: Defense " + dl.value + ". Ticked, Defense " + (dl.value + CH.STEALTH_DEF) + " (Guide p.cxxvii).";
+    ? "Defense " + dl.value + ": " + dl.base + " for Agility " + dl.agi + ", +2 for the field. Every attack on " + (String(c.name || "").trim() || "this sheet") + " reads it until any action on her turn clears it."
+    : "Off: Defense " + dl.value + ". Ticked on a turn she does nothing, Defense " + (dl.value + CH.STEALTH_DEF) + " (Guide p.cxxvii).";
   return true;
 }
 /* HELDCRIT:begin */
@@ -31171,6 +31189,7 @@ function doAttack(i, roundsSpent){
   var c = me(), w = c && c.weapons[i]; if(!w) return;
   var used = unitsSpend(c, i);                     // WAVE 19, S1: one unit off before the roll, or refused by name
   if(used && !used.ok) return;
+  if(c.stealthOn === true){ window.HELENA_CHAR.stealthAct(c.id); renderDerived(); }   // Z002: an attack is an action (p.cxxvii)
   if(used){ c = me(); w = c && c.weapons[i]; if(!w) return; }
   var mode = CH.attackMode(w);
   var s = skillOf(c, w.skill), tn = attrVal(c, w.attr) + s.rank, crit = CH.critRange(s.rank, s.tag);
@@ -39209,7 +39228,9 @@ var TT = {
           var rs = (typeof inp.range === "function" && t.band) ? inp.range(a, t.band) : null;
           var rstep = rs && rs.known ? Math.max(0, Math.round(+rs.step || 0)) : 0;
           r.rs = rs;
-          r.diff = Math.max(0, t.def + step + rstep - (t.marked ? 1 : 0));
+          /* capped at 5 after every modifier (Zoe 2026-10-21, CMD Z002), as the roll step caps it */
+          var wantD = t.def + step + rstep - (t.marked ? 1 : 0);
+          r.diff = Math.min(5, Math.max(0, wantD));
           r.chance = TT.hitChance(pool, a.tn, r.diff);
           var victims = (a.blast && t.zone != null) ? chars.filter(function(q){ return q.onMap && q.zone === t.zone; }) : [t];
           if(!victims.length) victims = [t];
@@ -39227,6 +39248,7 @@ var TT = {
           if(step) bits.push("+" + step + " " + (step > 1 ? "for its extra major actions" : "its second major action"));
           if(rstep) bits.push("+" + rstep + " range (" + TT.BAND_WORDS[t.band] + ")");
           if(t.marked) bits.push("−1 Marked");
+          if(wantD > 5) bits.push("capped at 5");
           var how = pct + " to hit (Difficulty " + r.diff + ": " + bits.join(", ") + ")";
           var each = r.each.map(function(q){ return q.dmg == null ? "?" : TT.about(q.dmg); });
           var same = each.every(function(v){ return v === each[0]; });
@@ -40780,6 +40802,14 @@ function sprintGate(e){
   render();
 }
 
+/* Z002 (Zoe 2026-10-21, ruled on Howl's word): THE STEALTH FIELD NARROWS TO PRINT.  Guide p.cxxvii gives the Stealth suit's +2
+   Defense only while the wearer stands still and takes no action, so any action a character takes on her turn - an action box
+   marked here, an attack declared from this pane or from her sheet - clears her tick through the sheet's door
+   (HELENA_CHAR.stealthAct, which leaves a sheet this device may not write alone).  She ticks it again on a turn she does
+   nothing.  A sheet with the tick off is not written. */
+function stealthActed(e){
+  try{ var C = window.HELENA_CHAR; if(C && typeof C.stealthAct === "function" && e && e.ref != null) C.stealthAct(e.ref); }catch(err){}
+}
 function takeAction(e, kind){
   if(st.phase === "idle"){
     msg = { cls:"warn", hd:(kind === "major" ? "Major" : "Minor") + " action",
@@ -40811,6 +40841,7 @@ function takeAction(e, kind){
     render();
     return { ok:false, note:"The pool only had " + paid + " of the " + r.ap + " AP — the action was not taken." };
   }
+  if(e.kind === "char") stealthActed(e);
   mutate(function(){
     st = r.state;
     msg = { cls:r.difficulty ? "warn" : "good",
@@ -43728,6 +43759,8 @@ function wirePanel(){
                          weapon:x ? x.i : null, name:x ? x.name : "", stamp:stampId };
     dropNote = "";                     /* anything the door drops on the way in lands here */
     var r = TT.handoff(window.HELENA_ROLL, spec);
+    /* Z002 (Zoe 2026-10-21, ruled): a character who attacks has acted, so her stealth field drops (Guide p.cxxvii) */
+    if(!r.refused && e.kind === "char") stealthActed(e);
     /* WAVE 10 — and the row's actions stop being undoable here, on the two branches where a
        roll really has been called for: the Dice tab took the declaration, or the GM is being
        sent to declare it by hand.  NOT ON A REFUSAL.  SKEPTIC PASS 2026-09-24, measured in
@@ -47569,8 +47602,9 @@ var API = {
      R3  SNEAK ATTACK: -1, minimum 0 (Guide p.viii, Striking from hiding) — on an attack only.
          The two applied modifiers the drawer already carried ride on unchanged, each its own part: carrying too much (+1 a
          step, Strength and Agility tests only — Guide p.vii) and a Marked target (-1, Guide p.liii).
-     R4  SAID IN ONE PLAIN LINE, minimum 0 and NO CEILING (R4 names a floor and no cap — a swarm's fourth major action against
-         Zoe's stealth field asks for 6):
+     R4  SAID IN ONE PLAIN LINE, minimum 0, CAPPED AT 5 AFTER EVERY MODIFIER (Zoe 2026-10-21, CMD Z002: Book One's ceiling; it
+         replaces R4's "no ceiling" of 10-13) — a swarm's fourth major action against Zoe's stealth field asks for 5, not 6, and
+         the line says what the cap took ("(capped at 5)"); the extra majors can still be bought:
            "Difficulty 4: Zoe’s Defense 3, +1 second action"        an attack, its Defense the base
            "Difficulty 0: Defense 1, −1 sneak attack"               an unnamed target
            "Difficulty 3: declared 2, +1 second action"            a test that is not an attack keeps its typed Difficulty,
@@ -47583,6 +47617,7 @@ var API = {
   ORDINALS: ["", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"],
   MAX_MAJOR: 10,
   MAX_DIFFICULTY: 20,
+  DIFFICULTY_CAP: 5,
   majorWord: function(n){
     n = clampInt(n, 1, API.MAX_MAJOR);
     return API.ORDINALS[n] || (n + "th");
@@ -47603,7 +47638,7 @@ var API = {
       ? API.rangeStep({ band:m.rangeBand, weaponRange:m.weaponRange, weapon:m.weapon, mode:m.mode, target:m.defenseOf, unset:!!m.rangeUnset }) : null;
     var rng = rs && rs.known ? rs.step : 0;
     var want = b + extra + rng + enc - sneak - mark;
-    var applied = Math.min(API.MAX_DIFFICULTY, Math.max(0, want));
+    var applied = Math.min(API.DIFFICULTY_CAP, Math.max(0, want));
     var who = String(m.defenseOf == null ? "" : m.defenseOf).trim();
     var parts = [];
     if(extra || waived) parts.push({ n:extra, what:API.majorWord(n) + " action" + (waived ? " (Action Boy/Girl)" : "") });
@@ -47613,10 +47648,11 @@ var API = {
     if(mark)  parts.push({ n:-mark,  what:"Marked" });
     var said = parts.map(function(p){ return (p.n < 0 ? "−" + (-p.n) : "+" + p.n) + " " + p.what; });
     var head = atk ? (who ? who + "’s " : "") + "Defense " + b : (parts.length ? "declared " + b : "");
-    var sum = [head].concat(said).filter(Boolean).join(", ") + (want < 0 ? " (minimum 0)" : "");
+    var sum = [head].concat(said).filter(Boolean).join(", ") + (want < 0 ? " (minimum 0)" : "") +
+              (want > API.DIFFICULTY_CAP ? " (capped at " + API.DIFFICULTY_CAP + ")" : "");
     return { attack:atk, base:b, majorIndex:n, extra:extra, waived:waived, sneak:sneak, encumbrance:enc, marked:mark,
              range:rs, rangeStep:rng,
-             want:want, applied:applied, floored:want < 0, moved:applied !== b, parts:parts, sum:sum,
+             want:want, applied:applied, floored:want < 0, capped:want > API.DIFFICULTY_CAP, moved:applied !== b, parts:parts, sum:sum,
              line:"Difficulty " + applied + (sum ? ": " + sum : "") };
   },
 
@@ -48544,7 +48580,7 @@ var API = {
            targetDefense  n or null, on kind "attack": the target's Defense — HELENA_CHAR.defenseOf (defenseLine / defenseFor)
                           for a character, the stat block's printed Defense for a creature; `defenseWhy` may carry its sentence.
                           Present: the Difficulty is 0 + targetDefense + (n-1) - sneak (+ the load on a Strength or Agility
-                          test, - a Marked target), minimum 0, no ceiling — worked out and shown in one line with its parts,
+                          test, - a Marked target), minimum 0, capped at 5 (Z002) — worked out and shown in one line with its parts,
                           with no buttons to type it; `difficulty` and `defense` are not read.  Absent: the drawer's existing
                           behaviour (the Overseer presses 0-5; `difficulty` / `defense` start it).
          Every existing caller sends none of them and is unchanged.  The roll step shows a "Major action this turn" choice and
