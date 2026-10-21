@@ -2172,6 +2172,9 @@
 #tool-turn .scene[hidden]{display:none}
 #tool-turn .scene .mini{padding:3px 8px;font-size:var(--t-cap)}
 #tool-turn .row{gap:6px;padding:4px 8px;flex-wrap:wrap}
+#tool-turn .row .cmp{flex-basis:100%;display:flex;gap:8px;align-items:center;font-size:12px;padding-left:34px;color:var(--dim)}
+#tool-turn .row .cmp .cmp-n{font-weight:700;color:inherit}
+#tool-turn .row .cmp .cmp-down{color:var(--red,#d66)}
 #tool-turn .grip{padding:2px 4px;min-width:20px;font-size:var(--t-body)}
 #tool-turn .init{font-size:var(--t-head);min-width:2.2ch}
 #tool-turn .who2{flex:1 1 112px;min-width:96px;display:flex;flex-wrap:wrap;align-items:baseline}
@@ -6343,28 +6346,8 @@ end $$;
         <div class="mod-txt">Buy 10% cheaper, sell 10% dearer.</div>
       </div>
 
-      <h3 style="margin-top:14px">CHA + Barter</h3>
-      <div class="haggle">
-        <div class="row">
-          <label>CHA <input type="number" id="mc-cha" min="1" max="12" value="6"></label>
-          <label>Barter <input type="number" id="mc-barter" min="0" max="6" value="2"></label>
-          <label>Diff
-            <select id="mc-diff" style="padding:5px 6px">
-              <option>0</option><option selected>1</option><option>2</option><option>3</option>
-            </select></label>
-        </div>
-        <div class="row">
-          <label>Extra d20 <input type="number" id="mc-extra" min="0" max="3" value="0"></label>
-          <button id="mc-haggle" style="flex:1">Haggle</button>
-        </div>
-        <div id="mc-hagout"></div>
-      </div>
-      <details class="why"><summary>why &mdash; one haggle a deal</summary>
-      <div class="mod-txt">
-        A won test shifts both sides another 10% your way. Lost, the price stands &mdash;
-        and the merchant will not be haggled twice on the same deal.
-      </div>
-      </details>
+      <!-- Z010 (U.4, 2026-10-21): the CHA + Barter haggle roll and its +10% are struck — the house rate 80/45 already prices
+           haggling in (Reference, "House trade rates").  Cap Collector's 10% stays, as his perk's effect, pending Part X. -->
     </div>
   </div>
 </div>
@@ -16599,7 +16582,48 @@ try{
      Keep PARTY_MAX in step with HELENA_CHAR.AP_PARTY_MAX in src/character-sheet.html. */
   var PARTY_MAX = 7;
   function partyCap(m){ return Math.max(1, Math.min(PARTY_MAX, +m.pcCap || PARTY_MAX)); }
-  function setPool(which, v){
+  /* Z010 (V.4, 2026-10-21): A PC's DAMAGE OR HEAL, AND EVERYONE TO FULL, CAN BE UNDONE ONCE.  hpSnap keeps what the press is
+   about to move: a sheet-backed row's SHEET (its HP and its armour's HP — a drop goes armour-first, so the row alone could
+   not put it back) and a plain row's own HP.  hpUndo hands it to window.SUITE_UNDO with a revert that writes those numbers
+   back: the sheet's directly (its rail row follows it on the sync), a plain row's on the row. */
+function hpSnap(m, rows){
+  var chars = (m && Array.isArray(m.chars)) ? m.chars : [];
+  return (rows || []).filter(Boolean).map(function(p){
+    var k = S.rowKey(p), c = null;
+    chars.forEach(function(x){ if(x && x.name && ((x.id != null && String(x.id) === k) || ("name:" + x.name) === k)) c = x; });
+    return (p.sheet && c) ? { k:k, sheet:true, id:c.id == null ? null : String(c.id), name:c.name, hp:+c.hp || 0,
+                              ahp:(c.armour && c.armour.hp != null) ? +c.armour.hp || 0 : null }
+                          : { k:k, sheet:false, name:p.name, hp:+p.hp || 0 };
+  });
+}
+function hpUndo(snaps, what, kind){
+  var U = window.SUITE_UNDO;
+  if(!U || typeof U.keep !== "function" || !snaps || !snaps.length) return null;
+  return U.keep(kind || "hp", { text:what, rev:{ rows:snaps }, chars:snaps.filter(function(x){ return x.sheet && x.id; }).map(function(x){ return x.id; }),
+    revert:function(rev){
+      S.update(function(m){
+        (rev.rows || []).forEach(function(x){
+          if(x.sheet){
+            (m.chars || []).forEach(function(c){
+              if(!c || !((x.id != null && String(c.id) === x.id) || (x.id == null && c.name === x.name))) return;
+              c.hp = x.hp; if(x.ahp != null && c.armour) c.armour.hp = x.ahp;
+            });
+          }else{
+            (m.players || []).forEach(function(p){ if(S.rowKey(p) === x.k && !p.sheet) p.hp = x.hp; });
+          }
+        });
+      });
+      return { ok:true };
+    } });
+}
+/* Z010 (U.3): the players at the table — the rail's character rows (each a player's sheet); a table with no sheet rows
+   counts every named row.  What the Overseer's Fill fills to. */
+function gmFillTo(m){
+  var rows = (m && Array.isArray(m.players)) ? m.players.filter(function(p){ return p && String(p.name || "").trim(); }) : [];
+  var sheets = rows.filter(function(p){ return !!p.sheet; });
+  return (sheets.length || rows.length);
+}
+function setPool(which, v){
     S.update(function(m){
       // RULE 1: no ceiling on the GM's pool; the party's is 7
       if(which === "dm") m.dmAP = Math.max(0, Math.round(+v || 0));
@@ -16625,7 +16649,7 @@ try{
       '</div><div class="rail-cap">' + (dm ? 'no maximum' : 'of ' + cap) + '</div>' +
       '<div class="rail-pips">' + pips + '</div>' +
       '<div class="rail-pool-btns">' +
-      '<button data-fill="' + which + '" title="' + (dm ? 'Six is the printed baseline for an uncapped pool' : 'Fill to the maximum') + '">Fill</button>' +
+      '<button data-fill="' + which + '" title="' + (dm ? '1 AP per player at the table (Book One p.19); the pool has no cap' : 'Fill to the maximum') + '">Fill</button>' +
       '<button data-zero="' + which + '">Empty</button></div></div>';
   }
 
@@ -16703,12 +16727,14 @@ try{
       setPool(pw, have === pi + 1 ? pi : pi + 1);      // clicking the top lit pip spends it
     } else if(b.hasAttribute("data-fill")){
       var fw = b.getAttribute("data-fill"), m0 = S.get();
-      // an uncapped GM pool has nothing to fill to: six is the printed baseline
-      setPool(fw, fw === "dm" ? Math.max(6, m0.dmAP) : partyCap(m0));
+      // Z010 (U.3, 2026-10-21): an uncapped GM pool fills to 1 AP per player at the table (Book One p.19, as the Guide's
+      // quickstart prints it), never down; it was six, which nothing printed
+      setPool(fw, fw === "dm" ? Math.max(gmFillTo(m0), m0.dmAP) : partyCap(m0));
     } else if(b.hasAttribute("data-zero")){
       setPool(b.getAttribute("data-zero"), 0);
     } else if(b.hasAttribute("data-hp")){
       var i = +b.getAttribute("data-hp"), rk = b.getAttribute("data-rk") || "";
+      var hpRow0 = S.rowFor(i, rk), hpSnap0 = hpRow0 ? hpSnap(S.get(), [hpRow0]) : null;
       S.update(function(m){
         // the ROW this button was drawn for, not whatever is at that index now (see rowFor)
         var p = S.rowFor(i, rk); if(!p) return;
@@ -16716,6 +16742,7 @@ try{
         if(p.sheet && d < 0) p.hp = p.hp + d;
         else p.hp = Math.max(0, Math.min(p.max, p.hp + d));
       });
+      if(hpSnap0) hpUndo(hpSnap0, (hpRow0.name || "a row") + (d < 0 ? " took " + (-d) : " healed " + d) + " HP");
     } else if(b.hasAttribute("data-drop")){
       var di = +b.getAttribute("data-drop"), drk = b.getAttribute("data-rk") || "";
       S.update(function(m){
@@ -16800,7 +16827,9 @@ try{
   if(addEl) addEl.addEventListener("keydown", function(e){ if(e.key === "Enter") addRow(); });
   var healAll = document.getElementById("rail-heal-all");
   if(healAll) healAll.addEventListener("click", function(){
+    var snapAll = hpSnap(S.get(), (S.get().players || []).slice());
     S.update(function(m){ m.players.forEach(function(p){ p.hp = p.max; }); });
+    hpUndo(snapAll, "put everyone to full HP", "heal-all");
   });
 
   /* ---- RULE 3 (2026-09-22, Ledger §J10): New scene ----
@@ -17928,8 +17957,19 @@ try{
     var id = str(o.id, 80); if(!id) return null;
     var chars = [];
     (Array.isArray(o.chars) ? o.chars : []).forEach(function(x){ if(typeof x === "string" && x && x.length <= 80 && chars.indexOf(x) < 0 && chars.length < 20) chars.push(x); });
-    return { id:id, at:str(o.at, 40), topic:str(o.topic, 24), text:str(o.text, TEXT_MAX), who:str(o.who, 64),
-             actor:str(o.actor, 80), chars:chars, session:int0(o.session) };
+    var out = { id:id, at:str(o.at, 40), topic:str(o.topic, 24), text:str(o.text, TEXT_MAX), who:str(o.who, 64),
+                actor:str(o.actor, 80), chars:chars, session:int0(o.session) };
+    /* Z010 (V.5, 2026-10-21): a line may carry what it changed, before it changed it (rev, a small object), and the
+       key of the Undo that reverses it (undo).  A line without them is exactly the line it always was. */
+    var rv = revOf(o.rev); if(rv) out.rev = rv;
+    var uk = str(o.undo, 80); if(uk) out.undo = uk;
+    return out;
+  }
+  var REV_MAX = 6000;
+  function revOf(v){
+    if(!v || typeof v !== "object" || Array.isArray(v)) return null;
+    var j = null; try{ j = JSON.stringify(v); }catch(e){ return null; }
+    return j && j.length <= REV_MAX ? JSON.parse(j) : null;
   }
   function fpOf(l){ return l.topic + "|" + ms(l.at) + "|" + l.actor + "|" + l.text; }
   function readLines(key){ return parseLines(lsRead(key)); }
@@ -18084,7 +18124,8 @@ try{
     /* a session line files itself under the session it opens, whichever arrives first, it or the slice */
     var sess = ev.topic === "session" && int0(d.n) ? int0(d.n) : n;
     return normLine({ id:ev.id, at:typeof ev.at === "string" && ev.at ? ev.at : new Date().toISOString(), topic:ev.topic,
-                      text:text, who:who, actor:typeof ev.actor === "string" ? ev.actor : "", chars:charsOf(ev), session:sess });
+                      text:text, who:who, actor:typeof ev.actor === "string" ? ev.actor : "", chars:charsOf(ev), session:sess,
+                      rev:d.rev, undo:d.undo });
   }
   function record(ev){
     if(!wanted(ev)) return false;
@@ -18144,7 +18185,8 @@ try{
     var html = "";
     lines({ session:sessionN(), limit:SHOW }).forEach(function(l){
       var body = l.who && l.text.indexOf(l.who) === 0 ? "<b>" + esc(l.who) + "</b>" + esc(l.text.slice(l.who.length)) : esc(l.text);
-      html += '<div class="tb-line ' + l.topic.replace(/[^a-z]/g, "") + '"><time>' + hhmm(l.at) + "</time><span>" + body + "</span></div>";
+      var ub = (l.undo && undos[l.undo]) ? ' <button class="tb-undo" data-undo="' + esc(l.undo) + '" title="Put back what this press changed — once, and only the last one">Undo</button>' : "";
+      html += '<div class="tb-line ' + l.topic.replace(/[^a-z]/g, "") + '"><time>' + hhmm(l.at) + "</time><span>" + body + ub + "</span></div>";
     });
     if(el.innerHTML !== html) el.innerHTML = html;
     return true;
@@ -18197,6 +18239,48 @@ try{
     else said(true);
     return { ok:true, n:n, at:at, note:"Session " + n + " begins — the ticker now keeps this session's lines." };
   }
+  /* Z010 (V.5, V.1-V.4, 2026-10-21): ONE UNDO ON THE LAST PRESS.  Five Overseer presses could not be taken back — Clear all
+     injuries, the encounter's Clear, a hit applied to a creature, a PC's damage or heal, Everyone to full.  Each now hands
+     this registry what it changed (rev, the before-values) and how to put it back (revert); the line it says carries rev and
+     an Undo on this device while it is that press's latest.  Undo runs revert(rev) once and says "Undid …" under it.
+       SUITE_UNDO.keep(kind, { text, rev, revert, chars })  -> the line's undo key; a newer keep of the same kind replaces it
+       SUITE_UNDO.undo(key)                                 -> { ok, note }
+       SUITE_UNDO.has(kind)                                 -> true while that kind's last press can be undone
+     The record lives on this device and for this page: a reload keeps the line and its rev, not the Undo (the revert is
+     code, and only the device that pressed may run it). */
+  var undos = Object.create(null), undoSeq = 0;
+  function undoKeep(kind, rec){
+    kind = String(kind || "").slice(0, 24);
+    if(!kind || !rec || typeof rec.revert !== "function") return null;
+    Object.keys(undos).forEach(function(k){ if(undos[k].kind === kind) delete undos[k]; });
+    var key = kind + ":" + Date.now().toString(36) + ":" + (++undoSeq);
+    var rv = revOf(rec.rev) || {};
+    undos[key] = { kind:kind, text:String(rec.text || kind), rev:rv, revert:rec.revert };
+    try{ SYNC.emit("undo", { text:String(rec.text || kind), rev:rv, undo:key, charIds:Array.isArray(rec.chars) ? rec.chars.slice(0, 20) : [] }); }catch(e){}
+    paint();
+    return key;
+  }
+  function undoRun(key){
+    var u = undos[key];
+    if(!u) return { ok:false, note:"That press can no longer be undone — only the last one, on the device that made it." };
+    delete undos[key];
+    var r = null;
+    try{ r = u.revert(JSON.parse(JSON.stringify(u.rev))); }catch(e){ r = { ok:false, note:String(e && e.message || e) }; }
+    if(r && r.ok === false){ paint(); return { ok:false, note:r.note || "The undo was refused." }; }
+    try{ SYNC.emit("undo", { text:"Undid: " + u.text }); }catch(e){}
+    paint();
+    return { ok:true, note:"Undid: " + u.text };
+  }
+  window.SUITE_UNDO = {
+    keep:undoKeep,
+    undo:undoRun,
+    has:function(kind){ return Object.keys(undos).some(function(k){ return undos[k].kind === kind; }); }
+  };
+  var tickEl = document.getElementById("tb-ticker");
+  if(tickEl && typeof tickEl.addEventListener === "function") tickEl.addEventListener("click", function(e){
+    var b = e && e.target && e.target.closest ? e.target.closest("[data-undo]") : null;
+    if(b) undoRun(b.getAttribute("data-undo"));
+  });
   window.SUITE_LOG = {
     session:function(){ return sessionN(); },
     lines:lines,
@@ -22052,6 +22136,8 @@ function drNow(rec, type, now, total){
                                                        those throws; renderBlocks has
                                                        guarded it since wave 5 and so does
                                                        every reader here. */
+  /* Z010 (U.1): Ph+En is met by the lower of the creature's Physical and Energy DR (Reference, 09-24; Guide p.cc) */
+  if(type === "PhEn") return Math.min(drNow(rec, "Phys", now, total), drNow(rec, "En", now, total));
   var v = type === "Rad" ? +d.r : type === "En" ? +d.e : +d.p;
   v = Math.max(0, v || 0);
   if(DR_HALVES_AT_HALF_HP && total > 0 && now * 2 <= total) v = 0;
@@ -22222,7 +22308,7 @@ var ENC_DOOR = (function(){
 
     var c = statFor(rowFor(r.ref));
     var R = encRules(r.key, c);
-    var type = spec.type === "En" || spec.type === "Rad" ? spec.type : "Phys";
+    var type = spec.type === "En" || spec.type === "Rad" || spec.type === "PhEn" ? spec.type : "Phys";
     var amount = Math.max(0, Math.round(+spec.amount || 0));
     var ignoresDR = !!spec.ignoresDR || !!spec.resonant;     /* Resonant IS ignoresDR, Guide L1471 */
     var notes = [];
@@ -23393,7 +23479,25 @@ $("eb-add").onclick = function(){
   newFight();
   renderAll();
 };
-$("eb-clear").onclick = function(){ state.roster = []; state.scene = null; state.hp = {}; newFight(true); renderAll(); };
+/* Z010 (V.2, 2026-10-21): the encounter's Clear asks first and can be undone once — it wiped the roster, the pools and the
+   scene in one press.  What it wiped rides the session log's line (rev) and its Undo (window.SUITE_UNDO) puts it back; the
+   pane's own commit (a press inside it) sends it on. */
+$("eb-clear").onclick = function(){
+  var ask = (typeof window.confirm === "function") ? window.confirm("Clear the encounter — the roster, its HP and the scene? You can undo it once, from its line in the session log.") : true;
+  if(!ask) return;
+  var before = null;
+  try{ before = JSON.parse(JSON.stringify({ roster:state.roster || [], scene:state.scene, hp:state.hp || {}, gen:state.gen, fid:state.fid })); }catch(e){ before = null; }
+  state.roster = []; state.scene = null; state.hp = {}; newFight(true); renderAll();
+  var U = window.SUITE_UNDO;
+  if(before && U && typeof U.keep === "function") U.keep("clear-encounter", { text:"cleared the encounter (" + before.roster.length + " roster row" + (before.roster.length === 1 ? "" : "s") + ")", rev:before,
+    revert:function(rev){
+      state.roster = rev.roster || []; state.scene = rev.scene == null ? null : rev.scene; state.hp = rev.hp || {};
+      if(rev.gen != null) state.gen = rev.gen; if(rev.fid != null) state.fid = rev.fid;
+      renderAll();
+      try{ if(typeof flushCommit === "function") flushCommit(); }catch(e){}
+      return { ok:true };
+    } });
+};
 $("eb-gen").onclick = generate;
 $("eb-sp-pay").onclick = paySpoils;
 $("eb-sp-tok").oninput = renderSpoils;
@@ -24028,6 +24132,8 @@ var CH = {
     if(!CH.armourWorn(c)) return 0;
     var a = c.armour;
     if(type === "Rad"){ var r = String(a.rad == null ? "0" : a.rad).trim(); return /immune/i.test(r) ? Infinity : (+r || 0); }
+    /* Z010 (U.1): Ph+En is met by the lower of the two (Reference, 09-24; Guide p.cc) */
+    if(type === "PhEn") return Math.min(+a.en || 0, +a.phys || 0);
     return type === "En" ? (+a.en || 0) : (+a.phys || 0);
   },
   /* damage that has already passed DR: Armour HP first while a set is worn, then Health.
@@ -24071,7 +24177,7 @@ var CH = {
      armour.  Rad past Rad DR reduces Maximum HP (Core p.31), not the armour.  A critical
      is amount − DR ≥ 5 regardless of who absorbed it.  The caller clamps hp to its max. */
   takeDamage: function(c, amount, type, opts){
-    opts = opts || {}; amount = Math.max(0, +amount || 0); type = type === "En" || type === "Rad" ? type : "Phys";
+    opts = opts || {}; amount = Math.max(0, +amount || 0); type = type === "En" || type === "Rad" || type === "PhEn" ? type : "Phys";
     /* WAVE 8 CONTRACT 2, socket 1 — PIERCING.  Guide L1455: "each Effect ignores X of the
        target's DR."  The caller has ALREADY multiplied the rating by the Effect count;
        multiply again here and you have squared the rule.  Immune survives: Infinity − n is
@@ -24166,7 +24272,7 @@ var CH = {
       if(!isFinite(past) || past < 1) return;
       seen[r.id] = 1;
       out.push({ id:r.id.slice(0, CH.DOOR_ID_MAX), past:Math.min(past, 999), critAt:isFinite(at) && at >= 1 ? Math.min(at, 99) : 5,
-                 type:r.type === "En" ? "En" : "Phys", dr:Math.max(0, Math.round(+r.dr || 0) || 0),
+                 type:r.type === "En" || r.type === "PhEn" ? r.type : "Phys", dr:Math.max(0, Math.round(+r.dr || 0) || 0),
                  from:String(r.from == null ? "" : r.from).slice(0, 80), at:String(r.at == null ? "" : r.at).slice(0, 40) });
     });
     return out.slice(-CH.CRIT_HELD_KEEP);
@@ -24180,7 +24286,7 @@ var CH = {
     l.forEach(function(r){ if(r.id === id) rec = r; });
     if(!rec){
       if(l.length >= CH.CRIT_HELD_KEEP) return null;
-      rec = { id:id, past:Math.min(Math.round(res.past), 999), critAt:Math.max(1, Math.round(+res.critAt || 5)), type:res.type === "En" ? "En" : "Phys",
+      rec = { id:id, past:Math.min(Math.round(res.past), 999), critAt:Math.max(1, Math.round(+res.critAt || 5)), type:res.type === "En" || res.type === "PhEn" ? res.type : "Phys",
               dr:res.dr === Infinity ? 0 : Math.max(0, Math.round(+res.dr || 0)),
               from:String(hold.from == null ? "" : hold.from).slice(0, 80), at:String(hold.at == null ? "" : hold.at).slice(0, 40) };
       l.push(rec);
@@ -24702,12 +24808,45 @@ var CH = {
   },
   /* every slot modifier on a character, as one number.  Positive adds capacity. */
   slotMods: function(c){
-    var n = 0;
+    var n = CH.boostSlots(c, typeof CH.sceneNowFn === "function" ? CH.sceneNowFn() : CH.SCENE_NOW);   /* Z011 (G.2): a meal's timed slots */
     ((c && c.perks) || []).forEach(function(p){ n += CH.perkSlots(p); });
     ((c && c.diseases) || []).forEach(function(d){
       var row = CH.diseaseOf(d && (d.d20 != null ? d.d20 : d.name));
       if(row && row.slots) n += row.slots;
     });
+    return n;
+  },
+  /* Z011 (G.2, 2026-10-21): EAT, DRINK AND CHEMS USE THE ITEM AND APPLY WHAT IT PRINTS.  consumableOf reads one pack row's
+     name against the catalogue (window.ITEMS: Part III's rows — HP, Rads, the Addictive rating) and Part VI's recipes
+     (window.RECIPES: a dish's HP and effect), merged.  kind: food | drink | chem | aid, or null (not a consumable).
+       hp       the flat HP it heals (Guide pp.clvii–clix, the flat-healing rule)      rads   its Rads in CD (1CD), or 0
+       slots    "+N Inventory Slots" from its effect (a Cramburger's +2, until the end of the next scene)
+       rating   its Addictive rating (Yes (N) -> N), 0 if none                          cures  it cures every addiction
+       cooked   a dish from Part VI's Food (Hunger two)    purified   purified water (Thirst two)
+     boostSlots(c, seq) adds the slots of c.boosts still running at scene seq `seq` (each lasts through `until`). */
+  SCENE_NOW: 0,
+  consumableOf: function(name, items, recipes){
+    var key = String(name == null ? "" : name).replace(/\(.*?\)/g, " ").toLowerCase().replace(/[^a-z0-9]/g, "");
+    if(!key) return null;
+    var it = items && Object.prototype.hasOwnProperty.call(items, key) ? items[key] : null, rc = null;
+    (recipes && Array.isArray(recipes.recipes) ? recipes.recipes : []).forEach(function(r){
+      if(!rc && r && String(r.name || "").replace(/\(.*?\)/g, " ").toLowerCase().replace(/[^a-z0-9]/g, "") === key) rc = r;
+    });
+    var cat = String((it && it.cat) || (rc && rc.cat) || "");
+    var kind = /^food$/i.test(cat) ? "food" : /^drink$/i.test(cat) ? "drink" : /^chems$/i.test(cat) ? "chem" : /medic/i.test(cat) ? "aid" : null;
+    if(!kind) return null;
+    var st = (it && it.stats) || {}, eff = String((it && it.effect) || (rc && rc.effect) || "");
+    var hp = +(rc && rc.hp != null ? rc.hp : st.hp) || 0;
+    var mh = /heals (\d+) HP/i.exec(eff); if(!hp && mh) hp = +mh[1];
+    var mr = /^(\d+)\s*CD/i.exec(String(st.rads || "")), ms = /\+(\d+) Inventory Slots?/i.exec(eff), ma = /Yes \((\d+)\)/i.exec(String(st.addictive || ""));
+    return { name:String(name).trim(), kind:kind, hp:hp, rads:mr ? +mr[1] : 0, slots:ms ? +ms[1] : 0, slotsUntilNext:!!ms && /next scene/i.test(eff),
+             rating:ma ? +ma[1] : 0, cures:/cures? (all )?addictions?|every addiction/i.test(eff), effect:eff,
+             cooked:kind === "food" && !!rc, purified:kind === "drink" && /purified water/i.test(String(name)),
+             folio:(it && it.folio) || (rc && rc.folio) || "" };
+  },
+  boostSlots: function(c, seq){
+    var n = 0, s = +seq || 0;
+    ((c && Array.isArray(c.boosts)) ? c.boosts : []).forEach(function(b){ if(b && (+b.slots || 0) && (b.until == null || s <= +b.until)) n += +b.slots || 0; });
     return n;
   },
   /* the capacity itself.  carryOverride is a TOTAL — a robot types its frame value there —
@@ -27724,6 +27863,21 @@ window.HELENA_CHAR.stealthAct = function(charId){
   });
   return done;
 };
+/* Z011 (G.1, Guide p.xiii): a companion beaten at 0 HP recovers with 1 HP shortly after the fight — End combat calls this for
+   each keeper's sheet.  Under the sheet's lock; a companion above 0, or none, writes nothing.  -> true when one stood up. */
+window.HELENA_CHAR.companionRecover = function(charId){
+  if(charId == null || charId === "") return false;
+  var due = chars().some(function(x){ return x && String(x.id) === String(charId) && x.companion && +x.companion.hpMax > 0 && +x.companion.hp <= 0; });
+  if(!due) return false;
+  var done = false;
+  S.update(function(m){
+    var c = null; (m.chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)) c = x; });
+    if(!c || !c.companion || !(+c.companion.hpMax > 0) || +c.companion.hp > 0) return;
+    if(typeof locked === "function" && locked(c)) return;
+    c.companion.hp = 1; done = true;
+  });
+  return done;
+};
 /* PROJECT C stage 4: open one card of the OPEN sheet as an arrival and bring it on the screen —
    the Camp pane's survival glance calls open(id), shows the Characters pane, then this with "surv" */
 window.HELENA_CHAR.openCard = function(k){ if(!k || typeof cardsLand !== "function") return false; cardsLand(String(k)); return true; };
@@ -29837,6 +29991,14 @@ function renderConditions(c){
   // (empty) bucket instead of this one's — and so the id-keyed bucket is found once migrated
   var list = woundsOfChar(c);
   if(!list.length) host.innerHTML = '<div class="cs-empty">No injuries carried.</div>';
+  /* Z011 (G.2): an addiction shows here until it is treated (Guide p.clxxii) */
+  (Array.isArray(c.addictions) ? c.addictions : []).forEach(function(a, ai){
+    var dv = document.createElement("div"); dv.className = "cs-cond cs-addict"; dv.setAttribute("data-addict", ai);
+    dv.innerHTML = "<b>Addicted: " + esc(a.name) + "</b> — +1 Difficulty to everything while you crave; eased only by another dose. " +
+      "Kicked by three days clean, Addictol or the Fixer (Guide p.clxxii). " +
+      '<button class="cs-mini" data-act="addict-cure" title="Three days clean, Addictol, the Fixer or Panacea">Treated</button>';
+    host.appendChild(dv);
+  });
   list.forEach(function(w, i){
     var pen = null;
     for(var k = 0; k < CH.LOCATIONS.length; k++) if(CH.LOCATIONS[k].loc === w.loc) pen = CH.LOCATIONS[k].pen;
@@ -30205,6 +30367,9 @@ function invRowControls(c, row, i, lt){
   var have = Math.max(1, Math.round(+row.qty) || 1);
   if(lt == null) lt = ledgerSlotsText();
   var h = '<button class="cs-mini" data-act="inv-put" title="put on the ledger' + (lt ? " — " + esc(lt) : "") + '">→ ledger</button>';
+  /* Z011 (G.2): a consumable's Use — eat, drink or dose one, applying what its row prints */
+  var CU = (typeof CH !== "undefined" && CH && typeof CH.consumableOf === "function") ? CH.consumableOf(row.name, typeof ITEMS !== "undefined" ? ITEMS : null, (typeof window !== "undefined" && window) ? window.RECIPES : null) : null;
+  if(CU) h += '<button class="cs-mini" data-act="inv-use" title="' + esc((CU.kind === "food" ? "Eat" : CU.kind === "drink" ? "Drink" : "Use") + " one: " + (CU.effect || (CU.hp ? "heals " + CU.hp + " HP" : "")) + (CU.folio ? " (Guide p." + CU.folio + ")" : "")) + '">' + (CU.kind === "food" ? "Eat" : CU.kind === "drink" ? "Drink" : "Use") + "</button>";
   if(have > 1) h += '<input type="number" class="cs-putq" data-putq min="1" max="' + have + '" value="' + have + '" aria-label="how many to put on the ledger" title="how many — all of the row unless you say otherwise">';
   var LG = ledgerApi();
   if(LG && typeof LG.isUntypedDart === "function" && typeof LG.rollSyringer === "function" && LG.isUntypedDart(row.name))
@@ -30232,6 +30397,62 @@ function invCtlAt(wrap, c, ii){
   return false;
 }
 /* INVPUT:end */
+
+/* Z011 (G.2, 2026-10-21): USE ONE — EAT, DRINK OR DOSE.  One off the row (a stack used to 0 shows its 0, WAVE 19), and then
+   what the row prints: Hunger up (two for a cooked dish), Thirst up (two for purified water), the flat HP it heals, its Rads
+   rolled (each Effect on its CD is 1 Radiation damage, met by Rad DR like any radiation), a timed "+N Inventory Slots", and
+   for an Addictive chem the printed test (Guide p.clxxii): each dose after the first in a day, END + Survival against the
+   rating — fail and you are hooked, +1 Difficulty to everything while you crave, until three days clean, Addictol or the
+   Fixer (a dose of something that cures addictions clears them all).  A robot gains nothing from food, drink or chems. */
+function invUse(i){
+  var c = me(); if(!c) return { ok:false };
+  var row = c.inventory[i]; if(!row) return { ok:false };
+  var U = CH.consumableOf(row.name, ITEMS, window.RECIPES);
+  if(!U) return { ok:false, note:"not a consumable" };
+  if(invNone(row)) return { ok:false, note:"none left" };
+  if(!CH.tracksAtAll(c)){ invPrompt("A robot gains nothing from " + esc(U.name) + " — nothing was used."); return { ok:false, note:"robot" }; }
+  var m0 = S.get(), day = Math.max(0, Math.round(+(m0 && m0.night) || 0));
+  var seq = 0; try{ seq = CH.sceneOf(m0.tools && m0.tools.scene).seq || 0; }catch(e){ seq = 0; }
+  var said = [], radsTaken = 0, test = null, hooked = false;
+  var rr = U.rads ? rollCD(U.rads) : null;
+  edit(function(ch){
+    var r = ch.inventory[i]; if(!r) return;
+    var q = Math.max(1, Math.round(+r.qty) || 1); r.qty = q - 1;
+    if(U.kind === "food"){ var up = CH.eatRaise(ch, U.cooked); CH.trackRaise(ch, "hunger", up); said.push("Hunger up " + up); }
+    if(U.kind === "drink"){ var dn = CH.drinkRaise(ch, U.purified); CH.trackRaise(ch, "thirst", dn); said.push("Thirst up " + dn); }
+    if(U.hp){ var before = +ch.hp || 0; ch.hp = Math.min(effMax(ch), before + U.hp); said.push("+" + (ch.hp - before) + " HP"); }
+    if(rr && rr.eff){ var res = CH.takeDamage(ch, rr.eff, "Rad", {}); radsTaken = res ? (res.past || 0) : 0; }
+    if(U.slots){
+      ch.boosts = (Array.isArray(ch.boosts) ? ch.boosts : []).filter(function(b){ return b && (b.until == null || seq <= +b.until); });
+      ch.boosts.push({ slots:U.slots, until:U.slotsUntilNext ? seq + 1 : seq, from:U.name });
+      said.push("+" + U.slots + " Inventory Slots until the end of " + (U.slotsUntilNext ? "the next scene" : "this scene"));
+    }
+    if(U.cures && Array.isArray(ch.addictions) && ch.addictions.length){ said.push("addictions cured (" + ch.addictions.map(function(a){ return a.name; }).join(", ") + ")"); ch.addictions = []; }
+    if(U.rating){
+      ch.doses = (ch.doses && ch.doses.day === day) ? ch.doses : { day:day, n:{} };
+      var k = U.name.toLowerCase(), n = (+ch.doses.n[k] || 0) + 1; ch.doses.n[k] = n;
+      if(n > 1 && !(Array.isArray(ch.addictions) && ch.addictions.some(function(a){ return a.name === U.name; }))){
+        var sk = skillOf(ch, "Survival"), tn = attrVal(ch, "END") + sk.rank;
+        test = { tn:tn, roll:rollTest(tn, CH.critRange(sk.rank, sk.tag), 20, 2), rating:U.rating };
+        if(test.roll.succ < U.rating){
+          hooked = true;
+          ch.addictions = (Array.isArray(ch.addictions) ? ch.addictions : []).concat([{ name:U.name, rating:U.rating, day:day }]);
+        }
+      }
+    }
+  });
+  var after = me();
+  var line = esc(U.name) + ": " + esc(said.join(", ") || "used") +
+    (rr ? "; Rads " + U.rads + "CD → " + rr.eff + (rr.eff === 1 ? " Effect" : " Effects") + (rr.eff ? " (" + radsTaken + " Radiation past your Rad DR)" : "") : "") + "." +
+    (U.effect && !U.slots && !/^heals \d+ HP/i.test(U.effect) ? " It prints: " + esc(U.effect) + "." : "") +
+    (test ? "<br>" + testLine("Addiction — END + Survival vs " + U.rating + " (Guide p.clxxii)", test.tn, test.roll) +
+            (hooked ? " — <b>hooked</b>: +1 Difficulty to everything while you crave, until three days clean, Addictol or the Fixer." : " — not hooked.")
+          : (U.rating ? " (the first dose today: no addiction test)" : ""));
+  invPrompt(line);
+  tableRoll(after, U.name + " — " + said.join(", ") + (hooked ? "; hooked on " + U.name : ""));
+  renderInventory(after); renderDerived(); renderConditions(after); render();
+  return { ok:true, used:U, hooked:hooked, test:test, rads:rr };
+}
 
 /* ================================================================== WAVE 11 (2026-09-28)
    THE SYRINGER ROLL, sheet half.  WAVE10_ADDENDA.md item 2 — twelve darts with no typing.
@@ -33888,6 +34109,9 @@ root.addEventListener("click", function(e){
       invPut(+wrap.getAttribute("data-inv"), q ? +q.value : 0);
     })(); break;
     case "inv-syr": wrap = b.closest("tr[data-inv]"); if(wrap) invSyringer(+wrap.getAttribute("data-inv")); break;
+    case "inv-use": wrap = b.closest("tr[data-inv]"); if(wrap) invUse(+wrap.getAttribute("data-inv")); break;
+    case "addict-cure": i = +b.closest("[data-addict]").getAttribute("data-addict");
+      edit(function(c){ if(Array.isArray(c.addictions)) c.addictions.splice(i, 1); }); renderConditions(me()); renderDerived(); break;
   }
 });
 
@@ -33998,6 +34222,14 @@ $("cs-div-list").addEventListener("click", function(e){
 $("cs-export-table").onclick = exportTable;
 $("cs-import-table").onclick = function(){ $("cs-import-table-file").click(); };
 $("cs-import-table-file").onchange = function(){ readFile(this, importTableJson); };
+/* Z010 (N.3, 2026-10-21): ON THE WEBSITE the whole-table Import and Export leave Sheet ▾ — there the room is the save, and an
+   import that writes this browser's storage and reloads would be overwritten by it; the file keeps both.  "The website" is
+   a page served over http(s) (or a site build's SUITE_SITE); a file opened from disk is not. */
+function onWebsite(){
+  try{ if(window.SUITE_SITE && typeof window.SUITE_SITE === "object") return true; }catch(e){}
+  try{ return /^https?:$/.test(String(window.location && window.location.protocol)); }catch(e){ return false; }
+}
+if(onWebsite()) ["cs-export-table", "cs-import-table"].forEach(function(id){ var b = $(id); if(b) b.hidden = true; });
 
 $("cs-perk-add").onclick = function(){
   /* ASK 8: THE "AUTO" THAT IS ACTUALLY AVAILABLE.  The sheet already knows what level it
@@ -35645,6 +35877,8 @@ function answerStamp(ch, track){
   ch.survival.answered[track] = sc.openSeq;
 }
 /* WAVE 16 S7: the scene in progress's openSeq — what answerStamp stamps and the Survival line reads — 0 with none open */
+/* Z011 (G.2): a timed boost's clock — the table's scene seq, read when a capacity is asked (CH.slotMods) */
+CH.sceneNowFn = function(){ try{ var mS = S.get(); return CH.sceneOf(mS && mS.tools && mS.tools.scene).seq || 0; }catch(e){ return 0; } };
 function sceneOpenSeq(){
   try{ var m = S.get(), sc = CH.sceneOf(m.tools && m.tools.scene); return sc.open && sc.openSeq ? Math.max(0, Math.round(+sc.openSeq) || 0) : 0; }
   catch(e){ return 0; }
@@ -35969,6 +36203,8 @@ function cardNumbers(c, ctx){
   var wl = ctx.wounds || [], run = wl.length + (c.persistent || []).length;
   var opn = wl.filter(function(w){ return !(w && w.treated); }).length + (c.persistent || []).length;
   n.cond = run ? run + " carried" + (opn ? " · " + opn + " open" : "") : "none";
+  var addN = Array.isArray(c.addictions) ? c.addictions.length : 0;   /* Z011 (G.2): an addiction shows on the shut card too */
+  if(addN) n.cond = (n.cond === "none" ? "" : n.cond + " · ") + "addicted (" + c.addictions.map(function(a){ return a.name; }).join(", ") + ")";
   var enc = CH.encumbrance(c);
   n.equip = enc.used + " / " + enc.cap + " slots" + (enc.over > 0 ? " · over" : "");
   var ws = c.weapons || [], w = ws[ctx.wpn] || ws[0] || null;
@@ -38611,7 +38847,7 @@ var TT = {
       dmg = { cd:pool.cd, parts:pool.parts, faces:faces, dice:cdr.dice, raw:cdr.damage,
               vicious:vic, lane:pool.lane,
               damage:cdr.damage + (vic ? vic.add : 0), effects:cdr.effects,
-              type:RL.damageType(decl.typePick || (decl.weapon && decl.weapon.type)),
+              type:(RL.damageTypeOf ? RL.damageTypeOf(decl.weapon) : RL.damageType(decl.weapon && decl.weapon.type)),
               types:(decl.weapon && decl.weapon.types) ? decl.weapon.types.slice() : [],
               apSpent:0,
               persistent:RL.persistentFrom(decl.weapon, cdr.effects), sent:"" };
@@ -38641,7 +38877,7 @@ var TT = {
         var mr = RL.countCD(mf);
         dmg = { cd:bp.cd, parts:[{ what:"half the weapon’s CD, rounded up (a missed Blast)", cd:bp.cd }], faces:mf, dice:mr.dice, raw:mr.damage,
                 vicious:null, lane:0, damage:mr.damage, effects:0,
-                type:RL.damageType(decl.typePick || (decl.weapon && decl.weapon.type)),
+                type:(RL.damageTypeOf ? RL.damageTypeOf(decl.weapon) : RL.damageType(decl.weapon && decl.weapon.type)),
                 types:(decl.weapon && decl.weapon.types) ? decl.weapon.types.slice() : [],
                 apSpent:0, persistent:null, blastMiss:{ cd:bp.cd, of:bp.of }, sent:"" };
       }
@@ -38970,7 +39206,7 @@ var TT = {
     if(!target){ out.why = (out.name || "The target") + " has left the fight — nothing was applied."; return out; }
     if(!r.damage){ out.why = "The hit came back with no damage roll, so the Overseer is rolling it elsewhere."; return out; }
     out.amount = Math.max(0, Math.round(+r.damage.damage || 0));
-    out.type = (r.damage.type === "En" || r.damage.type === "Rad") ? r.damage.type : "Phys";
+    out.type = (r.damage.type === "En" || r.damage.type === "Rad" || r.damage.type === "PhEn") ? r.damage.type : "Phys";   /* Z010: PhEn kept */
     out.effects = Math.max(0, Math.round(+r.damage.effects || 0));
     out.persistent = r.damage.persistent || null;
     if(blastMiss){                      /* Z4: plain damage — the Effects the half dice rolled count for nothing */
@@ -40077,6 +40313,8 @@ function render(){
         '<button class="x" data-act="drop" title="Take this combatant out of the fight">×</button>' +
       "</div>";
 
+    /* Z011 (G.1): a character's companion acts within its keeper's turn (Guide p.xii) — shown on the keeper's row */
+    if(e.kind === "char" && typeof companionLine === "function"){ var cmpHtml = companionLine(e); if(cmpHtml){ var cmpEl = document.createElement("div"); cmpEl.className = "cmp"; cmpEl.innerHTML = cmpHtml; row.appendChild(cmpEl); } }
     var bn = row.querySelector(".bn"), ov = row.querySelector(".ov");
     bn.id = "tt-b-" + safeId(id);
     ov.id = "tt-o-" + safeId(id);
@@ -40299,6 +40537,7 @@ $("tt-end").onclick = function(){
                  "a fight that ends mid-round does not cancel a bleed.</div>" };
   render();
   tick("turn", "— combat ends");
+  companionsRecover();
 };
 $("tt-next").onclick = function(){
   var list = combatants(), ord = orderOf(list);
@@ -40544,6 +40783,7 @@ listEl.addEventListener("click", function(ev){
     case "unaware":  toggleUnaware(e); break;
     case "hide":   openHide(e); break;
     case "spot":   spotCheck(e); break;
+    case "command": commandCompanion(e); break;
     case "sprint": sprintGate(e); break;
     case "drop":  mutate(function(){ st.hidden[id] = 1; st.manual = st.manual.filter(function(x){ return x !== id; }); }); break;
   }
@@ -40785,6 +41025,64 @@ function hideResult(id, rep){
    may be applied to NPCs."  The attribute and skill are not in that sentence; ruled
    PER + Survival on 2026-09-23 because the Guide's own suppressed-weapon clause on the
    same page uses exactly that pair at exactly that difficulty for exactly this act. */
+/* Z011 (G.1, 2026-10-21): COMPANIONS IN COMBAT, AS PRINTED (Guide pp.xii–xiii).  A companion has NO TURN OF ITS OWN: it
+   acts within its keeper's turn, on the keeper's Initiative, so it never gets a row — it rides on the keeper's.  Its minor
+   actions follow orders at no cost; it may always assist; a test above Difficulty 0 that it is forced into scores 0
+   successes; and the keeper's COMMAND major action lets it take any major action and roll its own test — the only time it
+   rolls in combat.  At 0 HP it is BEATEN, not dying: out of the fight, back at 1 HP shortly after it ends.
+     companionOf(c)        the sheet's companion, or null (a companion needs a name)
+     companionLine(e)      the line under the keeper's row: who, HP, and Command (or "beaten")
+     commandCompanion(e)   the keeper's major action (the row's own box: its AP and its +1 for an extra major), a line on the
+                           ticker, and the companion's own test opened in the drawer: Body (a creature) or Strength (a
+                           character) + the skill the order needs, which the Overseer names there
+     companionsRecover()   End combat: every beaten companion on a sheet this device may write stands at 1 HP */
+function companionOf(c){
+  var p = c && c.companion;
+  return (p && typeof p === "object" && String(p.name || "").trim()) ? p : null;
+}
+function companionLine(e){
+  var c = null; try{ c = charOf(e.ref); }catch(err){ c = null; }
+  var p = companionOf(c); if(!p) return "";
+  var hp = Math.round(+p.hp || 0), max = Math.round(+p.hpMax || 0), down = max > 0 && hp <= 0;
+  return '<span class="cmp-n">' + esc(p.name) + "</span> " +
+    (down ? '<span class="cmp-down" title="Guide p.xiii: a companion at 0 HP is defeated rather than dying">beaten — out of the fight, back at 1 HP when it ends</span>'
+          : '<span class="cmp-w">acts on ' + esc(e.name) + "’s turn" + (max > 0 ? " · " + hp + "/" + max + " HP" : "") + "</span> " +
+            '<button class="mini" data-act="command" title="Command (a major action of ' + esc(e.name) + '’s): ' + esc(p.name) +
+            ' takes any major action and rolls its own test (Guide p.xiii)">Command</button>');
+}
+function commandCompanion(e){
+  var c = null; try{ c = charOf(e.ref); }catch(err){ c = null; }
+  var p = companionOf(c);
+  if(!p){ msg = { cls:"warn", hd:"No companion", body:esc(e.name) + " has no companion on the sheet." }; render(); return { ok:false }; }
+  if(+p.hpMax > 0 && +p.hp <= 0){
+    msg = { cls:"warn", hd:esc(p.name) + " is beaten", body:"A companion at 0 HP is out of the fight (Guide p.xiii). It is back at 1 HP shortly after the fight ends." };
+    render(); return { ok:false };
+  }
+  var r = takeAction(e, "major");
+  if(!r || !r.ok) return { ok:false };
+  tick("turn", "— " + e.name + " commands " + p.name);
+  var creature = String(p.kind || "creature") !== "character";
+  var attrV = creature ? Math.max(0, Math.round(+p.body || 0)) : Math.max(0, Math.round(+((p.special || {}).S) || 0));
+  var spec = TT.attackSpec({ id:e.id + "~cmp", kind:"companion", ref:e.ref, name:p.name }, null, null, {
+    id:"tt-cmd-" + (++declSeq) + ":" + e.id, attr:creature ? "BODY" : "STR", skill:"", attrValue:attrV,
+    round:st.phase === "opening" ? "opening" : st.round,
+    note:"Commanded by " + e.name + " (Guide p.xiii): " + p.name + " takes any major action and rolls its own test. " +
+         (creature ? "Body" : "Strength") + " " + attrV + " + the skill the action needs — the Overseer names it and the Difficulty."
+  });
+  spec.kind = "test";
+  var out = TT.handoff(window.HELENA_ROLL, spec);
+  msg = { cls:out.ok ? "good" : "warn", hd:"Command — " + esc(e.name) + " → " + esc(p.name),
+          body:esc(p.name) + " takes a major action and rolls its own test" + (out.ok ? " in the drawer." : ": " + esc(out.note || "")) };
+  render();
+  return { ok:true };
+}
+function companionsRecover(){
+  var C = window.HELENA_CHAR;
+  if(!C || typeof C.companionRecover !== "function") return 0;
+  var n = 0;
+  combatants().forEach(function(e){ if(e.kind === "char"){ try{ if(C.companionRecover(e.ref)) n++; }catch(err){} } });
+  return n;
+}
 function spotCheck(e){
   var t = TT.spotTest();
   var spec = TT.attackSpec(e, null, null, {
@@ -42256,6 +42554,12 @@ function applyToCreature(rep, tgt, plan, facts, lines, head, at, side){
     return;
   }
 
+  /* Z010 (V.3, 2026-10-21): what this hit is about to change — the conditions and the bleed on this head — kept for its Undo */
+  var undoCond = null, undoBleed = null;
+  try{
+    undoCond = (st.cond && Object.prototype.hasOwnProperty.call(st.cond, tgt.id)) ? JSON.parse(JSON.stringify(st.cond[tgt.id])) : null;
+    undoBleed = (st.bleed && Object.prototype.hasOwnProperty.call(st.bleed, tgt.id)) ? JSON.parse(JSON.stringify(st.bleed[tgt.id])) : null;
+  }catch(e){ undoCond = null; undoBleed = null; }
   var res = null;
   try{ res = E.damage(tgt.ref, encSpecOf(plan)); }catch(e){ res = null; }
   if(!res || res.ok === false){
@@ -42352,7 +42656,32 @@ function applyToCreature(rep, tgt, plan, facts, lines, head, at, side){
   msg = { cls:cls, hd:"Applied — " + head, body:lines.join("<br>") };
   tick("turn", "— " + ((rep.attacker && rep.attacker.name) || "someone") + " hit " +
        (tgt.name || "a creature") + " for " + res.past + " past DR");
+  keepHitUndo(E, tgt, res, undoCond, undoBleed, (rep.attacker && rep.attacker.name) || "");
   render();
+}
+/* Z010 (V.3): ONE UNDO FOR THE LAST HIT APPLIED TO A CREATURE.  Its row's pool goes back to the number before the blow (the
+   Encounter pane's own setHp door) and the head's conditions and bleed to what they were; the session log's line carries
+   both (rev).  A hit sent to the Overseer is not this device's to undo, so only a hit written here keeps one. */
+function keepHitUndo(E, tgt, res, cond, bleed, who){
+  var U = window.SUITE_UNDO;
+  if(!U || typeof U.keep !== "function" || !E || typeof E.setHp !== "function" || !tgt || res.before == null) return null;
+  return U.keep("creature-hit", {
+    text:"applied " + (who ? who + "’s " : "a ") + "hit on " + (tgt.name || "a creature") + " (" + res.before + " → " + res.after + " HP)",
+    rev:{ ref:tgt.ref, id:tgt.id, before:res.before, after:res.after, cond:cond, bleed:bleed },
+    revert:function(rev){
+      var r = null;
+      try{ r = E.setHp(rev.ref, rev.before); }catch(e){ r = { ok:false, why:String(e && e.message || e) }; }
+      if(r && r.ok === false) return { ok:false, note:"The Encounter pane refused it: " + (r.why || r.refused || "refused") };
+      var ok = true;
+      mutate(function(){
+        if(!st.cond || typeof st.cond !== "object") st.cond = {};
+        if(rev.cond) st.cond[rev.id] = rev.cond; else delete st.cond[rev.id];
+        if(!st.bleed || typeof st.bleed !== "object") st.bleed = {};
+        if(rev.bleed) st.bleed[rev.id] = rev.bleed; else delete st.bleed[rev.id];
+      });
+      return { ok:ok };
+    }
+  });
 }
 
 /* WAVE 18, 2c: the page's half of a creature's Bleeding heavily (TT.normBleed / TT.bleedTick above).
@@ -43214,7 +43543,7 @@ function openAttack(e, list, ord, pick, tgtId){
       '<label class="lab" id="tt-atk-ammo">Rounds <input type="number" id="tt-atk-n" min="0" max="99" value="0"></label>' +
       /* Q9: a dual damage type is the ATTACKER'S CHOICE, declared before DR is read.
          Seven instances, all plasma; hidden on every other attack. */
-      '<label class="lab" id="tt-atk-type-l" hidden>Damage type <select id="tt-atk-type"></select></label>' +
+      '<span class="lab" id="tt-atk-type-l" hidden></span>' +
       '<label class="lab" id="tt-atk-sneak-l"><input type="checkbox" id="tt-atk-sneak"> Sneak attack</label>' +
       '<button class="mini pri" id="tt-atk-go">Declare it</button>' +
       '<button class="mini" id="tt-atk-x">Cancel</button>' +
@@ -43495,14 +43824,10 @@ function wirePanel(){
     var rgl = $("tt-atk-rng");
     if(rgl) rgl.innerHTML = typeof rangeLine === "function" ? (rangeLine(e, x, tgt, panelZone(), atkMode(e, x), !!(atk && atk.guided)) || "") : "";
 
-    /* Q9 — the damage-type choice, only where there is one */
+    /* Z010 (U.1, 2026-10-21): a Ph+En weapon offers NO type choice (WAVE8 Q9 withdrawn); the line says how it lands */
     var types = (x && x.w && x.w.types) || [];
-    if(tl) tl.hidden = types.length < 2;
-    if(ts && types.length > 1 && ts.options.length !== types.length){
-      ts.innerHTML = types.map(function(t){
-        return '<option value="' + esc(t) + '">' + (t === "Ph" ? "Physical" : t === "En" ? "Energy" : "Radiation") + "</option>";
-      }).join("");
-    }
+    var dual = types.some(function(t){ return /^ph/i.test(t); }) && types.some(function(t){ return /^en/i.test(t); });
+    if(tl){ tl.hidden = !dual; if(dual) tl.textContent = "Ph+En — met by the lower of the target’s Physical and Energy DR (Guide p.cc)."; }
 
     /* Q10 — what the software could not read, RAW, before the dice are rolled rather
        than after.  It also names the qualities it read and will not apply, because a
@@ -43724,8 +44049,8 @@ function wirePanel(){
 
     /* Q9 — the attacker's choice on a dual-typed attack, made before the DR is read */
     var tsel2 = $("tt-atk-type");
-    var pickType = (x && x.w && (x.w.types || []).length > 1 && tsel2 && tsel2.value)
-      ? tsel2.value : (x && x.w ? x.w.type || "" : "");
+    /* Z010 (U.1): no choice — a Ph+En weapon is met by the lower DR (the roll step's RL.damageTypeOf) */
+    var pickType = x && x.w ? x.w.type || "" : "";
 
     /* WAVE 19, F3: a swarm row's attack carries the swarm bonus the stat block prints — +bonus CD on a copy of the weapon,
        +bonus d20 as the drawer's free dice (TT.swarmWeapon; the door's read().swarm, the block's own swarmState) */
@@ -44646,7 +44971,7 @@ const ENVS = {
            'a torn banner still promises savings on something',
            'pallets of swollen cans are stacked chest high',
            'the ceiling has come down in one corner, tiles and wiring together'],
-    hazards:['Spilled cleaning chems (Poison, 2 CD)','Flickering ballast (Dim light)',
+    hazards:['Spilled cleaning chems (2 CD Physical, Persistent (Poison) — Guide p.liii)','Flickering ballast (Dim light)',
              'Ceiling collapse zone (Difficulty +1 to Sprint)','Protectron charging pod (activates on noise)'],
     smooth:0
   },
@@ -48771,7 +49096,18 @@ var API = {
   /* the character sheet's own three damage types, from whatever the catalogue wrote */
   damageType: function(t){
     var s = String(t == null ? "" : t);
-    return /rad/i.test(s) ? "Rad" : /en/i.test(s) ? "En" : "Phys";
+    if(/rad/i.test(s)) return "Rad";
+    /* Z010 (U.1, 2026-10-21): a Ph+En type (plasma) is ONE type, "PhEn" — met by the LOWER of the target's Physical and
+       Energy DR, counting as both for immunities (Reference, "Ph+En is met by the lower of the two DRs", 09-24; Guide p.cc).
+       It was the attacker's choice (WAVE8 Q9), which the Reference withdrew; there is no choice to make. */
+    if(/\bph(ys(ical)?)?\b/i.test(s) && /\ben(ergy)?\b/i.test(s)) return "PhEn";
+    return /en/i.test(s) ? "En" : "Phys";
+  },
+  /* a weapon's damage type: its parsed types (a stat block's "Ph/En") first, else its type text */
+  damageTypeOf: function(w){
+    var ts = (w && Array.isArray(w.types)) ? w.types.map(String) : [];
+    if(ts.some(function(t){ return /^ph/i.test(t); }) && ts.some(function(t){ return /^en/i.test(t); })) return "PhEn";
+    return API.damageType(w && w.type);
   },
 
   /* House law (vault, Knowledge/Fallout 2d20 Reference.md): Persistent is FLAT TICKS —
@@ -50149,7 +50485,7 @@ function blastMissRoll(){
   dmg = { cd:bp.cd, parts:[{ what:"half of " + wn + "’s " + bp.of + " CD, rounded up", cd:bp.cd }],
           faces:faces, dice:cdr.dice, raw:cdr.damage, vicious:null, lane:0,
           damage:cdr.damage, effects:0, rolledEffects:cdr.effects,
-          type:RL.damageType(decl.typePick || (decl.weapon && decl.weapon.type)),
+          type:RL.damageTypeOf(decl.weapon),
           types:(decl.weapon && decl.weapon.types) ? decl.weapon.types.slice() : [],
           apSpent:0, persistent:null, blastMiss:{ cd:bp.cd, of:bp.of }, sent:"" };
   reportBack("damage");
@@ -50959,7 +51295,7 @@ panel.addEventListener("click", function(e){
        make it is the weapon's single type and nothing changes.  `types` rides along so
        the applying side can SAY it was a choice rather than presenting it as the only
        reading the Guide allows — the Guide does not say what a dual type means. */
-    var tpick = RL.damageType(decl.typePick || (decl.weapon && decl.weapon.type));
+    var tpick = RL.damageTypeOf(decl.weapon);
     dmg = { cd:pool.cd, parts:pool.parts, faces:faces, dice:cdr.dice,
             raw:cdr.damage, vicious:vic, lane:pool.lane,
             damage:cdr.damage + (vic ? vic.add : 0), effects:cdr.effects,
@@ -52639,8 +52975,8 @@ var state = { buy:[], sell:[], capcol:false, haggle:0, haggled:false };
    This is one of the rate's THREE homes — with the loot finder's sell estimate and the
    sheet's CH.TRADE — and there must not be a fourth. */
 /* MC_RATES:begin */
-function buyRate(){  return 0.80 * (1 - 0.10 * ((state.capcol ? 1 : 0) + state.haggle)); }
-function sellRate(){ return 0.45 * (1 + 0.10 * ((state.capcol ? 1 : 0) + state.haggle)); }
+function buyRate(){  return 0.80 * (1 - 0.10 * (state.capcol ? 1 : 0)); }   /* Z010 (U.4): Cap Collector only; no haggle step */
+function sellRate(){ return 0.45 * (1 + 0.10 * (state.capcol ? 1 : 0)); }
 function buyPrice(caps, q){  return Math.max(1, Math.round(caps * buyRate())) * q; }
 function sellPrice(caps, q){ return Math.max(1, Math.round(caps * sellRate())) * q; }
 /* MC_RATES:end */
@@ -52769,7 +53105,7 @@ function renderDeal(){
   el.textContent = Math.abs(net);
   el.className = net >= 0 ? "pos" : "neg";
   $("mc-netlabel").textContent = net >= 0 ? "You walk away with" : "You pay";
-  var steps = (state.capcol ? 1 : 0) + state.haggle;
+  var steps = state.capcol ? 1 : 0;
   $("mc-rate").innerHTML =
     "Buying at <b>" + Math.round(buyRate()*100) + "%</b> of list &middot; " +
     "selling at <b>" + Math.round(sellRate()*100) + "%</b>" +
@@ -52778,37 +53114,7 @@ function renderDeal(){
   if(typeof renderPay === "function") renderPay();
 }
 
-/* ---------------------------------------------------------------- haggling */
-$("mc-haggle").onclick = function(){
-  if(state.haggled){
-    $("mc-hagout").innerHTML = '<div class="roll-out">Already haggled this deal. Clear the counter to try again.</div>';
-    return;
-  }
-  var tn = (parseInt($("mc-cha").value,10)||0) + (parseInt($("mc-barter").value,10)||0);
-  var diff = parseInt($("mc-diff").value,10) || 0;
-  var pool = 2 + (parseInt($("mc-extra").value,10) || 0);
-  var dice = [], succ = 0, comp = 0;
-  for(var i=0;i<pool;i++){
-    var v = d20(), cls = "";
-    if(v === 1){ succ += 2; cls = "hit"; }
-    else if(v <= tn){ succ += 1; cls = "hit"; }
-    if(v === 20){ comp += 1; cls = "comp"; }
-    dice.push({v:v, cls:cls});
-  }
-  var won = succ >= diff;
-  state.haggled = true;
-  if(won) state.haggle = 1;
-  $("mc-hagout").innerHTML =
-    '<div class="roll-out"><b style="color:' + (won ? "var(--green)" : "var(--red)") + '">' +
-    (won ? "Deal — another 10% your way." : "No deal. The price stands.") + '</b><br>' +
-    succ + ' success' + (succ===1?'':'es') + ' vs difficulty ' + diff +
-    ' &middot; TN ' + tn + (comp ? ' &middot; <span style="color:var(--red)">' + comp +
-      ' complication' + (comp===1?'':'s') + '</span>' : '') +
-    '<div style="margin-top:5px">' + dice.map(function(x){
-      return '<span class="pip ' + x.cls + '">' + x.v + '</span>'; }).join("") + '</div></div>';
-  renderDeal();
-};
-
+/* ---------------------------------------------------------------- haggling: struck (Z010, U.4); Cap Collector below */
 $("mc-capcol").onclick = function(){
   state.capcol = !state.capcol;
   this.setAttribute("data-on", state.capcol ? "1" : "0");
@@ -52822,7 +53128,7 @@ $("mc-clear").onclick = function(){ clearCounter(); };
 
 $("mc-copy").onclick = function(){
   var L = ["MERCHANT — RECEIPT", ""];
-  var steps = (state.capcol ? 1 : 0) + state.haggle;
+  var steps = state.capcol ? 1 : 0;
   L.push("buying at " + Math.round(buyRate()*100) + "% of list, selling at " +
          Math.round(sellRate()*100) + "%" + (steps ? "  (" + steps + " modifier in your favour)" : ""));
   L.push("");
@@ -52998,7 +53304,6 @@ function clearCounter(){
   if(OPS) OPS.releaseAllBy(TAB);
   state.buy = []; state.sell = []; state.haggle = 0; state.haggled = false;
   newDeal();
-  $("mc-hagout").innerHTML = "";
   renderDeal();
   if(LIVE) renderLedger();
 }
@@ -59050,13 +59355,29 @@ var document = new Proxy(__rdoc, {
     nightSay("", false);
     render(); save();
   };
+  /* Z010 (V.1, 2026-10-21): CLEAR ALL INJURIES ASKS FIRST, AND CAN BE UNDONE ONCE.  It wiped every sheet's injuries in one
+     press with no question and no way back.  Now it asks, keeps what it cleared (the session log's line carries it as rev)
+     and offers one Undo on that line (window.SUITE_UNDO, build-suite.js). */
   document.getElementById("clearinj").onclick = function(){
+    var ask = (typeof window.confirm === "function") ? window.confirm("Clear every injury on the table? You can undo it once, from its line in the session log.") : true;
+    if (!ask) return;
+    var before = null;
     if (SUITE){
+      try{ before = JSON.parse(JSON.stringify(SUITE.get().injuries || {})); }catch(e){ before = {}; }
       SUITE.update(function(m){ m.injuries = {}; });
     } else {
+      before = state.people.map(function(p){ return (p.injuries || []).slice(); });
       state.people.forEach(function(p){ p.injuries = []; });
     }
     render(); save();
+    var U = window.SUITE_UNDO;
+    if (U && typeof U.keep === "function") U.keep("clear-injuries", { text:"cleared every injury on the table", rev:{ injuries:before },
+      revert:function(rev){
+        if (SUITE) SUITE.update(function(m){ m.injuries = rev.injuries || {}; });
+        else state.people.forEach(function(p, i){ p.injuries = (rev.injuries && rev.injuries[i]) || []; });
+        render(); save();
+        return { ok:true };
+      } });
   };
 
   function addPerson(){
