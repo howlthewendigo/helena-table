@@ -1182,6 +1182,8 @@
        color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #tool-char details.cs-sub{margin-top:14px;border-top:1px solid var(--edge);padding-top:6px}
 #tool-char details.cs-why{margin-top:4px}
+#tool-char details.cs-repf{margin-top:6px}
+#tool-char details.cs-repf > summary{min-height:32px;display:flex;align-items:center;cursor:pointer;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
 #tool-char details.cs-why > summary{display:inline-flex;align-items:center;gap:6px;min-height:32px;cursor:pointer;list-style:none;
        font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
 #tool-char details.cs-why > summary::-webkit-details-marker{display:none}
@@ -5243,6 +5245,10 @@ end $$;
             <label class="cs-lab" title="The Difficulty the Overseer sets. Leave it blank and the roll just names what it adds or takes off.">Difficulty <input type="number" id="cs-skill-diff" min="0" max="5" placeholder="?"></label>
             <label class="cs-lab" title="A test where standing decides it: your rank with the faction comes off the Difficulty, to 0. At Hostile it is +2 instead (Guide p.v).">Against <select id="cs-skill-rep" aria-label="faction the test is against"><option value="">no faction</option></select></label>
           </div>
+          <!-- CMD Z019: this character's own rank with each faction (Guide p.v) -->
+          <details class="cs-repf"><summary>Reputation &mdash; your ranks</summary>
+          <div class="cs-rollopts" id="cs-rep-ranks"></div>
+          </details>
           <details class="cs-why" data-why="tagged"><summary>why &mdash; tagged skills</summary>
           <div class="cs-hint" style="margin:-2px 0 8px">Tagged: any d20 at or under the rank is a critical (2 successes). A natural 1 always is. The [ATTR] beside a name is the roll's attribute &mdash; the default is printed, change it for the roll.</div>
           </details>
@@ -7867,6 +7873,10 @@ root.BESTIARY_RULES = {
     if(isFinite(dg) && dg > 0) out.degr = Math.min(9, dg);
     var lg = legRec(r.legendary);                 /* CMD Z018 (G.8): a legendary property rides the row, when PRESENT */
     if(lg) out.legendary = lg;
+    /* CMD Z019 (Zoe's ruling, 2026-10-22): a set's kept armour HP (the sheet's pack-row armHp, CMD Z016) rides the row, when
+       PRESENT — a whole number 0-999, dropped when broken, never added — so a set sent to the ledger and taken back is worn at
+       the HP it came off with, not refilled */
+    if(r.armHp != null && r.armHp !== ""){ var ah = Math.round(+r.armHp); if(isFinite(ah) && ah >= 0) out.armHp = Math.min(999, ah); }
     return out;
   }
   /* CMD Z018 (G.8) — { kind, key, table, face }, the sheet's CH.legRec, character for character in what it keeps */
@@ -7971,6 +7981,7 @@ root.BESTIARY_RULES = {
     for(i = 0; i < n.qty; i++){
       var one = row(n); one.id = mintId("r"); one.qty = 1;
       if(i > 0) delete one.legendary;      /* CMD Z018 (G.8): one property, one item — the first of a split row carries it */
+      if(i > 0) delete one.armHp;          /* CMD Z019: one set's kept HP, one set — likewise */
       foundStamp(one);                     /* CMD Z014 (G.9): each looted rifle is its own find */
       out.push(one); made.push(one);
     }
@@ -8007,7 +8018,7 @@ root.BESTIARY_RULES = {
   function legendKind(r){
     var it = r && r.key && isRec(root.ITEMS) && isRec(root.ITEMS[r.key]) ? root.ITEMS[r.key] : null, cat = it ? str(it.cat) : "";
     if(!cat) return null;
-    if(FOUND_ARMOUR.test(cat)) return { kind:"armour", column:"" };
+    if(FOUND_ARMOUR.test(cat)) return /Clothing/i.test(cat) ? null : { kind:"armour", column:"" };   /* CMD Z019 (Z018-6): body, power and robot armour only */
     if(!FOUND_WEAPON.test(cat) || /^Explosives$/.test(cat) || (/Thrown/.test(cat) && /\bThrown\b/i.test(str(it.effect)))) return null;
     return { kind:"weapon", column:LEG_MELEE.test(cat) ? "melee" : "ranged" };
   }
@@ -8724,7 +8735,7 @@ root.BESTIARY_RULES = {
     var back = s.pending[at].row;
     s.pending.splice(at, 1);
     var res = addRow(s.items, { key:back.key, name:back.name, qty:back.qty, stack:back.stack,
-                                sec:back.sec, notes:back.notes, from:back.from, at:back.at, found:back.found, degr:back.degr, legendary:back.legendary });
+                                sec:back.sec, notes:back.notes, from:back.from, at:back.at, found:back.found, degr:back.degr, legendary:back.legendary, armHp:back.armHp });
     if(!res.error) s.items = res.items;
     return { slice:s, row:back };
   }
@@ -8768,7 +8779,7 @@ root.BESTIARY_RULES = {
       inv.push(sheetRow(r, r.qty));
       return inv;
     }
-    for(i = 0; i < r.qty; i++) inv.push(sheetRow(r, 1));
+    for(i = 0; i < r.qty; i++){ var one = sheetRow(r, 1); if(i > 0) delete one.armHp; inv.push(one); }   /* CMD Z019: one set's HP, one set */
     return inv;
   }
   function shallow(o){ var c = {}, k; for(k in o) if(Object.prototype.hasOwnProperty.call(o, k)) c[k] = o[k]; return c; }
@@ -8778,6 +8789,7 @@ root.BESTIARY_RULES = {
     if(r.found === true) o.found = true;          /* CMD Z014 (G.9): a found thing stays found on the sheet */
     if(r.degr > 0) o.degr = r.degr;
     if(legRec(r.legendary)) o.legendary = legRec(r.legendary);   /* CMD Z018 (G.8) */
+    if(r.armHp != null && qty === 1) o.armHp = r.armHp;          /* CMD Z019: the set's kept HP, onto the one set it belongs to */
     return o;
   }
 
@@ -10756,7 +10768,7 @@ window.HELENA_LEGENDARY = {
       { key:"assassins",     name:"Assassin’s",      r:[1,1],   m:[1,1],   text:"Against humans — the Human keyword without the Mutated one — it gains Vicious. Already Vicious: +2 damage per Effect instead of +1." },
       { key:"berserkers",    name:"Berserker’s",     r:null,    m:[2,2],   text:"While your armour’s Physical DR is below 6 — wrecked counts, and bare skin counts as 0 — it inflicts +1 damage per point it falls short." },
       { key:"blazing",       name:"Blazing",         r:null,    m:[3,3],   text:"When a melee attack you Parried misses you, the attacker immediately suffers 4CD Persistent (Energy) damage." },
-      { key:"bloodied",      name:"Bloodied",        r:null,    m:[4,4],   text:"Below full HP, +1CD damage. Below three-quarters, +2CD; below half, +3CD; below one quarter, +4CD.", mech:{ bloodied:true } },
+      { key:"bloodied",      name:"Bloodied",        r:null,    m:[4,4],   both:true, text:"Below full HP, +1CD damage. Below three-quarters, +2CD; below half, +3CD; below one quarter, +4CD.", mech:{ bloodied:true } },
       { key:"cavaliers",     name:"Cavalier’s",      r:null,    m:[5,5],   text:"When you Parry or Sprint, you gain +2 Physical DR until the start of your next turn." },
       { key:"charged",       name:"Charged",         r:null,    m:[6,6],   text:"When a melee attack you Parried misses you, the attacker immediately suffers 4CD Energy damage carrying Stun." },
       { key:"crippling",     name:"Crippling",       r:[2,2],   m:[7,7],   text:"It gains Keen 1 — a critical hit at 4 damage past DR. Already Keen: its rating improves by 1.", mech:{ keen:1 } },
@@ -10843,15 +10855,20 @@ window.HELENA_LEGENDARY = {
     var L = window.HELENA_LEGENDARY;
     return kind === "armour" ? [["A", L.armour.A], ["B", L.armour.B]] : [["I", L.weapons.I], ["II", L.weapons.II]];
   },
-  /* the row a face lands on in a column (weapons: "ranged" | "melee"; armour: its one column), or null — "roll again" */
-  rowAt: function(table, column, face){
-    var rows = (table && table.rows) || [], n = Math.round(+face);
+  /* every row a face lands on in a column (weapons: "ranged" | "melee"; armour: its one column) — none is "roll again".
+     CMD Z019: a row marked `both` prints one face and that face serves both columns (Bloodied: the Guide prints "—" under
+     RANGED and 4 under MELEE & UNARMED; ruled that a ranged weapon rolls it too, applied the same way).  On the ranged
+     column its face is also Defiant's, so that face lands on two rows (the roll splits them). */
+  rowsAt: function(table, column, face){
+    var rows = (table && table.rows) || [], n = Math.round(+face), out = [];
     for(var i = 0; i < rows.length; i++){
-      var span = rows[i].d || (column === "melee" ? rows[i].m : rows[i].r);
-      if(span && n >= span[0] && n <= span[1]) return rows[i];
+      var span = rows[i].d || (column === "melee" ? rows[i].m : (rows[i].r || (rows[i].both ? rows[i].m : null)));
+      if(span && n >= span[0] && n <= span[1]) out.push(rows[i]);
     }
-    return null;
+    return out;
   },
+  /* the first row a face lands on, or null — "roll again" */
+  rowAt: function(table, column, face){ return window.HELENA_LEGENDARY.rowsAt(table, column, face)[0] || null; },
   find: function(kind, key){
     var L = window.HELENA_LEGENDARY, ts = L.tablesOf(kind);
     for(var t = 0; t < ts.length; t++){
@@ -10868,9 +10885,14 @@ window.HELENA_LEGENDARY = {
     var pick = Math.max(1, Math.min(20, Math.round(+f() || 1))), t = pick <= 10 ? ts[0] : ts[1];
     var col = kind === "armour" ? "" : (column === "melee" ? "melee" : "ranged");
     for(var tries = 0; tries < 200; tries++){
-      var face = Math.max(1, Math.min(20, Math.round(+f() || 1))), row = L.rowAt(t[1], col, face);
-      if(row) return { kind:kind === "armour" ? "armour" : "weapon", key:row.key, table:t[0], face:face, tableFace:pick, rerolls:tries,
-                       row:row, folio:t[1].folio };
+      var face = Math.max(1, Math.min(20, Math.round(+f() || 1))), hits = L.rowsAt(t[1], col, face), row = hits[0] || null, split = 0;
+      /* CMD Z019: a face two rows share (ranged Table I, 4: Bloodied and Defiant) — one more d20, 1–10 the first printed,
+         11–20 the second, as the table die splits the tables */
+      if(hits.length > 1){ split = Math.max(1, Math.min(20, Math.round(+f() || 1))); row = hits[split <= 10 ? 0 : 1]; }
+      if(row){ var got = { kind:kind === "armour" ? "armour" : "weapon", key:row.key, table:t[0], face:face, tableFace:pick, rerolls:tries,
+                           row:row, folio:t[1].folio };
+               if(split) got.split = split;
+               return got; }
     }
     return null;
   }
@@ -22742,7 +22764,9 @@ var CH = {
     var pierce = Math.max(0, Math.round(+opts.piercing || 0));
     /* CMD Z017 (G.3, Guide p.ccxc): a carried disease's printed damage — Blood Worms +2 on the hit, Weeping Sores +1 on
        Physical and Rad Worms +2 on Radiation past DR (CH.diseaseHit; nothing when no disease is carried) */
-    var dzh = typeof CH.diseaseHit === "function" ? CH.diseaseHit(c, type, !!opts.ignoresDR) : null;
+    /* CMD Z019 (Zoe's ruling, 2026-10-22): Blood Worms prints "attacks against you", so its +2 rides only a hit the caller marks
+       as an attack (opts.attack: the turn order's hit, a Blast's) — never a bleed, a Persistent tick or a hit typed into Take damage */
+    var dzh = typeof CH.diseaseHit === "function" ? CH.diseaseHit(c, type, !!opts.ignoresDR || opts.attack !== true) : null;
     if(dzh && dzh.before && amount > 0) amount += dzh.before;
     var armourDr = opts.ignoresDR ? 0 : CH.armourDR(c, type);
     /* RULE 4 (2026-09-22): the target's zone cover adds to its DR of this type.  The GM
@@ -23037,8 +23061,19 @@ var CH = {
   },
   /* the attachment rule on a worn set, in place: +1 Physical and +1 Energy DR, rarity +2 (6 at most); its HP is the formula's
      on the new figures (armMax reads them) unless the set printed its own, which climbs by what the formula climbs */
+  /* CMD Z019 (Z018-6): legendary armour is body, power and robot armour only.  Clothing — the catalogue's Clothing & Outfits
+     rows, or a hand-typed set with no Physical and no Energy DR — cannot be made legendary, and a legendary record already on
+     it (an old save) is kept as saved but its armour bonuses are not applied. */
+  legClothing: function(a){
+    if(!a) return false;
+    var I = null; try{ I = typeof window !== "undefined" ? window.ITEMS : null; }catch(e){ I = null; }
+    var cat = I && a.key && I[a.key] ? String(I[a.key].cat || "") : "";
+    if(cat) return /Clothing/i.test(cat);
+    return !(+a.phys > 0) && !(+a.en > 0);
+  },
   legArmour: function(a, rec){
     var r = CH.legRec(rec); if(!a || !r || r.kind !== "armour") return false;
+    if(typeof CH.legClothing === "function" && CH.legClothing(a)) return false;      /* CMD Z019 (Z018-6) */
     var was = CH.armourHp(a.phys, a.en, a.rarity);
     a.phys = (+a.phys || 0) + 1; a.en = (+a.en || 0) + 1; a.rarity = Math.min(6, (+a.rarity || 0) + 2);
     var now = CH.armourHp(a.phys, a.en, a.rarity);
@@ -23122,8 +23157,9 @@ var CH = {
      wants the perk: the materials buy the piece, not the knowledge."  Materials are the row's printed string (C common,
      U uncommon, R rare), taken from the sheet's materials rows (materialsIndex); a failed test produces nothing and spends
      nothing (p.xiv — only a cooking or chemistry station eats a failure).  The bench's skill is the row's installWith
-     (Repair, Science…).  "Your rank" is read as the rank held in the FIRST perk the row names (none: 0) — listed for a
-     ruling.  The fee is the Install percentage of the item's current worth (p.li), as fitting a bought part. */
+     (Repair, Science…).  "Your rank": CMD Z019 (Zoe's ruling, 2026-10-22) — a row naming two perks needs both, and the LOWEST
+     rank held among them is the one that limits you (none named: 0).  The fee is the Install percentage of the item's current
+     worth (p.li), as fitting a bought part, and it comes off the sheet's caps (fitMod, buildMod). */
   modPerkNeed: function(s){
     var out = [];
     String(s == null ? "" : s).split(/\s*[+,]\s*/).forEach(function(bit){
@@ -23148,7 +23184,7 @@ var CH = {
     };
     var miss = p.need.filter(function(n){ return held(n.perk) < n.rank; });
     if(miss.length){ p.why = "needs " + miss.map(function(n){ return n.perk + " " + n.rank; }).join(" and ") + " on this sheet"; return p; }
-    p.rank = p.need.length ? held(p.need[0].perk) : 0;
+    p.rank = p.need.length ? Math.min.apply(null, p.need.map(function(n){ return held(n.perk); })) : 0;
     p.difficulty = Math.max(0, Math.round(+row.cx || 0) - p.rank);
     CH.MATERIAL_TIERS.forEach(function(t){
       var want = p.mats[t]; if(!want) return;
@@ -23798,7 +23834,7 @@ var CH = {
      the watch, not by this table, so the table still only describes them. */
   DISEASES: [
     { d20:1,  name:"Blood Worms",      days:1, effect:"attacks against you inflict +2 damage", hit:2,
-      how:"On the sheet: every hit you take through DR is 2 higher (Take damage, and a hit in a fight)." },
+      how:"On the sheet: every attack's hit through DR is 2 higher (a hit the turn order or a Blast lands; not a bleed or a Persistent tick)." },
     { d20:2,  name:"Bone Worms",       days:1, effect:"attacks against your limbs bite deeper: +4 damage when the Overseer rules the hit landed on arm or leg", overseer:true,
       how:"The Overseer's call: they rule whether a hit landed on an arm or a leg, then add the 4." },
     { d20:3,  name:"Buzz Brain",       days:4, effect:"INT tests +1 Difficulty", test:"INT",
@@ -23942,6 +23978,38 @@ var CH = {
   repOffer: function(f){
     var st = CH.repStep(f);
     return (st.n < 0 ? "\u2212" + (-st.n) : "+" + st.n) + " Difficulty (" + st.what + ")";
+  },
+  /* CMD Z019 (Zoe's ruling, 2026-10-22): REPUTATION IS EACH CHARACTER'S.  Guide p.v: "a rank from 0 to 5, held separately for
+     each faction ... You begin at Neutral (2) with everyone".  The faction LIST stays the party's (tools.reputation, named in
+     Quests), so every sheet ranks the same factions; each sheet keeps its own ranks in c.rep = { <faction id>: 0-5 }, a field
+     absent on every save before this one and never added until the Overseer sets a rank.  A faction a sheet holds no rank for
+     reads the list's own rank: Neutral 2 for a faction named today, and \u2014 on a save from before \u2014 the rank the party track
+     held, read and never written (the old slice keeps its meaning: where everyone stands until a sheet says otherwise).
+       repSheetOf(raw)   c.rep hardened: ids as repOf keeps them, ranks 0-5, at most REP_MAX; null when not a record
+       repRankOf(c, f)   this sheet's own rank with f, or null
+       repFor(c, raw)    the list with this sheet's ranks: [{ id, name, rank, own, start }]                              */
+  repSheetOf: function(raw){
+    if(!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+    var out = {}, n = 0;
+    Object.keys(raw).forEach(function(k){
+      if(n >= CH.REP_MAX || !/^[\w-]{1,40}$/.test(k) || k === "__proto__" || k === "constructor" || k === "prototype") return;
+      var v = raw[k], r = Math.round(+v);
+      if(v == null || v === "" || typeof v === "boolean" || !isFinite(r)) return;
+      out[k] = Math.max(0, Math.min(5, r)); n++;
+    });
+    return out;
+  },
+  repRankOf: function(c, f){
+    var R = c && c.rep && typeof c.rep === "object" ? c.rep : null, id = f && f.id;
+    if(!R || typeof id !== "string" || !Object.prototype.hasOwnProperty.call(R, id)) return null;
+    var r = Math.round(+R[id]);
+    return R[id] == null || R[id] === "" || !isFinite(r) ? null : Math.max(0, Math.min(5, r));
+  },
+  repFor: function(c, raw){
+    return CH.repOf(raw).factions.map(function(f){
+      var own = CH.repRankOf(c, f);
+      return { id:f.id, name:f.name, rank:own == null ? f.rank : own, own:own != null, start:f.rank };
+    });
   },
   /* THE SHEET'S TEST DIFFICULTY.  o = { typed: the Overseer's number (blank = not yet said), attr, faction }.  Every part
      named: the carried diseases' +1 on this attribute (Guide p.ccxc), carrying too much on STR and AGI (Guide p.vii), the
@@ -25951,6 +26019,13 @@ var CH = {
        (Shelter with a heat source: cold Fatigue's one exit).  env.camp() reads the camp; absent, nothing is stamped. */
     if(nx.ev.winter && typeof env.camp === "function"){
       try{ var kc = env.camp() || {}; if(kc.fire) nx.ev.fire = true; if(kc.shelter) nx.ev.shelter = true; }catch(e){}
+      /* CMD Z019 (Z018-4): a whole scene in warm shelter is not exposed.  "The whole scene" is read as warm shelter (the
+         camp's Shelter and Campfire, as above) both when the scene began — the event that opened it carries the stamp — and
+         now as it ends; the event that closes such a scene says so (warmAll) and its end tests nothing. */
+      if(nx.ev.shelter && nx.ev.closesSeq){
+        var opened = cur.events.filter(function(e){ return e.seq === nx.ev.closesSeq; })[0];
+        if(opened && opened.winter && opened.shelter) nx.ev.warmAll = true;
+      }
     }
     /* WAVE 16, SKEPTIC 1: the frames this press charges ride its event, for the home device's settlement (sceneSettle) */
     if(CH.SCENE_OPENS.indexOf(kind) >= 0)
@@ -26035,7 +26110,8 @@ var CH = {
        of the leg (the camp's Campfire) · −1 for hot food or drink during it (the sheet's Hot food press in that scene) · −1 if
        you worked hard (the scene was a fight) — and Flash Freeze's +1 to +3 on END tests.
        Failure: Fatigue equal to the final Difficulty (minimum 1; cold Fatigue never exceeds half your current HP, rounded
-       up).  A complication on a failure: that Fatigue cannot be removed until 24 hours in warm shelter (coldLock).  Cold
+       up).  A complication on a failure: that Fatigue cannot be removed until 24 hours in warm shelter (coldLock; one warm
+       night lifts it, CMD Z019 Z018-5).  A whole scene in warm shelter tests nothing (warmAll, CMD Z019 Z018-4).  Cold
        Fatigue (c.survival.cold) clears after six hours' rest in warm shelter — a night with the camp's Shelter and Campfire —
        and by no other means: recovery, a night elsewhere and Six hours leave it standing.
      The cold drain ("in extreme cold every drain takes one extra level off Hunger") is the scene's cold, unchanged (drainOnce). */
@@ -26064,6 +26140,7 @@ var CH = {
     var w = CH.wxOf(e.wx); if(w) out.wx = w;
     if(e.fire) out.fire = true;
     if(e.shelter) out.shelter = true;
+    if(e.warmAll && e.shelter) out.warmAll = true;     /* CMD Z019 (Z018-4) */
     return out;
   },
   winterNote: function(sc){
@@ -26107,9 +26184,15 @@ var CH = {
   exposureAt: function(c, ev, ctx){
     ctx = ctx || {};
     if(!c.survival || typeof c.survival !== "object") c.survival = {};
+    /* CMD Z019 (Z018-4): the whole scene in warm shelter — not exposed, so no test at all; the watch run is broken */
+    if(ev && ev.warmAll){ c.survival.coldRun = 0; delete c.survival.coldLast; return { tested:false, sheltered:true }; }
     var t = CH.exposureTest(c, ev), sk = (c.skills || {}).Survival || {}, rank = Math.max(0, Math.round(+sk.rank || 0));
-    var tn = (+((c.special || {})[CH.KEY.END]) || 0) + rank, crit = CH.critRange(rank, !!sk.tag);
+    /* CMD Z019 (Z018-7): Stacked Deck, paid on the sheet before the roll (coldDeck), rolls LCK in place of END, once */
+    var deck = c.survival.coldDeck === true; delete c.survival.coldDeck;
+    var tn = (+((c.special || {})[deck ? CH.KEY.LCK : CH.KEY.END]) || 0) + rank, crit = CH.critRange(rank, !!sk.tag);
     var out = { tested:true, difficulty:t.difficulty, parts:t.parts, warm:t.warm.warm, tn:tn, faces:[], succ:0, comp:0, passed:true, fatigue:0, locked:false };
+    if(deck) out.deck = true;
+    var lockWas = c.survival.coldLock === true;
     if(t.difficulty > 0){
       var f = typeof ctx.d20 === "function" ? ctx.d20 : function(){ return 1 + Math.floor(Math.random() * 20); };
       for(var i = 0; i < 2; i++){
@@ -26127,18 +26210,57 @@ var CH = {
       if(out.fatigue && out.comp){ c.survival.coldLock = true; out.locked = true; }
     }
     c.survival.coldRun = ev && ev.shelter ? 0 : Math.max(0, Math.round(+c.survival.coldRun || 0)) + 1;
+    /* CMD Z019 (Z018-7): the test as rolled, kept until the next one, so Miss Fortune can re-roll a die of it */
+    if(out.faces.length) c.survival.coldLast = { seq:CH.sceneInt(ev && ev.seq), d:t.difficulty, tn:tn, crit:crit, faces:out.faces.slice(),
+                                                 fatigue:out.fatigue, lock:lockWas, re:[] };
+    else delete c.survival.coldLast;
     return out;
   },
-  /* the night (sceneApply): six hours in warm shelter clear cold Fatigue entirely — unless a complication locked it, when that
-     night counts toward its 24 hours and the next warm night clears it.  Anywhere else, whatever the night cleared, the cold's
+  /* CMD Z019 (Z018-7): MISS FORTUNE on the last exposure test — one Luck point re-rolls one d20 (Book One's spend; each die
+     once only, and the new face stands even when worse).  The die re-rolled is the highest face not yet re-rolled.  The
+     test is then read again: a failure that now passes gives its cold Fatigue back; a pass that now fails takes it; a
+     complication that comes or goes sets or lifts the hold this test made.  Pure on c (the Luck is paid by the caller).
+     -> { ok, note, was:{ faces, passed }, faces, passed, fatigue } */
+  coldReroll: function(c, d20){
+    var s = c && c.survival, L = s && s.coldLast;
+    if(!L || !Array.isArray(L.faces) || !L.faces.length) return { ok:false, note:"There is no exposure test to re-roll." };
+    var re = Array.isArray(L.re) ? L.re : [], pick = -1;
+    for(var i = 0; i < L.faces.length; i++) if(re.indexOf(i) < 0 && (pick < 0 || L.faces[i] > L.faces[pick])) pick = i;
+    if(pick < 0) return { ok:false, note:"Both dice of that exposure test have been re-rolled already — each die once only." };
+    var read = function(fs){ var su = 0, co = 0; fs.forEach(function(x){ if(x <= L.crit) su += 2; else if(x <= L.tn) su += 1; if(x >= 20) co += 1; });
+                             return { passed:su >= L.d, comp:co }; };
+    var before = read(L.faces), f = typeof d20 === "function" ? d20 : function(){ return 1 + Math.floor(Math.random() * 20); };
+    var was = L.faces.slice(), x = Math.max(1, Math.min(20, Math.round(+f() || 1)));
+    L.faces[pick] = x; L.re = re.concat([pick]);
+    var after = read(L.faces);
+    if(before.passed && !after.passed){
+      var cold0 = CH.coldOf(c), room = Math.max(0, Math.ceil(Math.max(0, +c.hp || 0) / 2) - cold0);
+      L.fatigue = CH.fatigueAdd(c, Math.min(Math.max(1, L.d), room));
+      if(L.fatigue) s.cold = cold0 + L.fatigue;
+    } else if(!before.passed && after.passed && L.fatigue){
+      c.fatigue = Math.max(0, CH.fatigueRaw(c) - L.fatigue);
+      var left = Math.max(0, Math.round(+s.cold || 0) - L.fatigue);
+      if(left) s.cold = left; else delete s.cold;
+      L.fatigue = 0;
+    }
+    if(!after.passed && L.fatigue && after.comp) s.coldLock = true;
+    else if(L.lock) s.coldLock = true; else delete s.coldLock;
+    return { ok:true, was:{ faces:was, passed:before.passed }, faces:L.faces.slice(), passed:after.passed, fatigue:L.fatigue, locked:s.coldLock === true,
+             note:"Miss Fortune: d20 " + was[pick] + " re-rolled to " + x + " — exposure D" + L.d + " [" + L.faces.join(",") + "] " +
+                  (after.passed ? "passed" : "failed") + (after.passed !== before.passed ? (after.passed ? ", the cold Fatigue taken back" : ", +" + L.fatigue + " Fatigue from the cold") : "") + "." };
+  },
+  /* the night (sceneApply): six hours in warm shelter clear cold Fatigue entirely — and since CMD Z019 (Z018-5) a complication's
+     hold with it: one warm night lifts the hold (it was two: one toward the 24 hours, the next to clear).  Anywhere else, whatever the night cleared, the cold's
      share stands.  cold0 is the cold Fatigue carried as the party lay down.  -> { cleared, unlocked, kept } */
   coldNight: function(c, ev, cold0){
     var out = { cleared:0, unlocked:false, kept:0 };
     if(!cold0 && !(c.survival && c.survival.coldLock)) return out;
     if(ev && ev.shelter){
+      /* CMD Z019 (Z018-5): one warm night clears the complication hold too — the hold lifts and the cold Fatigue goes with it */
       c.survival.coldRun = 0;
       if(c.survival.coldLock){ delete c.survival.coldLock; out.unlocked = true; }
-      else{ out.cleared = Math.min(cold0, CH.fatigueRaw(c)); c.fatigue = Math.max(0, CH.fatigueRaw(c) - out.cleared); delete c.survival.cold; return out; }
+      delete c.survival.coldLast;
+      out.cleared = Math.min(cold0, CH.fatigueRaw(c)); c.fatigue = Math.max(0, CH.fatigueRaw(c) - out.cleared); delete c.survival.cold; return out;
     }
     if(CH.fatigueRaw(c) < cold0) c.fatigue = cold0;
     if(cold0) c.survival.cold = cold0; else delete c.survival.cold;
@@ -26146,9 +26268,10 @@ var CH = {
     return out;
   },
   coldSaid: function(x){
+    if(x && x.sheltered) return "cold: the whole scene in warm shelter, no exposure test";      /* CMD Z019 (Z018-4) */
     if(!x || !x.tested) return "";
-    return "cold: END + Survival D" + x.difficulty + (x.faces.length ? " [" + x.faces.join(",") + "]" : "") +
-           (x.passed ? " passed" : " failed" + (x.fatigue ? ", +" + x.fatigue + " Fatigue from the cold" : "") + (x.locked ? ", held until 24 hours in warm shelter" : ""));
+    return "cold: " + (x.deck ? "LCK" : "END") + " + Survival D" + x.difficulty + (x.faces.length ? " [" + x.faces.join(",") + "]" : "") +
+           (x.passed ? " passed" : " failed" + (x.fatigue ? ", +" + x.fatigue + " Fatigue from the cold" : "") + (x.locked ? ", held until a night in warm shelter" : ""));
   },
   /* ONE DRAIN — CH.passWatch's body without the watch's fight extra, priced per DRAIN (trackDrop's
      Finished clause is one call per track per drain).  "every drain takes one extra level off every
@@ -26328,7 +26451,7 @@ var CH = {
       if(r.owed && !r.owed.none) b.push("sickness check owed D" + r.owed.count);
       if(r.cold && typeof CH.coldSaid === "function") b.push(CH.coldSaid(r.cold));
       if(r.coldNight) b.push(r.coldNight.cleared ? "warm shelter cleared " + r.coldNight.cleared + " cold Fatigue"
-                             : r.coldNight.unlocked ? "a night in warm shelter toward the cold's 24 hours" : "cold Fatigue " + r.coldNight.kept + " stands (no warm shelter)");
+                             : r.coldNight.unlocked ? "warm shelter lifted the cold's hold" : "cold Fatigue " + r.coldNight.kept + " stands (no warm shelter)");
       if(r.rested) b.push("rested" + (r.cleared ? ", " + r.cleared + " Fatigue cleared" : ""));
       if(r.hpLoss) b.push(r.hpLoss + " HP to Fatigue");
       if(b.length) bits.push((r.kind === "night" ? "night" : r.kind === "day" ? "the day" : r.kind === "lost" ? "lost" : "scene " + r.n) + ": " + b.join(", "));
@@ -26485,6 +26608,8 @@ function normalise(c){
   });
   /* CMD Z016: a set's kept HP on its pack row (armHp) — a whole number 0 or more when PRESENT, dropped when broken, never added */
   (c.inventory || []).forEach(function(r){ if(r && r.armHp != null){ var k = Math.round(+r.armHp); if(isFinite(k) && k >= 0) r.armHp = Math.min(999, k); else delete r.armHp; } });
+  /* CMD Z019: this character's own reputation ranks (c.rep), hardened when PRESENT and never added */
+  if(c.rep != null && typeof CH.repSheetOf === "function"){ var rp = CH.repSheetOf(c.rep); if(rp) c.rep = rp; else delete c.rep; }
   // Ruling 4 (2026-09-22): a stored Throwing skill is gone; a weapon on it is a thrown
   // blade and moves to AGI + Melee Weapons (its Throwing rank is not carried over)
   if(c.skills && c.skills.Throwing) delete c.skills.Throwing;
@@ -26555,6 +26680,15 @@ function normalise(c){
     if(!isFinite(v) || v <= 0) delete c.survival[k]; else c.survival[k] = Math.min(k === "hot" ? 1e9 : 99, v);
   });
   if(c.survival.coldLock != null && c.survival.coldLock !== true) delete c.survival.coldLock;
+  /* CMD Z019 (Z018-7): Stacked Deck paid for the next exposure test, and the last test kept for Miss Fortune */
+  if(c.survival.coldDeck != null && c.survival.coldDeck !== true) delete c.survival.coldDeck;
+  if(c.survival.coldLast != null){
+    var cl = c.survival.coldLast, nf = function(v, lo, hi){ var n = Math.round(+v); return isFinite(n) ? Math.max(lo, Math.min(hi, n)) : lo; };
+    if(!isRec(cl) || !isList(cl.faces) || !cl.faces.length || cl.faces.length > 2) delete c.survival.coldLast;
+    else c.survival.coldLast = { seq:nf(cl.seq, 0, 1e9), d:nf(cl.d, 0, 9), tn:nf(cl.tn, 0, 40), crit:nf(cl.crit, 1, 20),
+      faces:cl.faces.map(function(x){ return nf(x, 1, 20); }), fatigue:nf(cl.fatigue, 0, 99), lock:cl.lock === true,
+      re:(isList(cl.re) ? cl.re : []).map(function(x){ return nf(x, 0, 1); }).filter(function(x, i, a){ return x < cl.faces.length && a.indexOf(x) === i; }) };
+  }
   if(c.survival.note != null){
     var sn = c.survival.note;
     if(!isRec(sn) || typeof sn.text !== "string") delete c.survival.note;
@@ -27110,7 +27244,7 @@ function wearFromRow(row, where){
     /* CMD Z018 (G.8): nor the old set's property; a legendary set from the pack brings its own (the attachment rule) */
     delete ch.armour.legendary;
     var lgr = CH.legRec(row && row.legendary);
-    if(lgr && lgr.kind === "armour") CH.legArmour(ch.armour, lgr);
+    if(lgr && lgr.kind === "armour" && !CH.legArmour(ch.armour, lgr)) ch.armour.legendary = lgr;     /* CMD Z019: clothing keeps it, unapplied */
   });
   render();
   return { ok:true, was:was, armour:a, where:where || "",
@@ -27559,17 +27693,54 @@ function partyRep(){
   try{ raw = T && typeof T.get === "function" ? T.get("reputation") : null; }catch(e){ raw = null; }
   return CH.repOf(raw);
 }
+/* CMD Z019 (Zoe 2026-10-22): the factions with THIS sheet's ranks (CH.repFor) — the list is the party's, the rank the sheet's */
+function repMine(){
+  var c = typeof me === "function" ? me() : null, R = partyRep();
+  return typeof CH.repFor === "function" ? { factions:CH.repFor(c, R) } : R;
+}
 function repPaint(){
   var sel = $("cs-skill-rep"); if(!sel) return;
-  var R = partyRep(), was = sel.value;
+  var R = typeof repMine === "function" ? repMine() : partyRep(), was = sel.value;
   var html = '<option value="">' + (R.factions.length ? "no faction" : "no faction (the Overseer adds them in Quests)") + "</option>" +
     R.factions.map(function(f){ return '<option value="' + esc(f.id) + '">' + esc((f.name || "unnamed") + ": " + CH.repOffer(f)) + "</option>"; }).join("");
   if(sel.getAttribute("data-was") !== html){ sel.innerHTML = html; sel.setAttribute("data-was", html); sel.value = was; if(sel.value !== was) sel.value = ""; }
+  if(typeof repRanksPaint === "function") repRanksPaint(R);
 }
 function repPicked(){
   var sel = $("cs-skill-rep"), id = sel ? sel.value : "", f = null;
-  if(id) partyRep().factions.forEach(function(x){ if(x.id === id) f = x; });
+  if(id) (typeof repMine === "function" ? repMine() : partyRep()).factions.forEach(function(x){ if(x.id === id) f = x; });
   return f;
+}
+/* CMD Z019: this character's ranks, one box per party faction.  The Overseer's to set (the gate the party track had:
+   SUITE_TOOLS.canWrite("reputation") — in Solo, or with no Overseer at the table, anyone may).  A blank box is no rank of
+   its own: the sheet stands where the faction list starts it (Neutral 2, Guide p.v). */
+function repMayRank(){
+  var T = typeof window !== "undefined" ? window.SUITE_TOOLS : null;
+  try{ return !T || typeof T.canWrite !== "function" || !!T.canWrite("reputation"); }catch(e){ return false; }
+}
+function repRanksPaint(R){
+  var host = $("cs-rep-ranks"); if(!host) return;
+  var may = repMayRank();
+  var html = !R.factions.length ? '<div class="cs-hint">No faction yet — the Overseer names them in Quests.</div>'
+    : R.factions.map(function(f){
+        var opts = '<option value=""' + (f.own ? "" : " selected") + ">start: " + f.start + " " + CH.REP_STANDING[f.start] + "</option>" +
+          CH.REP_STANDING.map(function(w, r){ return '<option value="' + r + '"' + (f.own && r === f.rank ? " selected" : "") + ">" + r + " " + w + "</option>"; }).join("");
+        return '<label class="cs-lab">' + esc(f.name || "unnamed") + ' <select data-csrep="' + esc(f.id) + '"' + (may ? "" : " disabled") +
+          ' aria-label="your rank with ' + esc(f.name || "this faction") + '">' + opts + "</select></label>";
+      }).join("") + (may ? "" : '<div class="cs-hint">The ranks are the Overseer’s while one is at the table.</div>');
+  if(host.getAttribute("data-was") !== html){ host.innerHTML = html; host.setAttribute("data-was", html); }
+}
+function repRankSet(id, v){
+  if(!repMayRank() || !/^[\w-]{1,40}$/.test(String(id)) || id === "__proto__" || id === "constructor" || id === "prototype") return false;
+  var ok = false;
+  edit(function(ch){
+    if(!ch.rep || typeof ch.rep !== "object" || Array.isArray(ch.rep)) ch.rep = {};
+    if(v === "" || v == null){ delete ch.rep[id]; ok = true; return; }
+    var r = Math.round(+v); if(!isFinite(r)) return;
+    ch.rep[id] = Math.max(0, Math.min(5, r)); ok = true;
+  });
+  repPaint();
+  return ok;
 }
 
 /* ================================================================== WAVE 7 ASK 8
@@ -29231,7 +29402,7 @@ function makeLegendary(kind, i, pick){
   var c = me(), L = CH.legData(); if(!c || !L) return "";
   var tgt = kind === "armour" ? c.armour : c.weapons[i];
   if(!tgt) return "";
-  if(kind === "armour" ? CH.legRec(tgt.legendary) || !String(tgt.name || "").trim() : CH.legWhyNot(tgt)) return "";
+  if(kind === "armour" ? CH.legRec(tgt.legendary) || !String(tgt.name || "").trim() || (typeof CH.legClothing === "function" && CH.legClothing(tgt)) : CH.legWhyNot(tgt)) return "";
   var rec = null;
   if(pick){ var f = L.find(kind, pick); if(f) rec = { kind:kind, key:pick, table:f.table }; }
   else{ var r = L.roll(kind, kind === "armour" ? "" : CH.legColumn(tgt)); if(r) rec = { kind:r.kind, key:r.key, table:r.table, face:r.face }; }
@@ -29245,12 +29416,25 @@ function makeLegendary(kind, i, pick){
   return lg ? "<b>" + esc(tgt.name || kind) + "</b> is legendary: <b>" + esc(lg.name) + "</b> &mdash; " + esc(lg.text) +
               (kind === "armour" ? " Plus +1 Physical and +1 Energy DR, rarity +2." : "") : "";
 }
+/* CMD Z019 (Z018-6): an old save's legendary clothing had +1/+1 written into its DR when it was made legendary.  The save is
+   left as it is; where the saved DR is above the printed row's, the card says so and gives the printed figures. */
+function legClothPrinted(a){
+  var I = window.ITEMS, it = I && a && a.key ? I[a.key] : null, st = it && it.stats;
+  if(!st) return "";
+  var p = Math.round(+st.phys || 0), e = Math.round(+st.en || 0);
+  if(!((+a.phys || 0) > p || (+a.en || 0) > e)) return "";
+  return " Its saved DR (" + esc(a.phys) + " Physical, " + esc(a.en) + " Energy) still carries the old +1/+1; the printed set is " + p + " Physical, " + e + " Energy &mdash; type those in to correct it.";
+}
 /* the worn set's half, under its mods */
 function legArmHtml(c){
   var a = (c && c.armour) || {}, lg = CH.legOf(a, "armour"), L = CH.legData();
+  var cloth = typeof CH.legClothing === "function" && CH.legClothing(a);      /* CMD Z019 (Z018-6): clothing is not legendary armour */
+  if(lg && cloth) return '<div class="cs-leg" style="margin-top:4px"><span class="cs-badge">Legendary: ' + esc(lg.name) + ' &mdash; not counted</span> <span class="cs-hint" style="display:inline;margin:0">' +
+                         "Clothing can't be legendary: only body, power and robot armour take a property. Nothing of it applies here." +
+                         (typeof legClothPrinted === "function" ? legClothPrinted(a) : "") + "</span></div>";
   if(lg) return '<div class="cs-leg" style="margin-top:4px"><span class="cs-badge prop">Legendary: ' + esc(lg.name) + '</span> <span class="cs-hint" style="display:inline;margin:0">' +
                 esc(lg.text) + " Every legendary set also has +1 Physical and +1 Energy DR (Guide p." + esc(lg.folio) + ").</span></div>";
-  if(!L || !String(a.name || "").trim()) return "";
+  if(!L || !String(a.name || "").trim() || cloth) return "";
   var opts = '<option value="">roll it</option>' + ["A", "B"].map(function(t){
     return L.armour[t].rows.map(function(r){ return '<option value="' + r.key + '">' + esc(r.name) + "</option>"; }).join("");
   }).join("");
@@ -29490,6 +29674,7 @@ function invPut(i, n){
   if(row.found === true) lrow.found = true;            // CMD Z014 (G.9): found gear stays found on the shelf
   if(row.degr > 0) lrow.degr = row.degr;
   if(CH.legRec(row.legendary)) lrow.legendary = CH.legRec(row.legendary);   // CMD Z018 (G.8): a legendary thing stays legendary
+  if(row.armHp != null && isFinite(+row.armHp) && +row.armHp >= 0) lrow.armHp = Math.round(+row.armHp);   // CMD Z019: a set's kept HP rides along
   /* 1 — THE LEDGER.  The write that can only be refused, never denied. */
   var txn = "sheet-put:" + uid();
   var res = LG.ops(env).put(lrow, txn);
@@ -30165,9 +30350,45 @@ function winterCardLine(c){
   el.innerHTML = (on ? "<b>Winter.</b> Each scene ends with an exposure test, END + Survival. " +
       (wm.warm ? "Warm: <b>" + esc(wm.why) + "</b>. " : "<b>No warm clothing</b> &mdash; +1 Difficulty. ") : "") +
     (cold ? "Cold Fatigue <b>" + cold + "</b> &mdash; it clears only after a night in warm shelter (a camp with Shelter and Campfire)" +
-            (lock ? ", and not before 24 hours there" : "") + ". " : lock ? "The cold's hold lasts until 24 hours in warm shelter. " : "") +
+            (lock ? " (a complication holds it until then)" : "") + ". " : lock ? "The cold's hold lasts until a night in warm shelter. " : "") +
     (on ? (hot ? "Hot food or drink this scene: &minus;1." : '<button class="cs-mini" data-surv="hot" title="Hot food or drink during this scene: −1 Difficulty on its exposure test">Hot food or drink</button>') : "") +
+    (typeof coldLuckHtml === "function" ? coldLuckHtml(c, on) : "") +
     ' <small>(Guide p.ccxi)</small>';
+}
+/* CMD Z019 (Z018-7): the two Luck spends on the exposure test, each 1 Luck point through the sheet's one Luck door
+   (HELENA_CHAR.spendLuck), said on the table's roll log, refused at 0 Luck.  Stacked Deck: LCK in place of END, declared
+   before the roll — it waits on the sheet (coldDeck) for this scene's test.  Miss Fortune: re-roll one d20 of the last
+   test (CH.coldReroll). */
+function coldLuckHtml(c, on){
+  var s = (c && c.survival) || {}, luck = Math.max(0, Math.round(+(c && c.luck) || 0)), dis = luck < 1 ? " disabled" : "", h = "";
+  var L = s.coldLast, left = L && Array.isArray(L.faces) ? L.faces.length - (Array.isArray(L.re) ? L.re.length : 0) : 0;
+  if(on) h += s.coldDeck === true ? " Stacked Deck: this scene's test rolls LCK."
+           : ' <button class="cs-mini" data-surv="cold-deck"' + dis + ' title="1 Luck point: the next exposure test rolls LCK + Survival instead of END">Stacked Deck, 1 Luck</button>';
+  if(left > 0) h += ' <button class="cs-mini" data-surv="cold-mf"' + dis + ' title="1 Luck point: re-roll one die of the last exposure test; the new roll stands">Re-roll a die, 1 Luck</button>';
+  return h;
+}
+function coldDeckPress(c){
+  if(!c) return { ok:false, note:"No sheet is open." };
+  if(c.survival && c.survival.coldDeck === true) return { ok:false, note:"Stacked Deck is already paid for this scene's exposure test." };
+  if(Math.max(0, Math.round(+c.luck || 0)) < 1) return { ok:false, note:"No Luck point left for Stacked Deck. Nothing was spent." };
+  var H = window.HELENA_CHAR, paid = H && typeof H.spendLuck === "function" ? H.spendLuck(c.id, 1) : 0;
+  if(paid < 1) return { ok:false, note:"No Luck point left for Stacked Deck. Nothing was spent." };
+  edit(function(ch){ if(!ch.survival || typeof ch.survival !== "object") ch.survival = {}; ch.survival.coldDeck = true; });
+  tableRoll(c, "Stacked Deck on the exposure test: 1 Luck point spent, LCK + Survival at this scene's end");
+  return { ok:true, note:"Stacked Deck: 1 Luck point spent. This scene's exposure test rolls LCK + Survival." };
+}
+function coldMissFortune(c, d20){
+  if(!c) return { ok:false, note:"No sheet is open." };
+  var L = c.survival && c.survival.coldLast;
+  if(!L || !Array.isArray(L.faces) || L.faces.length <= (Array.isArray(L.re) ? L.re.length : 0)) return { ok:false, note:"There is no exposure die left to re-roll. Nothing was spent." };
+  if(Math.max(0, Math.round(+c.luck || 0)) < 1) return { ok:false, note:"No Luck point left to re-roll. Nothing was spent." };
+  var H = window.HELENA_CHAR, paid = H && typeof H.spendLuck === "function" ? H.spendLuck(c.id, 1) : 0;
+  if(paid < 1) return { ok:false, note:"No Luck point left to re-roll. Nothing was spent." };
+  var r = null, face = typeof d20 === "function" ? d20() : 1 + Math.floor(Math.random() * 20);   /* one face, however often edit runs */
+  edit(function(ch){ r = CH.coldReroll(ch, function(){ return face; }); });
+  if(!r || !r.ok) return { ok:false, note:(r && r.note) || "Nothing to re-roll." };
+  tableRoll(c, r.note.replace(/^Miss Fortune:/, "Miss Fortune (1 Luck point) on the exposure test:"));
+  return { ok:true, note:r.note + " 1 Luck point spent." };
 }
 function sceneCardLine(c){
   var el = $("cs-scene-line"); if(!el) return;
@@ -30757,6 +30978,9 @@ function askFight(i, g, note){
     (list.length
       ? '<div class="r"><label class="cs-lab">Target <select id="cs-fight-t">' + fightTargetOpts(list, want) + "</select></label>" +
         (ranged ? '<label class="cs-lab">Rounds to spend <input type="number" id="cs-fight-n" min="0" max="' + cap + '" value="' + pre + '"></label>' : "") +
+        /* CMD Z019: a weapon on another attribute than its skill's own asks the Overseer's OK here, as the skill roll does */
+        (typeof attrDefault === "function" && attrDefault(w.skill) && String(w.attr || "").toUpperCase() !== attrDefault(w.skill)
+          ? '<label class="cs-okpair"><input type="checkbox" id="cs-fight-ok"> Overseer OK\'d another attribute</label>' : "") +
         '<button class="cs-mini cs-pri" id="cs-fight-go">Declare — roll in the drawer</button></div>' +
         '<div class="cs-hint" id="cs-fight-def" style="margin:6px 0 0">' + fightDefLine(list, want) + "</div>" +
         '<div class="cs-hint" style="margin:6px 0 0">A fight is running, so this attack goes through the turn order: the roll opens in the drawer ' +
@@ -30782,6 +31006,7 @@ function fightGo(){
   /* the range step (Book One p.28): the weapon's own Range box goes with the declaration, as the sheet carries it */
   opts.weaponRange = String(w.range == null ? "" : w.range);
   if(nEl) opts.rounds = CH.ammoSpend(w, +nEl.value || 0);
+  var okEl = $("cs-fight-ok"); if(okEl) opts.attrOk = !!okEl.checked;   /* CMD Z019: the pairing gate's OK rides to the turn order */
   opts.onResult = function(rep, card){ return fightHeard(cid, rep, card); };
   var r = null;
   try{ r = HT.declareFor(cid, i, opts); }catch(e){ r = { ok:false, refused:"threw", note:"The turn order threw — nothing was declared." }; }
@@ -31459,7 +31684,7 @@ function blastApply(){
     if(tok.kind !== "char"){ enemies.push(tok.name || id); return; }
     if(doneIds.indexOf(String(id)) >= 0){ again.push(tok.name || id); return; }       /* WAVE 17 SKEPTIC: once */
     var r = window.HELENA_CHAR.applyDamage(String(tok.ref), { amount:amount, type:dtype, cover:cover,
-      coverZone:zlab || ("zone " + z), piercing:pierce, critAt:critAt, zeroHp:true,
+      coverZone:zlab || ("zone " + z), piercing:pierce, critAt:critAt, zeroHp:true, attack:true,
       from:(String((me() && me().name) || "").trim() ? me().name + "’s " : "") + String(box.getAttribute("data-wn") || "Blast"),   /* R11: said over a held critical */
       /* ITEM 7: Resonant \u2014 "deducted from the target's own Health rather than from its
          armour's HP; the armour takes no damage from the attack" (Guide L1682-1684).  undefined where there is nothing
@@ -33415,6 +33640,11 @@ root.addEventListener("focusout", function(e){
 });
 root.addEventListener("input", onEdit);
 root.addEventListener("change", function(e){ if(e.target && (e.target.type === "checkbox" || e.target.tagName === "SELECT")) onEdit(e); });
+/* CMD Z019: a rank box under the skills — this character's rank with one party faction (repRankSet) */
+root.addEventListener("change", function(e){
+  var el = e && e.target, id = el && el.getAttribute ? el.getAttribute("data-csrep") : null;
+  if(id != null) repRankSet(id, el.value);
+});
 /* WAVE 10 ITEM 13: fit the mod the dropdown names.  The select is consumed and reset, so it
    never holds a stale choice, and the report says what it cost to fit — which is the "price is
    automatically updated" half of Howl's ask, computed from the value the item has RIGHT NOW
@@ -33449,15 +33679,26 @@ function fitMod(kind, mi, id){
   var before = modTotals(kind, tgt0);
   var fee = 0;
   try{ fee = M.installCaps(row, before.value); }catch(err){ fee = 0; }
-  var done = false;
+  /* CMD Z019 (Zoe's ruling, 2026-10-22): THE INSTALL FEE COMES OFF THE SHEET'S CAPS (Guide p.li prints it).  A dash is no fee;
+     a thing with no catalogue row has no worth to take a share of, so nothing is taken and the smith names it at the table.
+     Short of caps: refused by the amount, nothing fitted, nothing spent. */
+  var due = before.known && fee > 0 ? fee : 0, short = Math.max(0, due - Math.max(0, Math.round(+c0.caps || 0)));
+  if(short){
+    invPrompt("<b>Not fitted:</b> " + esc(row.name) + "'s install fee is <b>" + due + "c</b> and this sheet holds " + (due - short) + "c — <b>" + short + "c short</b>. Nothing was fitted and nothing was spent.");
+    return false;
+  }
+  var done = false, paid = 0;
   edit(function(ch){
     var tgt = kind === "a" ? ch.armour : ch.weapons[mi];
     if(!tgt) return;
     if(!Array.isArray(tgt.mods)) tgt.mods = [];
     if(tgt.mods.some(function(md){ return md.id === row.id; })) return;    // one of each, once
+    if(due && Math.max(0, Math.round(+ch.caps || 0)) < due) return;
+    if(due){ ch.caps = Math.max(0, Math.round(+ch.caps || 0)) - due; paid = due; }
     tgt.mods.push(modRecord(row)); done = true;
   });
   if(!done){ invPrompt("Nothing was fitted — the sheet refused the write."); return false; }
+  if(typeof tableRoll === "function") tableRoll(me(), "fits " + row.name + (paid ? ", install fee " + paid + " caps paid" : ", no install fee"));
   if(kind === "a") renderDerived(); else renderWeapons(me());
   render();
   var after = modTotals(kind, kind === "a" ? me().armour : me().weapons[mi]);
@@ -33469,6 +33710,7 @@ function fitMod(kind, mi, id){
           ? "<b>" + (+row.install) + "%</b> of " + before.value + "c = <b>" + fee + "c</b>"
           : "<b>" + (+row.install) + "%</b> of its value &mdash; <b>unknown here</b>, this thing has no catalogue row, so the smith names the fee at the table")
       : "<b>no fee</b> (the book prints a dash: scrap and time only)") +
+    (paid ? " — <b>paid from the caps</b>, " + Math.round(+me().caps || 0) + "c left" : "") +
     ". Needs <b>" + esc(row.perk || "no perk") + "</b>, Complexity <b>" + (+row.cx || 0) +
     "</b>, materials <b>" + esc(row.mats || "none printed") + "</b>. " +
     (after.known ? "This thing is now worth <b>" + after.value + "c</b>." : "Its parts now total <b>" + after.part + "c</b>.") +
@@ -33505,22 +33747,30 @@ function buildMod(kind, mi, id){
   if(inSlot.length >= modSlotCap(row.slot)){ invPrompt("<b>" + esc(String(row.slot || "").replace(/\s*\(.*$/, "")) + "</b> is full — take a part off first, then build <b>" + esc(row.name) + "</b>."); return { ok:false }; }
   var plan = CH.modBuildPlan(c0, row);
   if(!plan.ok){ invPrompt("<b>Not built:</b> " + esc(row.name) + " " + esc(plan.why) + ". Nothing was rolled and nothing was spent."); return { ok:false, plan:plan }; }
-  var s = skillOf(c0, plan.skill), tn = attrVal(c0, "INT") + s.rank, r = null, won = true;
-  if(plan.difficulty > 0){ r = rollTest(tn, CH.critRange(s.rank, s.tag), 20, 2); won = r.succ >= plan.difficulty; }
   var before = modTotals(kind, tgt0), fee = 0;
   try{ fee = M.installCaps(row, before.value); }catch(err){ fee = 0; }
+  /* CMD Z019 (Zoe's ruling, 2026-10-22): the install fee comes off the caps — short, it is refused before any die (fitMod) */
+  var due = before.known && fee > 0 ? fee : 0, short = Math.max(0, due - Math.max(0, Math.round(+c0.caps || 0)));
+  if(short){
+    invPrompt("<b>Not built:</b> " + esc(row.name) + "'s install fee is <b>" + due + "c</b> and this sheet holds " + (due - short) + "c — <b>" + short + "c short</b>. Nothing was rolled and nothing was spent.");
+    return { ok:false, plan:plan, short:short };
+  }
+  var s = skillOf(c0, plan.skill), tn = attrVal(c0, "INT") + s.rank, r = null, won = true;
+  if(plan.difficulty > 0){ r = rollTest(tn, CH.critRange(s.rank, s.tag), 20, 2); won = r.succ >= plan.difficulty; }
   var label = "Build " + row.name + " (INT + " + plan.skill + ", Difficulty " + plan.difficulty + ")";
   if(!won){
     tableRoll(c0, "builds " + row.name + " at a bench, TN " + tn + ": " + successes(r) + " — nothing made, nothing spent");
     invPrompt(testLine(label, tn, r) + " &mdash; <b>nothing made, nothing spent.</b>");
     return { ok:false, roll:r, plan:plan };
   }
-  var done = false;
+  var done = false, paid = 0;
   edit(function(ch){
     var tgt = kind === "a" ? ch.armour : (ch.weapons || [])[mi];
     if(!tgt) return;
     if(!Array.isArray(tgt.mods)) tgt.mods = [];
     if(tgt.mods.some(function(md){ return md.id === row.id; })) return;
+    if(due && Math.max(0, Math.round(+ch.caps || 0)) < due) return;
+    if(due){ ch.caps = Math.max(0, Math.round(+ch.caps || 0)) - due; paid = due; }
     CH.MATERIAL_TIERS.forEach(function(t){
       var want = plan.mats[t], i = want ? CH.materialsIndex(ch, t) : -1;
       if(i >= 0) ch.inventory[i].qty = Math.max(0, Math.round(+ch.inventory[i].qty || 0) - want);
@@ -33532,12 +33782,13 @@ function buildMod(kind, mi, id){
   var feeSay = +row.install
     ? (before.known ? (+row.install) + "% of " + before.value + "c = " + fee + "c" : (+row.install) + "% of its worth (no catalogue row, so the Overseer names it)")
     : "no fee (the book prints a dash)";
-  tableRoll(c0, "builds " + row.name + " at a bench and fits it" + (r ? ", TN " + tn + ": " + successes(r) : "") + " — " + mats + " spent, install fee " + feeSay);
+  tableRoll(c0, "builds " + row.name + " at a bench and fits it" + (r ? ", TN " + tn + ": " + successes(r) : "") + " — " + mats + " spent, install fee " + feeSay + (paid ? ", paid from the caps" : ""));
   if(kind === "a") renderDerived(); else renderWeapons(me());
   render();
   invPrompt((r ? testLine(label, tn, r) + " &mdash; " : "<b>" + esc(label) + "</b>: no roll needed &mdash; ") +
-    "<b>built and fitted.</b> " + esc(mats) + " spent. Install fee: <b>" + esc(feeSay) + "</b>. " + esc(row.effect || ""));
-  return { ok:true, roll:r, plan:plan, fee:fee, feeSay:feeSay };
+    "<b>built and fitted.</b> " + esc(mats) + " spent. Install fee: <b>" + esc(feeSay) + "</b>" +
+    (paid ? ", paid from the caps (" + Math.round(+me().caps || 0) + "c left)" : "") + ". " + esc(row.effect || ""));
+  return { ok:true, roll:r, plan:plan, fee:fee, feeSay:feeSay, paid:paid };
 }
 root.addEventListener("keydown", function(e){
   var sel = e && e.target;
@@ -35196,7 +35447,8 @@ window.HELENA_CHAR.applyDamage = function(charId, spec){
     if(sid && CH.seenRing && CH.seenRing(c, "hitSeen").indexOf(sid) >= 0){ seen = c; return; }
     var hpBefore = Math.max(0, +c.hp || 0);
     res = CH.takeDamage(c, spec.amount, spec.type, { ignoresDR:!!spec.ignoresDR, cover:spec.cover, coverZone:spec.coverZone,
-                                                     piercing:spec.piercing, critAt:spec.critAt, zeroHp:spec.zeroHp, hold:hold });
+                                                     piercing:spec.piercing, critAt:spec.critAt, zeroHp:spec.zeroHp, hold:hold,
+                                                     attack:spec.attack === true });   /* CMD Z019: an attack's hit (Blood Worms) */
     if(sid && CH.ringPush) CH.ringPush(c, "hitSeen", sid, window.HELENA_CHAR.HIT_SEEN_KEEP);
     c.hp = clamp(+c.hp || 0, 0, effMax(c));
     /* THE CLAMP IS WHERE A RADIATION HIT CAN REACH ZERO, and takeDamage cannot see it.
@@ -36175,6 +36427,12 @@ root.addEventListener("click", function(e){
     render(); return;
   }
   if(act === "drop" && t){ edit(function(ch){ CH.trackDrop(ch, t, 1); }); render(); return; }
+  /* CMD Z019 (Z018-7): the exposure test's two Luck spends */
+  if(act === "cold-deck" || act === "cold-mf"){
+    var lk = act === "cold-deck" ? coldDeckPress(c) : coldMissFortune(c);
+    survSay("cs-surv-out", esc(lk.note));
+    render(); return;
+  }
   if(act === "hot"){
     var hs = sceneOpenSeq();
     if(!hs){ survSay("cs-surv-out", "No scene is open, so there is no exposure test for it to ease."); return; }
@@ -43089,6 +43347,7 @@ function applyResult(rep){
   try{
     res = CH.applyDamage(tgt.ref, { amount:plan.amount, type:plan.type,
                                     cover:plan.cover, coverZone:plan.coverZone,
+                                    attack:true,     /* CMD Z019: the turn order's hit is an attack (Blood Worms rides it) */
                                     /* undefined where there is nothing to say, so an
                                        older signature sees exactly what it always saw */
                                     piercing:plan.piercing || undefined,
@@ -43262,6 +43521,46 @@ function weaponsFor(e){
   return out;
 }
 
+/* CMD Z019 (Zoe's rulings, 2026-10-22): A CHARACTER'S DECLARED ATTACK IS THE SHEET'S ATTACK.  Before anything is spent:
+     · the pairing gate, the roller's own (HELENA_PAIRGATE — never a copy): the weapon's skill rolls its own attribute; another
+       needs the Overseer's OK (one tick), a perk printing the pair, or Stacked Deck (LCK, 1 Luck point, refused at 0 Luck);
+     · Jelly Fingers / Lock Joint (the disease table): the attack of that kind costs 1 AP from the party pool to attempt — an
+       empty pool refuses it in the sheet's own words;
+     · a carried disease's +1 Difficulty on the attack's attribute (CH.diseaseTest), handed to the roll step to add.
+   -> { ok, why ("ap" | "pair"), say, how, okd, ap (the disease row, or null), diff:[{ n, what }] }.  Spends nothing but Stacked
+   Deck's Luck point (the gate's own rule), and that only once the AP is known to be there.  A creature: always ok. */
+function atkSheetGate(e, x, okd){
+  var out = { ok:true, why:"", say:"", how:"", okd:false, ap:null, diff:[] };
+  if(!e || e.kind !== "char" || !x || !x.w || x.w.creature) return out;
+  var c = charOf(e.ref), CH = typeof window !== "undefined" ? window.HELENA_CHAR : null;
+  if(!c) return out;
+  var attr = String(x.w.attr || "").toUpperCase(), skill = String(x.w.skill || "");
+  if(CH && typeof CH.diseaseAttackAP === "function" && typeof CH.attackMode === "function"){
+    var dz = CH.diseaseAttackAP(c, CH.attackMode(x.w)) || [];
+    if(dz.length){
+      if(purseFor(e) < 1) return { ok:false, why:"ap", say:dz[0].name + ": " + dz[0].effect + ", and the party pool is empty.", how:"", okd:false, ap:null, diff:[] };
+      out.ap = dz[0];
+    }
+  }
+  var PG = typeof window !== "undefined" ? window.HELENA_PAIRGATE : null;
+  if(typeof PG === "function"){
+    var pg = null;
+    try{ pg = PG(c, attr, skill, !!okd); }catch(err){ pg = null; }
+    if(pg && !pg.ok) return { ok:false, why:"pair", say:String(pg.say || ""), how:"", okd:false, ap:null, diff:[] };
+    if(pg){ out.how = String(pg.how || ""); out.okd = !!pg.okd; }
+  }
+  if(CH && typeof CH.diseaseTest === "function") out.diff = CH.diseaseTest(c, attr) || [];
+  return out;
+}
+/* CMD Z019: whether the chosen weapon rolls another attribute than its skill's own (the OK tick is shown only then) */
+function atkOffPair(e, x){
+  var CH = typeof window !== "undefined" ? window.HELENA_CHAR : null;
+  if(!e || e.kind !== "char" || !x || !x.w || x.w.creature || !CH || !Array.isArray(CH.SKILLS)) return false;
+  var attr = String(x.w.attr || "").toUpperCase(), def = "";
+  CH.SKILLS.forEach(function(r){ if(r && r[0] === x.w.skill) def = r[1]; });
+  return !!def && !!attr && attr !== def;
+}
+
 /* the +1 a second major action earns, as the Attack panel prints it — one function, because
    openAttack paints it when the panel opens and wirePanel's refresh() repaints it from the
    row on every render (skeptic pass, 2026-09-24) */
@@ -43309,6 +43608,8 @@ function openAttack(e, list, ord, pick, tgtId){
          Seven instances, all plasma; hidden on every other attack. */
       '<span class="lab" id="tt-atk-type-l" hidden></span>' +
       '<label class="lab" id="tt-atk-sneak-l"><input type="checkbox" id="tt-atk-sneak"> Sneak attack</label>' +
+      /* CMD Z019: the Overseer's OK for another attribute than the skill's own (atkSheetGate); shown only when it is asked */
+      '<label class="lab" id="tt-atk-ok-l" hidden><input type="checkbox" id="tt-atk-ok"> Overseer OK\'d another attribute</label>' +
       '<button class="mini pri" id="tt-atk-go">Declare it</button>' +
       '<button class="mini" id="tt-atk-x">Cancel</button>' +
     "</div>" +
@@ -43512,6 +43813,8 @@ function wirePanel(){
   }
   function paintSneak(){
     var sa = sneakNow(), box = $("tt-atk-sneak"), note = $("tt-atk-sneak-note");
+    var okl = $("tt-atk-ok-l");                     /* CMD Z019: the OK tick, shown only for another attribute */
+    if(okl) okl.hidden = !(typeof atkOffPair === "function" && atkOffPair(e, chosen()));
     if(box && !sneakTouched) box.checked = sa.on;
     var on = box ? box.checked : sa.on;
     if(note) note.innerHTML = esc(sa.why) +
@@ -43566,8 +43869,14 @@ function wirePanel(){
            too, so the number this card says the roll starts at is the number it starts at */
         var rg2 = (sums && typeof rangeStepNow === "function") ? (+rangeStepNow(e, x, tgt, panelZone(), atkMode(e, x)) || 0) : 0;
         want += rg2;
+        /* CMD Z019: a carried disease's +1 on the attack's attribute — the roll step adds it (atkSheetGate sends it) */
+        var CHd = typeof window !== "undefined" ? window.HELENA_CHAR : null;
+        var cd = CHd && typeof charOf === "function" && e.kind === "char" && x && x.w && !x.w.creature ? charOf(e.ref) : null;
+        var dzp = cd && CHd && typeof CHd.diseaseTest === "function" ? (CHd.diseaseTest(cd, String(x.w.attr || "").toUpperCase()) || []) : [];
+        want += dzp.length;
         var land = Math.max(0, sums ? want : Math.min(5, want));
         var moves = [];
+        dzp.forEach(function(p){ moves.push("+1 for " + p.what); });
         if(load2) moves.push("+" + load2 + " for the load");
         if(rg2) moves.push("+" + rg2 + " for the range (Book One p.28)");
         if(sneakOn2) moves.push("−1 for the sneak attack");
@@ -43720,6 +44029,21 @@ function wirePanel(){
       }catch(err){}
       return { r:{ ok:false, refused:true, why:"sight", note:sightNo.note }, spec:{ id:null, ammoSpent:0, difficulty:null, defenseWhy:"" }, spent:0, target:target };
     }
+    /* CMD Z019 (Zoe's rulings, 2026-10-22): A CHARACTER'S DECLARED ATTACK FACES THE SHEET'S OWN GATES (atkSheetGate) — the pairing
+       gate (the roller's), and Jelly Fingers / Lock Joint's 1 AP from the party pool — before a round, a unit or an AP is spent */
+    var okBox = $("tt-atk-ok");
+    var sg = (typeof atkSheetGate === "function" ? atkSheetGate(e, x, !!(okBox && okBox.checked)) : null) || { ok:true, diff:[] };
+    var apPaid = 0;
+    if(sg.ok && sg.ap){
+      apPaid = spendAP(e, 1);
+      if(apPaid < 1) sg = { ok:false, why:"ap", say:sg.ap.name + ": " + sg.ap.effect + ", and the party pool is empty.", diff:[] };
+    }
+    if(!sg.ok){
+      msg = { cls:"warn", hd:"Not declared — " + esc(e.name), body:"<b>" + esc(sg.say) + "</b> Nothing was rolled and nothing was spent." };
+      render();
+      return { r:{ ok:false, refused:true, why:sg.why, note:sg.say }, spec:{ id:null, ammoSpent:0, difficulty:null, defenseWhy:"" }, spent:0, target:target };
+    }
+    if(sg.okd && okBox) okBox.checked = false;
     /* the declaration's id, named BEFORE the rounds come off — the rounds door stamps it (WAVE 16, A1) */
     var did = declId(e, target, x), stampId = did.split(":")[0];
     /* RULE 2: the rounds come off the sheet BEFORE the roll is handed over.
@@ -43739,6 +44063,7 @@ function wirePanel(){
         try{ sr = RD.spendRounds({ id:stampId, charId:e.ref, weapon:x.i, name:x.name, rounds:plan.spend }); }catch(err){ sr = null; }
         if(!sr || !sr.ok){
           var why = sr ? sr.note : "the sheet's door threw";
+          if(apPaid) refundAP(e, apPaid);             /* CMD Z019: the disease's AP goes back with the refused declaration */
           msg = { cls:"warn", hd:"Not declared — " + esc(e.name),
                   body:"<b>The rounds could not come off the sheet</b> — " + esc(why) + " Nothing was declared and nothing was spent." };
           render();
@@ -43768,6 +44093,7 @@ function wirePanel(){
         try{ ur = UD.spendRounds({ id:stampId, charId:e.ref, weapon:x.i, name:x.name, rounds:1 }); }catch(err){ ur = null; }
         if(!ur || !ur.ok){
           var uwhy = ur ? ur.note : "the sheet's door threw";
+          if(apPaid) refundAP(e, apPaid);             /* CMD Z019 */
           msg = { cls:"warn", hd:"Not declared — " + esc(e.name),
                   body:"<b>" + esc(uwhy) + "</b> Nothing was declared and nothing was spent." };
           render();
@@ -43875,6 +44201,11 @@ function wirePanel(){
       spec.pool = mtp.pool == null || !isFinite(+mtp.pool) ? null : Math.max(2, Math.min(5, Math.round(+mtp.pool)));
       spec.poolWhy = String(mtp.poolWhy || ""); spec.freeDice = Math.max(0, Math.round(+mtp.freeDice || 0)); spec.freeWhy = String(mtp.freeWhy || "");
     }
+    /* CMD Z019: a carried disease's +1 on this attack's attribute, for the roll step to add (as the sheet's attack reads it) */
+    if(sg.diff && sg.diff.length){
+      spec.difficultyDisease = sg.diff.reduce(function(n, p){ return n + (+p.n || 0); }, 0);
+      spec.difficultyDiseaseWhy = sg.diff.map(function(p){ return p.what; }).join(", ");
+    }
     /* WAVE 16, A1: the sheet that declared through declareFor hears what the drawer answered (and, through declSent,
        what the Overseer decided) on its own read-out — after the order has applied it, with the card it wrote */
     spec.onResult = function(rep){ applyResult(rep); };
@@ -43930,6 +44261,8 @@ function wirePanel(){
       unitBack = ub && ub.ok ? Math.max(0, Math.round(+ub.back || 0)) : 0;
       if(unitBack){ unitOff = false; unitLine = ""; }
     }
+    var apBack = r.refused && apPaid ? refundAP(e, apPaid) : 0;     /* CMD Z019: a refused declaration spent no AP */
+    if(apBack) apPaid = 0;
     /* THE TURN CARD: the d20s it bought went with this declaration (a refused one keeps them for the next) */
     if(!r.refused && mtp !== pf && typeof mtUsed === "function") mtUsed(e);
     panel = null;
@@ -43944,6 +44277,9 @@ function wirePanel(){
                    (typeof blastFor !== "undefined" && blastFor[did] ? ", a Blast on everyone in " + esc(blastFor[did].label) + " (" +
                      blastFor[did].rows.map(function(r){ return esc(r.name); }).join(", ") + ")" : "") +
                    (unitLine ? ", " + unitLine : "") +
+                   (apPaid && sg.ap ? ", " + esc(sg.ap.name) + ": 1 AP from the party pool to attempt it, paid" : "") +   /* CMD Z019 */
+                   (sg.how ? ", " + esc(String(x.w.attr || "").toUpperCase()) + " by " + esc(sg.how) : "") +
+                   (sg.diff && sg.diff.length ? ", +" + spec.difficultyDisease + " Difficulty (" + esc(spec.difficultyDiseaseWhy) + ")" : "") +
                    '. Handed to the roll pipeline (<span class="mono">' + esc(r.via) +
                    "</span>) — the roll is open; roll it and the result comes back here." +
                    (dropNote ? "<br>" + dropNote : "") };
@@ -44253,6 +44589,8 @@ function declareFor(charId, weaponIndex, opts){
   if(n && opts.rounds != null) n.value = String(Math.max(0, Math.min(99, Math.round(+opts.rounds || 0))));
   if(ty && opts.type) ty.value = String(opts.type);
   if(sk && opts.sneak != null) sk.checked = !!opts.sneak;
+  var okt = $("tt-atk-ok");                        /* CMD Z019: the Overseer's OK for another attribute, from the sheet */
+  if(okt && opts.attrOk != null) okt.checked = !!opts.attrOk;
   /* WAVE 16, A1: opts.onResult(rep, card) — the sheet hears the drawer's answers and the Overseer's decision */
   var hooked = typeof opts.onResult === "function" && typeof declHook !== "undefined";
   if(hooked) declHook = opts.onResult;
@@ -47780,25 +48118,27 @@ var API = {
     var sneak = (m.attack && m.sneak) ? 1 : 0;
     var enc = Math.max(0, int(m.encumbrance, 0));
     var mark = m.attack ? Math.max(0, int(m.marked, 0)) : 0;
+    var dz = m.attack ? Math.max(0, int(m.disease, 0)) : 0;          /* CMD Z019: a carried disease's +1 on the attack's attribute */
     /* THE RANGE STEP (Book One p.28), on an attack whose declaration carries the range fields — see rangeStep, below.  Absent
        (every caller before the map knew a band): no range part and no note, exactly as before. */
     var rs = (m.attack && (m.rangeBand !== undefined || m.weaponRange !== undefined))
       ? API.rangeStep({ band:m.rangeBand, weaponRange:m.weaponRange, weapon:m.weapon, mode:m.mode, target:m.defenseOf, unset:!!m.rangeUnset }) : null;
     var rng = rs && rs.known ? rs.step : 0;
-    var want = b + extra + rng + enc - sneak - mark;
+    var want = b + extra + rng + enc + dz - sneak - mark;
     var applied = Math.min(API.DIFFICULTY_CAP, Math.max(0, want));
     var who = String(m.defenseOf == null ? "" : m.defenseOf).trim();
     var parts = [];
     if(extra || waived) parts.push({ n:extra, what:API.majorWord(n) + " action" + (waived ? " (Action Boy/Girl)" : "") });
     if(rng)   parts.push({ n:rng,    what:rs.part });
     if(enc)   parts.push({ n:enc,    what:"carrying too much" });
+    if(dz)    parts.push({ n:dz,     what:String(m.diseaseWhy || "a disease") });
     if(sneak) parts.push({ n:-sneak, what:"sneak attack" });
     if(mark)  parts.push({ n:-mark,  what:"Marked" });
     var said = parts.map(function(p){ return (p.n < 0 ? "−" + (-p.n) : "+" + p.n) + " " + p.what; });
     var head = atk ? (who ? who + "’s " : "") + "Defense " + b : (parts.length ? "declared " + b : "");
     var sum = [head].concat(said).filter(Boolean).join(", ") + (want < 0 ? " (minimum 0)" : "") +
               (want > API.DIFFICULTY_CAP ? " (capped at " + API.DIFFICULTY_CAP + ")" : "");
-    return { attack:atk, base:b, majorIndex:n, extra:extra, waived:waived, sneak:sneak, encumbrance:enc, marked:mark,
+    return { attack:atk, base:b, majorIndex:n, extra:extra, waived:waived, sneak:sneak, encumbrance:enc, marked:mark, disease:dz,
              range:rs, rangeStep:rng,
              want:want, applied:applied, floored:want < 0, capped:want > API.DIFFICULTY_CAP, moved:applied !== b, parts:parts, sum:sum,
              line:"Difficulty " + applied + (sum ? ": " + sum : "") };
@@ -48739,6 +49079,10 @@ var API = {
       majorSent: !(spec.majorIndex == null || spec.majorIndex === "" || !isFinite(+spec.majorIndex)),
       targetDefense: (spec.targetDefense == null || spec.targetDefense === "" || !isFinite(+spec.targetDefense)) ? null
                    : clampInt(spec.targetDefense, 0, API.MAX_DIFFICULTY),
+      /* CMD Z019 (Zoe's ruling, 2026-10-22): a carried disease's +1 on the attack's attribute (the disease table, p.ccxc), sent by
+         the turn order as the sheet's own attack reads it (CH.diseaseTest).  The roll step adds it; absent: 0, as before. */
+      difficultyDisease: clampInt(spec.difficultyDisease, 0, 5),
+      difficultyDiseaseWhy: String(spec.difficultyDiseaseWhy || "").slice(0, 120),
       /* ======================================================================================================================
          PROJECT H, FIGHT (Zoe 2026-10-13, on Howl's word; round 2: R6-R10) — THE CONTRACT WITH THE TURN ORDER, ROUND 2.
          The declaration ACCEPTS { pool, freeDice, majorIndex, sneak, targetDefense }; absent fields keep today's behaviour.
@@ -49508,6 +49852,9 @@ function pairGate(c, attr, skill, okd, H){
   return { ok:false, how:"", say:attr + " + " + skill + " needs the Overseer's OK. " + skill + " rolls on " + def +
            ". Tick \u201cOverseer OK'd another attribute\u201d when they say so, or pick LCK (Stacked Deck: 1 Luck point)." };
 }
+/* CMD Z019 (Zoe's ruling, 2026-10-22): A DECLARED FIGHT ATTACK FACES THE PAIRING GATE LIKE ANY OTHER ROLL — one rule wherever
+   the roll is pressed, so the turn order asks THIS function (HELENA_PAIRGATE), never a copy of it */
+if(typeof window !== "undefined") window.HELENA_PAIRGATE = function(c, attr, skill, okd){ return pairGate(c, attr, skill, okd, window.HELENA_CHAR); };
 function fillWeapons(){
   var c = charById($("gp-who").value), sel = $("gp-weapon"), keep = sel.value;
   var h = '<option value="">&mdash; no weapon &mdash;</option>', ws = (c && c.weapons) || [], i;
@@ -50810,6 +51157,7 @@ function sumNow(typed){
     waive:actionBoy(charById($("gp-who").value)),
     sneak:defAtk() ? sneakOn : !!(decl && decl.difficultyEase), encumbrance:on.applies ? on.step : 0,
     marked:decl ? decl.difficultyMark : 0,
+    disease:decl ? decl.difficultyDisease : 0, diseaseWhy:decl ? decl.difficultyDiseaseWhy : "",   /* CMD Z019 */
     /* the range step: only on a declaration that carries the range fields (absent: undefined, and no range part) */
     rangeBand:rangeOn() ? rangeSel : undefined, weaponRange:rangeOn() ? decl.weaponRange : undefined,
     rangeUnset:rangeOn() && !!decl.rangeBand && !rangeSel,
@@ -56510,7 +56858,9 @@ function repRender(){
           '<select data-reprank="' + qsEsc(f.id) + '" aria-label="rank with ' + qsEsc(f.name || "this faction") + '">' + opts + "</select>" +
           '<span class="qs-hint">' + qsEsc(C.repOffer(f)) + "</span>" +
           '<button type="button" data-repdel="' + qsEsc(f.id) + '">Remove</button></div>';
-      }).join("");
+      }).join("") +
+      /* CMD Z019 (Zoe 2026-10-22): each character keeps their own rank (Guide p.v), set on their sheet; this one is where they start */
+      '<p class="qs-hint" id="qs-rep-each">Each character keeps their own rank, set on their sheet under Skills. The rank here is where a sheet starts until then.</p>';
   paint("qs-rep-list", html);
   each("#qs-rep input, #qs-rep select, #qs-rep button", function(el){ el.disabled = !may || !C; });
 }
