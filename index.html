@@ -634,6 +634,25 @@
     body:not(.rail-shut) .rail-toggle{ right:0; }
     .suite-rail{ padding-top:40px; }
   }
+  /* PHONE PLAY AT 390 (CMD Z015, 2026-10-22: P.2 and P.3).  Screen-only and 700px and under, so a desktop and every print
+     are untouched.  P.2: MEASURED at 390x844 (the Z008 audit), tick boxes and paint buttons were under a finger's 24px -
+     the map's layer ticks 13x13 and its paint brushes 13x32, the sheet's ticks 15x15 (its own input rule), Camp's 16x32,
+     Travel and Quests 16x16 (min-height:0), the sheet's bare .cs-mini glyph buttons 22x32.  A min-size floor wins over any
+     tool's width/height whatever its specificity; the body #id prefix outranks the tools' own scoped min-height:0.
+     P.3: the AP tab stood flush against the screen's right edge with no right border (border-right:0), its arrow 8px from
+     the glass - read as cut off on a phone.  It steps 4px in and closes its border; the bar's 52px reserve still holds it. */
+  @media screen and (max-width:700px){
+    input[type=checkbox], input[type=radio],
+    body #suite-stage input[type=checkbox], body #suite-stage input[type=radio],
+    body #suite-rail input[type=checkbox], body #suite-rail input[type=radio]{ min-width:24px; min-height:24px; }
+    body #suite-stage button, body #suite-rail button{ min-width:24px; min-height:24px; }
+    /* the sheet's hand-typed injury row (location, note, treated, Add) squeezed its note to 21px once its tick grew: the
+       row wraps there, the note taking a line of its own */
+    body #suite-stage #cs-inj-new{ flex-wrap:wrap; }
+    body #suite-stage #cs-inj-new > #cs-inj-note{ min-width:100%; }
+    body .rail-toggle, body:not(.rail-shut) .rail-toggle{ right:4px; border-right:1px solid #3a4032; border-radius:0 0 3px 3px; }
+    body .rail-toggle:hover{ border-right-color:#f0b429; }
+  }
   .rail-sc-row.rail-sc-wx span{ white-space:normal; overflow:visible; text-overflow:clip; }
   .rail-sc-row.rail-sc-wx b{ white-space:nowrap; }
 
@@ -1376,6 +1395,8 @@
 #tool-char .cs-skills td.c, #tool-char .cs-skills th.c{text-align:center}
 #tool-char .cs-skills input[type=number]{width:44px}
 #tool-char .cs-skills .tn{font-family:var(--f-data);color:var(--amber);text-align:center}
+#tool-char .cs-okpair{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);cursor:pointer;min-height:32px}
+#tool-char .cs-okpair input{width:18px;height:18px;margin:0;accent-color:var(--amber)}
 #tool-char .cs-combat{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:8px;margin-bottom:8px}
 #tool-char .cs-cbadge{display:flex;align-items:center;justify-content:space-between;background:var(--black);border:1px solid var(--edge);
        padding:0 0 0 10px;height:46px;min-width:0}
@@ -2325,6 +2346,26 @@
 #tool-map details.bk-mx > summary:hover{color:var(--amber)}
 @media (max-width:700px), (pointer:coarse){
 #tool-map .bkbar label{min-height:32px}
+}
+#tool-map .zm-zr{display:none}
+@media screen and (max-width:700px){
+#tool-map .notes > .zm-zr{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;margin:0;padding:8px 13px;
+      background:var(--panel);border:1px solid var(--edge);border-radius:4px;color:var(--amber);font:inherit;
+      font-size:var(--t-body);letter-spacing:.14em;text-transform:uppercase;text-align:left;cursor:pointer}
+#tool-map .notes > .zm-zr::before{content:"\25B8";width:1em;flex:none}
+#tool-map .notes > .zm-zr[aria-expanded="true"]::before{content:"\25BE"}
+#tool-map .notes > .zm-zr:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+#tool-map .notes > .zm-zr[aria-expanded="false"] ~ #c_zones, #tool-map .notes > .zm-zr[aria-expanded="false"] ~ #c_range{display:none}
+#tool-map main > .zm-zr{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;margin:10px 0 0;padding:8px 13px;
+      background:var(--panel);border:1px solid var(--edge);border-radius:4px;color:var(--amber);font:inherit;
+      font-size:var(--t-body);letter-spacing:.14em;text-transform:uppercase;text-align:left;cursor:pointer}
+#tool-map main > .zm-zr::before{content:"\25B8";width:1em;flex:none}
+#tool-map main > .zm-zr[aria-expanded="true"]::before{content:"\25BE"}
+#tool-map main > .zm-zr:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+#tool-map main > .zm-zr:has(+ #bk_legend[hidden]){display:none}
+#tool-map main > .zm-zr[aria-expanded="false"] + #bk_legend{display:none}
+#tool-map svg.zm-blocks[data-grid^="9x"]{width:432px;max-width:none;max-height:none;height:auto}
+#tool-map svg.zm-blocks[data-grid^="12x"]{width:576px;max-width:none;max-height:none;height:auto}
 }
 
 /* ===== dice ==================================================== */
@@ -5185,6 +5226,8 @@ end $$;
           <div class="cs-rollopts" style="margin-top:10px">
             <label class="cs-lab">Buy d20s <input type="number" id="cs-skill-buy" min="0" max="3" value="0"></label>
             <label class="cs-lab">Complication from <input type="number" id="cs-comp" min="15" max="20" value="20"></label>
+            <!-- CMD Z014 (G.10): another attribute than the skill's own needs the Overseer's word (Guide p.ccxcii); one roll per tick -->
+            <label class="cs-okpair" title="A roll takes its skill's own attribute. Another needs the Overseer's OK, or Stacked Deck: 1 Luck point to roll LCK instead, before the roll (Guide p.ccxcii). One roll per tick."><input type="checkbox" id="cs-skill-ok"> Overseer OK'd another attribute</label>
           </div>
           <details class="cs-why" data-why="tagged"><summary>why &mdash; tagged skills</summary>
           <div class="cs-hint" style="margin:-2px 0 8px">Tagged: any d20 at or under the rank is a critical (2 successes). A natural 1 always is. The [ATTR] beside a name is the roll's attribute &mdash; the default is printed, change it for the roll.</div>
@@ -6199,8 +6242,10 @@ end $$;
 
 <main>
   <div id="stage"></div>
+  <button type="button" class="zm-zr" id="zm_lg" aria-expanded="false" aria-controls="bk_legend">How to read the map</button>
   <div class="card bk-legend" id="bk_legend" hidden></div>
   <div class="notes">
+    <button type="button" class="zm-zr" id="zm_zr" aria-expanded="false" aria-controls="c_zones c_range">Zones and range</button>
     <div class="card" id="c_zones"></div>
     <div class="card" id="c_range"></div>
     <div class="card" id="c_deploy"></div>
@@ -6236,6 +6281,12 @@ end $$;
     <div class="cp-guests">
       <button type="button" id="cp-guests" title="At the end of every watch camped, roll the camp's watch dice. Any Effect — somebody found you.">Uninvited Guests</button>
       <span class="cp-out cp-mono" id="cp-guests-out" aria-live="polite"></span>
+    </div>
+    <!-- CMD Z014 (G.6): the Overseer's two camp tables, one press each; the result goes to the session log -->
+    <div class="cp-guests">
+      <button type="button" id="cp-visitors" title="Roll this when the watch dice show an Effect (Guide p.ccxci)">Camp Visitors</button>
+      <button type="button" id="cp-tenants" title="Roll this when finding the campsite rolls a complication (Guide p.ccxci)">Prior Tenants</button>
+      <span class="cp-out" id="cp-table-out" aria-live="polite"></span>
     </div>
   </section>
 
@@ -6594,7 +6645,7 @@ end $$;
     </div>
     <div class="cf-bar">
       <label class="inl">Crafter <select id="cf-who" aria-label="Who is crafting"></select></label>
-      <details class="why"><summary>why &mdash; the crafter</summary><span class="note" id="cf-who-note">The crafter's sheet is read for the Difficulty and the perk — a warning, never a wall.</span></details>
+      <details class="why"><summary>why &mdash; the crafter</summary><span class="note" id="cf-who-note">The crafter's sheet is read for the Difficulty and the perk. The Difficulty is a warning; the perk is a must — a recipe that names a perk is made only by a chosen crafter who has it.</span></details>
     </div>
     <div class="msg plain" id="cf-msg" role="status"></div>
     <div id="cf-cats"></div>
@@ -7753,7 +7804,7 @@ root.BESTIARY_RULES = {
     if(!isRec(r)) return null;
     var name = str(r.name).trim();
     if(!name) return null;
-    return { id: str(r.id) || mintId("r"),
+    var out = { id: str(r.id) || mintId("r"),
              key: (r.key == null || r.key === "") ? null : str(r.key),
              name: name,
              qty: int(r.qty, 0),
@@ -7762,6 +7813,11 @@ root.BESTIARY_RULES = {
              notes: str(r.notes),
              from: str(r.from) || "seed",
              at: str(r.at) };
+    /* CMD Z014 (G.9): a found thing's state rides the row, carried when PRESENT and never added when absent (foundStamp) */
+    if(r.found === true) out.found = true;
+    var dg = Math.round(+r.degr);
+    if(isFinite(dg) && dg > 0) out.degr = Math.min(9, dg);
+    return out;
   }
   function pend(p){
     if(!isRec(p)) return null;
@@ -7782,7 +7838,8 @@ root.BESTIARY_RULES = {
      millisecond on one device must not collide, and a test must be able to make
      ids predictable by replacing HELENA_LEDGER.rand. */
   var seq = 0;
-  var API = { rand: function(){ return Math.random(); } };
+  var API = { rand: function(){ return Math.random(); },
+              foundRand: function(){ return Math.random(); } };       /* CMD Z014 (G.9): a found weapon's one-or-two */
   function mintId(p){
     seq++;
     return p + "-" + seq.toString(36) + "-" + Math.floor(API.rand() * 1e9).toString(36);
@@ -7852,9 +7909,32 @@ root.BESTIARY_RULES = {
     var made = [];
     for(i = 0; i < n.qty; i++){
       var one = row(n); one.id = mintId("r"); one.qty = 1;
+      foundStamp(one);                     /* CMD Z014 (G.9): each looted rifle is its own find */
       out.push(one); made.push(one);
     }
     return { items:out, added:made[0], made:made, stacked:false };
+  }
+  /* CMD Z014 (G.9) — FOUND, NOT BOUGHT (Guide p.lviii): "Armour taken from the dead is recovered at half its HP; recovered
+     weapons already carry one or two Degradations."  Every loot payout reaches the party through this file (the Scavenging
+     tab's send, the Fight's loot take, the syringer's typed darts all shelve with from:"loot"), so the stamp is put on HERE,
+     once, as a non-stacking row of armour or a weapon arrives from loot: found:true, and a weapon's Degradations (one or two,
+     an even chance — foundRand, its own die, so the ids' rand is untouched).  A row that already says found keeps what it
+     says.  Merchant stock, the seed and anything a player puts back are never stamped: shops sell clean (p.lviii).
+     The sheet reads the two fields: wearing a found set puts its HP at half (wearFromRow), and a found weapon carries its
+     Degradations onto the weapons table (weaponFromInvRow), where the sheet mends them from parts (pp.xiv–xv). */
+  var FOUND_ARMOUR = /Body Armor|Power Armor|Robot Armor|Clothing & Outfits/i;
+  var FOUND_WEAPON = /Plinkers|Pistols|Revolvers|Submachine|Shotguns|Rifles|Precision|Machine Guns|Heavy Weapons|Oddments|Laser|Plasma|Pulse|Alien|Unarmed|Blades|Blunt|Polearms|Powered|Neuroballistic|Explosives/i;
+  function foundKind(r){
+    var cat = r && r.key && isRec(root.ITEMS) && isRec(root.ITEMS[r.key]) ? str(root.ITEMS[r.key].cat) : "";
+    return !cat ? "" : FOUND_ARMOUR.test(cat) ? "armour" : FOUND_WEAPON.test(cat) ? "weapon" : "";
+  }
+  function foundStamp(r){
+    if(!isRec(r) || r.from !== "loot" || r.stack || r.found === true) return r;
+    var k = foundKind(r);
+    if(!k) return r;
+    r.found = true;
+    if(k === "weapon" && !(r.degr > 0)) r.degr = (+API.foundRand() || 0) < 0.5 ? 1 : 2;
+    return r;
   }
   function merged(a, b){
     var c = row(a);
@@ -8555,7 +8635,7 @@ root.BESTIARY_RULES = {
     var back = s.pending[at].row;
     s.pending.splice(at, 1);
     var res = addRow(s.items, { key:back.key, name:back.name, qty:back.qty, stack:back.stack,
-                                sec:back.sec, notes:back.notes, from:back.from, at:back.at });
+                                sec:back.sec, notes:back.notes, from:back.from, at:back.at, found:back.found, degr:back.degr });
     if(!res.error) s.items = res.items;
     return { slice:s, row:back };
   }
@@ -8605,7 +8685,10 @@ root.BESTIARY_RULES = {
   function shallow(o){ var c = {}, k; for(k in o) if(Object.prototype.hasOwnProperty.call(o, k)) c[k] = o[k]; return c; }
   function sheetRow(r, qty){
     /* exactly the sheet's own inventory row shape (character-sheet.html:1458) */
-    return { name:r.name, qty:qty, stack:r.stack, notes:r.notes, key:r.key || "", proposed:false };
+    var o = { name:r.name, qty:qty, stack:r.stack, notes:r.notes, key:r.key || "", proposed:false };
+    if(r.found === true) o.found = true;          /* CMD Z014 (G.9): a found thing stays found on the sheet */
+    if(r.degr > 0) o.degr = r.degr;
+    return o;
   }
 
   /* ----------------------------------------------------------------- reading */
@@ -9151,6 +9234,7 @@ root.BESTIARY_RULES = {
   API.nameKey     = nameKey;    /* row identity — never norm(); see ident() */
   API.ident       = ident;
   API.addRow      = addRow;
+  API.foundStamp  = foundStamp;   /* CMD Z014 (G.9) */
   API.shelve      = shelve;
   API.take        = take;
   API.send        = send;
@@ -11162,6 +11246,12 @@ window.PERKS = [
               text: p.text, cite: p.cite || "", rebalanced: !!p.rebalanced, watch: !!p.watch };
     if (r.levels.length > 1) r.step = r.levels[1] - r.levels[0];
     if (p.notRobot) r.notRobot = true;
+    /* Z013 (K.8, 2026-10-22): the requirements Part X prints beside the attributes ("no companion", "not immune to
+       radiation", "not a ghoul or robot", Cannibal's ghoul and super-mutant exemption), verbatim, for the sheet's picker
+       to judge; and whether the perk itself hands you a companion ("You gain a dog companion…"), which the Guide's
+       one-companion rule (p.xii) gates the same way as "no companion". */
+    r.other = (p.other || []).slice();
+    if (/\bYou gain (?:a|an|one) [^.]*\bcompanion\b/i.test(p.text || "")) r.givesCompanion = true;
     return r;
   });
   /* a name a saved sheet may still carry: Book One's old spelling resolves to Part X's row */
@@ -11305,7 +11395,7 @@ window.PERKS = [
     return { crb: CRB.length, guide: g, loot: l, withheld: 0 };   /* Z003: Part X prints every perk, so nothing is withheld */
   }
 
-  CRB.forEach(function (p) { if (Object.freeze) Object.freeze(p); });
+  CRB.forEach(function (p) { if (Object.freeze) { Object.freeze(p.other); Object.freeze(p); } });
   if (Object.freeze) Object.freeze(CRB);
 
   var API = {
@@ -13116,6 +13206,55 @@ window.HELENA_ORIGINS = {"source":"Zoe_Basilissas_Guide_extracted_2026-10-06.txt
   if(typeof window !== "undefined") window.HELENA_ATK = ATK;
   if(typeof module !== "undefined" && module.exports) module.exports = ATK;
 })();
+
+/* data/overseer.js — the Overseer's d20 tables the Guide prints in Part VIII and the suite rolls.
+   CMD Z014 (2026-10-22), G.6.  Transcribed by hand from the Guide (extraction of 2026-10-21b), in the Guide's own words,
+   each with its printed folio.  Rows are { lo, hi, text } on a d20, the shape data/loot.js carries a printed table in.
+
+     campVisitors   Camp Visitors, p.ccxci — rolled when a camp's watch dice show an Effect (Uninvited Guests)
+     priorTenants   Prior Tenants, p.ccxci — rolled when the campsite-finding test hands its complication
+
+   src/camp.html rolls them (one press each) and writes the result to the session log. */
+window.HELENA_OVERSEER = {
+  campVisitors: {
+    name: "Camp Visitors", folio: "ccxci", die: 20, head: "Who comes to the fire",
+    when: "When a camp’s watch dice roll an Effect, somebody found it. Roll here, or pick what the night already promised.",
+    rows: [
+      { lo:1,  hi:10, text:"Just you and the wind out here tonight. Stay warm; sleep tight." },
+      { lo:11, hi:12, text:"A hooded stranger wanders close, searching for something — or someone." },
+      { lo:13, hi:13, text:"A starving super mutant arrives and demands food. Whatever the meat preference, they can be bargained with." },
+      { lo:14, hi:14, text:"A trader seeks a night’s shelter, carrying a handful of goods and an open mind about swapping them." },
+      { lo:15, hi:15, text:"A cautious stranger from a nearby town asks for shelter — withdrawn, watchful, and carrying a secret worth being careful about." },
+      { lo:16, hi:16, text:"A small crew of raiders flees something worse than they are. They approach warily." },
+      { lo:17, hi:17, text:"Feral ghouls roam close but have not noticed you. Yet." },
+      { lo:18, hi:18, text:"A refugee family finds your fire, carrying supplies, caps, and a route they no longer trust. They need help." },
+      { lo:19, hi:20, text:"Quiet, until a distant bang and crash — then the air goes still and deadly silent. Something is out there." }
+    ]
+  },
+  priorTenants: {
+    name: "Prior Tenants", folio: "ccxci", die: 20, head: "Who holds the ground",
+    when: "When the campsite-finding test hands its complication, the spot is taken. Roll here.",
+    rows: [
+      { lo:1,  hi:6,  text:"Nobody. Old ash, older bones, and the wind." },
+      { lo:7,  hi:8,  text:"Drown rats denned in the low corner — a nuisance now, an infestation if fed." },
+      { lo:9,  hi:10, text:"A mongrel pack. They want the spot as much as you do, and they were here first." },
+      { lo:11, hi:12, text:"A lone traveler already camped — roll their temper on any d6: low is friendly, high is armed." },
+      { lo:13, hi:14, text:"A cazador nest in the high ground. The eggs are worth caps; the parents disagree." },
+      { lo:15, hi:16, text:"Feral ghouls, dormant in the shade until someone makes noise." },
+      { lo:17, hi:17, text:"A raider dead-drop — supplies cached under a marker. Its owners check it on a schedule." },
+      { lo:18, hi:18, text:"Mirelurks, if there is water within a stone’s throw; something hungrier if there is not." },
+      { lo:19, hi:19, text:"A working robot on a dead owner’s last order. It does not know the war ended, or does not care." },
+      { lo:20, hi:20, text:"A deathclaw range. Not a nest — a range. Camp anyway if the argument is worth it." }
+    ]
+  },
+  /* the row a d20 face lands on, or null */
+  rowFor: function(table, n){
+    var rows = (table && table.rows) || [];
+    n = Math.round(+n || 0);
+    for(var i = 0; i < rows.length; i++) if(n >= rows[i].lo && n <= rows[i].hi) return rows[i];
+    return null;
+  }
+};
 
 /* generated by build-loot.py from The Scavenger's Tables — do not edit */
 window.LOOT = {"tables":{"AMMUNITION":{"name":"AMMUNITION","sub":"what the dead ran out of","die":3,"family":"ammo","rows":[{"item":"Fusion Core","cook":"","amt":"1+1CD","lo":3,"hi":4,"rar":6,"caps":false,"zbg":"vii"},{"item":"2mm EC","cook":"","amt":"6+4CD","lo":5,"hi":6,"rar":5,"caps":false,"zbg":"v"},{"item":"4.7mm CL","cook":"","amt":"6+4CD","lo":7,"hi":7,"rar":5,"caps":false,"zbg":"v"},{"item":"Radium Shell","cook":"","amt":"2+1CD","lo":8,"hi":8,"rar":5,"caps":false,"zbg":"vi"},{"item":".338 Lapua","cook":"","amt":"5+5CD","lo":9,"hi":9,"rar":4,"caps":false,"zbg":"v"},{"item":"5.7x28mm","cook":"","amt":"10+5CD","lo":10,"hi":10,"rar":4,"caps":false,"zbg":"v"},{"item":".50 AE","cook":"","amt":"3+2CD","lo":11,"hi":11,"rar":4,"caps":false,"zbg":"v"},{"item":".50 BMG","cook":"","amt":"3+2CD","lo":12,"hi":12,"rar":4,"caps":false,"zbg":"v"},{"item":"7.62x54R","cook":"","amt":"6+4CD","lo":13,"hi":13,"rar":4,"caps":false,"zbg":"vi"},{"item":".300 Win Mag","cook":"","amt":"6+6CD","lo":14,"hi":14,"rar":3,"caps":false,"zbg":"v"},{"item":".50 Ball (black-powder)","cook":"","amt":"6+4CD","lo":15,"hi":15,"rar":3,"caps":false,"zbg":"v"},{"item":"5mm","cook":"","amt":"20+5CD","lo":16,"hi":16,"rar":3,"caps":false,"zbg":"vi"},{"item":"7.62x39mm","cook":"","amt":"10+5CD","lo":17,"hi":17,"rar":3,"caps":false,"zbg":"vi"},{"item":"Blunderbuss Shot","cook":"","amt":"10+5CD","lo":18,"hi":18,"rar":3,"caps":false,"zbg":"vi"},{"item":".30-30 Win","cook":"","amt":"10+2CD","lo":19,"hi":19,"rar":2,"caps":false,"zbg":"v"},{"item":".32 ACP","cook":"","amt":"15+5CD","lo":20,"hi":20,"rar":2,"caps":false,"zbg":"v"},{"item":".44 Mag","cook":"","amt":"10+5CD","lo":21,"hi":21,"rar":2,"caps":false,"zbg":"v"},{"item":".45 ACP","cook":"","amt":"10+5CD","lo":22,"hi":22,"rar":2,"caps":false,"zbg":"v"},{"item":"Energy Cell (EC)","cook":"","amt":"8+2CD","lo":23,"hi":23,"rar":2,"caps":false,"zbg":"vii"},{"item":"Fusion Cell (FC)","cook":"","amt":"6+4CD","lo":24,"hi":24,"rar":2,"caps":false,"zbg":"vii"},{"item":".223 Rem (5.56 NATO)","cook":"","amt":"15+5CD","lo":25,"hi":25,"rar":1,"caps":false,"zbg":"v"},{"item":".30-06 Spr","cook":"","amt":"8+4CD","lo":26,"hi":26,"rar":1,"caps":false,"zbg":"v"},{"item":".308 Win (7.62 NATO)","cook":"","amt":"6+4CD","lo":27,"hi":27,"rar":1,"caps":false,"zbg":"v"},{"item":"10mm Auto","cook":"","amt":"15+5CD","lo":28,"hi":28,"rar":0,"caps":false,"zbg":"v"},{"item":"12 Gauge Shell","cook":"","amt":"6+4CD","lo":29,"hi":29,"rar":0,"caps":false,"zbg":"v"},{"item":".22 LR","cook":"","amt":"15+5CD","lo":30,"hi":30,"rar":0,"caps":false,"zbg":"v"},{"item":".38 Spl","cook":"","amt":"10+5CD","lo":31,"hi":31,"rar":0,"caps":false,"zbg":"v"},{"item":"9mm Luger","cook":"","amt":"15+5CD","lo":32,"hi":32,"rar":0,"caps":false,"zbg":"vi"},{"item":"BB","cook":"","amt":"20+5CD","lo":33,"hi":33,"rar":0,"caps":false,"zbg":"vi"},{"item":"Sling Stones (underfoot everywhere)","cook":"","amt":"20+20CD","lo":34,"hi":34,"rar":0,"caps":false,"zbg":"viii"},{"item":"Junk Rounds (scrap-press, feeds anything desperate)","cook":"","amt":"10+10CD","lo":35,"hi":35,"rar":0,"caps":false,"zbg":"viii"},{"item":"Dart","cook":"","amt":"5+5CD","lo":36,"hi":36,"rar":0,"caps":false,"zbg":"viii"},{"item":"Bolt","cook":"","amt":"10+2CD","lo":37,"hi":37,"rar":0,"caps":false,"zbg":"viii"},{"item":"Arrow","cook":"","amt":"15+5CD","lo":38,"hi":38,"rar":0,"caps":false,"zbg":"viii"},{"item":"Flare","cook":"","amt":"3+2CD","lo":39,"hi":39,"rar":1,"caps":false,"zbg":"viii"},{"item":"Nails","cook":"","amt":"15+5CD","lo":40,"hi":40,"rar":1,"caps":false,"zbg":"vi"},{"item":".357 Mag","cook":"","amt":"5+5CD","lo":41,"hi":41,"rar":1,"caps":false,"zbg":"v"},{"item":"Syringer Ammo","cook":"","amt":"4+2CD","lo":42,"hi":42,"rar":2,"caps":false,"zbg":"viii"},{"item":"Speargun Bolt (spears)","cook":"","amt":"4+2CD","lo":43,"hi":43,"rar":2,"caps":false,"zbg":"viii"},{"item":"Railway Spike","cook":"","amt":"10+5CD","lo":44,"hi":44,"rar":2,"caps":false,"zbg":"viii"},{"item":"Fuel (flamers and incinerators)","cook":"","amt":"2+2CD","lo":45,"hi":45,"rar":2,"caps":false,"zbg":"viii"},{"item":"Cannonball","cook":"","amt":"1+2CD","lo":46,"hi":46,"rar":2,"caps":false,"zbg":"viii"},{"item":"Microfusion Cell (MFC)","cook":"","amt":"10+2CD","lo":47,"hi":47,"rar":2,"caps":false,"zbg":"vii"},{"item":"Harpoon","cook":"","amt":"2+1CD","lo":48,"hi":48,"rar":3,"caps":false,"zbg":"viii"},{"item":"Grenade (universal, fits every launcher)","cook":"","amt":"4+4CD","lo":49,"hi":49,"rar":3,"caps":false,"zbg":"viii"},{"item":"Explosive Munitions (chemblaster and kin)","cook":"","amt":"4+2CD","lo":50,"hi":50,"rar":3,"caps":false,"zbg":"viii"},{"item":"Gamma Round (GR)","cook":"","amt":"4+2CD","lo":51,"hi":51,"rar":3,"caps":false,"zbg":"vii"},{"item":"Cryo Cell","cook":"","amt":"5+3CD","lo":52,"hi":52,"rar":3,"caps":false,"zbg":"vii"},{"item":"Rocket (universal, fits every launcher)","cook":"","amt":"2+1CD","lo":53,"hi":53,"rar":4,"caps":false,"zbg":"viii"},{"item":"Rad Canister","cook":"","amt":"4+2CD","lo":54,"hi":54,"rar":4,"caps":false,"zbg":"vii"},{"item":"Plasma Cartridge (PC)","cook":"","amt":"4+2CD","lo":55,"hi":55,"rar":4,"caps":false,"zbg":"vii"},{"item":"8x57mm","cook":"","amt":"6+4CD","lo":56,"hi":56,"rar":4,"caps":false,"zbg":"vi"},{"item":"HN Needle (needler)","cook":"","amt":"2+2CD","lo":57,"hi":57,"rar":5,"caps":false,"zbg":"viii"},{"item":"Solar Batteries","cook":"","amt":"2+2CD","lo":58,"hi":58,"rar":5,"caps":false,"zbg":"vii"},{"item":"Alien Blaster Round","cook":"","amt":"4+2CD","lo":59,"hi":59,"rar":5,"caps":false,"zbg":"vii"},{"item":"Mini-Nuke","cook":"","amt":"1+1CD","lo":60,"hi":60,"rar":6,"caps":false,"zbg":"viii"}]},"SIDEARMS & PLINKERS":{"name":"SIDEARMS & PLINKERS","sub":"plinkers · pistols · revolvers","die":3,"family":"gear","rows":[{"item":"Magnum Research BFR (.50 AE)","cook":"","amt":"","lo":3,"hi":4,"rar":6,"caps":false,"zbg":"xii"},{"item":"AMT AutoMag V (.50 AE)","cook":"","amt":"","lo":5,"hi":7,"rar":4,"caps":false,"zbg":"xii"},{"item":"Desert Eagle (.44)","cook":"","amt":"","lo":8,"hi":9,"rar":4,"caps":false,"zbg":"xii"},{"item":"Remington XP-100 (.308)","cook":"","amt":"","lo":10,"hi":10,"rar":4,"caps":false,"zbg":"xii"},{"item":"T/C Contender (.30-30)","cook":"","amt":"","lo":11,"hi":11,"rar":4,"caps":false,"zbg":"xii"},{"item":"Marlin Model 60 (.22)","cook":"","amt":"","lo":12,"hi":12,"rar":3,"caps":false,"zbg":"xi"},{"item":"Remington Nylon 66 (.22)","cook":"","amt":"","lo":13,"hi":13,"rar":3,"caps":false,"zbg":"xi"},{"item":"Bren Ten (10mm)","cook":"","amt":"","lo":14,"hi":14,"rar":3,"caps":false,"zbg":"xii"},{"item":"Dan Wesson Elite Fury (10mm)","cook":"","amt":"","lo":15,"hi":15,"rar":3,"caps":false,"zbg":"xii"},{"item":"1911 Pattern (.45)","cook":"","amt":"","lo":16,"hi":16,"rar":3,"caps":false,"zbg":"xii"},{"item":"AMT Hardballer (.45)","cook":"","amt":"","lo":17,"hi":17,"rar":3,"caps":false,"zbg":"xii"},{"item":"Browning SA-22 (.22)","cook":"","amt":"","lo":18,"hi":18,"rar":2,"caps":false,"zbg":"xi"},{"item":"Ruger Standard (.22)","cook":"","amt":"","lo":19,"hi":19,"rar":2,"caps":false,"zbg":"xi"},{"item":"Ruger Single Six (.22)","cook":"","amt":"","lo":20,"hi":20,"rar":2,"caps":false,"zbg":"xi"},{"item":"Ruger 10/22 (.22)","cook":"","amt":"","lo":21,"hi":21,"rar":2,"caps":false,"zbg":"xi"},{"item":"CZ 75 (9mm)","cook":"","amt":"","lo":22,"hi":22,"rar":2,"caps":false,"zbg":"xii"},{"item":"Heavy Nine (9mm)","cook":"","amt":"","lo":23,"hi":23,"rar":2,"caps":false,"zbg":"xii"},{"item":"Service Auto (9mm)","cook":"","amt":"","lo":24,"hi":24,"rar":2,"caps":false,"zbg":"xii"},{"item":"Sig Sauer P226 (9mm)","cook":"","amt":"","lo":25,"hi":25,"rar":2,"caps":false,"zbg":"xii"},{"item":"Colt Delta Elite (10mm)","cook":"","amt":"","lo":26,"hi":26,"rar":2,"caps":false,"zbg":"xii"},{"item":"Browning Buck Mark (.22)","cook":"","amt":"","lo":27,"hi":27,"rar":1,"caps":false,"zbg":"xi"},{"item":"Colt Woodsman (.22)","cook":"","amt":"","lo":28,"hi":28,"rar":1,"caps":false,"zbg":"xi"},{"item":"Pocket Plinker (.22)","cook":"","amt":"","lo":29,"hi":29,"rar":1,"caps":false,"zbg":"xi"},{"item":"ArmaLite AR-7 (.22)","cook":"","amt":"","lo":30,"hi":30,"rar":1,"caps":false,"zbg":"xi"},{"item":"S&W Model 17 (.22)","cook":"","amt":"","lo":31,"hi":31,"rar":1,"caps":false,"zbg":"xi"},{"item":"S&W SW22 Victory (.22)","cook":"","amt":"","lo":32,"hi":32,"rar":1,"caps":false,"zbg":"xi"},{"item":"Wondernine (9mm)","cook":"","amt":"","lo":33,"hi":33,"rar":1,"caps":false,"zbg":"xii"},{"item":"PM Makarov (9mm)","cook":"","amt":"","lo":34,"hi":34,"rar":0,"caps":false,"zbg":"xii"},{"item":"Surplus Pistol (.38)","cook":"","amt":"","lo":35,"hi":35,"rar":0,"caps":false,"zbg":"xii"},{"item":"Colt Detective Special (.38)","cook":"","amt":"","lo":36,"hi":36,"rar":0,"caps":false,"zbg":"xiii"},{"item":"Pipe Pistol (.38)","cook":"","amt":"","lo":37,"hi":37,"rar":0,"caps":false,"zbg":"xii"},{"item":"Taurus 689 (.357)","cook":"","amt":"","lo":38,"hi":38,"rar":1,"caps":false,"zbg":"xiii"},{"item":"S&W Chief's Special (.38)","cook":"","amt":"","lo":39,"hi":39,"rar":1,"caps":false,"zbg":"xiii"},{"item":"S&W Model 10 (.38)","cook":"","amt":"","lo":40,"hi":40,"rar":1,"caps":false,"zbg":"xiii"},{"item":"Ruger Security Six (.38)","cook":"","amt":"","lo":41,"hi":41,"rar":1,"caps":false,"zbg":"xiii"},{"item":"Kimber K6s (.357)","cook":"","amt":"","lo":42,"hi":42,"rar":1,"caps":false,"zbg":"xiii"},{"item":"Colt SAA (.45)","cook":"","amt":"","lo":43,"hi":43,"rar":1,"caps":false,"zbg":"xiii"},{"item":"Walther P99 (9mm)","cook":"","amt":"","lo":44,"hi":44,"rar":1,"caps":false,"zbg":"xii"},{"item":"Working Magnum (.357)","cook":"","amt":"","lo":45,"hi":45,"rar":2,"caps":false,"zbg":"xiii"},{"item":"Colt Python (.357)","cook":"","amt":"","lo":46,"hi":46,"rar":2,"caps":false,"zbg":"xiii"},{"item":"Colt King Cobra (.357)","cook":"","amt":"","lo":47,"hi":47,"rar":2,"caps":false,"zbg":"xiii"},{"item":"Colt 6520 Pistol (10mm)","cook":"","amt":"","lo":48,"hi":48,"rar":2,"caps":false,"zbg":"xii"},{"item":"Walther PP (.32)","cook":"","amt":"","lo":49,"hi":49,"rar":2,"caps":false,"zbg":"xii"},{"item":"Glock 21 (.45)","cook":"","amt":"","lo":50,"hi":50,"rar":2,"caps":false,"zbg":"xii"},{"item":"1911 Clone (.45)","cook":"","amt":"","lo":51,"hi":51,"rar":2,"caps":false,"zbg":"xii"},{"item":"Star Megastar (10mm)","cook":"","amt":"","lo":52,"hi":52,"rar":2,"caps":false,"zbg":"xii"},{"item":"S&W Model 29 (.44)","cook":"","amt":"","lo":53,"hi":53,"rar":3,"caps":false,"zbg":"xiii"},{"item":"Big-Bore Wheel Gun (.44)","cook":"","amt":"","lo":54,"hi":54,"rar":3,"caps":false,"zbg":"xiii"},{"item":".223 Pistol (.223)","cook":"","amt":"","lo":55,"hi":55,"rar":3,"caps":false,"zbg":"xii"},{"item":"HK Mark 23 (.45)","cook":"","amt":"","lo":56,"hi":56,"rar":3,"caps":false,"zbg":"xii"},{"item":"FN Five-seveN (5.7mm)","cook":"","amt":"","lo":57,"hi":57,"rar":3,"caps":false,"zbg":"xii"},{"item":"Hand Cannon (.50 AE)","cook":"","amt":"","lo":58,"hi":58,"rar":4,"caps":false,"zbg":"xiii"},{"item":"LAR Grizzly (.50 AE)","cook":"","amt":"","lo":59,"hi":59,"rar":4,"caps":false,"zbg":"xii"},{"item":"SIG-Sauer 14mm Auto Pistol (.50 AE)","cook":"","amt":"","lo":60,"hi":60,"rar":4,"caps":false,"zbg":"xii"}]},"SMGs & SHOTGUNS":{"name":"SMGs & SHOTGUNS","sub":"close, mean, and wasteful","die":2,"family":"gear","rows":[{"item":"Westley Richards Droplock (.12)","cook":"","amt":"","lo":2,"hi":2,"rar":6,"caps":false,"zbg":"xv"},{"item":"Tar-Hunt RSG (.12)","cook":"","amt":"","lo":3,"hi":3,"rar":6,"caps":false,"zbg":"xv"},{"item":"FN P90 (5.7mm)","cook":"","amt":"","lo":4,"hi":4,"rar":5,"caps":false,"zbg":"xiv"},{"item":"H&K P90c (10mm)","cook":"","amt":"","lo":5,"hi":5,"rar":5,"caps":false,"zbg":"xiv"},{"item":"Gentleman's Double (.12)","cook":"","amt":"","lo":6,"hi":6,"rar":5,"caps":false,"zbg":"xiv"},{"item":"Heavy SMG (.45)","cook":"","amt":"","lo":7,"hi":7,"rar":4,"caps":false,"zbg":"xiv"},{"item":"Field Double (.12)","cook":"","amt":"","lo":8,"hi":8,"rar":4,"caps":false,"zbg":"xiv"},{"item":"Thompson M1 (.45)","cook":"","amt":"","lo":9,"hi":9,"rar":3,"caps":false,"zbg":"xiv"},{"item":"HK MP5 (9mm)","cook":"","amt":"","lo":10,"hi":10,"rar":2,"caps":false,"zbg":"xiv"},{"item":"M3 Grease Gun (.45)","cook":"","amt":"","lo":11,"hi":11,"rar":2,"caps":false,"zbg":"xiv"},{"item":"MP 40 (9mm)","cook":"","amt":"","lo":12,"hi":12,"rar":2,"caps":false,"zbg":"xiv"},{"item":"Trusty Pump (.12)","cook":"","amt":"","lo":13,"hi":13,"rar":2,"caps":false,"zbg":"xv"},{"item":"Machine Pistol (9mm)","cook":"","amt":"","lo":14,"hi":15,"rar":1,"caps":false,"zbg":"xiv"},{"item":"HK MP7 (5.7mm)","cook":"","amt":"","lo":16,"hi":16,"rar":1,"caps":false,"zbg":"xiv"},{"item":"IMI UZI (9mm)","cook":"","amt":"","lo":17,"hi":18,"rar":1,"caps":false,"zbg":"xiv"},{"item":"MAC-10 (9mm)","cook":"","amt":"","lo":19,"hi":20,"rar":0,"caps":false,"zbg":"xiv"},{"item":"STEN (9mm)","cook":"","amt":"","lo":21,"hi":22,"rar":0,"caps":false,"zbg":"xiv"},{"item":"Winchester Widowmaker (.12)","cook":"","amt":"","lo":23,"hi":24,"rar":0,"caps":false,"zbg":"xv"},{"item":"Farmhouse Pump (.12)","cook":"","amt":"","lo":25,"hi":25,"rar":1,"caps":false,"zbg":"xv"},{"item":"Skorpion Vz.61 (.32)","cook":"","amt":"","lo":26,"hi":27,"rar":1,"caps":false,"zbg":"xiv"},{"item":"Black Powder Blunderbuss (.50 Ball)","cook":"","amt":"","lo":28,"hi":28,"rar":2,"caps":false,"zbg":"xv"},{"item":"AA-12 (.12)","cook":"","amt":"","lo":29,"hi":30,"rar":2,"caps":false,"zbg":"xv"},{"item":"NeoStead 2000 (.12)","cook":"","amt":"","lo":31,"hi":31,"rar":2,"caps":false,"zbg":"xv"},{"item":"Auto-Loader (.12)","cook":"","amt":"","lo":32,"hi":33,"rar":2,"caps":false,"zbg":"xv"},{"item":"Over-Under (.12)","cook":"","amt":"","lo":34,"hi":34,"rar":3,"caps":false,"zbg":"xv"},{"item":"HK CAWS (.12)","cook":"","amt":"","lo":35,"hi":35,"rar":4,"caps":false,"zbg":"xv"},{"item":"Tuned Over-Under (.12)","cook":"","amt":"","lo":36,"hi":36,"rar":4,"caps":false,"zbg":"xv"},{"item":"Winchester City-Killer (.12)","cook":"","amt":"","lo":37,"hi":37,"rar":5,"caps":false,"zbg":"xv"},{"item":"Kel-Tec KSG (.12)","cook":"","amt":"","lo":38,"hi":38,"rar":5,"caps":false,"zbg":"xv"},{"item":"Gauss Shotgun (2mm)","cook":"","amt":"","lo":39,"hi":39,"rar":6,"caps":false,"zbg":"xv"},{"item":"Pancor Jackhammer (.12)","cook":"","amt":"","lo":40,"hi":40,"rar":6,"caps":false,"zbg":"xv"}]},"RIFLES & ODDMENTS":{"name":"RIFLES & ODDMENTS","sub":"the honest tool, and the strange shelf","die":3,"family":"gear","rows":[{"item":"HK G3 (.308)","cook":"","amt":"","lo":3,"hi":5,"rar":6,"caps":false,"zbg":"xvi"},{"item":"ArmaLite AR-10 (.308)","cook":"","amt":"","lo":6,"hi":7,"rar":5,"caps":false,"zbg":"xvi"},{"item":"FN FAL (.308)","cook":"","amt":"","lo":8,"hi":9,"rar":5,"caps":false,"zbg":"xvi"},{"item":"Sig Sauer SIGM400 (.300)","cook":"","amt":"","lo":10,"hi":10,"rar":4,"caps":false,"zbg":"xvi"},{"item":"M14 (.308)","cook":"","amt":"","lo":11,"hi":12,"rar":4,"caps":false,"zbg":"xvi"},{"item":"Hunter's Bolt Gun (.308)","cook":"","amt":"","lo":13,"hi":13,"rar":4,"caps":false,"zbg":"xvi"},{"item":"Marlin Model 336 (.30-30)","cook":"","amt":"","lo":14,"hi":14,"rar":4,"caps":false,"zbg":"xvi"},{"item":"Weatherby Mark V (.308)","cook":"","amt":"","lo":15,"hi":15,"rar":4,"caps":false,"zbg":"xvi"},{"item":"Kalash Pattern (.223)","cook":"","amt":"","lo":16,"hi":16,"rar":3,"caps":false,"zbg":"xv"},{"item":"Workhorse Carbine (.223)","cook":"","amt":"","lo":17,"hi":17,"rar":3,"caps":false,"zbg":"xvi"},{"item":"Bullpup Rifle (.223)","cook":"","amt":"","lo":18,"hi":18,"rar":3,"caps":false,"zbg":"xvi"},{"item":"Fast Carbine (.223)","cook":"","amt":"","lo":19,"hi":19,"rar":3,"caps":false,"zbg":"xvi"},{"item":"Old Soldier's Rifle (7.62R)","cook":"","amt":"","lo":20,"hi":20,"rar":3,"caps":false,"zbg":"xvi"},{"item":"Plain Bolt Gun (.308)","cook":"","amt":"","lo":21,"hi":21,"rar":3,"caps":false,"zbg":"xvi"},{"item":"Modern Kalash (7.62)","cook":"","amt":"","lo":22,"hi":22,"rar":2,"caps":false,"zbg":"xv"},{"item":"Beretta AR70/90 (.223)","cook":"","amt":"","lo":23,"hi":23,"rar":2,"caps":false,"zbg":"xvi"},{"item":"Type 63 (7.62)","cook":"","amt":"","lo":24,"hi":24,"rar":2,"caps":false,"zbg":"xvi"},{"item":"Browning A-Bolt (.223)","cook":"","amt":"","lo":25,"hi":25,"rar":2,"caps":false,"zbg":"xvi"},{"item":"Weatherby Vanguard (.223)","cook":"","amt":"","lo":26,"hi":26,"rar":2,"caps":false,"zbg":"xvi"},{"item":"Ruger Mini-14 (.223)","cook":"","amt":"","lo":27,"hi":27,"rar":2,"caps":false,"zbg":"xvi"},{"item":"INSAS (.223)","cook":"","amt":"","lo":28,"hi":28,"rar":1,"caps":false,"zbg":"xvi"},{"item":"SKS (7.62)","cook":"","amt":"","lo":29,"hi":29,"rar":1,"caps":false,"zbg":"xvi"},{"item":"HK G11 (4.7)","cook":"","amt":"","lo":30,"hi":30,"rar":1,"caps":false,"zbg":"xvi"},{"item":"BB Gun (Junk Rounds)","cook":"","amt":"","lo":31,"hi":32,"rar":0,"caps":false,"zbg":"xvii"},{"item":"Bringham Needler Pistol (HN Needle)","cook":"","amt":"","lo":33,"hi":33,"rar":1,"caps":false,"zbg":"xxi"},{"item":"Radium Rifle (.45)","cook":"","amt":"","lo":34,"hi":35,"rar":1,"caps":false,"zbg":"xvii"},{"item":"Pipe Bolt-Action (.308)","cook":"","amt":"","lo":36,"hi":36,"rar":1,"caps":false,"zbg":"xvii"},{"item":"Nail Gun (Junk Rounds)","cook":"","amt":"","lo":37,"hi":37,"rar":2,"caps":false,"zbg":"xxi"},{"item":"Black Powder Rifle (.50 Ball)","cook":"","amt":"","lo":38,"hi":38,"rar":2,"caps":false,"zbg":"xvii"},{"item":"Infiltrator (.223)","cook":"","amt":"","lo":39,"hi":39,"rar":2,"caps":false,"zbg":"xvii"},{"item":"Colt Rangemaster (.223)","cook":"","amt":"","lo":40,"hi":40,"rar":2,"caps":false,"zbg":"xvii"},{"item":"Pre-War Assault Carbine (5mm)","cook":"","amt":"","lo":41,"hi":41,"rar":2,"caps":false,"zbg":"xvi"},{"item":"Flare Gun (Flare)","cook":"","amt":"","lo":42,"hi":42,"rar":3,"caps":false,"zbg":"xxi"},{"item":"Bozar (.223)","cook":"","amt":"","lo":43,"hi":43,"rar":3,"caps":false,"zbg":"xvii"},{"item":"Old Army Rifle (.30-06)","cook":"","amt":"","lo":44,"hi":44,"rar":3,"caps":false,"zbg":"xvi"},{"item":"M1 Carbine (.30-30)","cook":"","amt":"","lo":45,"hi":45,"rar":3,"caps":false,"zbg":"xvi"},{"item":"War-Surplus Bolt Gun (.30-06)","cook":"","amt":"","lo":46,"hi":46,"rar":3,"caps":false,"zbg":"xvi"},{"item":"Savage Model 99 (.30-30)","cook":"","amt":"","lo":47,"hi":47,"rar":3,"caps":false,"zbg":"xvi"},{"item":"Black Powder Pistol (.50 Ball)","cook":"","amt":"","lo":48,"hi":48,"rar":4,"caps":false,"zbg":"xxi"},{"item":"Syringer (Syringer Ammo)","cook":"","amt":"","lo":49,"hi":49,"rar":4,"caps":false,"zbg":"xxi"},{"item":"Railway Rifle (Railway Spike)","cook":"","amt":"","lo":50,"hi":50,"rar":4,"caps":false,"zbg":"xxi"},{"item":"PPK12 Gauss Pistol (2mm)","cook":"","amt":"","lo":51,"hi":52,"rar":4,"caps":false,"zbg":"xxi"},{"item":"Mauser G98 (8x57mm)","cook":"","amt":"","lo":53,"hi":55,"rar":4,"caps":false,"zbg":"xvi"},{"item":"M72 Gauss Rifle (2mm)","cook":"","amt":"","lo":56,"hi":60,"rar":5,"caps":false,"zbg":"xxi"}]},"BIG GUNS":{"name":"BIG GUNS","sub":"precision & anti-materiel · machine guns · heavy","die":3,"family":"gear","rows":[{"item":"PGM Hecate II (.50 BMG)","cook":"","amt":"","lo":3,"hi":6,"rar":6,"caps":false,"zbg":"xvii"},{"item":"Anti-Materiel Rifle (.50 BMG)","cook":"","amt":"","lo":7,"hi":7,"rar":6,"caps":false,"zbg":"xviii"},{"item":"Light Fifty (.50 BMG)","cook":"","amt":"","lo":8,"hi":9,"rar":5,"caps":false,"zbg":"xvii"},{"item":"McMillan TAC-50 (.50 BMG)","cook":"","amt":"","lo":10,"hi":10,"rar":5,"caps":false,"zbg":"xvii"},{"item":"Barrett M99 (.50 BMG)","cook":"","amt":"","lo":11,"hi":11,"rar":5,"caps":false,"zbg":"xviii"},{"item":"CheyTac Intervention (.50 BMG)","cook":"","amt":"","lo":12,"hi":12,"rar":5,"caps":false,"zbg":"xviii"},{"item":"Browning M2 (.50 BMG)","cook":"","amt":"","lo":13,"hi":13,"rar":5,"caps":false,"zbg":"xviii"},{"item":"AI Arctic Warfare (.300)","cook":"","amt":"","lo":14,"hi":14,"rar":4,"caps":false,"zbg":"xvii"},{"item":"Barrett MRAD (.338)","cook":"","amt":"","lo":15,"hi":15,"rar":4,"caps":false,"zbg":"xvii"},{"item":"Blaser R93 Tactical (.300)","cook":"","amt":"","lo":16,"hi":16,"rar":4,"caps":false,"zbg":"xvii"},{"item":"FR F1 (.308)","cook":"","amt":"","lo":17,"hi":17,"rar":4,"caps":false,"zbg":"xvii"},{"item":"Sako TRG-42 (.338)","cook":"","amt":"","lo":18,"hi":18,"rar":4,"caps":false,"zbg":"xviii"},{"item":"Walther WA 2000 (.300)","cook":"","amt":"","lo":19,"hi":19,"rar":4,"caps":false,"zbg":"xviii"},{"item":"Belt Gun (.30-06)","cook":"","amt":"","lo":20,"hi":20,"rar":4,"caps":false,"zbg":"xviii"},{"item":"FN M240 (.308)","cook":"","amt":"","lo":21,"hi":21,"rar":4,"caps":false,"zbg":"xviii"},{"item":"FN MAG (.308)","cook":"","amt":"","lo":22,"hi":22,"rar":4,"caps":false,"zbg":"xviii"},{"item":"Marksman's Rifle (.308)","cook":"","amt":"","lo":23,"hi":23,"rar":3,"caps":false,"zbg":"xvii"},{"item":"Ruger Precision Rifle (.308)","cook":"","amt":"","lo":24,"hi":24,"rar":3,"caps":false,"zbg":"xvii"},{"item":"SR-25 (.308)","cook":"","amt":"","lo":25,"hi":25,"rar":3,"caps":false,"zbg":"xviii"},{"item":"Automatic Rifle (.308)","cook":"","amt":"","lo":26,"hi":26,"rar":3,"caps":false,"zbg":"xviii"},{"item":"FN Minimi (.223)","cook":"","amt":"","lo":27,"hi":27,"rar":3,"caps":false,"zbg":"xviii"},{"item":"PKM (7.62R)","cook":"","amt":"","lo":28,"hi":28,"rar":3,"caps":false,"zbg":"xix"},{"item":"Type 67 (7.62R)","cook":"","amt":"","lo":29,"hi":29,"rar":3,"caps":false,"zbg":"xix"},{"item":"Junk Jet (Junk Rounds)","cook":"","amt":"","lo":30,"hi":30,"rar":3,"caps":false,"zbg":"xx"},{"item":"DKS-501 (.308)","cook":"","amt":"","lo":31,"hi":31,"rar":2,"caps":false,"zbg":"xviii"},{"item":"FN M249 SAW (.223)","cook":"","amt":"","lo":32,"hi":32,"rar":2,"caps":false,"zbg":"xviii"},{"item":"L86 LSW (.223)","cook":"","amt":"","lo":33,"hi":33,"rar":2,"caps":false,"zbg":"xix"},{"item":"Chemblaster (Explosive Munitions)","cook":"","amt":"","lo":34,"hi":34,"rar":2,"caps":false,"zbg":"xx"},{"item":"Flambe 450 (Fuel)","cook":"","amt":"","lo":35,"hi":35,"rar":2,"caps":false,"zbg":"xx"},{"item":"RPD (7.62)","cook":"","amt":"","lo":36,"hi":36,"rar":2,"caps":false,"zbg":"xix"},{"item":"Firework Rocket Launcher (Rocket)","cook":"","amt":"","lo":37,"hi":37,"rar":3,"caps":false,"zbg":"xx"},{"item":"Broadsider (Explosive Munitions)","cook":"","amt":"","lo":38,"hi":38,"rar":3,"caps":false,"zbg":"xx"},{"item":"Auto Grenade Launcher (Grenade)","cook":"","amt":"","lo":39,"hi":39,"rar":3,"caps":false,"zbg":"xx"},{"item":"Rockwell CZ53 Minigun (5mm)","cook":"","amt":"","lo":40,"hi":40,"rar":3,"caps":false,"zbg":"xx"},{"item":"Rockwell CZ57 Avenger (5mm)","cook":"","amt":"","lo":41,"hi":41,"rar":3,"caps":false,"zbg":"xx"},{"item":"Rheinmetall Vindicator Minigun (4.7)","cook":"","amt":"","lo":42,"hi":42,"rar":3,"caps":false,"zbg":"xx"},{"item":"Heavy Incinerator (Fuel)","cook":"","amt":"","lo":43,"hi":43,"rar":3,"caps":false,"zbg":"xx"},{"item":".905 JDJ (Explosive Munitions)","cook":"","amt":"","lo":44,"hi":44,"rar":4,"caps":false,"zbg":"xx"},{"item":"Harpoon Gun (Harpoon)","cook":"","amt":"","lo":45,"hi":45,"rar":4,"caps":false,"zbg":"xx"},{"item":"Eradicator (Explosive Munitions)","cook":"","amt":"","lo":46,"hi":46,"rar":4,"caps":false,"zbg":"xx"},{"item":"Rockwell Big Bazooka (Rocket)","cook":"","amt":"","lo":47,"hi":47,"rar":4,"caps":false,"zbg":"xx"},{"item":"MEC Gauss Minigun (2mm)","cook":"","amt":"","lo":48,"hi":48,"rar":4,"caps":false,"zbg":"xx"},{"item":"Type 87 Grenade Launcher (Grenade)","cook":"","amt":"","lo":49,"hi":49,"rar":4,"caps":false,"zbg":"xix"},{"item":"M79 Grenade Launcher (Grenade)","cook":"","amt":"","lo":50,"hi":50,"rar":4,"caps":false,"zbg":"xix"},{"item":"M60 The Pig (.308)","cook":"","amt":"","lo":51,"hi":51,"rar":4,"caps":false,"zbg":"xix"},{"item":"Lewis Gun (.30-06)","cook":"","amt":"","lo":52,"hi":52,"rar":4,"caps":false,"zbg":"xix"},{"item":"RPG-7 (Rocket)","cook":"","amt":"","lo":53,"hi":53,"rar":5,"caps":false,"zbg":"xix"},{"item":"M1 Bazooka (Rocket)","cook":"","amt":"","lo":54,"hi":54,"rar":5,"caps":false,"zbg":"xix"},{"item":"M72 LAW (Rocket)","cook":"","amt":"","lo":55,"hi":55,"rar":5,"caps":false,"zbg":"xix"},{"item":"Rheinmetall MG 3 (.308)","cook":"","amt":"","lo":56,"hi":56,"rar":5,"caps":false,"zbg":"xix"},{"item":"MG 42 (8x57mm)","cook":"","amt":"","lo":57,"hi":57,"rar":5,"caps":false,"zbg":"xix"},{"item":"Fatman (Mini-Nuke)","cook":"","amt":"","lo":58,"hi":58,"rar":6,"caps":false,"zbg":"xix"},{"item":"Steyr IWS 2000 (.50 BMG)","cook":"","amt":"","lo":59,"hi":60,"rar":6,"caps":false,"zbg":"xviii"}]},"ENERGY WEAPONS":{"name":"ENERGY WEAPONS","sub":"Alvin's country","die":2,"family":"gear","rows":[{"item":"Microwave Emitter (MFC)","cook":"","amt":"","lo":2,"hi":2,"rar":6,"caps":false,"zbg":"xxv"},{"item":"Pulse Cannon (Fusion Core)","cook":"","amt":"","lo":3,"hi":3,"rar":6,"caps":false,"zbg":"xxv"},{"item":"YK42B Pulse Rifle (EC)","cook":"","amt":"","lo":4,"hi":4,"rar":6,"caps":false,"zbg":"xxv"},{"item":"Pulse Gun (FC)","cook":"","amt":"","lo":5,"hi":5,"rar":6,"caps":false,"zbg":"xxv"},{"item":"Alien Blaster (Alien Blaster Round)","cook":"","amt":"","lo":6,"hi":6,"rar":6,"caps":false,"zbg":"xxvi"},{"item":"H&K L30 Gatling Laser (FC)","cook":"","amt":"","lo":7,"hi":7,"rar":5,"caps":false,"zbg":"xxiii"},{"item":"Laser Musket (FC)","cook":"","amt":"","lo":8,"hi":8,"rar":5,"caps":false,"zbg":"xxiii"},{"item":"Winchester P94 Turbo (MFC)","cook":"","amt":"","lo":9,"hi":9,"rar":5,"caps":false,"zbg":"xxiv"},{"item":"AER9 Laser Rifle (MFC)","cook":"","amt":"","lo":10,"hi":10,"rar":4,"caps":false,"zbg":"xxiii"},{"item":"Tri-Beam Laser Rifle (FC)","cook":"","amt":"","lo":11,"hi":11,"rar":4,"caps":false,"zbg":"xxiv"},{"item":"Plasma Rifle (PC)","cook":"","amt":"","lo":12,"hi":12,"rar":4,"caps":false,"zbg":"xxiv"},{"item":"Glock 86 Plasma Pistol (PC)","cook":"","amt":"","lo":13,"hi":13,"rar":4,"caps":false,"zbg":"xxiv"},{"item":"Wattz 2000 Laser Rifle (EC)","cook":"","amt":"","lo":14,"hi":14,"rar":3,"caps":false,"zbg":"xxiii"},{"item":"Break-Action Laser (FC)","cook":"","amt":"","lo":15,"hi":15,"rar":3,"caps":false,"zbg":"xxiii"},{"item":"Enclave Plasma Pistol (PC)","cook":"","amt":"","lo":16,"hi":16,"rar":3,"caps":false,"zbg":"xxiv"},{"item":"AER9 Laser Pistol (FC)","cook":"","amt":"","lo":17,"hi":17,"rar":2,"caps":false,"zbg":"xxiii"},{"item":"AER12 Laser Rifle (MFC)","cook":"","amt":"","lo":18,"hi":18,"rar":2,"caps":false,"zbg":"xxiii"},{"item":"Institute Laser Pistol (FC)","cook":"","amt":"","lo":19,"hi":19,"rar":2,"caps":false,"zbg":"xxiii"},{"item":"Institute Laser Rifle (FC)","cook":"","amt":"","lo":20,"hi":20,"rar":2,"caps":false,"zbg":"xxiii"},{"item":"AEP7 Laser Pistol (EC)","cook":"","amt":"","lo":21,"hi":21,"rar":1,"caps":false,"zbg":"xxiii"},{"item":"Chinese Auto Laser (FC)","cook":"","amt":"","lo":22,"hi":22,"rar":1,"caps":false,"zbg":"xxiii"},{"item":"LAER (FC)","cook":"","amt":"","lo":23,"hi":24,"rar":1,"caps":false,"zbg":"xxiv"},{"item":"Laser RCW (FC)","cook":"","amt":"","lo":25,"hi":25,"rar":2,"caps":false,"zbg":"xxiv"},{"item":"Holorifle (FC)","cook":"","amt":"","lo":26,"hi":26,"rar":2,"caps":false,"zbg":"xxiv"},{"item":"Wattz 1000 Laser Pistol (EC)","cook":"","amt":"","lo":27,"hi":27,"rar":2,"caps":false,"zbg":"xxiii"},{"item":"Recharger Pistol (—)","cook":"","amt":"","lo":28,"hi":28,"rar":3,"caps":false,"zbg":"xxvi"},{"item":"Multiplas Rifle (PC)","cook":"","amt":"","lo":29,"hi":29,"rar":3,"caps":false,"zbg":"xxiv"},{"item":"Sonic Emitter (FC)","cook":"","amt":"","lo":30,"hi":30,"rar":4,"caps":false,"zbg":"xxv"},{"item":"Mesmetron (Fusion Core)","cook":"","amt":"","lo":31,"hi":31,"rar":4,"caps":false,"zbg":"xxv"},{"item":"Gamma Gun (GR)","cook":"","amt":"","lo":32,"hi":32,"rar":4,"caps":false,"zbg":"xxv"},{"item":"Plasma Defender (PC)","cook":"","amt":"","lo":33,"hi":33,"rar":4,"caps":false,"zbg":"xxiv"},{"item":"Rad Sprayer (Rad Canister)","cook":"","amt":"","lo":34,"hi":34,"rar":5,"caps":false,"zbg":"xxvi"},{"item":"YK32 Pulse Pistol (EC)","cook":"","amt":"","lo":35,"hi":35,"rar":5,"caps":false,"zbg":"xxv"},{"item":"Solar Carbine (Solar Batteries)","cook":"","amt":"","lo":36,"hi":36,"rar":5,"caps":false,"zbg":"xxv"},{"item":"Recharger Rifle (—)","cook":"","amt":"","lo":37,"hi":37,"rar":6,"caps":false,"zbg":"xxvi"},{"item":"Cryolator (Cryo Cell)","cook":"","amt":"","lo":38,"hi":38,"rar":6,"caps":false,"zbg":"xxvi"},{"item":"Ark Cannon (Fusion Core)","cook":"","amt":"","lo":39,"hi":39,"rar":6,"caps":false,"zbg":"xxvi"},{"item":"Ark Rifle (FC)","cook":"","amt":"","lo":40,"hi":40,"rar":6,"caps":false,"zbg":"xxvi"}]},"THROWN, BOWS & EXPLOSIVES":{"name":"THROWN, BOWS & EXPLOSIVES","sub":"the quiet and the very loud","die":3,"family":"gear","rows":[{"item":"Nuke Mine","cook":"","amt":"1","lo":3,"hi":5,"rar":6,"caps":false,"zbg":"xxxv"},{"item":"Mr. Boom","cook":"","amt":"1","lo":6,"hi":6,"rar":6,"caps":false,"zbg":"xxxiv"},{"item":"Anti-Tank Mine","cook":"","amt":"1","lo":7,"hi":7,"rar":5,"caps":false,"zbg":"xxxv"},{"item":"Nuka Grenade","cook":"","amt":"1","lo":8,"hi":8,"rar":5,"caps":false,"zbg":"xxxv"},{"item":"Reverse Draw Crossbow (bolt)","cook":"","amt":"1","lo":9,"hi":10,"rar":4,"caps":false,"zbg":"xxxiv"},{"item":"C-4 Plastic","cook":"","amt":"1","lo":11,"hi":11,"rar":4,"caps":false,"zbg":"xxxv"},{"item":"Claymore","cook":"","amt":"1","lo":12,"hi":12,"rar":4,"caps":false,"zbg":"xxxv"},{"item":"Frag Grenade","cook":"","amt":"1","lo":13,"hi":13,"rar":4,"caps":false,"zbg":"xxxv"},{"item":"Compound Crossbow (bolt)","cook":"","amt":"1","lo":14,"hi":14,"rar":3,"caps":false,"zbg":"xxxiii"},{"item":"Recurve Crossbow (bolt)","cook":"","amt":"1","lo":15,"hi":15,"rar":3,"caps":false,"zbg":"xxxiv"},{"item":"Repeating Crossbow (bolt)","cook":"","amt":"1","lo":16,"hi":16,"rar":3,"caps":false,"zbg":"xxxiv"},{"item":"Anti-Personnel Mine","cook":"","amt":"1","lo":17,"hi":17,"rar":3,"caps":false,"zbg":"xxxv"},{"item":"Pulse Mine","cook":"","amt":"1","lo":18,"hi":18,"rar":3,"caps":false,"zbg":"xxxv"},{"item":"Cryogenic Grenade","cook":"","amt":"1","lo":19,"hi":19,"rar":3,"caps":false,"zbg":"xxxvi"},{"item":"Compound Bow (arrow)","cook":"","amt":"1","lo":20,"hi":20,"rar":2,"caps":false,"zbg":"xxxiii"},{"item":"Longbow (arrow)","cook":"","amt":"1","lo":21,"hi":21,"rar":2,"caps":false,"zbg":"xxxiii"},{"item":"Speargun (spears)","cook":"","amt":"1","lo":22,"hi":22,"rar":2,"caps":false,"zbg":"xxxiv"},{"item":"Javelin","cook":"","amt":"2+1CD","lo":23,"hi":23,"rar":2,"caps":false,"zbg":"xxxiv"},{"item":"Throwing Tomahawk","cook":"","amt":"2+1CD","lo":24,"hi":24,"rar":2,"caps":false,"zbg":"xxxiv"},{"item":"Baseball Grenade","cook":"","amt":"1","lo":25,"hi":25,"rar":2,"caps":false,"zbg":"xxxv"},{"item":"Dynamite Stick","cook":"","amt":"1","lo":26,"hi":26,"rar":2,"caps":false,"zbg":"xxxv"},{"item":"Pistol Crossbow (bolt)","cook":"","amt":"1","lo":27,"hi":27,"rar":1,"caps":false,"zbg":"xxxiii"},{"item":"Shuriken","cook":"","amt":"4+2CD","lo":28,"hi":28,"rar":1,"caps":false,"zbg":"xxxiv"},{"item":"Throwing Knife","cook":"","amt":"2+1CD","lo":29,"hi":29,"rar":1,"caps":false,"zbg":"xxxiv"},{"item":"Flash Grenade","cook":"","amt":"1","lo":30,"hi":30,"rar":1,"caps":false,"zbg":"xxxv"},{"item":"Homemade Bomb","cook":"","amt":"1","lo":31,"hi":31,"rar":1,"caps":false,"zbg":"xxxv"},{"item":"Molotov Cocktail","cook":"","amt":"1","lo":32,"hi":32,"rar":1,"caps":false,"zbg":"xxxv"},{"item":"Blowgun (dart)","cook":"","amt":"1","lo":33,"hi":33,"rar":0,"caps":false,"zbg":"xxxiii"},{"item":"Sling (rock)","cook":"","amt":"1","lo":34,"hi":34,"rar":0,"caps":false,"zbg":"xxxiv"},{"item":"Rigged Fusion Core","cook":"","amt":"1","lo":35,"hi":35,"rar":1,"caps":false,"zbg":"xxxvi"},{"item":"MFC Grenade","cook":"","amt":"1","lo":36,"hi":36,"rar":1,"caps":false,"zbg":"xxxvi"},{"item":"Firecrackers","cook":"","amt":"1","lo":37,"hi":37,"rar":1,"caps":false,"zbg":"xxxvi"},{"item":"Blackpowder Bomb","cook":"","amt":"1","lo":38,"hi":38,"rar":1,"caps":false,"zbg":"xxxv"},{"item":"Smoke Grenade","cook":"","amt":"1","lo":39,"hi":39,"rar":1,"caps":false,"zbg":"xxxv"},{"item":"Scrap Explosive","cook":"","amt":"1","lo":40,"hi":40,"rar":2,"caps":false,"zbg":"xxxvi"},{"item":"Nuka-Boom","cook":"","amt":"1","lo":41,"hi":41,"rar":2,"caps":false,"zbg":"xxxvi"},{"item":"Long-Fuse Dynamite","cook":"","amt":"1","lo":42,"hi":42,"rar":2,"caps":false,"zbg":"xxxvi"},{"item":"Boom Bug","cook":"","amt":"1","lo":43,"hi":43,"rar":2,"caps":false,"zbg":"xxxv"},{"item":"Abraxolurk Egg","cook":"","amt":"1","lo":44,"hi":44,"rar":2,"caps":false,"zbg":"xxxv"},{"item":"Incendiary Grenade","cook":"","amt":"1","lo":45,"hi":45,"rar":2,"caps":false,"zbg":"xxxv"},{"item":"Pumpkin Bomb","cook":"","amt":"1","lo":46,"hi":46,"rar":3,"caps":false,"zbg":"xxxvi"},{"item":"Pulse Charge","cook":"","amt":"1","lo":47,"hi":47,"rar":3,"caps":false,"zbg":"xxxvi"},{"item":"Pipe Bomb","cook":"","amt":"1","lo":48,"hi":48,"rar":3,"caps":false,"zbg":"xxxvi"},{"item":"Incendiary Mine","cook":"","amt":"1","lo":49,"hi":49,"rar":3,"caps":false,"zbg":"xxxvi"},{"item":"Dynamite Bundle","cook":"","amt":"1","lo":50,"hi":50,"rar":3,"caps":false,"zbg":"xxxvi"},{"item":"Cryo Mine","cook":"","amt":"1","lo":51,"hi":51,"rar":3,"caps":false,"zbg":"xxxvi"},{"item":"Satchel Charge","cook":"","amt":"1","lo":52,"hi":52,"rar":4,"caps":false,"zbg":"xxxvi"},{"item":"Pulse Grenade","cook":"","amt":"1","lo":53,"hi":53,"rar":4,"caps":false,"zbg":"xxxv"},{"item":"Plasma Grenade","cook":"","amt":"1","lo":54,"hi":54,"rar":4,"caps":false,"zbg":"xxxv"},{"item":"ED-EMP","cook":"","amt":"1","lo":55,"hi":56,"rar":5,"caps":false,"zbg":"xxxv"},{"item":"Radio Nuke","cook":"","amt":"1","lo":57,"hi":60,"rar":6,"caps":false,"zbg":"xxxvi"}]},"MELEE — BLADES, BLUNT & POLEARMS":{"name":"MELEE — BLADES, BLUNT & POLEARMS","sub":"the work you do up close","die":3,"family":"gear","rows":[{"item":"Bumper Sword","cook":"","amt":"","lo":3,"hi":6,"rar":4,"caps":false,"zbg":"xxviii"},{"item":"Battle Axe","cook":"","amt":"","lo":7,"hi":9,"rar":3,"caps":false,"zbg":"xxviii"},{"item":"Sledgehammer","cook":"","amt":"","lo":10,"hi":10,"rar":3,"caps":false,"zbg":"xxix"},{"item":"Lance","cook":"","amt":"","lo":11,"hi":11,"rar":3,"caps":false,"zbg":"xxx"},{"item":"Axe","cook":"","amt":"","lo":12,"hi":13,"rar":2,"caps":false,"zbg":"xxviii"},{"item":"Fire Axe","cook":"","amt":"","lo":14,"hi":14,"rar":2,"caps":false,"zbg":"xxviii"},{"item":"Katana","cook":"","amt":"","lo":15,"hi":15,"rar":2,"caps":false,"zbg":"xxviii"},{"item":"Pickaxe","cook":"","amt":"","lo":16,"hi":16,"rar":2,"caps":false,"zbg":"xxviii"},{"item":"Bowie Knife","cook":"","amt":"","lo":17,"hi":17,"rar":1,"caps":false,"zbg":"xxviii"},{"item":"Chinese Officer's Sword","cook":"","amt":"","lo":18,"hi":18,"rar":1,"caps":false,"zbg":"xxviii"},{"item":"Cleaver","cook":"","amt":"","lo":19,"hi":19,"rar":1,"caps":false,"zbg":"xxviii"},{"item":"Working Blade","cook":"","amt":"","lo":20,"hi":20,"rar":1,"caps":false,"zbg":"xxviii"},{"item":"Fixed Knife","cook":"","amt":"","lo":21,"hi":21,"rar":1,"caps":false,"zbg":"xxviii"},{"item":"Gaff Hook","cook":"","amt":"","lo":22,"hi":22,"rar":1,"caps":false,"zbg":"xxviii"},{"item":"Hunting Knife","cook":"","amt":"","lo":23,"hi":23,"rar":1,"caps":false,"zbg":"xxviii"},{"item":"Knife","cook":"","amt":"","lo":24,"hi":24,"rar":1,"caps":false,"zbg":"xxviii"},{"item":"Sabre","cook":"","amt":"","lo":25,"hi":25,"rar":1,"caps":false,"zbg":"xxix"},{"item":"Broken Bottle","cook":"","amt":"","lo":26,"hi":26,"rar":0,"caps":false,"zbg":"xxviii"},{"item":"Folder Knife","cook":"","amt":"","lo":27,"hi":27,"rar":0,"caps":false,"zbg":"xxviii"},{"item":"Hatchet","cook":"","amt":"","lo":28,"hi":28,"rar":0,"caps":false,"zbg":"xxviii"},{"item":"Straight Razor","cook":"","amt":"","lo":29,"hi":29,"rar":0,"caps":false,"zbg":"xxix"},{"item":"Shiv","cook":"","amt":"","lo":30,"hi":30,"rar":0,"caps":false,"zbg":"xxix"},{"item":"Switchblade","cook":"","amt":"","lo":31,"hi":31,"rar":0,"caps":false,"zbg":"xxix"},{"item":"Baton","cook":"","amt":"","lo":32,"hi":32,"rar":0,"caps":false,"zbg":"xxix"},{"item":"Shovel","cook":"","amt":"","lo":33,"hi":33,"rar":0,"caps":false,"zbg":"xxix"},{"item":"Staff","cook":"","amt":"","lo":34,"hi":34,"rar":0,"caps":false,"zbg":"xxx"},{"item":"Junk Shield","cook":"","amt":"","lo":35,"hi":35,"rar":0,"caps":false,"zbg":"xxx"},{"item":"Improvised Club","cook":"","amt":"","lo":36,"hi":36,"rar":0,"caps":false,"zbg":"xxix"},{"item":"Commie Whacker","cook":"","amt":"","lo":37,"hi":37,"rar":0,"caps":false,"zbg":"xxix"},{"item":"Club","cook":"","amt":"","lo":38,"hi":38,"rar":0,"caps":false,"zbg":"xxix"},{"item":"Chain","cook":"","amt":"","lo":39,"hi":39,"rar":0,"caps":false,"zbg":"xxix"},{"item":"Length of Iron","cook":"","amt":"","lo":40,"hi":40,"rar":0,"caps":false,"zbg":"xxix"},{"item":"Pitchfork","cook":"","amt":"","lo":41,"hi":41,"rar":1,"caps":false,"zbg":"xxx"},{"item":"Golf Club","cook":"","amt":"","lo":42,"hi":42,"rar":1,"caps":false,"zbg":"xxix"},{"item":"Crowbar","cook":"","amt":"","lo":43,"hi":43,"rar":1,"caps":false,"zbg":"xxix"},{"item":"Ball-Peen Hammer","cook":"","amt":"","lo":44,"hi":44,"rar":1,"caps":false,"zbg":"xxix"},{"item":"Tusk Knife","cook":"","amt":"","lo":45,"hi":45,"rar":1,"caps":false,"zbg":"xxix"},{"item":"Tomahawk","cook":"","amt":"","lo":46,"hi":46,"rar":1,"caps":false,"zbg":"xxix"},{"item":"Sword","cook":"","amt":"","lo":47,"hi":47,"rar":1,"caps":false,"zbg":"xxviii"},{"item":"Shears","cook":"","amt":"","lo":48,"hi":48,"rar":1,"caps":false,"zbg":"xxix"},{"item":"Screwdriver","cook":"","amt":"","lo":49,"hi":49,"rar":1,"caps":false,"zbg":"xxix"},{"item":"Car Door Shield","cook":"","amt":"","lo":50,"hi":50,"rar":2,"caps":false,"zbg":"xxx"},{"item":"Claw Hammer","cook":"","amt":"","lo":51,"hi":51,"rar":2,"caps":false,"zbg":"xxix"},{"item":"Baseball Bat","cook":"","amt":"","lo":52,"hi":52,"rar":2,"caps":false,"zbg":"xxix"},{"item":"Spear","cook":"","amt":"","lo":53,"hi":53,"rar":3,"caps":false,"zbg":"xxx"},{"item":"Riot Shield","cook":"","amt":"","lo":54,"hi":54,"rar":3,"caps":false,"zbg":"xxx"},{"item":"Piston Spear (FC)","cook":"","amt":"","lo":55,"hi":55,"rar":3,"caps":false,"zbg":"xxx"},{"item":"War Blade","cook":"","amt":"","lo":56,"hi":60,"rar":4,"caps":false,"zbg":"xxix"}]},"MELEE — FISTS & POWERED":{"name":"MELEE — FISTS & POWERED","sub":"gauntlets, gloves, and the revving kind","die":2,"family":"gear","rows":[{"item":"Ark Hammer","cook":"","amt":"","lo":2,"hi":2,"rar":6,"caps":false,"zbg":"xxxi"},{"item":"Proton Axe","cook":"","amt":"","lo":3,"hi":3,"rar":6,"caps":false,"zbg":"xxxi"},{"item":"Auto Axe (fuel)","cook":"","amt":"","lo":4,"hi":4,"rar":4,"caps":false,"zbg":"xxxi"},{"item":"Mining Drill","cook":"","amt":"","lo":5,"hi":5,"rar":4,"caps":false,"zbg":"xxxi"},{"item":"Deathclaw Gauntlet","cook":"","amt":"","lo":6,"hi":6,"rar":3,"caps":false,"zbg":"xxvii"},{"item":"Mega Power Fist (EC)","cook":"","amt":"","lo":7,"hi":7,"rar":3,"caps":false,"zbg":"xxvii"},{"item":"Power Fist (FC)","cook":"","amt":"","lo":8,"hi":8,"rar":3,"caps":false,"zbg":"xxvii"},{"item":"Ark Spear","cook":"","amt":"","lo":9,"hi":9,"rar":3,"caps":false,"zbg":"xxxi"},{"item":"Ballistic Fist","cook":"","amt":"","lo":10,"hi":11,"rar":2,"caps":false,"zbg":"xxvii"},{"item":"Razor Claws","cook":"","amt":"","lo":12,"hi":12,"rar":2,"caps":false,"zbg":"xxvii"},{"item":"Spiked Knuckles","cook":"","amt":"","lo":13,"hi":13,"rar":2,"caps":false,"zbg":"xxvii"},{"item":"Yao Guai Gauntlet","cook":"","amt":"","lo":14,"hi":14,"rar":2,"caps":false,"zbg":"xxviii"},{"item":"Blowtorch (fuel)","cook":"","amt":"","lo":15,"hi":15,"rar":2,"caps":false,"zbg":"xxxi"},{"item":"Boxing Gloves","cook":"","amt":"","lo":16,"hi":16,"rar":1,"caps":false,"zbg":"xxvii"},{"item":"Heavy Gloves","cook":"","amt":"","lo":17,"hi":18,"rar":1,"caps":false,"zbg":"xxvii"},{"item":"Knuckles","cook":"","amt":"","lo":19,"hi":19,"rar":1,"caps":false,"zbg":"xxvii"},{"item":"Tiger Claws","cook":"","amt":"","lo":20,"hi":20,"rar":1,"caps":false,"zbg":"xxviii"},{"item":"Syringe","cook":"","amt":"","lo":21,"hi":22,"rar":0,"caps":false,"zbg":"xxxi"},{"item":"Stun Baton (FC)","cook":"","amt":"","lo":23,"hi":23,"rar":1,"caps":false,"zbg":"xxxi"},{"item":"Injector","cook":"","amt":"","lo":24,"hi":25,"rar":1,"caps":false,"zbg":"xxxi"},{"item":"Cattle Prod (EC)","cook":"","amt":"","lo":26,"hi":26,"rar":1,"caps":false,"zbg":"xxxi"},{"item":"Weed Whacker (fuel)","cook":"","amt":"","lo":27,"hi":27,"rar":2,"caps":false,"zbg":"xxxi"},{"item":"Syringe Spear","cook":"","amt":"","lo":28,"hi":28,"rar":2,"caps":false,"zbg":"xxxi"},{"item":"Mr. Handy Buzz Blade (fuel)","cook":"","amt":"","lo":29,"hi":29,"rar":2,"caps":false,"zbg":"xxxi"},{"item":"Drill (FC)","cook":"","amt":"","lo":30,"hi":31,"rar":2,"caps":false,"zbg":"xxxi"},{"item":"Ripper (FC)","cook":"","amt":"","lo":32,"hi":32,"rar":3,"caps":false,"zbg":"xxxi"},{"item":"Kiss of Atom","cook":"","amt":"","lo":33,"hi":33,"rar":3,"caps":false,"zbg":"xxxi"},{"item":"Fury of Atom","cook":"","amt":"","lo":34,"hi":34,"rar":3,"caps":false,"zbg":"xxxi"},{"item":"Chainsaw (fuel)","cook":"","amt":"","lo":35,"hi":36,"rar":3,"caps":false,"zbg":"xxxi"},{"item":"Thermic Lance","cook":"","amt":"","lo":37,"hi":37,"rar":4,"caps":false,"zbg":"xxxi"},{"item":"Shishkebab (fuel)","cook":"","amt":"","lo":38,"hi":38,"rar":4,"caps":false,"zbg":"xxxi"},{"item":"Super Sledge (FC)","cook":"","amt":"","lo":39,"hi":40,"rar":6,"caps":false,"zbg":"xxxi"}]},"ARMOR":{"name":"ARMOR","sub":"body plate & power armor","die":3,"family":"armor","rows":[{"item":"Marine Recon","cook":"","amt":"","lo":3,"hi":5,"rar":6,"caps":false,"zbg":"xli"},{"item":"Heavy Synth","cook":"","amt":"","lo":6,"hi":7,"rar":5,"caps":false,"zbg":"xli"},{"item":"Marine","cook":"","amt":"","lo":8,"hi":8,"rar":5,"caps":false,"zbg":"xli"},{"item":"Heavy Legion","cook":"","amt":"","lo":9,"hi":10,"rar":4,"caps":false,"zbg":"xl"},{"item":"Heavy Combat","cook":"","amt":"","lo":11,"hi":11,"rar":4,"caps":false,"zbg":"xl"},{"item":"Advanced Recon","cook":"","amt":"","lo":12,"hi":13,"rar":4,"caps":false,"zbg":"xl"},{"item":"Elite Ranger","cook":"","amt":"","lo":14,"hi":14,"rar":4,"caps":false,"zbg":"xli"},{"item":"Heavy Leather","cook":"","amt":"","lo":15,"hi":15,"rar":3,"caps":false,"zbg":"xl"},{"item":"Heavy Metal","cook":"","amt":"","lo":16,"hi":16,"rar":3,"caps":false,"zbg":"xl"},{"item":"Sturdy Combat","cook":"","amt":"","lo":17,"hi":17,"rar":3,"caps":false,"zbg":"xl"},{"item":"Sturdy Scout","cook":"","amt":"","lo":18,"hi":18,"rar":3,"caps":false,"zbg":"xli"},{"item":"Sturdy Leather","cook":"","amt":"","lo":19,"hi":19,"rar":2,"caps":false,"zbg":"xl"},{"item":"Heavy Raider","cook":"","amt":"","lo":20,"hi":20,"rar":2,"caps":false,"zbg":"xl"},{"item":"Metal","cook":"","amt":"","lo":21,"hi":21,"rar":2,"caps":false,"zbg":"xl"},{"item":"Sturdy Metal","cook":"","amt":"","lo":22,"hi":22,"rar":2,"caps":false,"zbg":"xl"},{"item":"Caesar's Legion","cook":"","amt":"","lo":23,"hi":23,"rar":2,"caps":false,"zbg":"xl"},{"item":"Sturdy Legion","cook":"","amt":"","lo":24,"hi":24,"rar":2,"caps":false,"zbg":"xl"},{"item":"Vault-Tec Security","cook":"","amt":"","lo":25,"hi":25,"rar":2,"caps":false,"zbg":"xl"},{"item":"Leather","cook":"","amt":"","lo":26,"hi":26,"rar":1,"caps":false,"zbg":"xxxix"},{"item":"Sturdy Raider","cook":"","amt":"","lo":27,"hi":28,"rar":1,"caps":false,"zbg":"xl"},{"item":"Tire","cook":"","amt":"","lo":29,"hi":29,"rar":1,"caps":false,"zbg":"xl"},{"item":"Junk (breaks on a complication)","cook":"","amt":"","lo":30,"hi":31,"rar":0,"caps":false,"zbg":"xl"},{"item":"Raider","cook":"","amt":"","lo":32,"hi":33,"rar":0,"caps":false,"zbg":"xl"},{"item":"Dog Armor (for the dog)","cook":"","amt":"","lo":34,"hi":34,"rar":1,"caps":false,"zbg":"xli"},{"item":"DC Guard","cook":"","amt":"","lo":35,"hi":35,"rar":1,"caps":false,"zbg":"xl"},{"item":"NCR Law","cook":"","amt":"","lo":36,"hi":36,"rar":1,"caps":false,"zbg":"xl"},{"item":"Raider Junk","cook":"","amt":"","lo":37,"hi":37,"rar":2,"caps":false,"zbg":"xli"},{"item":"Sturdy Dog Armor (for the dog)","cook":"","amt":"","lo":38,"hi":38,"rar":2,"caps":false,"zbg":"xli"},{"item":"NCR Ranger","cook":"","amt":"","lo":39,"hi":39,"rar":2,"caps":false,"zbg":"xli"},{"item":"Scout","cook":"","amt":"","lo":40,"hi":40,"rar":2,"caps":false,"zbg":"xl"},{"item":"Recon","cook":"","amt":"","lo":41,"hi":41,"rar":2,"caps":false,"zbg":"xl"},{"item":"Combat","cook":"","amt":"","lo":42,"hi":43,"rar":2,"caps":false,"zbg":"xl"},{"item":"Elite NCR Law","cook":"","amt":"","lo":44,"hi":44,"rar":2,"caps":false,"zbg":"xl"},{"item":"T-45","cook":"","amt":"","lo":45,"hi":45,"rar":3,"caps":false,"zbg":"xlii"},{"item":"Power Armor Frame","cook":"","amt":"","lo":46,"hi":46,"rar":3,"caps":false,"zbg":"xli"},{"item":"Synth","cook":"","amt":"","lo":47,"hi":48,"rar":3,"caps":false,"zbg":"xxxviii"},{"item":"T-51","cook":"","amt":"","lo":49,"hi":49,"rar":4,"caps":false,"zbg":"xlii"},{"item":"Environmental","cook":"","amt":"","lo":50,"hi":50,"rar":4,"caps":false,"zbg":"xli"},{"item":"Sturdy Synth","cook":"","amt":"","lo":51,"hi":51,"rar":4,"caps":false,"zbg":"xli"},{"item":"Desert Ranger","cook":"","amt":"","lo":52,"hi":53,"rar":4,"caps":false,"zbg":"xli"},{"item":"T-60","cook":"","amt":"","lo":54,"hi":54,"rar":5,"caps":false,"zbg":"xlii"},{"item":"Stealth (stealth field)","cook":"","amt":"","lo":55,"hi":56,"rar":5,"caps":false,"zbg":"xli"},{"item":"X-01","cook":"","amt":"","lo":57,"hi":60,"rar":6,"caps":false,"zbg":"xli"}]},"CLOTHING & OUTFITS":{"name":"CLOTHING & OUTFITS","sub":"the whole skin, one bundle","die":2,"family":"clothing","rows":[{"item":"Space Suit (helmet included)","cook":"","amt":"","lo":2,"hi":2,"rar":6,"caps":false,"zbg":"xxxix"},{"item":"Mr. Fuzzy Costume (free Rally once per scene)","cook":"","amt":"","lo":3,"hi":3,"rar":5,"caps":false,"zbg":"xxxix"},{"item":"Night-Stalker Wraps (see in darkness)","cook":"","amt":"","lo":4,"hi":4,"rar":4,"caps":false,"zbg":"xxxix"},{"item":"Voodoo Garb (mask and wraps; when any d20 you roll lands a natural 1, one spent Luck point returns — once per scene)","cook":"","amt":"","lo":5,"hi":5,"rar":4,"caps":false,"zbg":"xxxix"},{"item":"Synth Uniform (+1 PER)","cook":"","amt":"","lo":6,"hi":6,"rar":3,"caps":false,"zbg":"xxxviii"},{"item":"Shaman's Regalia (mask and wraps; spirits keep the glow off)","cook":"","amt":"","lo":7,"hi":7,"rar":3,"caps":false,"zbg":"xxxix"},{"item":"BoS Field Fatigues","cook":"","amt":"","lo":8,"hi":8,"rar":3,"caps":false,"zbg":"xxxix"},{"item":"Vault Jumpsuit","cook":"","amt":"","lo":9,"hi":10,"rar":2,"caps":false,"zbg":"xxxviii"},{"item":"Tribal Outfit","cook":"","amt":"","lo":11,"hi":11,"rar":2,"caps":false,"zbg":"xxxix"},{"item":"Gas Mask &amp; Rags","cook":"","amt":"","lo":12,"hi":12,"rar":2,"caps":false,"zbg":"xxxviii"},{"item":"Drifter Outfit","cook":"","amt":"","lo":13,"hi":13,"rar":2,"caps":false,"zbg":"xxxix"},{"item":"Military Fatigues","cook":"","amt":"","lo":14,"hi":15,"rar":1,"caps":false,"zbg":"xxxviii"},{"item":"Tough Clothing","cook":"","amt":"","lo":16,"hi":16,"rar":1,"caps":false,"zbg":"xxxviii"},{"item":"BoS Uniform","cook":"","amt":"","lo":17,"hi":18,"rar":1,"caps":false,"zbg":"xxxviii"},{"item":"Hides","cook":"","amt":"","lo":19,"hi":19,"rar":1,"caps":false,"zbg":"xxxviii"},{"item":"Cultist Garb (robes and hood)","cook":"","amt":"","lo":20,"hi":20,"rar":1,"caps":false,"zbg":"xxxix"},{"item":"Plain Clothes (rags, robes, suits, hats)","cook":"","amt":"","lo":21,"hi":22,"rar":0,"caps":false,"zbg":"xxxviii"},{"item":"Heavy Coat","cook":"","amt":"","lo":23,"hi":23,"rar":1,"caps":false,"zbg":"xxxix"},{"item":"Engineer's Jumpsuit","cook":"","amt":"","lo":24,"hi":24,"rar":1,"caps":false,"zbg":"xxxix"},{"item":"Road Leathers","cook":"","amt":"","lo":25,"hi":26,"rar":1,"caps":false,"zbg":"xxxix"},{"item":"Utility Coveralls","cook":"","amt":"","lo":27,"hi":27,"rar":1,"caps":false,"zbg":"xxxix"},{"item":"Scholar's Spectacles &amp; Suit (re-roll 1d20 on INT, once per scene)","cook":"","amt":"","lo":28,"hi":29,"rar":1,"caps":false,"zbg":"xxxviii"},{"item":"BoS Scribe's Outfit","cook":"","amt":"","lo":30,"hi":30,"rar":2,"caps":false,"zbg":"xxxix"},{"item":"Cage Armor","cook":"","amt":"","lo":31,"hi":32,"rar":2,"caps":false,"zbg":"xxxix"},{"item":"Spike Armor","cook":"","amt":"","lo":33,"hi":34,"rar":2,"caps":false,"zbg":"xxxix"},{"item":"Hazmat Suit","cook":"","amt":"","lo":35,"hi":35,"rar":3,"caps":false,"zbg":"xxxix"},{"item":"Diving Suit (helmet included; breathe underwater)","cook":"","amt":"","lo":36,"hi":37,"rar":3,"caps":false,"zbg":"xxxix"},{"item":"Courser Uniform (+1 PER/END)","cook":"","amt":"","lo":38,"hi":40,"rar":4,"caps":false,"zbg":"xxxix"}]},"CHEMS & MEDS":{"name":"CHEMS & MEDS","sub":"the medic's kit and the devil's pharmacy","die":3,"family":"chem","rows":[{"item":"Panacea","cook":"","amt":"","lo":3,"hi":5,"rar":6,"caps":false,"zbg":"lv"},{"item":"Ultra Stimpak","cook":"","amt":"","lo":6,"hi":6,"rar":5,"caps":false,"zbg":"lv"},{"item":"X-111 Compound","cook":"","amt":"","lo":7,"hi":7,"rar":5,"caps":false,"zbg":"lv"},{"item":"Rad Shield","cook":"","amt":"","lo":8,"hi":8,"rar":5,"caps":false,"zbg":"lvi"},{"item":"Super Stimpak","cook":"","amt":"","lo":9,"hi":9,"rar":4,"caps":false,"zbg":"lv"},{"item":"Addictol","cook":"","amt":"","lo":10,"hi":10,"rar":4,"caps":false,"zbg":"lv"},{"item":"Jet Patch","cook":"","amt":"","lo":11,"hi":11,"rar":4,"caps":false,"zbg":"lvi"},{"item":"Auto-Inject Stimpak","cook":"","amt":"","lo":12,"hi":12,"rar":4,"caps":false,"zbg":"lvi"},{"item":"Ultra Jet","cook":"","amt":"","lo":13,"hi":13,"rar":4,"caps":false,"zbg":"lvi"},{"item":"Rebound","cook":"","amt":"","lo":14,"hi":14,"rar":4,"caps":false,"zbg":"lvii"},{"item":"Hydra","cook":"","amt":"","lo":15,"hi":15,"rar":3,"caps":false,"zbg":"lv"},{"item":"Antibiotics","cook":"","amt":"","lo":16,"hi":16,"rar":3,"caps":false,"zbg":"lvi"},{"item":"Fixer","cook":"","amt":"","lo":17,"hi":17,"rar":3,"caps":false,"zbg":"lv"},{"item":"Jet Fuel","cook":"","amt":"","lo":18,"hi":18,"rar":3,"caps":false,"zbg":"lvii"},{"item":"Berry Mentats","cook":"","amt":"","lo":19,"hi":19,"rar":3,"caps":false,"zbg":"lvii"},{"item":"Grape Mentats","cook":"","amt":"","lo":20,"hi":20,"rar":3,"caps":false,"zbg":"lvii"},{"item":"Stimpak","cook":"","amt":"","lo":21,"hi":21,"rar":2,"caps":false,"zbg":"lv"},{"item":"Glowing Blood Pack","cook":"","amt":"","lo":22,"hi":22,"rar":2,"caps":false,"zbg":"lv"},{"item":"Healing Salve","cook":"","amt":"","lo":23,"hi":23,"rar":2,"caps":false,"zbg":"lv"},{"item":"RadAway","cook":"","amt":"","lo":24,"hi":24,"rar":2,"caps":false,"zbg":"lv"},{"item":"Rad-X","cook":"","amt":"","lo":25,"hi":25,"rar":2,"caps":false,"zbg":"lv"},{"item":"Med-X","cook":"","amt":"","lo":26,"hi":26,"rar":2,"caps":false,"zbg":"lv"},{"item":"Antivenom","cook":"","amt":"","lo":27,"hi":27,"rar":2,"caps":false,"zbg":"lvi"},{"item":"Skeeto Spit","cook":"","amt":"","lo":28,"hi":28,"rar":2,"caps":false,"zbg":"lvi"},{"item":"Blood Shield","cook":"","amt":"","lo":29,"hi":29,"rar":2,"caps":false,"zbg":"lvi"},{"item":"Jet","cook":"","amt":"","lo":30,"hi":30,"rar":2,"caps":false,"zbg":"lvi"},{"item":"Rocket","cook":"","amt":"","lo":31,"hi":31,"rar":2,"caps":false,"zbg":"lvii"},{"item":"Blood Pack","cook":"","amt":"","lo":32,"hi":32,"rar":1,"caps":false,"zbg":"lv"},{"item":"Antidote","cook":"","amt":"","lo":33,"hi":33,"rar":1,"caps":false,"zbg":"lvi"},{"item":"Coyote Tobacco Chew","cook":"","amt":"","lo":34,"hi":34,"rar":1,"caps":false,"zbg":"lvii"},{"item":"Ant Nectar","cook":"","amt":"","lo":35,"hi":35,"rar":1,"caps":false,"zbg":"lvii"},{"item":"Party Time","cook":"","amt":"","lo":36,"hi":36,"rar":2,"caps":false,"zbg":"lvii"},{"item":"Steady Aim","cook":"","amt":"","lo":37,"hi":37,"rar":2,"caps":false,"zbg":"lvii"},{"item":"Smooch","cook":"","amt":"","lo":38,"hi":38,"rar":2,"caps":false,"zbg":"lvii"},{"item":"Day Tripper","cook":"","amt":"","lo":39,"hi":39,"rar":2,"caps":false,"zbg":"lvii"},{"item":"Daddy-O","cook":"","amt":"","lo":40,"hi":40,"rar":2,"caps":false,"zbg":"lvii"},{"item":"After-Burner Gum","cook":"","amt":"","lo":41,"hi":41,"rar":2,"caps":false,"zbg":"lvii"},{"item":"Fire Ant Nectar","cook":"","amt":"","lo":42,"hi":42,"rar":2,"caps":false,"zbg":"lvii"},{"item":"Cateye","cook":"","amt":"","lo":43,"hi":43,"rar":2,"caps":false,"zbg":"lvii"},{"item":"Buffout","cook":"","amt":"","lo":44,"hi":44,"rar":2,"caps":false,"zbg":"lvii"},{"item":"Mentats","cook":"","amt":"","lo":45,"hi":45,"rar":2,"caps":false,"zbg":"lvi"},{"item":"Verbaluce","cook":"","amt":"","lo":46,"hi":46,"rar":3,"caps":false,"zbg":"lvii"},{"item":"Datura Hide","cook":"","amt":"","lo":47,"hi":47,"rar":3,"caps":false,"zbg":"lvii"},{"item":"Voodoo","cook":"","amt":"","lo":48,"hi":48,"rar":3,"caps":false,"zbg":"lvii"},{"item":"Joy","cook":"","amt":"","lo":49,"hi":49,"rar":3,"caps":false,"zbg":"lvii"},{"item":"Overdrive","cook":"","amt":"","lo":50,"hi":50,"rar":3,"caps":false,"zbg":"lvi"},{"item":"Orange Mentats","cook":"","amt":"","lo":51,"hi":51,"rar":3,"caps":false,"zbg":"lvii"},{"item":"Venom","cook":"","amt":"","lo":52,"hi":52,"rar":4,"caps":false,"zbg":"lvii"},{"item":"Calmex","cook":"","amt":"","lo":53,"hi":53,"rar":4,"caps":false,"zbg":"lvii"},{"item":"Fury","cook":"","amt":"","lo":54,"hi":54,"rar":4,"caps":false,"zbg":"lvi"},{"item":"Bufftats","cook":"","amt":"","lo":55,"hi":55,"rar":4,"caps":false,"zbg":"lvii"},{"item":"Buffjet","cook":"","amt":"","lo":56,"hi":56,"rar":4,"caps":false,"zbg":"lvii"},{"item":"Spice Melange","cook":"","amt":"","lo":57,"hi":57,"rar":5,"caps":false,"zbg":"lvii"},{"item":"Turbo","cook":"","amt":"","lo":58,"hi":58,"rar":5,"caps":false,"zbg":"lvii"},{"item":"Alien Biogel","cook":"","amt":"","lo":59,"hi":59,"rar":5,"caps":false,"zbg":"lvi"},{"item":"Adapted Biogel","cook":"","amt":"","lo":60,"hi":60,"rar":6,"caps":false,"zbg":"lvi"}]},"FOOD":{"name":"FOOD","sub":"the slow medicine — cook your meat","die":3,"family":"food","rows":[{"item":"Mirelurk Queen Steak","cook":"","amt":"","lo":3,"hi":6,"rar":5,"caps":false,"zbg":"lviii"},{"item":"Deathclaw Omelette","cook":"","amt":"","lo":7,"hi":7,"rar":5,"caps":false,"zbg":"lviii"},{"item":"Mutton Chops","cook":"","amt":"","lo":8,"hi":8,"rar":5,"caps":false,"zbg":"lix"},{"item":"Radhog Meat-Wrapped Nukalurk","cook":"","amt":"","lo":9,"hi":9,"rar":5,"caps":false,"zbg":"lix"},{"item":"Deathclaw Steak","cook":"","amt":"","lo":10,"hi":10,"rar":4,"caps":false,"zbg":"lviii"},{"item":"Cooked Softshell Meat","cook":"","amt":"","lo":11,"hi":11,"rar":4,"caps":false,"zbg":"lviii"},{"item":"Institute Food Packet","cook":"","amt":"","lo":12,"hi":12,"rar":4,"caps":false,"zbg":"lix"},{"item":"Gulper Slurry","cook":"","amt":"","lo":13,"hi":13,"rar":4,"caps":false,"zbg":"lix"},{"item":"Mirelurk Cake","cook":"","amt":"","lo":14,"hi":14,"rar":3,"caps":false,"zbg":"lviii"},{"item":"Radscorpion Egg Omelette","cook":"","amt":"","lo":15,"hi":15,"rar":3,"caps":false,"zbg":"lviii"},{"item":"Mutfruit Crumble","cook":"","amt":"","lo":16,"hi":16,"rar":3,"caps":false,"zbg":"lix"},{"item":"Yao Guai Roast","cook":"","amt":"","lo":17,"hi":17,"rar":2,"caps":false,"zbg":"lviii"},{"item":"Yao Guai Ribs","cook":"","amt":"","lo":18,"hi":18,"rar":2,"caps":false,"zbg":"lviii"},{"item":"Radscorpion Steak","cook":"","amt":"","lo":19,"hi":19,"rar":2,"caps":false,"zbg":"lviii"},{"item":"Radstag Stew","cook":"","amt":"","lo":20,"hi":20,"rar":2,"caps":false,"zbg":"lviii"},{"item":"Raw produce — fruit, root & fungus","cook":"","amt":"","lo":21,"hi":21,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Cave Fungus","cook":"","amt":"","lo":22,"hi":22,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Xander Root","cook":"","amt":"","lo":23,"hi":23,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Ginseng Root","cook":"","amt":"","lo":24,"hi":24,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Daturana","cook":"","amt":"","lo":25,"hi":25,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Cooked meat & meals — no special effect","cook":"","amt":"","lo":26,"hi":26,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Stingwing Filet","cook":"","amt":"","lo":27,"hi":27,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Grilled Radstag","cook":"","amt":"","lo":28,"hi":28,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Mutant Hound Chops","cook":"","amt":"","lo":29,"hi":29,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Gecko Steak","cook":"","amt":"","lo":30,"hi":30,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Mirelurk Egg Omelette","cook":"","amt":"","lo":31,"hi":31,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Mole Rat Chunks","cook":"","amt":"","lo":32,"hi":32,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Radrat Steak","cook":"","amt":"","lo":33,"hi":33,"rar":1,"caps":false,"zbg":"lix"},{"item":"Corn Pone","cook":"","amt":"","lo":34,"hi":34,"rar":1,"caps":false,"zbg":"lix"},{"item":"Sugar Bombs","cook":"","amt":"","lo":35,"hi":35,"rar":1,"caps":false,"zbg":"lix"},{"item":"Snacks & sweets — gum, crisps, cakes","cook":"","amt":"","lo":36,"hi":36,"rar":1,"caps":false,"zbg":"lix"},{"item":"Tato Fries","cook":"","amt":"","lo":37,"hi":37,"rar":1,"caps":false,"zbg":"lix"},{"item":"Baked Bloatfly","cook":"","amt":"","lo":38,"hi":38,"rar":1,"caps":false,"zbg":"lix"},{"item":"Bighorner Steak","cook":"","amt":"","lo":39,"hi":39,"rar":1,"caps":false,"zbg":"lix"},{"item":"Bloodbug Steak","cook":"","amt":"","lo":40,"hi":40,"rar":1,"caps":false,"zbg":"lix"},{"item":"Viper on a Stick","cook":"","amt":"","lo":41,"hi":41,"rar":1,"caps":false,"zbg":"lix"},{"item":"Vegetable Soup","cook":"","amt":"","lo":42,"hi":42,"rar":1,"caps":false,"zbg":"lix"},{"item":"Radstork Omelette","cook":"","amt":"","lo":43,"hi":43,"rar":1,"caps":false,"zbg":"lix"},{"item":"Food Paste","cook":"","amt":"","lo":44,"hi":44,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Mole Rat Manicotti","cook":"","amt":"","lo":45,"hi":45,"rar":2,"caps":false,"zbg":"lix"},{"item":"Mantis Egg Omelette","cook":"","amt":"","lo":46,"hi":46,"rar":2,"caps":false,"zbg":"lix"},{"item":"MRE","cook":"","amt":"","lo":47,"hi":47,"rar":2,"caps":false,"zbg":"lviii"},{"item":"Fortune Cookie","cook":"","amt":"","lo":48,"hi":48,"rar":3,"caps":false,"zbg":"lix"},{"item":"Roasted Mantis Leg","cook":"","amt":"","lo":49,"hi":49,"rar":3,"caps":false,"zbg":"lix"},{"item":"Mulled Gourd","cook":"","amt":"","lo":50,"hi":50,"rar":4,"caps":false,"zbg":"lix"},{"item":"Glowing Cheese","cook":"","amt":"","lo":51,"hi":51,"rar":4,"caps":false,"zbg":"lix"},{"item":"Predator & Prey Pie","cook":"","amt":"","lo":52,"hi":52,"rar":4,"caps":false,"zbg":"lix"},{"item":"Rolled Deathclaw Egg Omelette","cook":"","amt":"","lo":53,"hi":53,"rar":4,"caps":false,"zbg":"lix"},{"item":"Piper’s Special Soda Bread","cook":"","amt":"","lo":54,"hi":54,"rar":5,"caps":false,"zbg":"lix"},{"item":"Scrambled Egg Surprise","cook":"","amt":"","lo":55,"hi":55,"rar":5,"caps":false,"zbg":"lix"},{"item":"Spiced Mirelurk Meat","cook":"","amt":"","lo":56,"hi":60,"rar":5,"caps":false,"zbg":"lix"}]},"HUNTING":{"name":"HUNTING","sub":"one clean shot, then the knife","die":2,"family":"wild","rows":[{"item":"Scorchbeast Meat","cook":"","amt":"1+1CD","lo":2,"hi":2,"rar":4,"caps":false,"zbg":""},{"item":"Queen Mirelurk Meat","cook":"Mirelurk Queen Steak","amt":"1+1CD","lo":3,"hi":3,"rar":4,"caps":false,"zbg":"lviii"},{"item":"Mega Sloth Meat","cook":"","amt":"1+1CD","lo":4,"hi":5,"rar":3,"caps":false,"zbg":""},{"item":"Snallygaster Innards","cook":"","amt":"1+1CD","lo":6,"hi":6,"rar":3,"caps":false,"zbg":""},{"item":"Deathclaw Egg","cook":"Deathclaw Omelette","amt":"1+1CD","lo":7,"hi":7,"rar":3,"caps":false,"zbg":"lviii"},{"item":"Deathclaw Meat","cook":"Deathclaw Steak","amt":"1+1CD","lo":8,"hi":8,"rar":3,"caps":false,"zbg":"lviii"},{"item":"Hermit Crab Meat","cook":"","amt":"1+1CD","lo":9,"hi":9,"rar":3,"caps":false,"zbg":""},{"item":"Radscorpion Meat","cook":"Radscorpion Steak","amt":"1+2CD","lo":10,"hi":10,"rar":2,"caps":false,"zbg":"lviii"},{"item":"Giant Mantis Foreleg","cook":"Roasted Mantis Leg","amt":"1+2CD","lo":11,"hi":11,"rar":2,"caps":false,"zbg":"lix"},{"item":"Mirelurk Egg","cook":"Mirelurk Egg Omelette","amt":"1+2CD","lo":12,"hi":12,"rar":2,"caps":false,"zbg":"lviii"},{"item":"Stingwing Meat","cook":"Stingwing Filet","amt":"1+2CD","lo":13,"hi":13,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Mirelurk Meat","cook":"Mirelurk Cake","amt":"1+2CD","lo":14,"hi":14,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Bloodbug Meat","cook":"Bloodbug Steak","amt":"1+2CD","lo":15,"hi":15,"rar":1,"caps":false,"zbg":"lix"},{"item":"Iguana Bits","cook":"","amt":"1+2CD","lo":16,"hi":16,"rar":1,"caps":false,"zbg":""},{"item":"Gecko Meat","cook":"Gecko Steak","amt":"1+2CD","lo":17,"hi":17,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Bloatfly Meat","cook":"Baked Bloatfly","amt":"1+3CD","lo":18,"hi":18,"rar":0,"caps":false,"zbg":"lix"},{"item":"Radroach Meat","cook":"","amt":"1+3CD","lo":19,"hi":19,"rar":0,"caps":false,"zbg":""},{"item":"Giant Ant Meat","cook":"","amt":"1+3CD","lo":20,"hi":21,"rar":0,"caps":false,"zbg":""},{"item":"Radrat Meat","cook":"Radrat Steak","amt":"1+3CD","lo":22,"hi":22,"rar":0,"caps":false,"zbg":"lix"},{"item":"Mongrel Dog Meat Mutant Hound Chops (near","cook":"enough)","amt":"1+3CD","lo":23,"hi":23,"rar":0,"caps":false,"zbg":"lviii"},{"item":"Mole Rat Meat","cook":"Mole Rat Chunks","amt":"1+3CD","lo":24,"hi":25,"rar":0,"caps":false,"zbg":"lviii"},{"item":"Brahmin Meat","cook":"","amt":"1+2CD","lo":26,"hi":26,"rar":1,"caps":false,"zbg":""},{"item":"Squirrel Bits","cook":"","amt":"1+2CD","lo":27,"hi":27,"rar":1,"caps":false,"zbg":""},{"item":"Radstag Meat","cook":"Radstag Stew or Grilled","amt":"1+2CD","lo":28,"hi":28,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Cave Cricket Meat","cook":"","amt":"1+2CD","lo":29,"hi":29,"rar":1,"caps":false,"zbg":""},{"item":"Gulper Innards","cook":"Gulper Slurry","amt":"1+2CD","lo":30,"hi":30,"rar":2,"caps":false,"zbg":"lix"},{"item":"Angler Meat","cook":"","amt":"1+2CD","lo":31,"hi":31,"rar":2,"caps":false,"zbg":""},{"item":"Softshell Mirelurk","cook":"Cooked Softshell Meat","amt":"1+2CD","lo":32,"hi":33,"rar":2,"caps":false,"zbg":"lviii"},{"item":"Yao Guai Meat","cook":"Yao Guai Roast or Ribs","amt":"1+1CD","lo":34,"hi":34,"rar":3,"caps":false,"zbg":"lviii"},{"item":"Radscorpion Egg","cook":"Radscorpion Egg Omelette","amt":"1+1CD","lo":35,"hi":35,"rar":3,"caps":false,"zbg":"lviii"},{"item":"Honey","cook":"","amt":"1+1CD","lo":36,"hi":36,"rar":3,"caps":false,"zbg":""},{"item":"Cazador Egg","cook":"Scrambled Egg Surprise","amt":"1+1CD","lo":37,"hi":37,"rar":3,"caps":false,"zbg":"lix"},{"item":"Mega Sloth Mushroom","cook":"","amt":"1+1CD","lo":38,"hi":38,"rar":4,"caps":false,"zbg":""},{"item":"Sheepsquatch Meat","cook":"Mutton Chops","amt":"1+1CD","lo":39,"hi":40,"rar":4,"caps":false,"zbg":"lix"}]},"FISHING":{"name":"FISHING","sub":"patience with a hook in it","die":3,"family":"wild","rows":[{"item":"Budding Mirelurk Hatchling","cook":"Queen Mirelurk Meat","amt":"1","lo":3,"hi":6,"rar":4,"caps":false,"zbg":"lviii"},{"item":"Fat Hermit Crab Hatchling","cook":"Hermit Crab Meat","amt":"2+1CD","lo":7,"hi":8,"rar":3,"caps":false,"zbg":""},{"item":"Hermit Crab Hatchling","cook":"Hermit Crab Meat","amt":"1+1CD","lo":9,"hi":10,"rar":3,"caps":false,"zbg":""},{"item":"Fat Mirelurk Hatchling","cook":"Softshell Mirelurk Meat","amt":"1","lo":11,"hi":12,"rar":2,"caps":false,"zbg":"lviii"},{"item":"Fat Angler Tadpole","cook":"Angler Meat","amt":"2+1CD","lo":13,"hi":13,"rar":2,"caps":false,"zbg":""},{"item":"Angler Tadpole","cook":"Angler Meat","amt":"1+1CD","lo":14,"hi":14,"rar":2,"caps":false,"zbg":""},{"item":"Skinny Angler Tadpole","cook":"Angler Meat","amt":"1","lo":15,"hi":15,"rar":2,"caps":false,"zbg":""},{"item":"Caps Stash","cook":"5+1d20 caps","amt":"1","lo":16,"hi":16,"rar":null,"caps":true,"zbg":""},{"item":"Skinny Mirelurk Hatchling","cook":"Mirelurk Meat","amt":"1","lo":17,"hi":17,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Large Drown Rat","cook":"Radrat Meat","amt":"2+1CD","lo":18,"hi":19,"rar":0,"caps":false,"zbg":"lix"},{"item":"Drown Rat","cook":"Radrat Meat","amt":"1+1CD","lo":20,"hi":20,"rar":0,"caps":false,"zbg":"lix"},{"item":"Small Drown Rat","cook":"Radrat Meat","amt":"1","lo":21,"hi":21,"rar":0,"caps":false,"zbg":"lix"},{"item":"Random melee weapon","cook":"roll the MELEE tables","amt":"1","lo":22,"hi":22,"rar":0,"caps":false,"zbg":""},{"item":"Random small gun","cook":"roll SMALL GUNS","amt":"1","lo":23,"hi":23,"rar":0,"caps":false,"zbg":""},{"item":"Circuit Board","cook":"rare junk","amt":"1","lo":24,"hi":24,"rar":0,"caps":false,"zbg":""},{"item":"Gold Watch","cook":"rare junk","amt":"1","lo":25,"hi":25,"rar":0,"caps":false,"zbg":""},{"item":"Giddyup Buttercup","cook":"uncommon junk","amt":"2","lo":26,"hi":26,"rar":0,"caps":false,"zbg":""},{"item":"Pocket Watch","cook":"uncommon junk","amt":"2","lo":27,"hi":27,"rar":0,"caps":false,"zbg":""},{"item":"Desk Fan","cook":"uncommon junk","amt":"2","lo":28,"hi":28,"rar":0,"caps":false,"zbg":""},{"item":"Tire","cook":"uncommon junk","amt":"2","lo":29,"hi":29,"rar":0,"caps":false,"zbg":""},{"item":"Engine","cook":"uncommon junk","amt":"3","lo":30,"hi":30,"rar":0,"caps":false,"zbg":""},{"item":"Bottle of Glue","cook":"uncommon junk","amt":"3","lo":31,"hi":31,"rar":0,"caps":false,"zbg":""},{"item":"Hubcap","cook":"common junk","amt":"3","lo":32,"hi":32,"rar":0,"caps":false,"zbg":""},{"item":"Old Toy","cook":"common junk","amt":"2","lo":33,"hi":33,"rar":0,"caps":false,"zbg":""},{"item":"Nothing bites","cook":"the water keeps it","amt":"","lo":34,"hi":34,"rar":0,"caps":false,"zbg":""},{"item":"Chain","cook":"common junk","amt":"3","lo":35,"hi":35,"rar":0,"caps":false,"zbg":""},{"item":"Log","cook":"common junk","amt":"3","lo":36,"hi":36,"rar":0,"caps":false,"zbg":""},{"item":"Ruined Hat","cook":"common junk","amt":"3","lo":37,"hi":37,"rar":0,"caps":false,"zbg":""},{"item":"Stick","cook":"common junk","amt":"3","lo":38,"hi":38,"rar":0,"caps":false,"zbg":""},{"item":"Bottle","cook":"common junk","amt":"3","lo":39,"hi":39,"rar":0,"caps":false,"zbg":""},{"item":"Bumper","cook":"common junk","amt":"3","lo":40,"hi":40,"rar":0,"caps":false,"zbg":""},{"item":"License Plate","cook":"common junk","amt":"3","lo":41,"hi":41,"rar":0,"caps":false,"zbg":""},{"item":"Shopping Basket","cook":"common junk","amt":"3","lo":42,"hi":42,"rar":0,"caps":false,"zbg":""},{"item":"Skull","cook":"common junk","amt":"2","lo":43,"hi":43,"rar":0,"caps":false,"zbg":""},{"item":"Coffee Pot","cook":"common junk","amt":"2","lo":44,"hi":44,"rar":0,"caps":false,"zbg":""},{"item":"Tin Can","cook":"common junk","amt":"1","lo":45,"hi":45,"rar":0,"caps":false,"zbg":""},{"item":"Old Boot","cook":"common junk","amt":"1","lo":46,"hi":46,"rar":0,"caps":false,"zbg":""},{"item":"Bone","cook":"common junk","amt":"2","lo":47,"hi":47,"rar":0,"caps":false,"zbg":""},{"item":"Fishing Rod a keeper — the guide sells","cook":"them","amt":"1","lo":48,"hi":48,"rar":1,"caps":false,"zbg":"lxiv"},{"item":"Skinny Gulper Tadpole","cook":"Gulper Innards","amt":"1","lo":49,"hi":49,"rar":2,"caps":false,"zbg":"lix"},{"item":"Gulper Tadpole","cook":"Gulper Innards","amt":"1+1CD","lo":50,"hi":51,"rar":2,"caps":false,"zbg":"lix"},{"item":"Fat Gulper Tadpole","cook":"Gulper Innards","amt":"2+1CD","lo":52,"hi":54,"rar":2,"caps":false,"zbg":"lix"},{"item":"Small Hermit Crab Hatchling","cook":"Hermit Crab Meat","amt":"1","lo":55,"hi":60,"rar":3,"caps":false,"zbg":""}]},"FORAGING":{"name":"FORAGING","sub":"what the ground gives up","die":2,"family":"wild","rows":[{"item":"Fire Ant Nectar","cook":"","amt":"1+1CD","lo":2,"hi":7,"rar":2,"caps":false,"zbg":"lvii"},{"item":"Skeeto Spit","cook":"","amt":"1+1CD","lo":8,"hi":9,"rar":2,"caps":false,"zbg":"lvi"},{"item":"Raw produce — fruit, root & fungus","cook":"","amt":"1+2CD","lo":10,"hi":12,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Cave Fungus","cook":"","amt":"1+2CD","lo":13,"hi":15,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Xander Root","cook":"","amt":"1+2CD","lo":16,"hi":17,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Ginseng Root","cook":"","amt":"1+2CD","lo":18,"hi":19,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Daturana","cook":"","amt":"1+2CD","lo":20,"hi":21,"rar":1,"caps":false,"zbg":"lviii"},{"item":"Tea — leaves worth a pot","cook":"","amt":"1+1CD","lo":22,"hi":23,"rar":1,"caps":false,"zbg":"lxi"},{"item":"Coyote Tobacco Chew","cook":"","amt":"1+2CD","lo":24,"hi":25,"rar":1,"caps":false,"zbg":"lvii"},{"item":"Ant Nectar","cook":"","amt":"1+2CD","lo":26,"hi":28,"rar":1,"caps":false,"zbg":"lvii"},{"item":"Snacks & sweets — gum, crisps, cakes","cook":"","amt":"1+2CD","lo":29,"hi":31,"rar":1,"caps":false,"zbg":"lix"},{"item":"Abraxolurk Egg","cook":"","amt":"1+1CD","lo":32,"hi":33,"rar":2,"caps":false,"zbg":"xxxv"},{"item":"Boom Bug — live, irritable","cook":"","amt":"1+1CD","lo":34,"hi":40,"rar":2,"caps":false,"zbg":"xxxv"}]},"DRINK":{"name":"DRINK","sub":"initiative in a bottle","die":3,"family":"food","rows":[{"item":"Der Wunderfizz","cook":"","amt":"","lo":3,"hi":6,"rar":6,"caps":false,"zbg":"lxi"},{"item":"Nuka-Cola Quantum","cook":"","amt":"","lo":7,"hi":8,"rar":5,"caps":false,"zbg":"lx"},{"item":"Nuka-Cola Quartz","cook":"","amt":"","lo":9,"hi":9,"rar":5,"caps":false,"zbg":"lx"},{"item":"Refreshing Beverage","cook":"","amt":"","lo":10,"hi":10,"rar":5,"caps":false,"zbg":"lx"},{"item":"Nuka-Cide","cook":"","amt":"","lo":11,"hi":11,"rar":5,"caps":false,"zbg":"lx"},{"item":"Nuka-Cooler","cook":"","amt":"","lo":12,"hi":12,"rar":5,"caps":false,"zbg":"lx"},{"item":"Atomic Cocktail","cook":"","amt":"","lo":13,"hi":13,"rar":4,"caps":false,"zbg":"lx"},{"item":"Nuka-Xtreme","cook":"","amt":"","lo":14,"hi":14,"rar":4,"caps":false,"zbg":"lx"},{"item":"Nuka-Ray","cook":"","amt":"","lo":15,"hi":15,"rar":4,"caps":false,"zbg":"lx"},{"item":"Nuka-Rush","cook":"","amt":"","lo":16,"hi":16,"rar":4,"caps":false,"zbg":"lxi"},{"item":"Nuka-Fancy","cook":"","amt":"","lo":17,"hi":17,"rar":4,"caps":false,"zbg":"lxi"},{"item":"Nuka-Hearty","cook":"","amt":"","lo":18,"hi":18,"rar":4,"caps":false,"zbg":"lxi"},{"item":"Nuka-Cola Victory","cook":"","amt":"","lo":19,"hi":19,"rar":3,"caps":false,"zbg":"lx"},{"item":"Nuka-Grape","cook":"","amt":"","lo":20,"hi":20,"rar":3,"caps":false,"zbg":"lx"},{"item":"Nuka-Cola Cranberry","cook":"","amt":"","lo":21,"hi":21,"rar":3,"caps":false,"zbg":"lx"},{"item":"Nuka-Cherry","cook":"","amt":"","lo":22,"hi":22,"rar":2,"caps":false,"zbg":"lx"},{"item":"Nuka-Cola Wild","cook":"","amt":"","lo":23,"hi":24,"rar":2,"caps":false,"zbg":"lx"},{"item":"Roentgen Rum","cook":"","amt":"","lo":25,"hi":25,"rar":2,"caps":false,"zbg":"lx"},{"item":"Nuka-Cola","cook":"","amt":"","lo":26,"hi":27,"rar":1,"caps":false,"zbg":"lx"},{"item":"Liquor — beer, bourbon, rum, gin, etc.","cook":"","amt":"","lo":28,"hi":28,"rar":1,"caps":false,"zbg":"lx"},{"item":"Moonshine","cook":"","amt":"","lo":29,"hi":30,"rar":1,"caps":false,"zbg":"lx"},{"item":"Sunset Sarsaparilla","cook":"","amt":"","lo":31,"hi":32,"rar":1,"caps":false,"zbg":"lxi"},{"item":"Tea","cook":"","amt":"","lo":33,"hi":34,"rar":1,"caps":false,"zbg":"lxi"},{"item":"Vim","cook":"","amt":"","lo":35,"hi":35,"rar":1,"caps":false,"zbg":"lxi"},{"item":"Sierra Madre Martini","cook":"","amt":"","lo":36,"hi":37,"rar":1,"caps":false,"zbg":"lxi"},{"item":"Tombstone","cook":"","amt":"","lo":38,"hi":39,"rar":2,"caps":false,"zbg":"lxi"},{"item":"Speed Cola","cook":"","amt":"","lo":40,"hi":40,"rar":2,"caps":false,"zbg":"lxi"},{"item":"Ph.D. Flopper","cook":"","amt":"","lo":41,"hi":41,"rar":3,"caps":false,"zbg":"lxi"},{"item":"Nuka-Cola Dark","cook":"","amt":"","lo":42,"hi":42,"rar":3,"caps":false,"zbg":"lx"},{"item":"Nuka-Cola Orange","cook":"","amt":"","lo":43,"hi":43,"rar":3,"caps":false,"zbg":"lx"},{"item":"Who’s Who","cook":"","amt":"","lo":44,"hi":44,"rar":4,"caps":false,"zbg":"lxi"},{"item":"Stamin-Up","cook":"","amt":"","lo":45,"hi":45,"rar":4,"caps":false,"zbg":"lxi"},{"item":"Nuka Colada","cook":"","amt":"","lo":46,"hi":46,"rar":4,"caps":false,"zbg":"lxi"},{"item":"Nuka-Power","cook":"","amt":"","lo":47,"hi":47,"rar":4,"caps":false,"zbg":"lxi"},{"item":"Nuka-Lixir","cook":"","amt":"","lo":48,"hi":48,"rar":4,"caps":false,"zbg":"lxi"},{"item":"Nuka-Love","cook":"","amt":"","lo":49,"hi":49,"rar":4,"caps":false,"zbg":"lxi"},{"item":"Widow Wine","cook":"","amt":"","lo":50,"hi":50,"rar":5,"caps":false,"zbg":"lxi"},{"item":"Nukashine","cook":"","amt":"","lo":51,"hi":51,"rar":5,"caps":false,"zbg":"lxi"},{"item":"Nuka-Void","cook":"","amt":"","lo":52,"hi":52,"rar":5,"caps":false,"zbg":"lx"},{"item":"Nuka-Punch","cook":"","amt":"","lo":53,"hi":53,"rar":5,"caps":false,"zbg":"lx"},{"item":"Nuka-Frutti","cook":"","amt":"","lo":54,"hi":55,"rar":5,"caps":false,"zbg":"lx"},{"item":"Pick’r-up’r","cook":"","amt":"","lo":56,"hi":60,"rar":6,"caps":false,"zbg":"lxi"}]},"ODDITIES — GEAR & TOOLS":{"name":"ODDITIES — GEAR & TOOLS","sub":"benches, tools, and the boring kit that gets you home","die":3,"family":"gear","rows":[{"item":"Scuba Gear","cook":"","amt":"","lo":3,"hi":5,"rar":6,"caps":false,"zbg":"lxv"},{"item":"C.A.M.P.","cook":"","amt":"","lo":6,"hi":7,"rar":5,"caps":false,"zbg":"lxv"},{"item":"Chemistry Station","cook":"","amt":"","lo":8,"hi":9,"rar":4,"caps":false,"zbg":"lxiii"},{"item":"Power Armor &amp; Robot Station","cook":"","amt":"","lo":10,"hi":10,"rar":4,"caps":false,"zbg":"lxiii"},{"item":"Electronic Lockpicker","cook":"","amt":"","lo":11,"hi":11,"rar":4,"caps":false,"zbg":"lxiv"},{"item":"Armor Workbench","cook":"","amt":"","lo":12,"hi":13,"rar":3,"caps":false,"zbg":"lxiii"},{"item":"Gunsmith Workbench","cook":"","amt":"","lo":14,"hi":14,"rar":3,"caps":false,"zbg":"lxiii"},{"item":"Deluxe Toolkit","cook":"","amt":"","lo":15,"hi":15,"rar":3,"caps":false,"zbg":"lxiv"},{"item":"Lock Pick Set","cook":"","amt":"","lo":16,"hi":16,"rar":3,"caps":false,"zbg":"lxiv"},{"item":"Cooking Station","cook":"","amt":"","lo":17,"hi":17,"rar":2,"caps":false,"zbg":"lxiii"},{"item":"Alcohol Still (or a homemade rig)","cook":"","amt":"","lo":18,"hi":19,"rar":2,"caps":false,"zbg":"lxiii"},{"item":"Multi-Tool","cook":"","amt":"","lo":20,"hi":20,"rar":2,"caps":false,"zbg":"lxiv"},{"item":"Water Filter","cook":"","amt":"","lo":21,"hi":21,"rar":2,"caps":false,"zbg":"lxiv"},{"item":"Fuel","cook":"","amt":"","lo":22,"hi":22,"rar":2,"caps":false,"zbg":"lxiv"},{"item":"Car Jack","cook":"","amt":"","lo":23,"hi":23,"rar":2,"caps":false,"zbg":"lxiv"},{"item":"Caltrop","cook":"","amt":"","lo":24,"hi":24,"rar":2,"caps":false,"zbg":"lxiv"},{"item":"Duct Tape","cook":"","amt":"","lo":25,"hi":25,"rar":1,"caps":false,"zbg":"lxiv"},{"item":"Cigarettes","cook":"","amt":"","lo":26,"hi":26,"rar":1,"caps":false,"zbg":"lxiv"},{"item":"Beartrap","cook":"","amt":"","lo":27,"hi":27,"rar":1,"caps":false,"zbg":"lxiv"},{"item":"Fishing Net","cook":"","amt":"","lo":28,"hi":28,"rar":1,"caps":false,"zbg":"lxiv"},{"item":"Fishing Rod","cook":"","amt":"","lo":29,"hi":29,"rar":1,"caps":false,"zbg":"lxiv"},{"item":"Backpack (Small)","cook":"","amt":"","lo":30,"hi":30,"rar":1,"caps":false,"zbg":"lxv"},{"item":"Patrol Pack","cook":"","amt":"","lo":31,"hi":31,"rar":1,"caps":false,"zbg":"lxv"},{"item":"Bobby Pins","cook":"","amt":"","lo":32,"hi":32,"rar":0,"caps":false,"zbg":"lxiv"},{"item":"Tent (Small)","cook":"","amt":"","lo":33,"hi":33,"rar":1,"caps":false,"zbg":"lxv"},{"item":"Sleeping Bag","cook":"","amt":"","lo":34,"hi":34,"rar":1,"caps":false,"zbg":"lxv"},{"item":"Matches","cook":"","amt":"","lo":35,"hi":35,"rar":1,"caps":false,"zbg":"lxv"},{"item":"Lighter","cook":"","amt":"","lo":36,"hi":36,"rar":1,"caps":false,"zbg":"lxv"},{"item":"Signal Flare","cook":"","amt":"","lo":37,"hi":37,"rar":1,"caps":false,"zbg":"lxv"},{"item":"Lantern","cook":"","amt":"","lo":38,"hi":38,"rar":1,"caps":false,"zbg":"lxv"},{"item":"Torch","cook":"","amt":"","lo":39,"hi":40,"rar":1,"caps":false,"zbg":"lxv"},{"item":"Toilet Paper","cook":"","amt":"","lo":41,"hi":41,"rar":2,"caps":false,"zbg":"lxv"},{"item":"Tent (Large)","cook":"","amt":"","lo":42,"hi":42,"rar":2,"caps":false,"zbg":"lxv"},{"item":"Survival Tent","cook":"","amt":"","lo":43,"hi":43,"rar":2,"caps":false,"zbg":"lxv"},{"item":"Flashlight","cook":"","amt":"","lo":44,"hi":44,"rar":2,"caps":false,"zbg":"lxv"},{"item":"Backpack (Large)","cook":"","amt":"","lo":45,"hi":45,"rar":2,"caps":false,"zbg":"lxv"},{"item":"Tripod (deployable)","cook":"","amt":"","lo":46,"hi":47,"rar":2,"caps":false,"zbg":"lxiv"},{"item":"Binoculars","cook":"","amt":"","lo":48,"hi":48,"rar":3,"caps":false,"zbg":"lxv"},{"item":"Pack Brahmin","cook":"","amt":"","lo":49,"hi":50,"rar":3,"caps":false,"zbg":"lxv"},{"item":"Lobster Trap","cook":"","amt":"","lo":51,"hi":52,"rar":3,"caps":false,"zbg":"lxiv"},{"item":"Geiger Counter","cook":"","amt":"","lo":53,"hi":53,"rar":4,"caps":false,"zbg":"lxv"},{"item":"Mr. Handy Fuel","cook":"","amt":"","lo":54,"hi":60,"rar":4,"caps":false,"zbg":"lxiv"}]},"ODDITIES — TECH & TREASURES":{"name":"ODDITIES — TECH & TREASURES","sub":"pip-boys, pre-war junk, caps, and the shelf","die":3,"family":"gear","rows":[{"item":"Pip-Boy 3000","cook":"","amt":"","lo":3,"hi":5,"rar":6,"caps":false,"zbg":"lxv"},{"item":"Pip-Boy 2000","cook":"","amt":"","lo":6,"hi":8,"rar":5,"caps":false,"zbg":"lxvi"},{"item":"Radio Station","cook":"","amt":"","lo":9,"hi":9,"rar":5,"caps":false,"zbg":"lxvi"},{"item":"Jukebox","cook":"","amt":"","lo":10,"hi":10,"rar":5,"caps":false,"zbg":"lxvi"},{"item":"Rectifier","cook":"","amt":"","lo":11,"hi":12,"rar":4,"caps":false,"zbg":"lxvi"},{"item":"Gramophone","cook":"","amt":"","lo":13,"hi":13,"rar":4,"caps":false,"zbg":"lxvi"},{"item":"Film Projector","cook":"","amt":"","lo":14,"hi":14,"rar":4,"caps":false,"zbg":"lxvi"},{"item":"Doctor's Bag","cook":"","amt":"","lo":15,"hi":15,"rar":3,"caps":false,"zbg":"lxv"},{"item":"First Aid Kit","cook":"","amt":"","lo":16,"hi":17,"rar":3,"caps":false,"zbg":"lxv"},{"item":"Holotape Player","cook":"","amt":"","lo":18,"hi":18,"rar":3,"caps":false,"zbg":"lxvi"},{"item":"Car Li-Ion Battery","cook":"","amt":"","lo":19,"hi":19,"rar":3,"caps":false,"zbg":"lxvi"},{"item":"Camera","cook":"","amt":"","lo":20,"hi":20,"rar":3,"caps":false,"zbg":"lxvi"},{"item":"Radio","cook":"","amt":"","lo":21,"hi":21,"rar":2,"caps":false,"zbg":"lxvi"},{"item":"Detonator","cook":"","amt":"","lo":22,"hi":22,"rar":2,"caps":false,"zbg":"lxvi"},{"item":"Microphone","cook":"","amt":"","lo":23,"hi":23,"rar":2,"caps":false,"zbg":"lxvi"},{"item":"Cooler","cook":"","amt":"","lo":24,"hi":24,"rar":2,"caps":false,"zbg":"lxvi"},{"item":"5d20 caps","cook":"","amt":"","lo":25,"hi":26,"rar":null,"caps":true,"zbg":""},{"item":"4d20 caps","cook":"","amt":"","lo":27,"hi":27,"rar":null,"caps":true,"zbg":""},{"item":"3d20 caps","cook":"","amt":"","lo":28,"hi":28,"rar":null,"caps":true,"zbg":""},{"item":"Holotape","cook":"","amt":"","lo":29,"hi":29,"rar":1,"caps":false,"zbg":"lxvi"},{"item":"Holotags","cook":"","amt":"","lo":30,"hi":31,"rar":1,"caps":false,"zbg":"lxvi"},{"item":"Coffee Grain Mill","cook":"","amt":"","lo":32,"hi":32,"rar":1,"caps":false,"zbg":"lxvi"},{"item":"Cigar","cook":"","amt":"","lo":33,"hi":34,"rar":1,"caps":false,"zbg":"lxiv"},{"item":"Clock","cook":"","amt":"","lo":35,"hi":35,"rar":1,"caps":false,"zbg":"lxvi"},{"item":"1d20 caps","cook":"","amt":"","lo":36,"hi":36,"rar":null,"caps":true,"zbg":""},{"item":"2d20 caps","cook":"","amt":"","lo":37,"hi":38,"rar":null,"caps":true,"zbg":""},{"item":"Vinyl Record","cook":"","amt":"","lo":39,"hi":39,"rar":2,"caps":false,"zbg":"lxvi"},{"item":"Thermometer","cook":"","amt":"","lo":40,"hi":40,"rar":2,"caps":false,"zbg":"lxvi"},{"item":"Watch","cook":"","amt":"","lo":41,"hi":41,"rar":2,"caps":false,"zbg":"lxvi"},{"item":"Toaster","cook":"","amt":"","lo":42,"hi":43,"rar":2,"caps":false,"zbg":"lxvi"},{"item":"Boardgame","cook":"","amt":"","lo":44,"hi":44,"rar":3,"caps":false,"zbg":"lxvii"},{"item":"Instruments (trumpet, ukulele, banjo, tuba, trombone, accordion, drums, piano, saxophone)","cook":"","amt":"","lo":45,"hi":45,"rar":3,"caps":false,"zbg":"lxvii"},{"item":"Guitar","cook":"","amt":"","lo":46,"hi":46,"rar":3,"caps":false,"zbg":"lxvi"},{"item":"Walkman","cook":"","amt":"","lo":47,"hi":48,"rar":3,"caps":false,"zbg":"lxvi"},{"item":"Perk Magazine — roll on THE RACK","cook":"","amt":"","lo":49,"hi":49,"rar":4,"caps":false,"zbg":"lxx"},{"item":"Solar Charger","cook":"","amt":"","lo":50,"hi":51,"rar":4,"caps":false,"zbg":"lxvii"},{"item":"Skill Book — roll on ALVIN’S SHELF","cook":"","amt":"","lo":52,"hi":52,"rar":5,"caps":false,"zbg":"lxviii"},{"item":"Bobblehead (collectible)","cook":"","amt":"","lo":53,"hi":53,"rar":5,"caps":false,"zbg":"lxvii"},{"item":"Video Camera","cook":"","amt":"","lo":54,"hi":56,"rar":5,"caps":false,"zbg":"lxvi"},{"item":"Power Generator","cook":"","amt":"","lo":57,"hi":60,"rar":6,"caps":false,"zbg":"lxvi"}]},"ALVIN'S SHELF — SKILL BOOKS":{"name":"ALVIN'S SHELF — SKILL BOOKS","sub":"+1 to a Skill, for life","die":3,"family":"gear","rows":[{"item":"Big Book of Science","cook":"","amt":"","lo":3,"hi":11,"rar":5,"caps":false,"zbg":"lxviii"},{"item":"Boxing Magazine","cook":"","amt":"","lo":12,"hi":14,"rar":5,"caps":false,"zbg":"lxviii"},{"item":"Cat's Paw Issue no.5","cook":"","amt":"","lo":15,"hi":16,"rar":5,"caps":false,"zbg":"lxviii"},{"item":"Chinese Army: Spec-Ops Manual","cook":"","amt":"","lo":17,"hi":17,"rar":5,"caps":false,"zbg":"lxviii"},{"item":"Cover","cook":"","amt":"","lo":18,"hi":19,"rar":5,"caps":false,"zbg":"lxix"},{"item":"D.C. Journal of Internal Medicine","cook":"","amt":"","lo":20,"hi":20,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Dean's Electronics","cook":"","amt":"","lo":21,"hi":21,"rar":5,"caps":false,"zbg":"lxix"},{"item":"First Aid Book","cook":"","amt":"","lo":22,"hi":22,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Fixing Everything","cook":"","amt":"","lo":23,"hi":23,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Future Weapons","cook":"","amt":"","lo":24,"hi":24,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Grognak","cook":"","amt":"","lo":25,"hi":25,"rar":5,"caps":false,"zbg":"lxviii"},{"item":"Guns and Bullets","cook":"","amt":"","lo":26,"hi":26,"rar":5,"caps":false,"zbg":"lxviii"},{"item":"Hot Rodder","cook":"","amt":"","lo":27,"hi":27,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Islander's Almanac","cook":"","amt":"","lo":28,"hi":28,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Lad's Life","cook":"","amt":"","lo":29,"hi":29,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Locksmith's Reader","cook":"","amt":"","lo":30,"hi":30,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Lying, Congressional Style","cook":"","amt":"","lo":31,"hi":31,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Maddock's Tricks & Traps","cook":"","amt":"","lo":32,"hi":32,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Meeting Others","cook":"","amt":"","lo":33,"hi":33,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Milsurp Review","cook":"","amt":"","lo":34,"hi":34,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Zen & Art of Piloting","cook":"","amt":"","lo":35,"hi":35,"rar":5,"caps":false,"zbg":"lxx"},{"item":"Wasteland Survival Guide","cook":"","amt":"","lo":36,"hi":36,"rar":5,"caps":false,"zbg":"lxx"},{"item":"U.S. Army: 30 Flamethrower Recipes","cook":"","amt":"","lo":37,"hi":37,"rar":5,"caps":false,"zbg":"lxx"},{"item":"Tumblers in the Past","cook":"","amt":"","lo":38,"hi":38,"rar":5,"caps":false,"zbg":"lxx"},{"item":"True SWAT Stories","cook":"","amt":"","lo":39,"hi":39,"rar":5,"caps":false,"zbg":"lxx"},{"item":"Total Hack","cook":"","amt":"","lo":40,"hi":40,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Today's Physician","cook":"","amt":"","lo":41,"hi":41,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Tales of Chivalrie","cook":"","amt":"","lo":42,"hi":42,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Tales of a Junktown Jerky Vendor","cook":"","amt":"","lo":43,"hi":43,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Scout Handbook","cook":"","amt":"","lo":44,"hi":44,"rar":5,"caps":false,"zbg":"lxix"},{"item":"SCAV!","cook":"","amt":"","lo":45,"hi":45,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Salesman Weekly","cook":"","amt":"","lo":46,"hi":46,"rar":5,"caps":false,"zbg":"lxix"},{"item":"RobCo Fun","cook":"","amt":"","lo":47,"hi":47,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Pugilism Illustrated","cook":"","amt":"","lo":48,"hi":48,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Programming for Dummies","cook":"","amt":"","lo":49,"hi":49,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Patriot's Cookbook","cook":"","amt":"","lo":50,"hi":50,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Paradise Lost","cook":"","amt":"","lo":51,"hi":51,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Olympic Games Chronicle","cook":"","amt":"","lo":52,"hi":52,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Nikola Tesla and You","cook":"","amt":"","lo":53,"hi":53,"rar":5,"caps":false,"zbg":"lxix"},{"item":"Motivational Secrets of the Stars","cook":"","amt":"","lo":54,"hi":60,"rar":5,"caps":false,"zbg":"lxix"}]}},"routers":{"root":{"name":"SCAVENGING","sub":"spend a survival token, roll, and follow the arrow","die":1,"rows":[{"label":"Ammunition","lo":1,"hi":3,"arrow":"AMMUNITION","to":"AMMUNITION"},{"label":"Armor","lo":4,"hi":5,"arrow":"ARMOR","to":"ARMOR"},{"label":"Clothing","lo":6,"hi":8,"arrow":"CLOTHING & OUTFITS","to":"CLOTHING & OUTFITS"},{"label":"Food","lo":9,"hi":10,"arrow":"FOOD","to":"FOOD"},{"label":"Hunting & Foraging","lo":11,"hi":12,"arrow":"HUNTING & FORAGING sorter","to":"@wild"},{"label":"Beverages","lo":13,"hi":14,"arrow":"DRINK","to":"DRINK"},{"label":"Chems","lo":15,"hi":16,"arrow":"CHEMS & MEDS","to":"CHEMS & MEDS"},{"label":"Weapon","lo":17,"hi":18,"arrow":"WEAPON table","to":"@weapon"},{"label":"Oddities","lo":19,"hi":20,"arrow":"19: GEAR & TOOLS · 20: TECH & TREASURES","to":"@oddities"}]},"weapon":{"name":"WEAPON","sub":"the waste is mostly pipes and pistols","die":1,"rows":[{"label":"Melee — Blades, Blunt & Polearms","lo":1,"hi":4,"arrow":"its table","to":"MELEE — BLADES, BLUNT & POLEARMS"},{"label":"Melee — Fists & Powered","lo":5,"hi":6,"arrow":"its table","to":"MELEE — FISTS & POWERED"},{"label":"Small Guns","lo":7,"hi":13,"arrow":"SMALL GUNS table","to":"@smallguns"},{"label":"Thrown, Bows & Explosives","lo":14,"hi":16,"arrow":"its table","to":"THROWN, BOWS & EXPLOSIVES"},{"label":"Energy Weapons","lo":17,"hi":18,"arrow":"its table","to":"ENERGY WEAPONS"},{"label":"Big Guns","lo":19,"hi":20,"arrow":"its table","to":"BIG GUNS"}]},"smallguns":{"name":"SMALL GUNS","sub":"one more sort, then the gun","die":1,"rows":[{"label":"Sidearms & Plinkers","lo":1,"hi":8,"arrow":"SIDEARMS & PLINKERS","to":"SIDEARMS & PLINKERS"},{"label":"SMGs & Shotguns","lo":9,"hi":14,"arrow":"SMGs & SHOTGUNS","to":"SMGs & SHOTGUNS"},{"label":"Rifles & Oddments","lo":15,"hi":20,"arrow":"RIFLES & ODDMENTS","to":"RIFLES & ODDMENTS"}]},"wild":{"name":"HUNTING & FORAGING","sub":"the land pays in meat, fish, and roots","die":1,"rows":[{"label":"Hunting","lo":1,"hi":8,"arrow":"HUNTING","to":"HUNTING"},{"label":"Fishing","lo":9,"hi":14,"arrow":"FISHING","to":"FISHING"},{"label":"Foraging","lo":15,"hi":20,"arrow":"FORAGING","to":"FORAGING"}]}}};
@@ -24275,6 +24414,31 @@ var CH = {
     res.ok = true;
     return res;
   },
+  /* ---- CMD Z014 (G.9): FOUND GEAR, AND MENDING A WEAPON FROM PARTS ----
+     Found, not bought (Guide p.lviii): armour taken from the dead is recovered at half its HP; a recovered weapon already
+     carries one or two Degradations (data/ledger.js foundStamp marks the row).  Half is rounded UP, the Guide's way with a
+     half elsewhere (a missed Blast, Small Frame) — listed for a ruling.  A found set's HP comes back by the repair above
+     (materials, the bench) and by Nightfall, as any set's does (p.lvi).
+     A Degradation is mended only one way (p.xv): parts equal to the weapon's rarity and a Repair test at Difficulty 1 —
+     INT + Repair (p.xiii), its complication range +1 per fitted mod (p.xiv); a failed test produces nothing and spends
+     nothing (p.xiv).  Parts come from breaking a weapon down (p.xiv): rarity minus its Degradations, never fewer than 1,
+     and they fit any weapon of the same section (p.xv) — the section is the weapon's catalogue category.  The sheet keeps
+     them as one stacking pack row per section, "Weapon parts (Rifles)". */
+  foundArmourHp: function(max){ return Math.ceil(Math.max(0, Math.round(+max || 0)) / 2); },
+  degrOf: function(w){ var n = Math.round(+(w && w.degr)); return isFinite(n) && n > 0 ? Math.min(9, n) : 0; },
+  stripYield: function(rar, degr){ return Math.max(1, Math.max(0, Math.round(+rar || 0)) - Math.max(0, Math.round(+degr || 0))); },
+  mendCost: function(rar){ return Math.max(0, Math.round(+rar || 0)); },
+  MEND_DIFFICULTY: 1,
+  partsName: function(section){ return "Weapon parts (" + String(section == null ? "" : section).trim() + ")"; },
+  partsIndex: function(c, section){
+    var want = CH.partsName(section).toLowerCase(), inv = (c && c.inventory) || [];
+    for(var i = 0; i < inv.length; i++) if(inv[i] && String(inv[i].name || "").trim().toLowerCase() === want) return i;
+    return -1;
+  },
+  partsHave: function(c, section){
+    var i = CH.partsIndex(c, section);
+    return i < 0 ? 0 : Math.max(0, Math.round(+c.inventory[i].qty || 0));
+  },
 
   /* ---- RULE 1 (2026-09-22): action points ----
      The party pool tops out at 7 (an Alex perk; the default was 6).  The GM's pool has no
@@ -24823,10 +24987,14 @@ var CH = {
   perkRank: function(p){ return Math.max(1, Math.min(5, Math.round(+((p && p.rank)) || 1))); },
   perkBonus: function(p, key){
     var b = p && p.bonus;
-    if(!b || typeof b !== "object") return 0;
-    var n = Math.round(+b[key] || 0);
+    var n = (b && typeof b === "object") ? Math.round(+b[key] || 0) : 0;
+    /* Z013 (2026-10-22): a number the Guide PRINTS applies without being typed.  A typed number still stands over it. */
+    if(!n){ var k = CH.perkKey(p && p.name), pr = Object.prototype.hasOwnProperty.call(CH.PERK_PRINTED, k) ? CH.PERK_PRINTED[k] : null; n = pr && pr[key] ? pr[key] : 0; }
     return n ? n * CH.perkRank(p) : 0;
   },
+  /* Z013: the per-rank numbers Part X prints in a form this sheet already applies.  Strong Back, Part X p.ccclvi:
+     "+3 Inventory Slots per rank" (3 ranks, STR 5).  tests/wave10-data.js reads it back against data/partx.js. */
+  PERK_PRINTED: { strongback:{ slots:3 } },
   perkApplied: function(key){
     var out = false;
     CH.PERK_BONUS.forEach(function(f){ if(f.key === key && f.applied) out = true; });
@@ -27280,6 +27448,13 @@ function normalise(c){
   if(!cp.dr || typeof cp.dr !== "object") cp.dr = bc.dr;
   for(var j in bc.dr) if(cp.dr[j] == null) cp.dr[j] = bc.dr[j];
   (c.weapons || []).forEach(function(w){ if(w.range == null) w.range = ""; if(w.qualities == null) w.qualities = ""; });
+  /* CMD Z014 (G.9): a weapon's Degradations and a pack row's found state, hardened when PRESENT and never added when absent —
+     an old save boots byte for byte; absent reads as none.  degr is a whole number 1-9, found is true or nothing. */
+  (c.weapons || []).forEach(function(w){ if(w.degr != null){ var d = CH.degrOf(w); if(d) w.degr = d; else delete w.degr; } });
+  (c.inventory || []).forEach(function(r){
+    if(r.found != null && r.found !== true) delete r.found;
+    if(r.degr != null){ var d = CH.degrOf(r); if(d) r.degr = d; else delete r.degr; }
+  });
   // Ruling 4 (2026-09-22): a stored Throwing skill is gone; a weapon on it is a thrown
   // blade and moves to AGI + Melee Weapons (its Throwing rank is not carried over)
   if(c.skills && c.skills.Throwing) delete c.skills.Throwing;
@@ -27881,6 +28056,8 @@ function wearFromRow(row, where){
     var formula = CH.armourHp(a.phys, a.en, a.rarity);
     ch.armour.hpMaxOverride = (a.hp != null && a.hp !== formula) ? a.hp : null;
     ch.armour.hp = a.hp != null ? a.hp : formula;
+    /* CMD Z014 (G.9): a set taken from the dead is worn at half its HP (Guide p.lviii) */
+    if(row && row.found === true) ch.armour.hp = CH.foundArmourHp(ch.armour.hp);
     ch.armour.fixed = null;                 // a new set carries no correction note
     ch.armour.mods = [];                    // nor the old set's fitted parts
   });
@@ -27890,6 +28067,8 @@ function wearFromRow(row, where){
                 " / Rad " + esc(a.rad) + ", rarity " + a.rarity + ", " +
                 (a.hp != null ? "armour HP " + a.hp + " (the row's printed HP, set as the maximum)"
                               : "armour HP " + CH.armourHp(a.phys, a.en, a.rarity) + " from the formula — this row's HP cell is prose (" + esc(a.hpPrinted || "blank") + "), not a number") +
+                (row && row.found === true ? ". <b>Found: worn at half its HP, " + CH.foundArmourHp(a.hp != null ? a.hp : CH.armourHp(a.phys, a.en, a.rarity)) +
+                  "</b> &mdash; mend it with materials or a bench (Guide p.lviii)" : "") +
                 (was && CH.perkKey(was) !== CH.perkKey(a.name) ? ". <b>" + esc(was) + "</b> came off." : ".") };
 }
 /* ITEM 12, the other two directions Howl asked for:
@@ -27901,8 +28080,10 @@ function weaponFromInvRow(row){
   var it = itemOf(row);
   if(!it) return null;
   if(!WEAPON_CAT.test(it.cat || "")) return null;
-  return weaponFrom({ name:it.name, cat:it.cat, caps:it.caps, rar:it.rar, effect:it.effect,
+  var w = weaponFrom({ name:it.name, cat:it.cat, caps:it.caps, rar:it.rar, effect:it.effect,
                       stats:it.stats, key:row.key || norm(row.name) });
+  if(w && row.degr > 0) w.degr = CH.degrOf(row);          // CMD Z014 (G.9): a found weapon brings its Degradations
+  return w;
 }
 /* WAVE 20, ROUND 0 — wave 19's leftovers (Zoe 2026-10-13): A TYPED STACK COUNT REFRESHES THE WEAPONS TABLE'S UNITS LINE AT ONCE.  The
    skeptic pressed TG's Claymore stack typed to 0 in its own box: the weapons table went on saying "10 left" until the next repaint
@@ -28177,6 +28358,7 @@ function renderDerived(){
   Array.prototype.forEach.call($("cs-skills").querySelectorAll("tr[data-sk]"), function(tr){
     var name = tr.getAttribute("data-sk"), s = skillOf(c, name);
     var attr = tr.querySelector("select").value;
+    if(attr === "SD") attr = "LCK";                     // CMD Z014 (G.10): Stacked Deck rolls LCK
     tr.querySelector(".tn").textContent = attrVal(c, attr) + s.rank;
     tr.querySelector("td.n").setAttribute("data-tag", s.tag ? "1" : "0");
   });
@@ -28301,7 +28483,11 @@ function renderSkills(c){
   CH.SKILLS.forEach(function(row){
     var name = row[0], s = skillOf(c, name);
     var tr = document.createElement("tr"); tr.setAttribute("data-sk", name);
-    var opts = CH.ATTRS.map(function(a){ return '<option value="' + a + '"' + (a === row[1] ? " selected" : "") + '>[' + a + ']</option>'; }).join("");
+    /* CMD Z014 (G.10): the skill's own attribute first (Guide p.ccxcii), then the rest; Stacked Deck (LCK for 1 Luck point)
+       is offered on every skill whose own attribute is not LCK, and greyed out while the sheet holds no Luck point */
+    var order = [row[1]].concat(CH.ATTRS.filter(function(a){ return a !== row[1]; }));
+    var opts = order.map(function(a){ return '<option value="' + a + '"' + (a === row[1] ? " selected" : "") + '>[' + a + ']</option>'; }).join("") +
+      (row[1] !== "LCK" ? '<option value="SD"' + ((+c.luck || 0) < 1 ? " disabled" : "") + '>[LCK] Stacked Deck, 1 Luck</option>' : "");
     tr.innerHTML = '<td class="n" data-tag="' + (s.tag ? 1 : 0) + '">' + esc(name) +
         '<select data-skf="attr" aria-label="attribute for ' + esc(name) + '" title="attribute for the roll (default ' + row[1] + ')">' + opts + '</select></td>' +
       '<td class="c"><input type="checkbox" data-skf="tag"' + (s.tag ? " checked" : "") + ' aria-label="tag ' + esc(name) + '"></td>' +
@@ -28474,7 +28660,77 @@ function perkReqParse(req){
   var re = /\b(STR|PER|END|CHA|INT|AGI|LCK)\s*(\d+)/gi;
   while((m = re.exec(s))) attrs.push({ a:m[1].toUpperCase(), min:+m[2] });
   var lv = /\bLevels?\s*(\d+)/i.exec(s);             /* Z003: Part X prints "level 4" / "levels 1, 4, 7" */
-  return { attrs:attrs, level:lv ? +lv[1] : 0, notRobot:/not a (\w+ or )?robot/i.test(s) };
+  /* Z013 (K.8): the requirements that are not an attribute or a level, in Part X's own words */
+  var other = [];
+  if(/not a ghoul or robot/i.test(s)) other.push("not a ghoul or robot");
+  if(/not immune to radiation/i.test(s)) other.push("not immune to radiation");
+  if(/no companion/i.test(s)) other.push("no companion");
+  if(/(super mutants? and ghouls?|ghouls? and super mutants?) take rank 1/i.test(s)) other.push("ghouls and super mutants take rank 1 at any level");
+  return { attrs:attrs, level:lv ? +lv[1] : 0, notRobot:/not a (\w+ or )?robot/i.test(s), other:other };
+}
+/* ===================== Z013 (K.8, 2026-10-22) — EVERY REQUIREMENT PART X PRINTS ==================
+   Part X prints five kinds of requirement beside the attributes and the level (data/partx.js, `other`):
+     "not a robot"                       c.robot (the Robot tick) — meets() has always judged it
+     "not a ghoul or robot"  (Ghoulish)  the robot half as above; the ghoul half from the origin and traits
+     "not a robot (ghouls and super mutants take rank 1 at any level)"  (Cannibal) — a ghoul or super mutant
+                                         skips rank 1's level gate (Guide p.ccx prints the same)
+     "no companion" / "no companion already"  (Hired Help, Robot Wrangler) — c.companion.name filled in
+     "not immune to radiation"  (Overly Generous, Radicool) — the Guide makes robots (p.cxci: "as robots are"),
+                                         ghouls (p.xxiv, the Necrotic Post-Human trait; p.cccxxxvii) and super
+                                         mutants (p.xxiv, Forced Evolution) immune; a trait that says so does too
+   and one more the perk's own text implies: Dogmeat hands you a dog, and a character may have one companion
+   (Guide p.xii) — so a perk that gives a companion is gated like "no companion".
+   WHAT THE SHEET CANNOT TELL IS NEVER PASSED.  An origin box left blank with no traits cannot say ghoul or not;
+   a trait that makes only part of you immune (Cyberdog's robotic head and legs) cannot say immune or not; a
+   requirement nobody taught this code would be printed as it stands.  Each of those is unmet, with the reason
+   and "the Overseer decides" — the picker greys it, never hides the why. */
+function perkKinOf(c){
+  c = c || {};
+  var robot = c.robot === true, traits = Array.isArray(c.traits) ? c.traits : [];
+  var origin = String(c.origin == null ? "" : c.origin).trim(), who = [origin], texts = [];
+  traits.forEach(function(t){ if(!t) return; who.push(String(t.name == null ? "" : t.name)); who.push(String(t.from == null ? "" : t.from)); texts.push(String(t.text == null ? "" : t.text)); });
+  var w = who.join(" ").replace(/\s+/g, " ").trim(), tx = texts.join("\n");
+  var known = robot || !!w;
+  var ghoul = /\bghoul|necrotic post-human/i.test(w), mutant = /super mutant|forced evolution/i.test(w);
+  var label = origin || (traits[0] && (traits[0].from || traits[0].name)) || "";
+  var immune = null, immuneWhy = "";
+  if(robot){ immune = true; immuneWhy = "a robot is"; }
+  else if(ghoul){ immune = true; immuneWhy = "a ghoul is"; }
+  else if(mutant){ immune = true; immuneWhy = "a super mutant is"; }
+  else if(/(^|[.\n]\s*)(you are\s+(completely\s+)?)?immune to radiation|healed by radiation/i.test(tx)){ immune = true; immuneWhy = "your trait says so"; }
+  else if(/immune to radiation|radiation immun/i.test(tx)){ immune = null; immuneWhy = "your trait makes only part of you immune"; }
+  else if(known) immune = false;
+  var cp = c.companion && typeof c.companion === "object" ? String(c.companion.name == null ? "" : c.companion.name).trim() : "";
+  return { robot:robot, ghoul:known ? ghoul : null, mutant:known ? mutant : null, immune:immune, immuneWhy:immuneWhy, label:label, companion:cp };
+}
+var PERK_DECIDES = " — the sheet can't tell, the Overseer decides";
+/* the unmet "other" requirements of a gate against a kin (perkKinOf) -> plain-words reasons, [] when all are met */
+function perkOtherWhy(gate, kin){
+  var why = [], other = (gate && Array.isArray(gate.other)) ? gate.other : [], comp = false;
+  kin = kin || perkKinOf(null);
+  other.forEach(function(s){
+    s = String(s || "");
+    var known = false;
+    if(/not a robot/i.test(s) || /not a ghoul or robot/i.test(s)) known = true;     /* the robot half: notRobot, through meets() */
+    if(/ghouls? and super mutants? take rank 1/i.test(s)) known = true;              /* a waiver, read in perkMeets */
+    if(/not a ghoul/i.test(s)){
+      known = true;
+      if(kin.ghoul === true) why.push("not a ghoul" + (kin.label ? " (the sheet reads " + kin.label + ")" : ""));
+      else if(kin.ghoul == null) why.push("not a ghoul — no origin on the sheet, the Overseer decides");
+    }
+    if(/not immune to radiation/i.test(s)){
+      known = true;
+      if(kin.immune === true) why.push("not immune to radiation (" + kin.immuneWhy + ")");
+      else if(kin.immune == null) why.push("not immune to radiation" + (kin.immuneWhy ? " — " + kin.immuneWhy + ", the Overseer decides" : PERK_DECIDES));
+    }
+    if(/no companion/i.test(s)){
+      known = true; comp = true;
+      if(kin.companion) why.push("no companion (" + kin.companion + " is at your side)");
+    }
+    if(!known) why.push(s + PERK_DECIDES);
+  });
+  if(gate && gate.givesCompanion && !comp && kin.companion) why.push("one companion only — " + kin.companion + " is at your side (Guide p.xii)");
+  return why;
 }
 /* the requirement in the shape meets() and levelFor() read: the CRB row when the catalogue
    has one (its attrs are the book's, parsed at extraction), else parsed from the prose */
@@ -28483,13 +28739,26 @@ function perkGate(rec){
   try{ if(HP && typeof HP.find === "function") row = HP.find(rec.name); }catch(e){ row = null; }
   var g;
   if(row) g = { attrs:row.attrs || [], level:+row.level || 0, notRobot:!!row.notRobot, step:+row.step || 0, ranks:+row.ranks || 0,
-               levels:Array.isArray(row.levels) ? row.levels.slice() : null };      /* Z003: Part X prints each rank's level */
-  else{ g = perkReqParse(rec.req); g.step = Math.max(0, +rec.step || 0); g.ranks = 0; }
+               levels:Array.isArray(row.levels) ? row.levels.slice() : null,       /* Z003: Part X prints each rank's level */
+               other:Array.isArray(row.other) ? row.other.slice() : perkReqParse(rec.req).other, givesCompanion:!!row.givesCompanion };   /* Z013 */
+  else{ g = perkReqParse(rec.req); g.step = Math.max(0, +rec.step || 0); g.ranks = 0;
+        g.givesCompanion = /\bYou gain (?:a|an|one) [^.]*\bcompanion\b/i.test(String(rec.text || "")); }
   if(!g.ranks) g.ranks = Math.max(1, Math.round(+rec.ranks || 1));
   return g;
 }
 /* HELENA_PERKS.meets, with the same rule written out for a build it has not landed on */
 function perkMeets(gate, view){
+  var m = perkMeetsPrinted(gate, view);
+  /* Z013 (K.8): the requirements beyond attributes, level and robot — and Cannibal's waiver: a ghoul or super mutant
+     takes rank 1 at any level, so rank 1's level gate is read without the level */
+  if(typeof perkOtherWhy !== "function" || !gate || !(Array.isArray(gate.other) && gate.other.length || gate.givesCompanion)) return m;
+  var kin = view.kin || (typeof perkKinOf === "function" ? perkKinOf(view) : null), why = (m.why || []).slice();
+  if(kin && (kin.ghoul === true || kin.mutant === true) && gate.other.some(function(s){ return /ghouls? and super mutants? take rank 1/i.test(String(s)); }))
+    why = why.filter(function(w){ return !/^Level \d/.test(w); });
+  why = why.concat(perkOtherWhy(gate, kin));
+  return { ok:why.length === 0, why:why };
+}
+function perkMeetsPrinted(gate, view){
   var HP = window.HELENA_PERKS;
   if(HP && typeof HP.meets === "function"){ try{ return HP.meets(gate, view); }catch(e){} }
   var why = [], sp = view.special || {};
@@ -28512,7 +28781,7 @@ function perkLevelFor(gate, n){
 /* what meets() reads off this sheet: its boxes, as they are */
 function perkSheetView(c){
   c = c || {};
-  return { special:c.special || {}, level:c.level, robot:c.robot === true };
+  return { special:c.special || {}, level:c.level, robot:c.robot === true, kin:perkKinOf(c) };     /* Z013: kin, for Part X's other requirements */
 }
 function perkHeldOn(c, name){
   var k = CH.perkKey(name), ps = (c && Array.isArray(c.perks)) ? c.perks : [];
@@ -28539,7 +28808,7 @@ function perkEntry(rec, c){
     /* skeptic 2: a perk with no printed level and no step (Armorer) has no level to name
        for its next rank — "rank 2 at level 0" was the honest arithmetic and a lie to read */
     e.note = "rank " + e.next + (e.nextLevel ? " at level " + e.nextLevel : ", no printed level");
-    var m2 = perkMeets({ attrs:gate.attrs, notRobot:gate.notRobot }, view);   // the attribute and robot gates still bind
+    var m2 = perkMeets({ attrs:gate.attrs, notRobot:gate.notRobot, other:gate.other }, view);   // the attribute, robot and Part X's other gates still bind
     e.why = (m2.why || []).slice();
     var lv = (view.level == null || view.level === "") ? null : Number(view.level);
     if(lv != null && isFinite(lv) && lv < e.nextLevel) e.why.push("rank " + e.next + " at level " + e.nextLevel + " (sheet reads " + lv + ")");
@@ -29481,7 +29750,7 @@ function renderPerkHint(c){
         ? " <b>On this sheet now:</b> " + [sl ? sl + " slots" : "", hp ? hp + " Max HP" : "", ini ? ini + " Initiative" : ""]
             .filter(Boolean).join(", ") + "."
         : "") +
-      " Strong Back and Sturdy Frame carry no Guide number at all — type one only when the table has ruled it.";
+      " Strong Back adds its 3 slots a rank by itself; type a number only when the table has ruled one.";
   }
 }
 /* PERKHINT:end */
@@ -29811,7 +30080,11 @@ function renderWeapons(c){
           : rowOut ? ""
           : '<div style="margin-top:2px"><button class="cs-mini" data-act="wpn-to-inv" title="add this weapon to the inventory as well, so it takes its slot">to inventory</button></div>') +
         /* WAVE 10 ITEM 13: the weapon's fitted mods, same card as the armour's. */
-        modCard("w", i, w) + '</td>' +
+        modCard("w", i, w) +
+        /* CMD Z014 (G.9): a weapon's Degradations, and the one way to mend them (Guide pp.lvi, xv) */
+        (w.degr > 0 ? '<div class="cs-degr" style="margin-top:2px"><span class="cs-badge wreck" title="Each one is \u22121 CD, \u22121 Fire Rate or one quality down a step \u2014 the wielder\u2019s choice, set on this row (Guide p.lvi)">' +
+          w.degr + (w.degr === 1 ? " Degradation" : " Degradations") + '</span> <button class="cs-mini" data-act="wpn-mend" title="parts equal to its rarity and INT + Repair at Difficulty 1 (Guide p.xv)">Mend one</button></div>' : "") +
+        '</td>' +
       /* WAVE 16 S6: each cell names its column (data-l) — on a phone the row is a card and the header row is
          not on screen, so the stylesheet prints the name over each box (screen, under 760px, only) */
       '<td class="wsk" data-l="Skill"><div class="sk"><select data-wf="skill" aria-label="skill">' + skills + '</select>' +
@@ -30070,6 +30343,8 @@ function invPut(i, n){
   }
   var lrow = { key:row.key ? String(row.key) : null, name:String(row.name).trim(), qty:n, stack:!!row.stack,
                notes:String(row.notes || ""), from:String(c.id), sec:"From " + (c.name || "unnamed") + "'s pack", at:env.now() };
+  if(row.found === true) lrow.found = true;            // CMD Z014 (G.9): found gear stays found on the shelf
+  if(row.degr > 0) lrow.degr = row.degr;
   /* 1 — THE LEDGER.  The write that can only be refused, never denied. */
   var txn = "sheet-put:" + uid();
   var res = LG.ops(env).put(lrow, txn);
@@ -30447,6 +30722,9 @@ function renderInventory(c){
     tr.innerHTML =
       '<td><input type="text" data-if="name" value="' + esc(row.name) + '" maxlength="60">' +
         (row.proposed ? '<span class="cs-badge prop" style="margin-left:4px" title="proposed 2026-09-21, not yet issued">proposed</span>' : "") +
+        /* CMD Z014 (G.9): taken from the dead (Guide p.lviii) */
+        (row.found === true ? '<span class="cs-badge prop" style="margin-left:4px" title="Taken from the dead: armour is worn at half its HP; a weapon carries its Degradations (Guide p.lviii)">found' +
+          (row.degr > 0 ? " \u00b7 " + row.degr + (row.degr === 1 ? " Degradation" : " Degradations") : "") + '</span>' : "") +
         (cross ? '<div style="margin-top:2px">' + cross + "</div>" : "") +
         /* WAVE 11: "→ ledger" and the syringer roll.  typeof-guarded for the same reason as the
            crossings above: this function runs in a five-variable vm in two wave-9 test blocks. */
@@ -31025,6 +31303,8 @@ function resetRollOut(who){
      sheet, switch to Joel, still armed on his.  It leaves with the sheet it was armed on. */
   var fx = $("cs-arm-fix");
   if(fx && fx.checked) fx.checked = false;
+  var okp = $("cs-skill-ok");                     // CMD Z014 (G.10): so is the Overseer's OK for another attribute
+  if(okp && okp.checked) okp.checked = false;
   var el = $("cs-wpn-out");
   if(el) el.innerHTML = WPN_OUT_IDLE;
   /* SKEPTIC B (stage 6, 2026-09-29): the Health card's damage read-out is one sheet's last blow too.
@@ -31062,15 +31342,58 @@ function tableRoll(c, text){
   SY.emit("roll", { name:c.name, charId:c.id, token:"c:" + c.id, text:(c.name || "unnamed") + " \u2014 " + text });
 }
 function successes(r){ return r.succ + " success" + (r.succ === 1 ? "" : "es") + (r.comps ? ", " + r.comps + " complication" + (r.comps === 1 ? "" : "s") : ""); }
+/* CMD Z014 (G.10) — THE PAIRINGS (Guide p.ccxcii): "A roll takes its skill's default attribute, and it changes only when the
+   Overseer declares the test — or by Stacked Deck, Book One's Luck spend: LCK for the usual attribute, one point, declared
+   before the roll."  So skillRoll asks, before anything is rolled or spent: the skill's own attribute rolls; a pair a perk
+   this sheet holds prints in its own words rolls (that test is the perk's — perkPairFor, read off Part X at the rank held);
+   any other needs the Overseer's OK ticked (#cs-skill-ok, one roll per tick) — or Stacked Deck ("SD" in the picker), which
+   spends one Luck point through the sheet's one Luck door and rolls LCK.  A refusal rolls nothing and spends nothing. */
+function perkPairFor(c, attr, skill){
+  var PX = window.HELENA_PARTX, list = PX && Array.isArray(PX.perks) ? PX.perks : [];
+  var pat = new RegExp("\\b" + attr + " \\+ " + String(skill).replace(/[^A-Za-z ]/g, "") + "\\b");
+  var held = (c && Array.isArray(c.perks)) ? c.perks : [];
+  for(var i = 0; i < held.length; i++){
+    var h = held[i], k = CH.perkKey(h && h.name), rank = Math.max(1, Math.round(+(h && h.rank) || 1));
+    if(!k) continue;
+    for(var j = 0; j < list.length; j++){
+      var p = list[j];
+      if(!p || CH.perkKey(p.name_up || p.name) !== k) continue;
+      var at = 1, bits = String(p.text || "").split(/(Rank \d+:)/);
+      for(var b = 0; b < bits.length; b++){
+        var m = /^Rank (\d+):$/.exec(bits[b]);
+        if(m){ at = +m[1]; continue; }
+        if(at <= rank && pat.test(bits[b])) return String(h.name);
+      }
+    }
+  }
+  return "";
+}
 function skillRoll(name, attr){
   var c = me(), s = skillOf(c, name);
+  var okBox = $("cs-skill-ok"), deck = attr === "SD", how = "";
+  if(deck) attr = "LCK";
+  var def = typeof attrDefault === "function" ? attrDefault(name) : "";
+  if(def && attr !== def){
+    var perk = !deck && typeof perkPairFor === "function" ? perkPairFor(c, attr, name) : "";
+    var no = "";
+    if(deck){
+      var H = window.HELENA_CHAR, paid = H && typeof H.spendLuck === "function" ? H.spendLuck(c.id, 1) : 0;
+      if(paid >= 1) how = "Stacked Deck, 1 Luck point spent";
+      else no = "<b>No Luck point left for Stacked Deck.</b> " + esc(name) + " rolls on " + def + ".";
+    }else if(perk) how = perk + " prints " + attr + " + " + name;
+    else if(okBox && okBox.checked){ how = "the Overseer's OK"; okBox.checked = false; }
+    else no = "<b>" + attr + " + " + esc(name) + " needs the Overseer's OK.</b> " + esc(name) + " rolls on " + def +
+              ". Tick \u201cOverseer OK'd another attribute\u201d when they say so, or pick Stacked Deck (1 Luck point, LCK) before the roll. Guide p.ccxcii.";
+    if(no){ $("cs-skill-out").innerHTML = '<div class="cs-qual" id="cs-pair-no">' + no + " Nothing was rolled and nothing was spent.</div>"; outInView("cs-skill-out"); return; }
+  }
   var tn = attrVal(c, attr) + s.rank, crit = CH.critRange(s.rank, s.tag);
   var want = clamp(+$("cs-skill-buy").value || 0, 0, 3);
   var bought = want ? spendParty(want) : 0;        // RULE 1: bought d20s debit the party pool
   var pool = 2 + bought, comp = clamp(+$("cs-comp").value || 20, 15, 20);
   var r = rollTest(tn, crit, comp, pool);
-  tableRoll(c, name + " (" + attr + "), TN " + tn + ": " + successes(r));
+  tableRoll(c, name + " (" + attr + (how ? ", " + how : "") + "), TN " + tn + ": " + successes(r));
   $("cs-skill-out").innerHTML = rollModLine(c, null, "skill") + testLine(name + " (" + attr + " " + attrVal(c, attr) + " + " + s.rank + (s.tag ? ", tagged: crit ≤ " + crit : "") + ")", tn, r) +
+    (how ? '<div class="cs-qual">' + esc(attr + " in place of " + def + ": " + how) + ".</div>" : "") +
     apNote(want, bought);
   outInView("cs-skill-out");                        // WAVE 16 S6: a skill's answer too
 }
@@ -31985,6 +32308,92 @@ function doRepair(){
   out.innerHTML = "<b>+" + res.restored + " armour HP" + (waste ? " (" + esc(waste) + ")" : "") + "</b> \u2014 " +
     res.before + " \u2192 " + res.after + " of " + res.max + ". " + why;
   render();
+}
+
+/* ---- CMD Z014 (G.9): MEND A WEAPON'S DEGRADATION FROM PARTS (Guide pp.xiii-xv; the rules are in CH, above repairArmour's
+   neighbours: mendCost, stripYield, partsName).  The weapon's section and rarity are its catalogue row's (category, rar).
+   Short of parts, the read-out offers every other weapon on this sheet of the same section to break down — 30 minutes, no
+   bench, the weapon destroyed (p.xiv); a weapon with mods fitted is refused until they come off (mods are never lost). ---- */
+function weaponSection(w){
+  var it = w ? ((w.key && ITEMS[w.key]) || ITEMS[norm(w.name || "")] || null) : null;
+  return it && it.cat ? { cat:String(it.cat), rar:Math.max(0, parseInt(it.rar, 10) || 0) } : null;
+}
+function mendDonors(c, i, cat){
+  var out = [];
+  (c.weapons || []).forEach(function(x, j){
+    if(j === i || !x) return;
+    var sx = weaponSection(x);
+    if(sx && sx.cat === cat) out.push({ j:j, name:String(x.name || "weapon"), yield:CH.stripYield(sx.rar, CH.degrOf(x)), mods:(x.mods || []).length });
+  });
+  return out;
+}
+function mendWeapon(i){
+  var c = me(), w = c && c.weapons[i], out = $("cs-wpn-out"); if(!w || !out) return null;
+  var d = CH.degrOf(w);
+  if(!d){ out.innerHTML = "<b>" + esc(w.name || "That weapon") + "</b> carries no Degradation to mend."; outInView("cs-wpn-out"); return { ok:false }; }
+  var sec = weaponSection(w);
+  if(!sec){ out.innerHTML = "<b>" + esc(w.name || "That weapon") + "</b> is not a Guide row, so its section and rarity are unknown. Mend it by hand: parts equal to its rarity and INT + Repair at Difficulty 1."; outInView("cs-wpn-out"); return { ok:false }; }
+  var cost = CH.mendCost(sec.rar), have = CH.partsHave(c, sec.cat);
+  if(have < cost){
+    var dn = mendDonors(c, i, sec.cat);
+    out.innerHTML = "<b>Mending " + esc(w.name) + " needs " + cost + " " + esc(sec.cat) + " part" + (cost === 1 ? "" : "s") + "</b>; this sheet has " + have + ". " +
+      "Break down another weapon of that section for parts (rarity minus its Degradations, at least 1; Guide p.xiv)" +
+      (dn.length ? ": " + dn.map(function(x){
+        return x.mods ? esc(x.name) + " (take its mods off first)"
+          : '<button class="cs-mini" data-act="wpn-strip" data-w="' + x.j + '" data-for="' + i + '">Break down ' + esc(x.name) + " for " + x.yield + "</button>";
+      }).join(" ") : " &mdash; none on this sheet.");
+    outInView("cs-wpn-out");
+    return { ok:false, short:true, cost:cost, have:have };
+  }
+  var s = skillOf(c, "Repair"), tn = attrVal(c, "INT") + s.rank, crit = CH.critRange(s.rank, s.tag);
+  var comp = Math.max(1, 20 - (w.mods || []).length);          // +1 complication range per fitted mod (p.xiv)
+  var r = rollTest(tn, crit, comp, 2), won = r.succ >= CH.MEND_DIFFICULTY;
+  if(won) edit(function(ch){
+    var x = ch.weapons[i]; if(!x) return;
+    var was = CH.degrOf(x), pi = CH.partsIndex(ch, sec.cat);
+    if(pi >= 0) ch.inventory[pi].qty = Math.max(0, Math.round(+ch.inventory[pi].qty || 0) - cost);
+    if(was > 1) x.degr = was - 1; else delete x.degr;
+    /* the same thing's pack row keeps step with the table's (one row: the first carried with the old count) */
+    for(var k = 0; k < (ch.inventory || []).length; k++){
+      var iv = ch.inventory[k];
+      if(iv && CH.degrOf(iv) === was && CH.sameItem(x, iv)){ if(was > 1) iv.degr = was - 1; else delete iv.degr; break; }
+    }
+  });
+  var said = won ? "one Degradation gone, " + cost + " part" + (cost === 1 ? "" : "s") + " spent" : "nothing mended, nothing spent";
+  tableRoll(c, "mends " + (w.name || "a weapon") + " (INT + Repair, Difficulty 1), TN " + tn + ": " + successes(r) + " \u2014 " + said);
+  out.innerHTML = testLine("Mend " + (w.name || "weapon") + " (INT + Repair, Difficulty 1)", tn, r) + " &mdash; <b>" + said + "</b>.";
+  renderWeapons(me()); renderInventory(me()); renderDerived();
+  outInView("cs-wpn-out");
+  return { ok:won, roll:r, cost:cost };
+}
+function stripWeapon(j, forI){
+  var c = me(), w = c && c.weapons[j], out = $("cs-wpn-out"); if(!w) return null;
+  var sec = weaponSection(w);
+  if(!sec){ if(out) out.innerHTML = "That weapon is not a Guide row, so its section is unknown."; return { ok:false }; }
+  if((w.mods || []).length){ if(out) out.innerHTML = "Take the mods off <b>" + esc(w.name) + "</b> first &mdash; they are never lost."; return { ok:false }; }
+  var n = CH.stripYield(sec.rar, CH.degrOf(w));
+  if(typeof confirm === "function" && !confirm("Break down " + (w.name || "this weapon") + " for " + n + " part" + (n === 1 ? "" : "s") + "? It is destroyed (30 minutes, no bench).")) return { ok:false };
+  edit(function(ch){
+    var x = ch.weapons[j]; if(!x) return;
+    ch.weapons.splice(j, 1);
+    for(var k = 0; k < (ch.inventory || []).length; k++){
+      var iv = ch.inventory[k];
+      if(iv && !iv.stack && CH.sameItem(x, iv)){
+        var q = Math.max(1, Math.round(+iv.qty) || 1);
+        if(q > 1) iv.qty = q - 1; else ch.inventory.splice(k, 1);
+        break;
+      }
+    }
+    var pi = CH.partsIndex(ch, sec.cat);
+    if(pi >= 0) ch.inventory[pi].qty = Math.max(0, Math.round(+ch.inventory[pi].qty || 0)) + n;
+    else ch.inventory.push({ name:CH.partsName(sec.cat), qty:n, stack:true, notes:"fits any " + sec.cat + " (Guide p.xv)", key:"", proposed:false });
+  });
+  tableRoll(c, "breaks down " + (w.name || "a weapon") + " for " + n + " " + sec.cat + " part" + (n === 1 ? "" : "s"));
+  renderWeapons(me()); renderInventory(me()); renderDerived();
+  var to = forI > j ? forI - 1 : forI;                      // the weapon being mended moved up a row
+  if(out) out.innerHTML = "<b>" + esc(w.name) + "</b> broken down: +" + n + " " + esc(sec.cat) + " part" + (n === 1 ? "" : "s") + ". " +
+    (me().weapons[to] ? '<button class="cs-mini" data-act="wpn-mend-at" data-w="' + to + '">Mend ' + esc(me().weapons[to].name || "it") + " now</button>" : "");
+  return { ok:true, parts:n };
 }
 
 /* --------------------------------------------------------- export/import */
@@ -33980,6 +34389,10 @@ root.addEventListener("click", function(e){
     case "wpn-del": i = +b.closest(".cs-wpn").getAttribute("data-w"); edit(function(c){ c.weapons.splice(i, 1); }); renderWeapons(me()); renderInventory(me()); renderDerived(); break;
     case "attack": attackRoll(+b.closest(".cs-wpn").getAttribute("data-w")); break;
     case "damage": damageRoll(+b.closest(".cs-wpn").getAttribute("data-w")); break;
+    /* CMD Z014 (G.9): mend a Degradation from parts, and break a weapon down for them */
+    case "wpn-mend": mendWeapon(+b.closest(".cs-wpn").getAttribute("data-w")); break;
+    case "wpn-mend-at": mendWeapon(+b.getAttribute("data-w")); break;
+    case "wpn-strip": stripWeapon(+b.getAttribute("data-w"), +b.getAttribute("data-for")); break;
     /* WAVE 10 ITEM 12: both routed through woundWrite now — one door, so the room's
        "not your sheet" check applies to Treat and Heal exactly as it applies to typing the
        note.  A button press SHOULD re-render (the row's own label changes), so render() is
@@ -47241,6 +47654,12 @@ function paint(){
   document.getElementById('prt').onclick=()=>window.print();
   /* stage 6: a printed map carries its rules — every shut "why" opens for the page */
   window.addEventListener('beforeprint',()=>document.querySelectorAll('details.zm-why').forEach(d=>{d.open=true;}));
+  /* CMD Z015 (P.1): the phone's one tap over the roster and the range list (and a second over the reading card) - it flips its own aria-expanded, and the
+     screen-only phone rule reads that; a desktop never draws the button */
+  const zmZr=document.getElementById('zm_zr');
+  if(zmZr) zmZr.onclick=()=>zmZr.setAttribute('aria-expanded',zmZr.getAttribute('aria-expanded')==='true'?'false':'true');
+  const zmLg=document.getElementById('zm_lg');
+  if(zmLg) zmLg.onclick=()=>zmLg.setAttribute('aria-expanded',zmLg.getAttribute('aria-expanded')==='true'?'false':'true');
   document.getElementById('copy').onclick=()=>{
     const t=document.getElementById('gmtext'); t.select();
     document.execCommand('copy');
@@ -51709,6 +52128,28 @@ function campGuests(roll){
   return "[" + faces.join(",") + "] " + esc(r.line) +
     (r.effects ? " (" + r.effects + " Effect" + (r.effects === 1 ? "" : "s") + ")" : "");
 }
+/* CMD Z014 (G.6): Camp Visitors and Prior Tenants (Guide p.ccxci, data/overseer.js), one press each.  `d20` gives one face;
+   the line names the table, the face and the Guide's words, and is written to the session log (topic "camp", by campLog
+   above, as every tool's line is; Solo records it on this device; standalone nothing is said). */
+/* CAMPLOG:begin */
+/* the session log: written to, never asked (the camp stays open to every member — tests/wave12-camp.js §4 reads past this block) */
+function campLog(text, extra){
+  var SY = window.SUITE_SYNC, d = { text:text }, k;
+  for(k in (extra || {})) if(Object.prototype.hasOwnProperty.call(extra, k)) d[k] = extra[k];
+  if(SY && typeof SY.emit === "function"){ try{ SY.emit("camp", d); return true; }catch(e){} }
+  return false;
+}
+/* CAMPLOG:end */
+function campTableRoll(key, d20){
+  var O = window.HELENA_OVERSEER, t = O && O[key];
+  if(!t || typeof O.rowFor !== "function") return { ok:false, line:"The Overseer's tables are not on this page." };
+  var n = Math.max(1, Math.min(20, Math.round(+d20() || 1))), row = O.rowFor(t, n);
+  if(!row) return { ok:false, line:"No row for " + n + "." };
+  var text = t.name + " (d20 " + n + "): " + row.text;
+  if(typeof campLog === "function") campLog(text, { table:key, face:n });
+  return { ok:true, face:n, row:row, text:text,
+           line:"<b>" + esc(t.name) + "</b> " + '<span class="cp-mono">d20 ' + n + "</span> &mdash; " + esc(row.text) + " <small>(Guide p." + esc(t.folio) + ")</small>" };
+}
 /* what the camp is, when nothing has just been said about it */
 function campSummary(camp){
   return camp.level || camp.tent
@@ -51917,6 +52358,9 @@ $("cp-fail").addEventListener("click", function(){ if(!CH) return; say(own(funct
 $("cp-tent").addEventListener("click", function(){ if(!CH) return; say(own(campTent)); render(); });
 $("cp-strike").addEventListener("click", function(){ if(!CH) return; say(own(campStrike)); render(); });
 $("cp-guests").addEventListener("click", function(){ if(!CH) return; $("cp-guests-out").innerHTML = campGuests(cd); });
+function d20(){ return 1 + Math.floor(Math.random() * 20); }
+$("cp-visitors").addEventListener("click", function(){ $("cp-table-out").innerHTML = campTableRoll("campVisitors", d20).line; });
+$("cp-tenants").addEventListener("click", function(){ $("cp-table-out").innerHTML = campTableRoll("priorTenants", d20).line; });
 $("cp-traits").addEventListener("change", function(e){
   var el = e.target; if(!CH || !el || !el.hasAttribute || !el.hasAttribute("data-camp")) return;
   own(function(){ campTrait(el.getAttribute("data-camp"), !!el.checked); });
@@ -56721,9 +57165,39 @@ function craftMath(LG, ITEMS){
     return { skills:sks, skill:best.skill, rank:ch ? best.rank : null, cx:cx,
              difficulty:ch ? Math.max(0, cx - best.rank) : null };
   }
+  /* Z013 (G.5, 2026-10-22): THE PERK COLUMN IS A WALL.  Part VI: "Perk names any perk the recipe requires.  A dash
+     means none."  p.cxxxii says it of the bench, and of everything made there: "still wants the perk: the materials buy
+     the piece, not the knowledge."  The column prints a perk, a perk with its rank ("Brewer 1"), or an ageing time
+     beside it or alone ("Brewer 1 &middot; 2 Weeks", "2 Weeks") — a time is never a perk.  perkNeed reads the cell;
+     perkGate answers ok, or why not in plain words: no crafter chosen is a refusal too (no sheet, no perk to show). */
+  function perkNeed(field){
+    var out = { perk:"", rank:0, time:"" };
+    String(field == null ? "" : field).replace(/&middot;|\u00b7/g, "|").split("|").forEach(function(bit){
+      bit = bit.replace(/\s+/g, " ").trim(); if(!bit) return;
+      if(/^\d+\s*(weeks?|days?|hours?|months?)$/i.test(bit)){ out.time = bit; return; }
+      var m = /^(.*\S)\s+(\d+)$/.exec(bit);
+      out.perk = m ? m[1] : bit; out.rank = m ? Math.max(1, +m[2]) : 1;
+    });
+    return out;
+  }
+  function perkRankOn(ch, perk){
+    var r = 0, k = nk(perk);
+    ((ch && ch.perks) || []).forEach(function(p){ if(p && k && nk(p.name) === k) r = Math.max(r, Math.max(1, Math.round(+p.rank || 1))); });
+    return r;
+  }
   function perkHeld(ch, perk){
-    if(!perk) return true;
-    return ((ch && ch.perks) || []).some(function(p){ return p && nk(p.name) === nk(perk); });
+    var need = perkNeed(perk);
+    if(!need.perk) return true;
+    return perkRankOn(ch, need.perk) >= need.rank;
+  }
+  function perkGate(rec, ch){
+    var need = perkNeed(rec && rec.perk), nm = rec && rec.name ? rec.name : "This recipe";
+    if(!need.perk) return { ok:true, need:null, have:0, say:"" };
+    var named = need.perk + (need.rank > 1 ? " rank " + need.rank : "");
+    if(!ch) return { ok:false, need:need, have:0, say:nm + " needs the " + named + " perk — choose who is crafting first; with no sheet there is no perk to show." };
+    var have = perkRankOn(ch, need.perk), who = ch.name || "The crafter";
+    if(have < need.rank) return { ok:false, need:need, have:have, say:who + " has not got " + named + (have ? " (rank " + have + " on the sheet)" : "") + " — " + nm + " needs it." };
+    return { ok:true, need:need, have:have, say:"" };
   }
   function scrapperRank(ch){
     var r = 0;
@@ -56731,6 +57205,20 @@ function craftMath(LG, ITEMS){
       if(p && nk(p.name) === "scrapper") r = Math.max(r, Math.min(2, Math.max(1, Math.round(+p.rank || 1))));
     });
     return r;
+  }
+  /* Z013 (G.5): THE SCRAPPER GATES THE SALVAGE.  Guide p.cclxxviii: "With the Scrapper perk, each Effect on the salvage
+     roll also pays 1 Uncommon; at rank 2, every two Effects also pay 1 Rare."  The rank box asks; the salvager's sheet
+     decides — the rank paid is the lower of the two, and no salvager named is no Scrapper.  Scrounger is an ammunition
+     perk (p.lx) and gates nothing here. */
+  function scrapperFor(ch, asked){
+    var want = Math.max(0, Math.min(2, Math.round(+asked || 0))), have = ch ? scrapperRank(ch) : 0, r = Math.min(want, have), say = "";
+    if(want > r){
+      var who = ch ? (ch.name || "The salvager") : "";
+      say = !ch ? "No salvager named, so no Scrapper: this salvage pays Common only."
+          : !have ? who + " has not got Scrapper: this salvage pays Common only."
+          : who + " has Scrapper rank " + have + ": Uncommon yes, Rare no (Rare needs rank 2).";
+    }
+    return { rank:r, asked:want, have:have, say:say };
   }
   /* SALVAGE (the Guide, verbatim): "Roll 1CD per junk item; the total is Common materials
      received, +1CD per AP spent.  The Scrapper perk pays Uncommon and Rare on Effects, as
@@ -56786,6 +57274,7 @@ function craftMath(LG, ITEMS){
   }
   return { SKILL:SKILL, keyFor:keyFor, resolve:resolve, choice:choice, inClass:inClass, candidates:candidates,
            have:have, label:label, matches:matches, test:test, perkHeld:perkHeld, scrapperRank:scrapperRank,
+           perkNeed:perkNeed, perkRankOn:perkRankOn, perkGate:perkGate, scrapperFor:scrapperFor,
            salvageYield:salvageYield, salvageAnswer:salvageAnswer, salvageAP:salvageAP, pickFilter:pickFilter, live:live };
 }
 /* CRAFTMATH:end */
@@ -56927,11 +57416,11 @@ function chip(p, s){
 }
 function recipeHtml(rec, s){
   var R = CM.resolve(rec), ch = crafter(), t = CM.test(rec, ch), cat = CAT_BY[rec.cat] || {};
-  var perkOk = CM.perkHeld(ch, rec.perk);
+  var pg = CM.perkGate(rec, ch), nd = CM.perkNeed(rec.perk);     /* Z013: a recipe's perk is a wall */
   var meta = "Cx " + rec.cx + " · " + (t.skills.join(" or ") || "the listed skill") +
     (ch ? " · Difficulty " + t.difficulty + " for " + esc(ch.name || "the crafter") + " (" + t.skill + " " + t.rank + ")" : "") +
-    " · " + (rec.perk ? "Perk: " + esc(rec.perk) : "no perk") +
-    (rec.perk && ch && !perkOk ? ' <span class="warn">— not on ' + esc(ch.name || "the sheet") + "'s sheet (a warning: the Overseer decides)</span>" : "") +
+    " · " + (nd.perk ? "Perk: " + esc(nd.perk + (nd.rank > 1 ? " " + nd.rank : "")) : "no perk") + (nd.time ? " · " + esc(nd.time) : "") +
+    (!pg.ok ? ' <span class="warn">— ' + esc(pg.say) + "</span>" : "") +
     (rec.folio ? " · Guide p." + esc(rec.folio) : "");
   var h = '<div class="cf-r" data-rid="' + esc(rec.id) + '">' +
     '<div class="nm">' + esc(rec.name) + (rec.hp != null ? "<small>HP " + esc(rec.hp) + "</small>" : "") +
@@ -57065,6 +57554,9 @@ function pickList(){
 }
 function craftPress(id, fromPicker){
   var rec = BY_ID[id]; if(!rec || !OPS) return;
+  /* Z013 (G.5): no crafter, or a crafter without the recipe's perk, makes nothing — said in the card, nothing used */
+  var pg = CM.perkGate(rec, crafter());
+  if(!pg.ok){ picking = null; craftSaid = cardRefusal(id, "Not made: " + pg.say); say("cf-msg", "bad", craftSaid.text); renderCats(); return; }
   var R = CM.resolve(rec);
   if(R.parts.some(CM.choice) && !fromPicker){
     picking = { id:id, picks:{}, all:false, filter:"" };
@@ -57080,7 +57572,6 @@ function craftPress(id, fromPicker){
   picking = null;
   (r.used || []).forEach(function(u){ used.push((u.material ? CM.label({ rarity:u.material }) : u.name) + " ×" + u.qty); });
   var warn = [];
-  if(rec.perk && !CM.perkHeld(ch, rec.perk)) warn.push("the book asks for " + rec.perk + (ch ? " and " + (ch.name || "the crafter") + "'s sheet has not got it" : " and no crafter was chosen"));
   warn.push(ch ? "the test is " + t.skill + " at Difficulty " + t.difficulty + " (Cx " + t.cx + " − rank " + t.rank + ")" : "the test is Cx " + t.cx + " − the crafter's rank in " + t.skills.join(" or "));
   var w = warn.join("; ");
   var done = "Crafted " + rec.name + " — one on the party ledger (Crafted). Used: " + (used.join(", ") || "nothing") +
@@ -57174,7 +57665,8 @@ function salvDeclare(){
   var id = "salvage-" + Date.now().toString(36);
   /* the AP is read HERE, at the declaration, with the rest of it (skeptic, 2026-09-29: it was read off the
      box when the answer came back, so a box changed while the drawer was up changed a roll already made) */
-  salv = { id:id, junk:n, who:who ? String(who.id) : "", scrapper:+$("cf-sscrap").value || 0,
+  var sc = CM.scrapperFor(who, +$("cf-sscrap").value || 0);     /* Z013: the sheet decides the Scrapper rank paid */
+  salv = { id:id, junk:n, who:who ? String(who.id) : "", scrapper:sc.rank,
            ap:Math.max(0, Math.min(20, Math.round(+$("cf-sap").value || 0))), stage:"declared", out:null };
   var r = R.open({
     kind:"test", source:"Craft", id:id,
@@ -57186,7 +57678,7 @@ function salvDeclare(){
     onResult:function(rep){ salvResult(id, rep); }
   });
   if(r && r.ok === false){ salv = null; say("cf-smsg", "bad", r.note || "The roller would not take it."); return; }
-  say("cf-smsg", "plain", "Declared — INT + Repair at Difficulty 0 for " + n + " junk" + (who ? ", " + (who.name || "") + "'s numbers off the sheet" : "") + ". Roll it on the drawer; the materials land here.");
+  say("cf-smsg", "plain", "Declared — INT + Repair at Difficulty 0 for " + n + " junk" + (who ? ", " + (who.name || "") + "'s numbers off the sheet" : "") + ". Roll it on the drawer; the materials land here." + (sc.say ? " " + sc.say : ""));
 }
 function faces(n){ var f = []; for(var i = 0; i < n; i++) f.push(1 + Math.floor(Math.random() * 6)); return f; }
 function countCD(){
@@ -57243,7 +57735,7 @@ $("cf-who").addEventListener("change", function(){ chosen.who = this.value; rend
 $("cf-roller").addEventListener("change", function(){ chosen.roller = this.value; });
 $("cf-swho").addEventListener("change", function(){
   chosen.swho = this.value;
-  var c = sheetById(this.value); if(c) $("cf-sscrap").value = String(CM.scrapperRank(c));
+  var c = sheetById(this.value); $("cf-sscrap").value = String(c ? CM.scrapperRank(c) : 0);
 });
 $("cf-cats").addEventListener("toggle", function(e){
   var d = e.target; if(!d || !d.tagName || d.tagName !== "DETAILS") return;
@@ -61906,7 +62398,17 @@ function shape(l){
 
 /* ------------------------------------------------------------------ this device's choice */
 function store(){ try{ return W.localStorage || null; }catch(e){ return null; } }
-function readOpen(){ var s = store(); try{ return !(s && s.getItem(FC_STORE) === "shut"); }catch(e){ return true; } }
+/* CMD Z015 (P.1, 2026-10-22): with no choice stored, a phone screen (700px and under) opens Fight shut here - the chat
+   stood ~250px between the turn order and the map at 390px; a stored choice stands at every width, and a desktop with
+   none opens as before.  The boot's first draw stores nothing (setOpen's quiet), so only a press is a choice. */
+function phoneWidth(){ try{ return !!(W.matchMedia && W.matchMedia("screen and (max-width:700px)").matches); }catch(e){ return false; } }
+function readOpen(){
+  var s = store();
+  try{
+    if(phoneWidth() && !(s && s.getItem(FC_STORE))) return false;
+    return !(s && s.getItem(FC_STORE) === "shut");
+  }catch(e){ return true; }
+}
 function writeOpen(on){ var s = store(); try{ if(s) s.setItem(FC_STORE, on ? "open" : "shut"); }catch(e){} }
 
 /* ------------------------------------------------------------------ the panel */
@@ -62110,9 +62612,9 @@ function paint(){
   measure();
   return added;
 }
-function setOpen(on){
+function setOpen(on, quiet){
   open = !!on;
-  writeOpen(open);
+  if(!quiet) writeOpen(open);
   if(!ui) return open;
   ui.body.hidden = !open;
   ui.panel.className = "fc" + (open ? "" : " fc-shut");
@@ -62171,7 +62673,7 @@ function boot(){
   style();
   build();
   open = readOpen();
-  setOpen(open);
+  setOpen(open, true);
   paintSay();
   paint();
   mount();
