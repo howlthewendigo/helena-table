@@ -5019,6 +5019,20 @@ html body.view-cinder[data-cl-tab="fight"] #suite-stage > #fold-map{ overflow-y:
 html body.view-cinder #cinder-tab-pack, html body.view-cinder #cinder-tab-growth,
 html body.view-cinder .cl-mbtn[data-cl-tab="pack"], html body.view-cinder .cl-mbtn[data-cl-tab="growth"],
 html body.view-cinder #cinder-pb-pack, html body.view-cinder #cinder-pb-growth{ display:none !important; }
+/* game night (Howl): the S.P.E.C.I.A.L. "gears" stretched into lumpy bubbles in the Cinder sheet - flat square keys instead */
+html body.view-cinder #cs-sheet .cs-attr, html body.view-cinder #cs-sheet .cs-attr .ban, html body.view-cinder #cs-sheet .cs-gear,
+html body.view-cinder #cs-sheet .cs-luck, html body.view-cinder #cs-sheet .cs-luckpts, html body.view-cinder #cs-sheet .cs-luckpts .ban2,
+html body.view-cinder #cs-sheet [class*="cs-attr"], html body.view-cinder #cs-sheet [class*="luck"]{
+  clip-path:none !important; -webkit-clip-path:none !important; border-radius:6px !important; transform:none !important;
+}
+html body.view-cinder #cs-sheet .cs-attr::before, html body.view-cinder #cs-sheet .cs-attr::after,
+html body.view-cinder #cs-sheet .cs-gear::before, html body.view-cinder #cs-sheet .cs-gear::after,
+html body.view-cinder #cs-sheet [class*="luck"]::before, html body.view-cinder #cs-sheet [class*="luck"]::after{ display:none !important; }
+html body.view-cinder #cs-sheet .cs-attr{ border:1px solid var(--cl-burnt, #3A2C20) !important; padding:4px !important; }
+html body.view-cinder #cs-sheet .cs-gear{ width:auto !important; height:auto !important; border:0 !important; background:transparent !important; margin:2px auto !important; }
+#cl-rail-x{ position:fixed; top:56px; right:12px; z-index:200; min-width:40px; min-height:40px; font-size:24px; line-height:1; cursor:pointer;
+  background:#221C17; color:#E8DFCC; border:2px solid #9C7A3C; border-radius:6px; }
+#cl-rail-x[hidden]{ display:none !important; }
 </style>
 <style data-suite="cinder-z1-night">/* ============================================================================
    Helena Suite - Z035 item 1 (2026-10-23): NIGHT SHIFT IN BOTH VIEWS.
@@ -68846,6 +68860,18 @@ setInterval(paint, 2000);
   });
   if(D.readyState === "loading") D.addEventListener("DOMContentLoaded", scan); else scan();
   setInterval(scan, 1500);
+})();
+/* game night (Howl): the setup rail opened from Classic stayed open in Cinder with no way to shut - an x (and Esc) folds it */
+(function(){
+  "use strict";
+  var D = document, B = D.body;
+  function shut(){ B.classList.add("rail-shut"); try{ localStorage.setItem("helena-suite-rail", "1"); sessionStorage.setItem("helena-suite-rail", "1"); }catch(e){} }
+  var x = D.createElement("button"); x.type = "button"; x.id = "cl-rail-x"; x.textContent = "×"; x.title = "Close the panel (Esc)";
+  x.addEventListener("click", shut);
+  function paint(){ x.hidden = !(B.classList.contains("view-cinder") && !B.classList.contains("rail-shut")); }
+  D.addEventListener("keydown", function(e){ if(e.key === "Escape" && B.classList.contains("view-cinder") && !B.classList.contains("rail-shut")) shut(); });
+  function boot(){ B.appendChild(x); paint(); new MutationObserver(paint).observe(B, { attributes:true, attributeFilter:["class"] }); }
+  if(D.readyState === "loading") D.addEventListener("DOMContentLoaded", boot); else boot();
 })();
 </script>
 <script data-suite="cinder-z1-night">/* ============================================================================
