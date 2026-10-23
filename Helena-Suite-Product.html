@@ -5033,6 +5033,12 @@ html body.view-cinder #cs-sheet .cs-gear{ width:auto !important; height:auto !im
 #cl-rail-x{ position:fixed; top:56px; right:12px; z-index:200; min-width:40px; min-height:40px; font-size:24px; line-height:1; cursor:pointer;
   background:#221C17; color:#E8DFCC; border:2px solid #9C7A3C; border-radius:6px; }
 #cl-rail-x[hidden]{ display:none !important; }
+/* game night (Howl): the ribbon sat over the map's name chips - the map's contents start below it */
+html body.view-cinder[data-cl-tab="fight"] #suite-stage > #fold-map{ padding-top:104px !important; }
+/* game night (Howl): the weapons table was squeezed into one sheet column - it gets the full width under the columns */
+html body.view-cinder #cx-sheet3 > .cx-full{ grid-column:1 / -1 !important; min-width:0; }
+html body.view-cinder #cx-sheet3 > .cx-full .cs-wwrap{ overflow-x:auto !important; max-width:100%; }
+html body.view-cinder #cx-sheet3 > .cx-full .cs-wtab input[type=text], html body.view-cinder #cx-sheet3 > .cx-full .cs-wtab textarea{ min-width:14ch; }
 </style>
 <style data-suite="cinder-z1-night">/* ============================================================================
    Helena Suite - Z035 item 1 (2026-10-23): NIGHT SHIFT IN BOTH VIEWS.
@@ -67158,6 +67164,22 @@ setInterval(paint, 2000);
   D.addEventListener("keydown", function(e){ if(e.key === "Escape" && B.classList.contains("view-cinder") && !B.classList.contains("rail-shut")) shut(); });
   function boot(){ B.appendChild(x); paint(); new MutationObserver(paint).observe(B, { attributes:true, attributeFilter:["class"] }); }
   if(D.readyState === "loading") D.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+/* game night (Howl): the weapons card spans the whole Cinder sheet (and goes back home in Classic) */
+(function(){
+  "use strict";
+  var D = document, card = null, home = null;
+  function find(){ var t = D.querySelector("#cs-sheet .cs-wtab"); if(!t) return null; return t.closest("details.cs-card") || t.closest(".cs-card") || t.closest("details") || null; }
+  setInterval(function(){
+    var on = D.body.classList.contains("view-cinder"), wrap = D.getElementById("cx-sheet3");
+    if(!card) card = find(); if(!card) return;
+    if(on && wrap && card.parentNode !== wrap){
+      if(!home || !wrap.contains(home.p)) home = { p:card.parentNode, n:card.nextSibling };
+      wrap.appendChild(card); card.classList.add("cx-full");
+    } else if(!on && card.classList.contains("cx-full")){
+      card.classList.remove("cx-full");        /* the sheet's own Cinder code puts every card back where it came from */
+    }
+  }, 600);
 })();
 </script>
 <script data-suite="cinder-z1-night">/* ============================================================================
