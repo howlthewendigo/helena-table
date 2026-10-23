@@ -5013,6 +5013,12 @@ html body.view-cinder[data-cl-tab] #cinder-ov-bottom #cl-mtc:has(button), html b
 }
 body.view-cinder #cl-mtc.cl-mtc-shut, body.view-cinder #tt-mcard.cl-mtc-shut{ display:none !important; }
 .cl-mtc-x{ position:sticky; top:0; float:right; z-index:2; min-width:36px; min-height:36px; font-size:22px; line-height:1; cursor:pointer; }
+/* game night (Howl): the map scrolls on past the action bar, so the bottom zones can be seen */
+html body.view-cinder[data-cl-tab="fight"] #suite-stage > #fold-map{ overflow-y:auto !important; padding-bottom:150px !important; box-sizing:border-box; }
+/* game night (Howl): Pack and Growth hidden until they work */
+html body.view-cinder #cinder-tab-pack, html body.view-cinder #cinder-tab-growth,
+html body.view-cinder .cl-mbtn[data-cl-tab="pack"], html body.view-cinder .cl-mbtn[data-cl-tab="growth"],
+html body.view-cinder #cinder-pb-pack, html body.view-cinder #cinder-pb-growth{ display:none !important; }
 </style>
 <style data-suite="cinder-z1-night">/* ============================================================================
    Helena Suite - Z035 item 1 (2026-10-23): NIGHT SHIFT IN BOTH VIEWS.
