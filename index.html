@@ -4608,6 +4608,348 @@ body.view-cinder #cx-clock-fallback{display:inline-flex;position:fixed;top:8px;l
 .cx-ck-carry{margin:8px 0;padding:6px 10px;background:#FBF6EA;border-left:4px solid #B88A2E;font-size:15px;white-space:pre-wrap}
 @media print{.cx-clock,#cx-clock-fallback{display:none !important}}
 </style>
+<style data-suite="cinder-6-audit">/* ============================================================================
+   Helena Suite - Z034 Cinder A10 readability pass (zoe/audit/cinder_audit.py is its check).
+   Only under body.view-cinder; Classic is untouched.  Paper (#EDE3CB, Ink #1C1814) in the default view,
+   Night Shift's Soot with Ash text when body.cl-night.  Sentences >= 15 px, text panels >= 320 px,
+   text contrast >= 4.5:1 (3:1 icons and big numerals).
+   ========================================================================== */
+
+/* ---- 1. The panes' own palettes, re-inked for Paper.  Most panes share one vocabulary (--void --panel --plate
+   --edge --ink --dim --faint --amber --green --red --blue --violet); each scoped :root lands on #tool-<key>,
+   so a body.view-cinder #tool-<key> rule outranks it. ---- */
+body.view-cinder :is(#tool-camp, #tool-craft, #tool-loot, #tool-shop, #tool-quests, #tool-travel, #tool-enc, #tool-map, #tool-char){
+  --void:#EDE3CB; --panel:#F4ECD8; --plate:#E9DEC3; --edge:#9C8A6A; --field-edge:#7B6A4F; --black:#E2D5B6; --bg:#EDE3CB;
+  --ink:#1C1814; --dim:#4F4538; --faint:#5A4F42;
+  --amber:#7A5410; --green:#2E6B3E; --red:#A12C20; --blue:#1F5C99; --violet:#6B3FB0;
+  --t-cap:13px; --t-body:15px; --t-head:17px;
+}
+body.view-cinder.cl-night :is(#tool-camp, #tool-craft, #tool-loot, #tool-shop, #tool-quests, #tool-travel, #tool-enc, #tool-map, #tool-char){
+  --void:#17130F; --panel:#221C17; --plate:#2A231C; --edge:#5A4A38; --field-edge:#7B6A4F; --black:#17130F; --bg:#17130F;
+  --ink:#E8DFCC; --dim:#C9BEA7; --faint:#BFB39C;
+  --amber:#E6B04A; --green:#7FC48E; --red:#F08A7C; --blue:#8DB8EA; --violet:#B99BEB;
+}
+/* the turn order is another agent's file this wave: only its palette and type scale are re-inked here */
+body.view-cinder #tool-turn{ --t-cap:13px; --t-body:15px; --t-head:17px; }
+/* the stage background behind every pane is the paper too */
+body.view-cinder #suite-stage > .suite-fold .suite-fold-b{ font-size:15px; }
+body.view-cinder #suite-stage > .suite-fold .suite-fold-bar{ background:var(--cl-paper-shade); color:var(--cl-ink); }
+body.view-cinder.cl-night #suite-stage > .suite-fold .suite-fold-bar{ background:var(--cl-soot); color:var(--cl-ash); }
+
+/* ---- 2. Fight: the action bar, the frames, the monster card ---- */
+body.view-cinder #cl-bar .cl-pip.maj{ color:#B5461A; }
+body.view-cinder #cl-bar .cl-pip.min{ color:#2A5FB8; }
+body.view-cinder #cl-bar .cl-pip small, body.view-cinder #cl-bar .cl-ap small, body.view-cinder #cl-bar .cl-ov small,
+body.view-cinder #cl-bar .cl-end small, body.view-cinder #cl-bar .cl-dice small{ font-size:13px; color:inherit; }
+body.view-cinder .cl-disc{ color:#17130F; text-shadow:0 0 2px rgba(255,255,255,.75); }
+body.view-cinder .cl-disc[style*="192, 57, 43"], body.view-cinder .cl-disc[style*="#C0392B"], body.view-cinder .cl-disc[style*="#c0392b"]{ color:#FFF6E6; text-shadow:none; }
+body.view-cinder .cl-stamp.in{ background:#A12C20 !important; color:#FFF6E6 !important; }
+body.view-cinder .cl-tac summary{ color:#6B3FB0; font-size:15px; }
+body.view-cinder .cl-num{ font-size:13px; }
+body.view-cinder .cl-num .pl{ color:#4A5F6C; }
+/* the map's placed-token chips: sentence-sized and wide enough */
+body.view-cinder #tool-map .zm-chip i{ font-size:15px; }
+body.view-cinder #tool-map .zm-zr{ font-size:15px; }
+
+/* ---- 3. Sheets ---- */
+body.view-cinder #tool-char .cs-attr .ban, body.view-cinder #tool-char .cs-luckpts .ban2{ background:#2B241D !important; color:#EDE3CB !important; font-size:13px !important; }
+body.view-cinder #tool-char .cs-fold-n{ color:#1C1814; font-size:15px; }
+body.view-cinder #tool-char .cs-rib{ color:#7A5410; }
+body.view-cinder #tool-char .cs-out{ background:#F4ECD8 !important; color:#1C1814 !important; }
+body.view-cinder #tool-char .cs-hbox, body.view-cinder #tool-char .cs-hbox > .t{ background:#F4ECD8 !important; color:#1C1814; }
+body.view-cinder #tool-char .cs-hbox > .t{ font-size:13px; color:#7A5410; }
+body.view-cinder #tool-char .cs-hbox small, body.view-cinder #tool-char .cs-hbox summary{ color:#4F4538; font-size:15px; }
+body.view-cinder #tool-char small{ font-size:15px; }
+body.view-cinder #tool-char summary{ font-size:15px; }
+body.view-cinder #tool-char .cs-lab, body.view-cinder #tool-char .cs-id2, body.view-cinder #tool-char .cs-head span{ color:#4F4538 !important; font-size:15px; }
+body.view-cinder #tool-char .cs-okpair, body.view-cinder #tool-char .cs-lvl-go{ color:#4F4538 !important; font-size:15px; }
+body.view-cinder #tool-char td.n, body.view-cinder #tool-char td.tn{ color:#6A4A0E !important; }
+body.view-cinder #cx-sheet3 .cx-h{ font-size:15px; }
+
+/* ---- 4. Phone: panels reach the 320 px floor - the panes give back their side padding ---- */
+@media (max-width:700px){
+  body.view-cinder #suite-stage{ padding-left:0 !important; padding-right:0 !important; }
+  body.view-cinder #suite-stage > .suite-fold > .tool{ padding-left:8px !important; padding-right:8px !important; box-sizing:border-box; }
+  body.view-cinder #cx-sheet3{ padding:8px !important; }
+  body.view-cinder #tool-char .cs-card, body.view-cinder #tool-char .cs-hbox{ padding-left:4px; padding-right:4px; }
+}
+
+/* ---- 5. second pass (audit-driven) ---- */
+body.view-cinder{ --cl-a-ink:#1C1814; --cl-a-ink2:#4F4538; --cl-a-brass:#6A4A0E; --cl-a-teal:#1D6E68; --cl-a-paper:#EDE3CB; --cl-a-shade:#D9CAA8; }
+body.view-cinder.cl-night{ --cl-a-ink:#E8DFCC; --cl-a-ink2:#C9BEA7; --cl-a-brass:#E6B04A; --cl-a-teal:#6FD1C6; --cl-a-paper:#221C17; --cl-a-shade:#221C17; }
+body.view-cinder #suite-stage > .suite-fold .suite-fold-t{ color:var(--cl-a-brass); }
+body.view-cinder #suite-stage > .suite-fold .suite-fold-b{ color:var(--cl-a-ink2); }
+body.view-cinder #suite-stage > .suite-fold .suite-fold-n{ color:var(--cl-a-teal); }
+body.view-cinder{ --cl-a-teal:#155A55; }
+body.view-cinder.cl-night{ --cl-a-teal:#6FD1C6; }
+body.view-cinder #tool-char .cs-hbox .l{ min-width:0; }
+body.view-cinder #tool-char .cs-hbox .l > small{ flex-basis:100%; }
+body.view-cinder .cl-disc{ color:#17130F; }
+body.view-cinder #cl-bar .cl-disc{ text-shadow:none; background-color:#E4D3B0; }
+body.view-cinder #cl-bar .cl-pip.maj small{ color:#8E3510; }
+body.view-cinder #tool-char .cs-tab[aria-selected="true"]{ background:var(--cl-a-shade); color:var(--cl-a-ink); }
+body.view-cinder #tool-char .cs-tab .cs-tn{ color:inherit; }
+body.view-cinder #tool-char span[style*="--dim"]{ color:var(--cl-a-ink2) !important; }
+body.view-cinder #tool-char .cs-hbox .l{ flex-wrap:wrap; }
+body.view-cinder #tool-char .cs-hbox .l small, body.view-cinder #tool-char .cs-hbox details.cs-why > summary,
+body.view-cinder #tool-char details.cs-why > summary, body.view-cinder #tool-char .cs-head span, body.view-cinder #tool-char .cs-id2,
+body.view-cinder #tool-char .cs-lvl-go{ font-size:15px !important; }
+body.view-cinder #tool-char small{ color:var(--cl-a-ink2); }
+body.view-cinder #tool-char .cs-hpair{ display:block !important; } body.view-cinder #tool-char .cs-hpair > .l{ width:auto !important; }
+
+/* ---- 6. hard-coded dark surfaces inside the panes, put on the paper (Night Shift re-darkens through the vars) ---- */
+body.view-cinder #tool-map :is(select, input, button){ background:var(--panel); color:var(--ink); }
+body.view-cinder #tool-map button.pri, body.view-cinder #tool-loot button.big{ background:var(--amber); color:var(--cl-a-paper); }
+body.view-cinder #tool-map th{ background:var(--plate); color:var(--ink); }
+body.view-cinder #tool-map th, body.view-cinder #tool-map td{ border-color:var(--edge); }
+body.view-cinder #tool-map #c_range td.mono{ filter:brightness(.55) saturate(1.4); }
+body.view-cinder.cl-night #tool-map #c_range td.mono{ filter:none; }
+body.view-cinder #tool-map .tag, body.view-cinder #tool-map #c_deploy b{ filter:brightness(.55) saturate(1.3); }
+body.view-cinder.cl-night #tool-map .tag, body.view-cinder.cl-night #tool-map #c_deploy b{ filter:none; }
+body.view-cinder #tool-map .toggles{ background:var(--plate); }
+body.view-cinder #tool-camp button.cp-g, body.view-cinder #tool-camp .cp-night,
+body.view-cinder #tool-craft details.cf-cat, body.view-cinder #tool-enc .stat,
+body.view-cinder #tool-shop .lg-sec, body.view-cinder #tool-shop .payline{ background:var(--plate); }
+body.view-cinder #tool-loot button{ background:var(--panel); color:var(--ink); }
+body.view-cinder #tool-loot button.big{ background:var(--amber); color:var(--cl-a-paper); }
+body.view-cinder #tool-enc .swarm-tag{ color:#FFF6E6; }
+body.view-cinder #tool-enc .swarm-note{ color:var(--ink); }
+body.view-cinder #tool-char small[style], body.view-cinder #tool-char .cs-hpair small{ color:var(--cl-a-ink2) !important; }
+body.view-cinder #suite-stage .z-log-h, body.view-cinder #suite-stage .tb-session-line, body.view-cinder #suite-stage .suite-fold-x{ color:var(--cl-a-ink2); }
+body.view-cinder #tool-camp .cp-g .tk, body.view-cinder #tool-camp .cp-g .ft{ color:var(--ink); }
+
+/* ---- 7. sentences at 15 px or more inside every pane (labels may stay 13 px uppercase) ---- */
+body.view-cinder #suite-stage :is(small, summary, h2, h3, label, .hint, .sub, .note):not(svg *){ font-size:max(15px, 1em); }
+body.view-cinder #suite-stage .tool :is(small, summary, h2, h3, label, .hint, .sub){ font-size:15px; }
+body.view-cinder :is(#tool-enc .atk-line, #tool-enc .abil, #tool-enc .sb-meta, #tool-enc .swarm-note, #tool-enc .stat b ~ *, #tool-enc .eb-rules,
+  #tool-loot .perk-txt, #tool-loot .lf-sent, #tool-shop .mod-txt, #tool-shop .rate, #tool-shop .tally, #tool-craft .st,
+  #tool-med .ms-heal, #tool-med .sys, #tool-med .tally, #tool-med .sub, #tool-med #saveline, #tool-med span,
+  #tool-fuse .section-title, #tool-fuse #saveState, #tool-fuse span, #tool-camp .cp-lab, #tool-camp .cp-g .an,
+  #tool-camp .cp-night, #tool-travel .tv-lab, .fc-b, .fc-go, #fold-chat span, #fold-log span){ font-size:15px; }
+body.view-cinder #tool-enc .stat span{ font-size:13px; }
+
+/* ---- 8. the setup rail: a 360 px sheet over the Stage, sentences at 15 px ---- */
+body.view-cinder #suite-rail{ width:360px !important; max-width:100vw; box-sizing:border-box; }
+body.view-cinder #suite-rail :is(small, .dm-note, .rail-h, p, label){ font-size:15px !important; }
+body.view-cinder #suite-rail .dm-opts{ min-width:320px; }
+body.view-cinder:not(.rail-shut) #suite-rail{ transform:none; }
+
+/* ---- 9. phone: narrow cards stack ---- */
+@media (max-width:700px){
+  body.view-cinder #tool-enc :is(.atk, .abil, .swarm-note){ min-width:0; }
+}
+body.view-cinder.rail-shut #suite-rail{ transform:translateX(100%); }
+
+/* ---- 10. third pass ---- */
+/* the range matrix and deploy notes write their inks inline: re-ink them for Paper */
+body.view-cinder #tool-map [style*="#8a8f7a"]{ color:#4F4538 !important; }
+body.view-cinder #tool-map [style*="#7ac74f"]{ color:#2E6B3E !important; }
+body.view-cinder #tool-map [style*="#f0b429"]{ color:#7A5410 !important; }
+body.view-cinder #tool-map [style*="#e05c4b"]{ color:#A12C20 !important; }
+body.view-cinder #tool-map [style*="#5aa9e6"]{ color:#1F5C99 !important; }
+body.view-cinder #tool-map [style*="#c86fd4"]{ color:#7A3A86 !important; }
+body.view-cinder.cl-night #tool-map [style*="#8a8f7a"], body.view-cinder.cl-night #tool-map [style*="#7ac74f"],
+body.view-cinder.cl-night #tool-map [style*="#f0b429"], body.view-cinder.cl-night #tool-map [style*="#e05c4b"],
+body.view-cinder.cl-night #tool-map [style*="#5aa9e6"], body.view-cinder.cl-night #tool-map [style*="#c86fd4"]{ color:revert-layer !important; filter:none; }
+body.view-cinder #tool-map #c_range td.mono, body.view-cinder #tool-map .tag, body.view-cinder #tool-map #c_deploy b{ filter:none; }
+/* the token chips on the map's edge (table-tokens.js paints them dark): Paper */
+body.view-cinder #tool-map .zm-chip{ background:var(--panel); border-color:var(--edge); }
+body.view-cinder #tool-map .zm-chip button{ color:var(--ink); font-size:15px; }
+body.view-cinder #tool-map .zm-chip .zm-pick i{ color:var(--green); font-size:15px; }
+body.view-cinder #tool-map .zm-chip.stray .zm-pick{ color:var(--dim); }
+/* side columns wide enough for their sentences */
+body.view-cinder :is(#tool-loot, #tool-shop, #tool-enc) .top{ grid-template-columns:minmax(0,1fr) 380px; }
+@media (max-width:1020px){ body.view-cinder :is(#tool-loot, #tool-shop, #tool-enc) .top{ grid-template-columns:minmax(0,1fr); } }
+body.view-cinder #tool-loot button{ color:var(--ink); }
+body.view-cinder #tool-loot .perk[data-on="1"], body.view-cinder #tool-shop .mod[data-on="1"]{ background:var(--plate); }
+@media (max-width:700px){
+  body.view-cinder #tool-enc .eb-stat{ padding-left:4px !important; padding-right:4px !important; }
+  body.view-cinder #tool-enc .sb-body{ padding-left:6px !important; padding-right:6px !important; }
+}
+body.view-cinder #cx-sheet3 #cs-special .cs-luckpts{ background:#2B241D; color:#EDE3CB; }
+body.view-cinder #cx-sheet3 #cs-special .cs-luckpts small{ background:transparent; }
+body.view-cinder #tool-loot .perk-rank button[aria-pressed="true"]{ background:var(--amber); color:var(--cl-a-paper); }
+body.view-cinder #tool-map .zm-chip .zm-hp{ color:#17130F; font-size:13px; }
+body.view-cinder #tool-map .zm-chip .zm-hp{ color:#17130F !important; }
+body.view-cinder #cx-sheet3 #cs-special .cs-luckpts b{ color:#EDE3CB !important; }
+body.view-cinder #suite-rail .rail-off{ font-size:15px !important; }
+body.view-cinder #suite-rail .rail-apnote, body.view-cinder #cl-bar small, body.view-cinder #tool-enc .eb-stat-note{ font-size:15px !important; }
+body.view-cinder #tool-map .bkbar{ background:var(--plate); color:var(--ink); }
+body.view-cinder #tool-map .bk-lab{ color:var(--amber); font-size:15px; }
+body.view-cinder #tool-map .zm-hint{ font-size:15px; }
+body.view-cinder #suite-rail button{ font-size:15px; }
+body.view-cinder #tool-map .bkbar.bk-shut .bk-set{ opacity:1; text-decoration:line-through; text-decoration-color:var(--edge); }
+
+/* ---- 11. form fields on Paper: the panes paint their inputs dark by hand; the ink is the paper's now ---- */
+body.view-cinder #suite-stage .tool :is(input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea),
+body.view-cinder #cc-room .cc-pick{ background:var(--cl-a-field, #FBF6EA); color:var(--cl-a-ink); border-color:var(--edge, #8C8173); }
+body.view-cinder.cl-night{ --cl-a-field:#17130F; }
+body.view-cinder #suite-stage .tool :is(input, textarea)::placeholder{ color:var(--cl-a-ink2); opacity:1; }
+body.view-cinder #cx-sheet3 #cs-special input, body.view-cinder #cx-sheet3 #cs-special .cs-gear{ background:#2B241D !important; color:#EDE3CB !important; }
+</style>
+<style data-suite="cinder-6-camp">/* Z034 the Camp room (cinder-6-camp.js).  It sits inside #tool-camp, so it reads the pane's own palette
+   variables (--panel --plate --edge --ink --dim --amber --green) in both views - Classic's dark, Cinder's Paper,
+   and Night Shift through the same variables.  Sentences 15 px+, panels 320 px+. */
+#cc-room{ margin:0 0 16px; color:var(--ink); font-size:16px; line-height:1.5; }
+#cc-room .cc-title{ margin:0 0 8px; font-size:20px; letter-spacing:.06em; text-transform:uppercase; color:var(--amber); }
+#cc-room .cc-top{ border:1px solid var(--edge); background:var(--plate); padding:8px 12px; margin-bottom:12px; }
+#cc-room .cc-line{ display:flex; gap:0; list-style:none; margin:0; padding:0; min-height:40px; align-items:center;
+  border-bottom:2px dashed var(--edge); padding-bottom:6px; }
+#cc-room .cc-step{ flex:1 1 0; display:flex; align-items:center; gap:8px; font-size:15px; color:var(--dim); }
+#cc-room .cc-step + .cc-step::before{ content:""; flex:0 0 18px; height:2px; background:var(--edge); margin-right:4px; }
+#cc-room .cc-step-n{ display:inline-grid; place-items:center; width:28px; height:28px; border-radius:50%; border:2px solid var(--edge); font-weight:700; }
+#cc-room .cc-step.cc-done{ color:var(--ink); }
+#cc-room .cc-step.cc-done .cc-step-n{ border-color:var(--green); color:var(--green); }
+#cc-room .cc-step.cc-done .cc-step-n::after{ content:" ✓"; font-size:13px; }
+#cc-room .cc-fore{ margin-top:6px; font-size:15px; color:var(--ink); }
+#cc-room .cc-cols{ display:grid; grid-template-columns:minmax(320px, 360px) minmax(320px, 1fr) minmax(340px, 400px); gap:12px; align-items:start; }
+@media (max-width:1180px){ #cc-room .cc-cols{ grid-template-columns:minmax(320px, 1fr) minmax(320px, 1fr); } #cc-room .cc-board{ grid-column:1 / -1; } }
+@media (max-width:760px){ #cc-room .cc-cols{ grid-template-columns:minmax(0, 1fr); } #cc-room .cc-seats{ order:-1; } }
+#cc-room .cc-panel{ border:1px solid var(--edge); background:var(--panel); padding:10px 12px; min-width:0; box-sizing:border-box; }
+#cc-room .cc-h{ margin:0 0 6px; font-size:15px; letter-spacing:.08em; text-transform:uppercase; color:var(--amber); }
+#cc-room .cc-sub, #cc-room .cc-empty{ margin:0 0 8px; font-size:15px; color:var(--dim); }
+#cc-room .cc-log-list{ list-style:none; margin:0; padding:0; max-height:480px; overflow:auto; }
+#cc-room .cc-log-e{ font-size:15px; padding:6px 0; border-top:1px solid var(--edge); }
+#cc-room .cc-log-t{ font-size:13px; color:var(--dim); margin-right:6px; }
+#cc-room .cc-log-w{ margin-right:6px; }
+#cc-room .cc-seat{ border-top:1px solid var(--edge); padding:8px 0; }
+#cc-room .cc-seat-h{ display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline; }
+#cc-room .cc-role{ font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--amber); border:1px solid var(--amber); padding:1px 6px; border-radius:2px; }
+#cc-room .cc-test{ font-size:15px; }
+#cc-room .cc-seat-p{ display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:6px; }
+#cc-room .cc-plab{ display:flex; align-items:center; gap:6px; font-size:15px; color:var(--dim); }
+#cc-room .cc-pick{ min-height:36px; font:inherit; font-size:15px; background:var(--plate); color:var(--ink); border:1px solid var(--edge); padding:2px 6px; }
+#cc-room .cc-seat-a{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+#cc-room .cc-roll, #cc-room .cc-go, #cc-room .cc-nightbtn{ min-height:36px; font:inherit; font-size:15px; cursor:pointer; padding:4px 10px;
+  background:var(--plate); color:var(--ink); border:1px solid var(--edge); border-radius:3px; }
+#cc-room .cc-roll{ border-color:var(--amber); }
+#cc-room .cc-roll:hover, #cc-room .cc-go:hover, #cc-room .cc-nightbtn:hover{ border-color:var(--amber); }
+#cc-room .cc-tired{ margin-top:4px; font-size:17px; color:var(--amber); }
+#cc-room .cc-tired[hidden]{ display:none; }
+#cc-room .cc-night{ border-top:2px solid var(--edge); margin-top:6px; padding-top:10px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+#cc-room .cc-nightbtn{ font-weight:700; border-width:2px; }
+#cc-room .cc-night-say{ flex:1 1 220px; font-size:15px; }
+#cc-room .cc-board > .cp-card{ margin:0; }
+#cc-room .cc-tired, #cc-room .cc-empty{ font-family:"Cinder Kalam", Kalam, "Comic Neue", cursive; }
+@media (max-width:700px){ #cc-room .cc-line{ flex-wrap:wrap; gap:6px; } #cc-room .cc-step{ flex:1 1 40%; } #cc-room .cc-step + .cc-step::before{ display:none; } }
+#cc-room .cc-board button.cp-g{ grid-template-columns:repeat(3, minmax(0, 1fr)); row-gap:2px; }
+#cc-room .cc-board button.cp-g .nm, #cc-room .cc-board button.cp-g .an, #cc-room .cc-board button.cp-g .rb{ grid-column:1 / -1; }
+</style>
+<style data-suite="cinder-6-classic">/* Z035 (Zoe): the A10 readability floor in BOTH views.  This file carries it to Classic (body without
+   view-cinder): sentences 15 px+, text panels 320 px+, AA contrast.  Sizes only where Classic's own dark
+   palette already passes; colours are touched only where the audit (zoe/audit/cinder_audit.py --classic) found
+   a pair under 4.5:1.  Classic's look otherwise stays as it was. */
+body:not(.view-cinder) :is(#tool-camp, #tool-craft, #tool-loot, #tool-shop, #tool-quests, #tool-travel, #tool-enc, #tool-map, #tool-char, #tool-turn, #tool-dice){
+  --t-cap:13px; --t-body:15px; --t-head:17px;
+}
+body:not(.view-cinder) #suite-stage .tool :is(small, summary, h2, h3, label, .hint, .sub){ font-size:15px; }
+body:not(.view-cinder) :is(#tool-enc .atk-line, #tool-enc .abil, #tool-enc .sb-meta, #tool-enc .swarm-note, #tool-enc .eb-rules, #tool-enc .eb-stat-note,
+  #tool-loot .perk-txt, #tool-loot .lf-sent, #tool-shop .mod-txt, #tool-shop .rate, #tool-shop .tally, #tool-craft .st,
+  #tool-med .ms-heal, #tool-med .sys, #tool-med .tally, #tool-med .sub, #tool-med #saveline, #tool-med span,
+  #tool-fuse .section-title, #tool-fuse #saveState, #tool-fuse span, #tool-camp .cp-lab, #tool-camp .cp-g .an,
+  #tool-camp .cp-night, #tool-travel .tv-lab, .fc-b, .fc-go, #fold-chat span, #fold-log span,
+  #tool-map .zm-hint, #tool-map .bk-lab, #tool-map .zm-zr, #tool-map .zm-chip i){ font-size:15px; }
+body:not(.view-cinder) #suite-stage .suite-fold-b{ font-size:15px; }
+body:not(.view-cinder) #suite-rail :is(small, .dm-note, .rail-h, p, label, .rail-off, .rail-apnote, button){ font-size:15px !important; }
+
+/* ---- both views: sizes the panes' own specific rules otherwise win ---- */
+body #tool-char :is(.cs-hbox .l small, .cs-hbox details.cs-why > summary, details.cs-why > summary, .cs-head span, .cs-id2, .cs-lvl-go, #cs-fatigue-cap){ font-size:15px !important; }
+body #tool-char .cs-hpair{ display:block !important; }
+body #tool-char .cs-hpair > .l{ width:auto !important; }
+body #tool-dice :is(.stencil, .legend){ font-size:15px; }
+body #tool-turn :is(.arith, .kind, .mt-l, .mt-n, .mt-p, .mt-s, li, #tt-scene-txt, b){ font-size:max(15px, 1em); }
+body #tool-turn :is(.arith, .kind, .mt-l, .mt-n, .mt-p, .mt-s, li, #tt-scene-txt){ font-size:15px; }
+body :is(#tool-loot, #tool-shop, #tool-enc) .top{ grid-template-columns:minmax(0,1fr) 380px; }
+@media (max-width:1020px){ body :is(#tool-loot, #tool-shop, #tool-enc) .top{ grid-template-columns:minmax(0,1fr); } }
+@media (max-width:700px){
+  body #suite-stage{ padding-left:0 !important; padding-right:0 !important; }
+  body #suite-stage > .suite-fold > .tool{ padding-left:8px !important; padding-right:8px !important; box-sizing:border-box; }
+  body #tool-enc .eb-stat{ padding-left:4px !important; padding-right:4px !important; }
+  body #tool-enc .sb-body{ padding-left:6px !important; padding-right:6px !important; }
+  body #tool-dice .settings{ grid-template-columns:minmax(0,1fr) !important; display:grid; }
+  body #tool-shop .card{ padding-left:6px !important; padding-right:6px !important; }
+}
+/* ---- Classic's dim inks that fell under 4.5:1 on its own dark panels ---- */
+body:not(.view-cinder) #tool-char{ --faint:#9aa08a; }
+body:not(.view-cinder) #tool-shop{ --faint:#9aa08a; }
+body:not(.view-cinder) #tool-shop .mono{ font-size:13px; }
+/* ---- Classic's setup rail (it overlays the page since Z031): 360 px, so its sentences are not wrapped two words a line ---- */
+body:not(.view-cinder) .suite-rail{ width:360px; }
+body:not(.view-cinder).rail-shut .suite-rail{ transform:translateX(100%); }
+@media (max-width:700px){ body:not(.view-cinder) .suite-rail{ width:100%; } }
+body #suite-rail .dm-opts{ min-width:320px; box-sizing:border-box; }
+body #tool-turn .note{ font-size:15px; }
+body #tool-map .bkbar.bk-shut .bk-set{ opacity:1; text-decoration:line-through; }
+</style>
+<style data-suite="cinder-7-trader">/* Z034 the Trader room (cinder-7-trader.js), both views; colours are the pane's own variables */
+#tr-room{ display:grid; grid-template-columns:minmax(320px, 1fr) minmax(340px, 1fr) minmax(340px, 1.1fr); gap:14px; align-items:start; margin-bottom:14px; }
+@media (max-width:1180px){ #tr-room{ grid-template-columns:minmax(320px, 1fr) minmax(320px, 1fr); } #tr-room .tr-counter{ grid-column:1 / -1; order:-1; } }
+@media (max-width:760px){ #tr-room{ grid-template-columns:minmax(0, 1fr); } }
+#tr-room .tr-pane{ min-width:0; }
+#tr-room .tr-h{ margin:0 0 6px; font-size:15px; letter-spacing:.08em; text-transform:uppercase; color:var(--amber); border-bottom:2px dashed var(--edge); padding-bottom:4px; }
+#tr-room .tr-pane > .card{ margin:0 0 12px; }
+#tr-room .tr-counter{ position:sticky; top:8px; }
+body.view-cinder #tr-room .tr-counter{ top:calc(var(--cl-top, 88px) + 8px); }
+#tr-room .tr-deal .cols{ grid-template-columns:minmax(0, 1fr); }
+#tr-room .tr-deal .net{ align-items:baseline; }
+#tr-room .tr-deal .net b{ font-size:48px; line-height:1.1; }
+#tr-room .tr-deal.tr-gain .net b{ color:var(--tr-gain, #1D6E68); }
+#tr-room .tr-deal.tr-pays .net b{ color:var(--tr-pays, #A12C20); }
+#tr-room .tr-deal.tr-gain .net b::before{ content:"+ "; }
+body:not(.view-cinder) #tr-room{ --tr-gain:#4fd1c5; --tr-pays:#f08a7c; }
+body.view-cinder.cl-night #tr-room{ --tr-gain:#6FD1C6; --tr-pays:#F08A7C; }
+</style>
+<style data-suite="cinder-7-workbench">/* Z034 the Workbench room (cinder-7-workbench.js), both views; colours are the pane's own variables */
+#tool-craft .wb-filter{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:6px 0; }
+#tool-craft .wb-f{ min-height:36px; padding:4px 12px; font:inherit; font-size:15px; cursor:pointer; background:var(--plate); color:var(--ink); border:1px solid var(--edge); border-radius:3px; }
+#tool-craft .wb-f[aria-pressed="true"]{ border-color:var(--amber); box-shadow:inset 0 -3px 0 var(--amber); font-weight:700; }
+#tool-craft .wb-say{ font-size:15px; color:var(--dim); flex:1 1 220px; }
+#tool-craft .cf-r.wb-off, #tool-craft details.cf-cat.wb-off{ display:none; }
+#tool-craft .wb-mark{ font-weight:700; margin-right:4px; }
+#tool-craft .wb-have{ color:var(--wb-have, var(--green)); }
+#tool-craft .wb-miss{ color:var(--wb-miss, var(--red)); }
+body.view-cinder #tool-craft{ --wb-have:#1D6E68; --wb-miss:#A12C20; }
+body.view-cinder.cl-night #tool-craft{ --wb-have:#6FD1C6; --wb-miss:#F08A7C; }
+body.view-cinder #tool-craft .cf-chip, body.view-cinder #tool-craft .cf-chip .mono{ color:var(--ink); }
+body.view-cinder #tool-craft .cf-chip.ok{ border-color:var(--wb-have); }
+body.view-cinder #tool-craft .cf-chip.short{ border-color:var(--wb-miss); }
+#tool-craft .cf-chip{ font-size:15px; }
+#tool-craft .cf-r .ing{ display:flex; flex-direction:column; align-items:stretch; gap:4px; } #tool-craft .cf-r .ing .cf-chip{ display:block; padding:4px 8px; }
+@media (max-width:700px){ #tool-craft .cf-r{ padding-left:4px; padding-right:4px; } #tool-craft details.cf-cat, #tool-craft details.cf-band, #tool-craft .cf-rows{ padding-left:0 !important; padding-right:0 !important; margin-left:0; margin-right:0; } }
+</style>
+<style data-suite="cinder-8-maps">/* Z034 map scale presets (cinder-8-maps.js), both views */
+#tool-map .mp-presets{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+#tool-map .mp-row{ display:inline-flex; flex-wrap:wrap; gap:4px; }
+#tool-map .mp-b{ min-height:36px; font-size:15px; }
+#tool-map .mp-b[aria-pressed="true"]{ border-color:var(--amber); box-shadow:inset 0 -3px 0 var(--amber); font-weight:700; }
+#tool-map .mp-say{ flex-basis:100%; font-size:15px; color:var(--ink); }
+#tool-map .mp-say:empty{ display:none; }
+</style>
+<style data-suite="cinder-8-overseer">/* Z034 the Overseer desk (cinder-8-overseer.js), both views; violet edge = GM only */
+#od-desk{ margin:0 0 16px; color:var(--ink); border-left:4px solid var(--od-gm, #8A5CD6); padding-left:12px; }
+#od-desk .od-title{ margin:0 0 8px; font-size:20px; letter-spacing:.06em; text-transform:uppercase; color:var(--amber); }
+#od-desk .od-grid{ display:grid; grid-template-columns:minmax(360px, 1.3fr) minmax(320px, .8fr) minmax(340px, 1fr); gap:12px; align-items:start; }
+@media (max-width:1180px){ #od-desk .od-grid{ grid-template-columns:minmax(320px, 1fr) minmax(320px, 1fr); } #od-desk .od-roster{ grid-column:1 / -1; } }
+@media (max-width:760px){ #od-desk .od-grid{ grid-template-columns:minmax(0, 1fr); } #od-desk{ padding-left:6px; } }
+#od-desk .od-panel{ border:1px solid var(--edge); background:var(--panel); padding:10px 12px; min-width:0; box-sizing:border-box; }
+#od-desk .od-h{ margin:0 0 6px; font-size:15px; letter-spacing:.08em; text-transform:uppercase; color:var(--amber); }
+#od-desk .od-sub, #od-desk .od-say{ font-size:15px; color:var(--dim); margin:0 0 6px; }
+#od-desk .od-say{ color:var(--ink); min-height:1.5em; }
+#od-desk .od-row{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:6px 0; border-top:1px solid var(--edge); font-size:15px; }
+#od-desk .od-row.od-down .od-nm{ text-decoration:line-through; }
+#od-desk .od-nm{ flex:1 1 160px; font-weight:700; }
+#od-desk .od-hp{ width:5.5em; min-height:36px; font:inherit; font-size:20px; text-align:center; background:var(--plate); color:var(--ink); border:1px solid var(--edge); }
+#od-desk .od-tot{ font-size:15px; color:var(--dim); }
+#od-desk .od-btn{ min-height:36px; min-width:44px; padding:4px 10px; font:inherit; font-size:15px; cursor:pointer; background:var(--plate); color:var(--ink); border:1px solid var(--edge); border-radius:3px; }
+#od-desk .od-ap{ display:flex; align-items:center; gap:8px; margin-bottom:10px; font-size:15px; }
+#od-desk .od-lab{ flex:1 1 auto; }
+#od-desk .od-apn{ font-size:28px; min-width:2ch; text-align:center; color:var(--od-gm-ink, var(--ink)); }
+#od-desk .od-place[aria-pressed="true"]{ border-color:var(--od-gm, #8A5CD6); box-shadow:inset 0 -3px 0 var(--od-gm, #8A5CD6); font-weight:700; }
+#od-desk .od-ulist{ list-style:none; margin:0; padding:0; max-height:420px; overflow:auto; }
+#od-desk .od-u{ display:flex; gap:8px; align-items:center; padding:6px 0; border-top:1px solid var(--edge); font-size:15px; }
+#od-desk .od-ut{ flex:1 1 auto; }
+body.view-cinder.cl-player #od-desk{ display:none; }
+</style>
 <style data-suite="cinder-9-fix">/* Z032 merge fixes (2026-10-23): the four Cinder parts docked into each other.
    - the initiative ribbon asked for a "top" dock the shell does not have: it sits across the top of the Stage
    - the Dice pane and the action bar both took the bottom: on Fight the Dice pane opens only from the bar's Dice button (R)
@@ -4629,6 +4971,32 @@ body.view-cinder[data-cl-tab="fight"] #cinder-ov-bottom #cl-mtc{
   position:relative !important; left:auto !important; right:auto !important; transform:none !important; width:100% !important; margin:0 !important;
 }
 body.view-cinder[data-cl-tab="fight"] #cinder-ov-bottom{ display:flex; flex-direction:column-reverse; gap:4px; }
+</style>
+<style data-suite="cinder-z1-night">/* ============================================================================
+   Helena Suite - Z035 item 1 (2026-10-23): NIGHT SHIFT IN BOTH VIEWS.
+   body.cl-night is the one flag (window.SUITE_NIGHT in cinder-z1-night.js).  The script's sweep
+   marks every paper/beige surface z35-dk and every neutral dark ink on it z35-ink / z35-ink2;
+   these rules do the painting.  Semantic inks (rust, teal, brass, violet, cobalt, orange, rad-lime)
+   are never marked, so they stay.  The html:is(#z35-never, *) carries an id's weight past the sheet's own
+   id-scoped !important rules.  Works with or without view-cinder.
+   ========================================================================== */
+html:is(#z35-never, *) body.cl-night .z35-dk.z35-dk.z35-dk{ background-color:#221C17 !important; background-image:none !important; }
+html:is(#z35-never, *) body.cl-night :is(input, select, textarea).z35-dk.z35-dk.z35-dk{ background-color:#17130F !important; border-color:#5E5346 !important; }
+html:is(#z35-never, *) body.cl-night .z35-ink.z35-ink.z35-ink{ color:#E8DFCC !important; }
+html:is(#z35-never, *) body.cl-night .z35-ink2.z35-ink2.z35-ink2{ color:#BFB39C !important; }
+html:is(#z35-never, *) body.cl-night .z35-sdk.z35-sdk{ fill:#3A2C20 !important; }
+html:is(#z35-never, *) body.cl-night .z35-sink.z35-sink{ fill:#E8DFCC !important; }
+body.cl-night ::placeholder{ color:#8C8173 !important; }
+/* the Classic switch, in the Setup rail */
+.z35-night-tog{ display:flex; align-items:center; gap:8px; margin:6px 10px 2px; font-size:14px; cursor:pointer; }
+.z35-night-tog input{ width:18px; height:18px; }
+
+/* Z035 item 2 (cinder-z2-current.js): the small "Character" picker on top of each per-character pane,
+   and the current character marked in Camp's survival rows and the loot window's Give sheet */
+.z35-cur-bar{ display:flex; justify-content:flex-end; padding:4px 8px 0; font-size:14px; }
+.z35-cur-bar label{ display:inline-flex; align-items:center; gap:6px; opacity:.9; }
+.z35-cur-bar select{ font:inherit; font-size:14px; padding:3px 6px; min-height:32px; max-width:200px; }
+.z35-is-cur{ outline:2px solid #D9A13B !important; outline-offset:-2px; }
 </style>
 <script data-suite="display-modes">/* src/display-modes.js - TWO DISPLAY MODES, PER DEVICE (2026-10-13).  Built into the head of both files by ONE line in
    build-suite.js (a script element of its own, data-suite display-modes, after the stylesheet, before the head closes), so its classes are on <html> before the
@@ -5086,7 +5454,7 @@ body.view-cinder[data-cl-tab="fight"] #cinder-ov-bottom{ display:flex; flex-dire
 <body>
 
 <header class="suite-bar" role="tablist" aria-label="Modes">
-  <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;15 to switch</span></div>
+  <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -17948,7 +18316,19 @@ function setPool(which, v){
   }
   function sceneShut(){
     if(!scene) return;
-    scene.innerHTML = '<button id="rail-sc-open" type="button">New scene</button>';
+    /* CMD Z033 (NR-11 B): End scene beside New scene - the Classic view's door to the scene's close-out (HELENA_CHAR.scene.end) */
+    scene.innerHTML = '<button id="rail-sc-open" type="button">New scene</button> <button id="rail-sc-end" type="button" title="Ends the scene in progress now: Fatigue recovery, the drain if the gate is armed, the sickness count. Fatigue costs HP when the next scene begins.">End scene</button>';
+  }
+  function sceneEnd(){
+    var D = sceneDoor();
+    if(!D || typeof D.end !== "function"){ say("The Characters pane is not loaded."); return null; }
+    var r = null;
+    try{ r = D.end({ id:"rail-end-" + Date.now().toString(36) + "-" + Math.floor(Math.random() * 1e9).toString(36), label:"End scene" }); }
+    catch(e){ r = { ok:false, note:"The scene was not ended." }; }
+    if(r && r.ok){ var g = document.getElementById("gp-scene-clear"); if(g){ try{ g.click(); }catch(e){} } }
+    say(r && r.ok ? (r.lost || r.line || r.note) : ((r && r.note) || "The scene was not ended."));
+    sceneLine();
+    return r;
   }
   function sceneOpen(){
     if(!scene) return;
@@ -17968,11 +18348,13 @@ function setPool(which, v){
       '<label class="rail-sc-row rail-sc-wx" title="Extreme cold: every drain takes one extra level off Hunger"><input type="checkbox" id="rail-sc-cold"' + (st.cold ? " checked" : "") + '><span>Extreme cold</span><b>+1 Hunger</b></label>' +
       '<div class="rail-sc-btns"><button id="rail-sc-go" type="button">Start the scene</button>' +
       '<button id="rail-sc-cancel" type="button">Cancel</button></div>';
-    say("A scene costs a running frame 1 charge, a fight 2. A fight drains at once and arms the gate; the first scene to end while it is armed drains, and shuts it.");
+    say("A scene costs a running frame 1 charge, a fight 2. A fight drains at once and arms the gate; the first scene to end while it is armed drains, and shuts it." +
+        (st.open ? " Scene " + (st.n || 0) + " has not been ended, so it is closed first." : ""));
   }
   if(scene) scene.addEventListener("click", function(e){
     var b = e.target.closest("button"); if(!b) return;
     if(b.id === "rail-sc-open"){ sceneOpen(); return; }
+    if(b.id === "rail-sc-end"){ sceneEnd(); return; }
     if(b.id === "rail-sc-cancel"){ sceneShut(); say(""); return; }
     if(b.id === "rail-sc-go"){
       var combat = !!document.getElementById("rail-sc-fight").checked, ids = [];
@@ -20027,8 +20409,10 @@ function setPool(which, v){
     if(!e.altKey || e.ctrlKey || e.metaKey) return;
     /* Alt+1 … Alt+4 are the four modes, in strip order (Decision 1: "Four positions is
        learnable; the current Alt+1…7 is not").  The mapping is emitted from the strip the
-       build produced, so the shortcut-coverage test reads what is really there. */
-    var i = {"1":0,"2":1,"3":2,"4":3,"5":4,"6":5,"7":6,"8":7,"9":8,"10":9,"11":10,"12":11,"13":12,"14":13,"15":14}[e.key];
+       build produced, so the shortcut-coverage test reads what is really there.
+       CMD Z033: fifteen tabs since Z031 - Alt+1…9 are the first nine and Alt+0 the tenth (it mapped "10"…"15", keys no
+       keyboard sends, and left Alt+0 dead). */
+    var i = {"0":9,"1":0,"2":1,"3":2,"4":3,"5":4,"6":5,"7":6,"8":7,"9":8}[e.key];
     if(i == null || i < 0 || i >= btns.length) return;
     e.preventDefault();
     show(btns[i].getAttribute("data-mode"));
@@ -28182,7 +28566,7 @@ var CH = {
   SCENE_PAID_KEEP: 40,
   SCENE_FRAMES_MAX: 24,           /* wave 16 skeptic 1: the frame ids an event names (sceneEvent's frames) */
   SCENE_OPENS: ["scene", "fight", "leg"],
-  SCENE_KINDS: ["scene", "fight", "leg", "night", "day", "lost"],
+  SCENE_KINDS: ["scene", "fight", "leg", "night", "day", "lost", "end"],
   /* "No character carries more than 7 Fatigue, from any combination of sources" — and the cap is a
      rule, not an edit (Reference :511-517): a stored 25 stays 25, reads 7.  fatigueOf is the figure
      every rule reads (both teeth, recovery); fatigueRaw is what the box holds, for the display. */
@@ -28257,12 +28641,18 @@ var CH = {
        night         yes, if open             1 if armed, then shut  1           ARMED        false
        day           no                       —                      1           shut         false
        lost          no                       —                      1 (outside)  unchanged    unchanged
+       end           yes (refused if none)    1 if armed, then shut  0           as left      false
+     CMD Z033 (NR-11 B, Guide p.ccv): "end" is End scene — the close-out half of the next press, run now: recovery,
+     the drain if armed, the sickness count (sceneApply's step 1).  It opens nothing and costs no frame, so the New
+     scene after it closes nothing (s.open is false) and only begins: Fatigue's HP lands then.  End scene then New
+     scene drains exactly what New scene alone did — one drain for one scene, never two.
      Pure: returns { sc:the next tools.scene, ev:the event } and never touches its argument.  A day
      passes only between two nights, so a day with a scene in progress is refused by name. */
   sceneNext: function(raw, kind, id, at){
     var s = CH.sceneOf(raw);
     if(CH.SCENE_KINDS.indexOf(kind) < 0) return { refused:"A scene event is one of " + CH.SCENE_KINDS.join(", ") + " — nothing was written." };
     if(kind === "day" && s.open) return { refused:"A day passes over only between two nights — scene " + s.n + " is in progress, so press New scene or Nightfall instead. Nothing was written." };
+    if(kind === "end" && !s.open) return { refused:"No scene is in progress" + (s.n ? " — scene " + s.n + " has already ended" : "") + ", so there is nothing to end. Nothing was written." };
     var ev = { seq:s.seq + 1, id:String(id), kind:kind, closes:null, closesSeq:0, closesN:0, closeDrain:0, drain:0, arms:false,
                heat:s.heat, cold:s.cold, n:s.n, at:at == null ? "" : String(at) };
     if(s.winter){ ev.winter = true; if(s.wx) ev.wx = { key:s.wx.key, sev:s.wx.sev }; }      /* CMD Z018 (G.7) */
@@ -28274,7 +28664,7 @@ var CH = {
     if(kind === "day"){ ev.drain = 1; s.armed = false; }
     if(kind === "lost") ev.drain = 1;
     if(CH.SCENE_OPENS.indexOf(kind) >= 0){ s.n += 1; s.open = true; s.openKind = kind; s.openSeq = ev.seq; }
-    if(kind === "night"){ s.open = false; s.openKind = null; }
+    if(kind === "night" || kind === "end"){ s.open = false; s.openKind = null; }
     ev.n = s.n;
     ev.armed = s.armed;                       // the gate as this press left it, for the line
     s.seq = ev.seq;
@@ -28305,6 +28695,8 @@ var CH = {
     if(ev.kind === "night") return pre + "Night: " + close + "the night's drain, Sleep to Sound, the heal — the gate armed for the morning" + w;
     if(ev.kind === "day")   return pre + "A day passes: the morning's drain, the gate shut — no scene began, so no HP is lost to Fatigue" + w;
     if(ev.kind === "lost")  return pre + "Lost: one drain outside the gate (scene " + ev.n + " goes on)" + w;
+    if(ev.kind === "end")   return pre + "Scene " + ev.closesN + " ended" + (ev.closeDrain ? " — 1 drain, the gate shut behind it" : " with the gate shut — no drain") +
+                                   "; recovery and the sickness count ran; Fatigue's HP lands when the next scene begins" + w;
     return pre + "Scene " + ev.n + (ev.kind === "leg" ? " — a leg of travel" : "") + ": " + close +
            "the gate is " + (ev.armed ? "armed" : "shut") + w;
   },
@@ -28522,9 +28914,10 @@ var CH = {
     /* the room answered "not taken" while this device still shows the event as written: no other press is
        known to have won (a push that failed on the way — the Table backend's network), so none is named */
     if(unconfirmed)
-      return pre + (ev.kind === "night" ? "Nightfall" : ev.kind === "day" ? "The day passing" : ev.kind === "lost" ? "The lost drain" : "Scene " + ev.n) +
+      return pre + (ev.kind === "night" ? "Nightfall" : ev.kind === "day" ? "The day passing" : ev.kind === "lost" ? "The lost drain" : ev.kind === "end" ? "The end of scene " + ev.closesN : "Scene " + ev.n) +
              " was not confirmed by the table (the room did not take the write), so no line was said. What the table kept is what it shows once the room answers.";
     var what = ev.kind === "night" ? "Nightfall was pressed" : ev.kind === "day" ? "A day was passed" : ev.kind === "lost" ? "The lost drain was recorded"
+             : ev.kind === "end" ? "Scene " + ev.closesN + " was ended"
              : "Scene " + ev.n + (ev.kind === "fight" ? " (a fight)" : ev.kind === "leg" ? " (a leg of travel)" : "") + " was opened";
     return pre + what + " on another device at the same moment, and the table kept that press: one event, one line" +
            (CH.SCENE_OPENS.indexOf(ev.kind) >= 0 ? ", one power-armour charge" : "") + ". This press was not kept, and nothing was charged twice.";
@@ -29010,7 +29403,7 @@ var CH = {
                              : r.coldNight.unlocked ? "warm shelter lifted the cold's hold" : "cold Fatigue " + r.coldNight.kept + " stands (no warm shelter)");
       if(r.rested) b.push("rested" + (r.cleared ? ", " + r.cleared + " Fatigue cleared" : ""));
       if(r.hpLoss) b.push(r.hpLoss + " HP to Fatigue");
-      if(b.length) bits.push((r.kind === "night" ? "night" : r.kind === "day" ? "the day" : r.kind === "lost" ? "lost" : "scene " + r.n) + ": " + b.join(", "));
+      if(b.length) bits.push((r.kind === "night" ? "night" : r.kind === "day" ? "the day" : r.kind === "lost" ? "lost" : r.kind === "end" ? "scene " + r.n + " ended" : "scene " + r.n) + ": " + b.join(", "));
     });
     if(rep.note) bits.push(rep.note);
     return bits.length ? name + " — " + bits.join(" · ") : "";
@@ -38357,6 +38750,7 @@ window.HELENA_CHAR.fusion = {
      HELENA_CHAR.scene.night({ id })                    // one night; Nightfall's days loop calls it
      HELENA_CHAR.scene.day({ id })                      // one skipped day, between two nights
      HELENA_CHAR.scene.lost({ id })                     // a lost leg's drain outside the gate
+     HELENA_CHAR.scene.end({ id })                      // End scene (CMD Z033): the open scene's close-out, opening nothing
        each -> { ok, dup, note, seq, n, event, line }
        ROUND 5: each also takes { told:fn(text) } — called (and the rail's note set) when the room did NOT
        keep this press because another device's same-instant press won; its line is then never said.
@@ -38429,6 +38823,8 @@ window.HELENA_CHAR.scene = {
   },
   day:function(o){   var r = CH.sceneDoorWith(sceneEnv(), "day",   sceneSpec(o)); if(r.ok && !r.dup) sceneCatchUpSoon(); return r; },
   lost:function(o){  var r = CH.sceneDoorWith(sceneEnv(), "lost",  sceneSpec(o)); if(r.ok && !r.dup) sceneCatchUpSoon(); return r; },
+  /* CMD Z033 (NR-11 B): End scene — the open scene's close-out now (CH.sceneNext's "end"); refused when none is open */
+  end:function(o){   var r = CH.sceneDoorWith(sceneEnv(), "end",   sceneSpec(o)); if(r.ok && !r.dup) sceneCatchUpSoon(); return r; },
   weather:function(o){ return CH.sceneWeatherWith(sceneEnv(), sceneSpec(o)); }
 };
 /* T1-R5: Drink / Eat / An hour / Six hours answer a track IN THE SCENE IN PROGRESS — the stamp is that
@@ -42620,6 +43016,9 @@ function box(kind, used, taken, running, cap){
    else's the book's two (TT.majorCap(null)) */
 function majorCapOf(e){
   var sw = (e && e.kind !== "char" && e.swarm && typeof swarmOf === "function") ? swarmOf(e) : null;
+  /* CMD Z033: the extra majors count only bodies standing AND unstunned - swarmOf already takes a partial stun off `alive`;
+     a stun on every body standing (the whole swarm) leaves none, so the swarm has the book's two like anyone else */
+  if(sw && sw.stunned == null && typeof stunCutOf === "function"){ var cut0 = stunCutOf(e, sw.alive); if(cut0 && cut0.whole) sw = { count:sw.count, alive:0, bonus:0 }; }
   return TT.majorCap(sw);
 }
 
@@ -47964,7 +48363,16 @@ window.HELENA_TURN.cinder = {
       var cl = []; try{ cl = TT.condList(e.id) || []; }catch(err){}
       var ws = []; try{ ws = weaponsFor(e).map(function(x){ return x.name; }); }catch(err){}
       var wiped = false; try{ wiped = tvWiped(e); }catch(err){}
-      return { id:e.id, kind:e.kind === "char" ? "char" : "enemy", ref:String(e.ref), name:e.name || "", hp:h ? { now:h.now, total:h.total } : null,
+      /* CMD Z033 (NR-15 A): stun = this creature is stunned as a whole on this round (a lone creature, or a swarm whose stunned
+         bodies cover every one standing) - it takes no Move.  A partly stunned swarm is not (its Move stands). */
+      var stun = false;
+      try{
+        if(e.kind !== "char" && typeof TT.stunnedNow === "function" && TT.stunnedNow(st.cond && st.cond[e.id], st.round)){
+          var cut = typeof stunCutOf === "function" ? stunCutOf(e, sw ? (sw.standing != null ? sw.standing : sw.alive) : 0) : null;
+          stun = !(cut && cut.whole === false);
+        }
+      }catch(err){ stun = false; }
+      return { id:e.id, stun:stun, kind:e.kind === "char" ? "char" : "enemy", ref:String(e.ref), name:e.name || "", hp:h ? { now:h.now, total:h.total } : null,
                used:TT.usedOf(st, e.id), cap:cap ? cap.max : null, swarm:sw, conds:cl.map(function(c){ return c.label; }), weapons:ws, wiped:wiped };
     };
     var rows = ord.map(function(id){ return row(entryOf(list, id)); });
@@ -49943,7 +50351,7 @@ function movesWord(m){ return m==null?'no way through':m+(m===1?' move':' moves'
    name] per zone) and links ([a, b] pairs: the zones a token can step between).  Every zone is a rectangle-built room
    (1 to 4 blocks) or hall (2 to 6 long) - or, for a copy of a Zones map, the blocks that map's zone covers.
      Walls block sight and movement only: a wall gives NO cover.
-     Cover is its own piece (Light 1 / Medium 2 / Heavy 3, Guide p.lii) standing on a floor block of a zone; a token
+     Cover is its own piece (Light 1 / Medium 2 / Heavy 3; CMD Z033: no page cited - p.lii prints no cover values) standing on a floor block of a zone; a token
      in that zone stands beside it.  Every zone with a sightline holds at least one piece.  Tiles: '.' floor,
      '#' wall, '1' '2' '3' a floor block with a cover piece on it (walkable, part of its zone).
      Range and moves are zones crossed through links (the same zone Close, the next Medium, 2 Long, 3+ Extreme).
@@ -50479,7 +50887,7 @@ function blocksLegend(M){
   if(M&&M.v2) return `<h3>Reading a Blocks map</h3>`+
     `<p class="hint">Every zone is a <b>room</b> (1&ndash;4 blocks) or a <b>hall</b> (2&ndash;6 long), named by its letter. A dashed line is a way through to the next zone; a solid bar is a wall between two zones.</p>`+
     `<p class="hint">${sw(MAT_FILL[M.env.shell]||MAT_FILL[3])}<b>Walls</b> stop sight and movement only &mdash; a wall is never cover.</p>`+
-    `<p class="hint">${sw(C[1].col)}${sw(C[2].col)}${sw(C[3].col)}<b>Cover</b> is its own piece standing in a zone: <b>L</b> Light 1, <b>M</b> Medium 2, <b>H</b> Heavy 3 (Guide p.lii). A token in that zone stands beside it. Every zone with a sightline has at least one.</p>`+
+    `<p class="hint">${sw(C[1].col)}${sw(C[2].col)}${sw(C[3].col)}<b>Cover</b> is its own piece standing in a zone: <b>L</b> Light 1, <b>M</b> Medium 2, <b>H</b> Heavy 3 (it adds to DR). A token in that zone stands beside it. Every zone with a sightline has at least one.</p>`+
     `<p class="hint"><b>Range</b> is zones crossed: the same zone Close, the next Medium, 2 Long, 3 or more Extreme (Book One p.28). <b>Moves</b> count the same way: a Move is 1 zone, a Sprint 2.</p>`+
     `<p class="hint"><b>Click a zone</b>: every other zone shows its range letter and moves, and one it cannot see is hatched and marked <b>#</b> (Book One p.38).</p>`;
   return `<h3>Reading a Blocks map</h3>`+
@@ -51092,7 +51500,7 @@ function paint(){
     var b = g("map_switch"), u = g("map_switch_undo");
     if(b) b.addEventListener("click", switchMap);
     if(u) u.addEventListener("click", unswitchMap);
-    swSync(); setInterval(swSync, 1500);
+    swSync(); if(typeof setInterval === "function") setInterval(swSync, 1500);   /* CMD Z033: a lifted map (tests) runs without timers */
   })();
   window.HELENA_MAP.switchMap = switchMap; window.HELENA_MAP.unswitchMap = unswitchMap;
   /* SOLO-KEEPS:begin — SOLO KEEPS THE LAST MAP (HANDOFF open line 14, ruled by Zoe 2026-09-29).
@@ -65281,6 +65689,21 @@ function drawLayer(){
   });
 }
 function redraw(){ renderPending = false; renderStrip(); drawLayer(); }
+/* CMD Z033 (NR-15 A, Guide p.liv): in the Classic view (no Cinder move gate) a creature stunned as a whole - a fully stunned
+   swarm - takes no Move on its stunned turn.  Asked of the turn order's own bridge (HELENA_TURN.cinder: its snap() row's
+   stun, the current row); a partly stunned swarm, another row's turn, no fight, or Alt held (the Overseer placing) moves. */
+var STUN_HELD = "Stunned — no Move this turn. AP may still be spent.";
+function stunHeld(tok, alt){
+  if(alt || !tok || tok.kind !== "enemy") return false;
+  if(document.body && document.body.classList.contains("view-cinder")) return false;     /* the Cinder gate asks it there */
+  var T = root.HELENA_TURN, b = T && T.cinder;
+  if(!b || typeof b.snap !== "function" || typeof b.rowOf !== "function") return false;
+  try{
+    var sn = b.snap(); if(!sn || sn.phase === "idle") return false;
+    var rid = b.rowOf(tok.id); if(!rid || rid !== sn.cur) return false;
+    return (sn.rows || []).some(function(r){ return r && r.id === rid && r.stun; });
+  }catch(e){ return false; }
+}
 
 /* ---- placing, moving, opening ---- */
 /* PROJECT G, TRACK S (2026-10-01, S-R3): a move is narration, so it is no longer gated on a room — in
@@ -65289,7 +65712,9 @@ function said(){ return !!(SY && typeof SY.emit === "function"); }
 function moveTo(tok, zp){
   if(tok && tok.kind === "comp") return compMoveTo(tok, zp);   /* BLOCK 5: its own list, its keeper's gate */
   var label = labelOf(zp);
-  if(tok && typeof tvOn === "function" && tvOn() && tok.kind === "enemy" && tvSwarm(tok.ref)){            /* TABLEVIEW: a swarm's token carries every member */
+  /* CMD Z033 (NR-14 A): a swarm moves as one token in every view — dragging any of its bodies moves every member (the retired
+     table view's path, no longer behind tvOn).  A split swarm reads no swarm (HELENA_ENC.read), so its members move alone. */
+  if(tok && tok.kind === "enemy" && typeof tvSwarm === "function" && tvSwarm(tok.ref)){
     S.update(function(m){ (m.tokens || []).slice().forEach(function(x){ if(x && x.ref === tok.ref) m.tokens = place(m.tokens, x, zp.z, label); }); });
     if(said()) SY.emit("token", { name:String(tok.name || "").replace(/\s+\d+$/, ""), token:tok.id, kind:tok.kind, zone:label, z:zp.z });
     return;
@@ -65399,6 +65824,7 @@ function onChipUp(e){
   if(e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
   var zp = dropZone(e.clientX, e.clientY), tok = tokOf(d.id); if(!zp || !tok) return;
   var no = compSay(tok, SY); if(no){ refuse(no); return; }
+  if(tok.zone != null && +tok.zone !== zp.z && stunHeld(tok, e.altKey)){ refuse(STUN_HELD); renderStrip(); return; }   /* CMD Z033 */
   unrefuse(); sel = null;
   if(tok.zone == null || +tok.zone !== zp.z) moveTo(tok, zp); else renderStrip();
 }
@@ -65419,6 +65845,7 @@ stage.addEventListener("click", function(e){
   var zp = dropZone(e.clientX, e.clientY); if(!zp) return;
   e.stopPropagation(); e.preventDefault();
   var tok = tokOf(sel); sel = null;
+  if(tok && tok.zone != null && +tok.zone !== zp.z && stunHeld(tok, e.altKey)){ refuse(STUN_HELD); renderStrip(); return; }   /* CMD Z033 */
   if(tok) moveTo(tok, zp); else renderStrip();
 }, true);
 
@@ -65483,6 +65910,7 @@ function onUp(e){
       function(){ moveTo(tok, zp); }, function(){ if(cEl && cEl.parentNode) cEl.setAttribute("transform", cHome); redraw(); }); }catch(err){ took = false; }
     if(took){ renderPending = false; return; }
   }
+  if(zp && tok && zp.z !== was && stunHeld(tok, e.altKey)){ refuse(STUN_HELD); if(d.el && d.el.parentNode) d.el.setAttribute("transform", d.home); if(renderPending) redraw(); return; }   /* CMD Z033 */
   if(zp && tok && zp.z !== was) moveTo(tok, zp);              // S.update → subscribe → redraw pays it
   else if(d.el && d.el.parentNode) d.el.setAttribute("transform", d.home);   // home again: never the tray, never zone 0
   if(renderPending) redraw();                                 // …and if nothing else did, pay it here
@@ -66801,13 +67229,27 @@ window.CINDER_MOVE = {
     /* free placement: off-turn, outside a fight, Alt held, or the Overseer's Place toggle */
     if(info.alt || placeFree || snap.phase === "idle" || !rid || rid !== snap.cur) return false;
     var r = rowById(rid), mk = snap.round + "|" + rid, done = moved[mk] || 0, n = hopsOf(info.from, info.to);
+    /* CMD Z033 (NR-15 A, Guide p.liv): a creature stunned as a whole - a fully stunned swarm - loses its normal actions on its
+       stunned turn: no Minor move and no extra zones bought with AP.  The token goes home; AP may still be spent otherwise.
+       A partly stunned swarm (r.stun false) moves normally. */
+    if(r && r.stun){
+      back(); b.log("— " + r.name + " is stunned: no Move this turn (AP may still be spent)");
+      ask(info.x, info.y, "Stunned — no Move this turn. AP may still be spent.", [{ label:"OK", cls:"no" }], function(){});
+      return true;
+    }
     var who = r.kind === "char" ? "party" : "Overseer";
     var steps = [], idx = 0;
     /* asked one zone at a time; zone 1 of the turn spends the Minor */
     function step(){
       if(idx >= n){ moved[mk] = done; go(); b.log("— " + r.name + " moved " + n + (n === 1 ? " zone" : " zones") + (steps.length ? " (" + steps.join(", ") + ")" : ""));
         var mine = steps.slice(), was = done - n;
-        undoKeep(r.name + " moved " + n + (n === 1 ? " zone" : " zones"), function(){ mine.forEach(function(s){ if(s === "1 AP") b.refund(rid, 1); else if(s === "Minor" || s === "Sprint") b.undoMinor(rid); }); moved[mk] = was; paint(true); });
+        /* CMD Z033: Undo puts the token back where the move began (the whole swarm with it, NR-14) and refunds what it took */
+        var home0 = info.from, tok0 = info.tok.id;
+        undoKeep(r.name + " moved " + n + (n === 1 ? " zone" : " zones"), function(){
+          mine.forEach(function(s){ if(s === "1 AP") b.refund(rid, 1); else if(s === "Minor" || s === "Sprint") b.undoMinor(rid); });
+          var T = window.SUITE_TOKENS;
+          if(home0 != null && T && typeof T.placeIn === "function"){ try{ T.placeIn(tok0, home0); }catch(e){} }
+          moved[mk] = was; paint(true); });
         paint(true); return; }
       var u = (b.snap().rows.filter(function(x){ return x.id === rid; })[0] || r).used;
       if(done === 0 && !u.minor){
@@ -67601,12 +68043,18 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
    Every item calls an action the suite already has; nothing here is a new rule:
      Start session - Roll Call, then SUITE_LOG.startSession(); the Overseer pool is filled to the number present
                      ONLY when a new quest begins (Book One p.19, NR-10 A); the party pool is carried (NR-8).
-     New scene     - the rail's own New scene form (#rail-sc-open), which the GM confirms there.
-     End scene     - the dice tools' own "The scene ended" (#gp-scene-clear); the scene's drain stays with the
-                     rail's gate, which runs it on the next New scene.
+     New scene     - the rail's own New scene form (#rail-sc-open), which the GM confirms there.  It only opens the next
+                     scene; a scene nobody ended is closed first by the same door (its close-out, once).
+     End scene     - CMD Z033 (NR-11 B, Guide p.ccv): the scene door's own close-out, HELENA_CHAR.scene.end - Fatigue
+                     recovery, the drain if the gate is armed, the sickness count - and the dice tools' "The scene
+                     ended" (#gp-scene-clear) for the widened ranges.  Fatigue's HP lands when the next scene begins.
+                     The New scene after it closes nothing, so one scene drains once.
      Travel leg    - opens Travel, where the next leg is thrown.
-     Nightfall     - the sheet's own Nightfall (#cs-nightfall), armed; its second press confirms.
-     New day       - the Medical board's "Nightfall - new day" (#nightfall), armed the same way.
+     Nightfall (new day) - CMD Z033 (NR-12 A): ONE item.  The sheet's own Nightfall (#cs-nightfall), armed; its second
+                     press confirms.  It is the scene door's night, which also turns the Medical board's day (m.night),
+                     so the board's own button is the same night and is not offered twice.
+     The present ticks of Start session (NR-13 B) only fill the Overseer pool on a new quest: no drain, scene or
+     night reads them - an absent character still drains.
      End session   - a summary line from the log, ONE dated "snapshot" event of the room through SUITE_SYNC.emit
                      (NR-6 A; skipped with a note when not in a room), and a note to carry to the next Start. */
 (function(){
@@ -67621,6 +68069,17 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
   function lsSet(k, v){ try{ if(v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){} }
   function sessionN(){ try{ return window.SUITE_LOG ? +window.SUITE_LOG.session() || 0 : 0; }catch(e){ return 0; } }
   function sceneN(){ var t = st().tools || {}; return +((t.scene || {}).n) || 0; }
+  function sceneOpen(){ var t = st().tools || {}; return !!((t.scene || {}).open); }
+  /* CMD Z033 (NR-11 B): End scene through the scene door; the widened ranges cleared as before */
+  function endScene(){
+    var D = window.HELENA_CHAR && window.HELENA_CHAR.scene;
+    if(!D || typeof D.end !== "function") return { ok:false, note:"The scene door is not on this page — nothing was ended." };
+    var r = null;
+    try{ r = D.end({ id:"ck-end-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), label:"End scene" }); }
+    catch(e){ r = { ok:false, note:"The scene was not ended: " + (e && e.message || e) }; }
+    if(r && r.ok){ var g = $("gp-scene-clear"); if(g) try{ g.click(); }catch(e){} }
+    return r || { ok:false, note:"The scene was not ended." };
+  }
   function party(){
     var m = st(), ps = Array.isArray(m.players) ? m.players : [];
     if(!ps.length && Array.isArray(m.chars)) ps = m.chars;
@@ -67656,11 +68115,10 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
   }
   var ITEMS = [
     { key:"start", label:"Start session", prev:function(){ return "Roll Call for " + party().length + " characters; the party pool carries as it is (" + (+st().pcAP || 0) + " AP). A new quest fills the Overseer pool to the number present."; } },
-    { key:"scene", label:"New scene", prev:function(){ return "Scene " + (sceneN() + 1) + ": opens the rail's New scene form — running frames pay their charge, and an armed gate drains."; } },
-    { key:"endscene", label:"End scene", prev:function(){ return "Clears the widened ranges; the scene's drain runs on the next New scene (the rail's gate)."; } },
+    { key:"scene", label:"New scene", prev:function(){ return "Scene " + (sceneN() + 1) + ": opens the rail's New scene form — running frames pay their charge" + (sceneOpen() ? "; scene " + sceneN() + " has not been ended, so it closes first (its drain, if the gate is armed)." : "."); } },
+    { key:"endscene", label:"End scene", prev:function(){ return sceneOpen() ? "Ends scene " + sceneN() + " now: Fatigue recovery, the drain if the gate is armed, the sickness count; Fatigue's HP lands when the next scene begins. Clears the widened ranges." : "No scene is in progress — nothing to end."; } },
     { key:"leg", label:"Travel leg", prev:function(){ return "Opens Travel with the journey, to throw the next leg."; } },
-    { key:"night", label:"Nightfall", prev:function(){ return "A night's rest for the whole party — drains, heal ticks and the day's repairs; press again on the sheet to confirm."; } },
-    { key:"day", label:"New day", prev:function(){ return "The Medical board's Nightfall — new day: heal ticks clear; press again there to confirm."; } },
+    { key:"night", label:"Nightfall (new day)", prev:function(){ return "A night's rest for the whole party and a new day — drains, the heal, heal ticks and the day's repairs; press again on the sheet to confirm."; } },
     { key:"end", label:"End session", prev:function(){ var s = summary(); return "Logs " + s.text + "; keeps the party AP (" + (+st().pcAP || 0) + "); " + (connected() ? "files one dated snapshot of the room." : "not in a room — no snapshot."); } }
   ];
 
@@ -67777,10 +68235,9 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
     if(k === "end-go"){ endGo(); return; }
     var ok = true;
     if(k === "scene"){ try{ if(window.SUITE_RAIL) window.SUITE_RAIL.open(); }catch(err){} ok = press("rail-sc-open"); if(ok) close(); else say("The rail's New scene box is not on this page.", true); }
-    else if(k === "endscene"){ ok = press("gp-scene-clear", "dice"); if(ok) close(); else say("The dice tools' scene control is not on this page.", true); }
+    else if(k === "endscene"){ var er = endScene(); paintPill(); if(er.ok) say(er.note || er.line || "The scene ended."); else say(er.note || "The scene was not ended.", true); }
     else if(k === "leg"){ ok = shell("travel"); close(); }
     else if(k === "night"){ ok = press("cs-nightfall", "char"); if(ok) close(); else say("The sheet's Nightfall is not on this page.", true); }
-    else if(k === "day"){ ok = press("nightfall", "med"); if(ok) close(); else say("The Medical board's Nightfall is not on this page.", true); }
   }
 
   function ensurePill(){
@@ -67798,10 +68255,738 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
   function sync(){ if(isOn()){ build(); ensurePill(); } else close(); }
   try{ if(window.SUITE_STATE && window.SUITE_STATE.subscribe) window.SUITE_STATE.subscribe(function(){ if(isOn() && pill && pill.id === "cx-clock-fallback") paintPill(); }); }catch(e){}
   if(typeof MutationObserver === "function") new MutationObserver(sync).observe(document.body, { attributes:true, attributeFilter:["class"] });
-  window.CINDER_CLOCK = { open:open, close:close, toggle:toggle, text:pillText, items:function(){ return ITEMS.map(function(i){ return i.label; }); } };
+  window.CINDER_CLOCK = { open:open, close:close, toggle:toggle, text:pillText, items:function(){ return ITEMS.map(function(i){ return i.label; }); }, endScene:endScene };
   if(window.CINDER && typeof window.CINDER.on === "function"){ try{ /* the shell owns the pill's own text */ }catch(e){} }
   setTimeout(sync, 0);
 })();
+</script>
+<script data-suite="cinder-6-camp">/* ============================================================================
+   Helena Suite - Z034 the CAMP ROOM (brief §B, with Zoe's A2).  One night at camp, start to finish, on the
+   Camp pane: the night's timeline, the role board as a SEATING CHART (who makes which printed test, with one
+   Assist seat each), the camp log, and the survival board beside them.  Nothing here decides a rule: every
+   roll button presses the existing pane's own button (camp.html's Uninvited Guests / Camp Visitors / Prior
+   Tenants, the Scavenger's Tables' "Spend a token & roll", the sheet's Nightfall), so the engine is the same.
+   A2: Assist is Book One's - one d20, counting only if the helped character scores a success.  No +2, no
+   Lookout odds, no fatigue for double duty: a character in two seats gets the reminder "won't sleep tonight".
+   The seats are this device's (localStorage "helena-cinder-camp-seats"); no saved table state changes shape.
+   It lives inside #tool-camp, so Classic's Camp tab and Cinder's Camp tab show the same room.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document;
+var host = D.getElementById("tool-camp"); if(!host) return;
+var KEY = "helena-cinder-camp-seats";
+function $(id){ return D.getElementById(id); }
+function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+function load(){ try{ return JSON.parse(W.localStorage.getItem(KEY) || "{}") || {}; }catch(e){ return {}; } }
+function store(v){ try{ W.localStorage.setItem(KEY, JSON.stringify(v)); }catch(e){} }
+function chars(){
+  var out = [], seen = {};
+  try{ ((W.SUITE_STATE && W.SUITE_STATE.get() || {}).chars || []).forEach(function(c){
+    if(!c || c.id == null || seen[c.id]) return; seen[c.id] = 1; out.push({ id:String(c.id), name:c.aka || c.name || "unnamed" });
+  }); }catch(e){}
+  return out;
+}
+/* press an existing pane's own button (it runs that pane's handler, wherever the pane sits) */
+function press(id){ var b = $(id); if(!b || b.disabled) return false; b.click(); return true; }
+function textOf(id){ var e = $(id); return e ? (e.textContent || "").replace(/\s+/g, " ").trim() : ""; }
+
+/* ---- the seats: A2's printed tests ---- */
+var SEATS = [
+  { k:"scav",  role:"Scavenger",      test:"Scavenging — the Scavenger's Tables",
+    rolls:[{ id:"lf-roll", label:"Roll scavenging", out:"lf-sent" }] },
+  { k:"watch", role:"Watch",          test:"Camp Visitors and Prior Tenants (Guide p.ccxci)",
+    rolls:[{ id:"cp-guests", label:"Uninvited Guests", out:"cp-guests-out" },
+           { id:"cp-visitors", label:"Camp Visitors", out:"cp-table-out" },
+           { id:"cp-tenants", label:"Prior Tenants", out:"cp-table-out" }] },
+  { k:"food",  role:"Cook / Water",   test:"Food and water — eating and drinking on the sheets" },
+  { k:"med",   role:"Medic",          test:"Medicine — the party medical board", jump:"fold-med" },
+  { k:"tink",  role:"Tinker",         test:"Repair / Science, and the fusion cores", jump:"fold-fuse" },
+  { k:"barter",role:"Quartermaster",  test:"Barter — the Trader", tab:"trader", mode:"shop" },
+  { k:"minima",role:"Minima's keeper",test:"Minima — her care and tracking" }
+];
+
+var room = el("section", "cc-room"); room.id = "cc-room"; room.setAttribute("aria-label", "The camp room");
+/* 1. the night's timeline */
+var line = el("ol", "cc-line"); line.id = "cc-line";
+[["roles","Seats"],["rolls","Rolls"],["board","Survival board"],["night","Nightfall"]].forEach(function(s, i){
+  var li = el("li", "cc-step"); li.setAttribute("data-step", s[0]);
+  li.appendChild(el("span", "cc-step-n", String(i + 1))); li.appendChild(el("span", "cc-step-t", s[1]));
+  line.appendChild(li);
+});
+var fore = el("div", "cc-fore"); fore.id = "cc-fore"; fore.setAttribute("aria-live", "polite");
+/* 2. the camp log (left) */
+var logBox = el("section", "cc-panel cc-log"); logBox.id = "cc-log";
+logBox.appendChild(el("h3", "cc-h", "Camp log"));
+var logList = el("ol", "cc-log-list"); logList.id = "cc-log-list";
+var logEmpty = el("p", "cc-empty", "Nothing rolled tonight yet. Seat the party, then roll from the seats.");
+logBox.appendChild(logEmpty); logBox.appendChild(logList);
+/* 3. the seating chart (centre) */
+var seatsBox = el("section", "cc-panel cc-seats"); seatsBox.id = "cc-seats";
+seatsBox.appendChild(el("h3", "cc-h", "Who makes which test tonight"));
+var assistNote = el("p", "cc-sub", "Assist is Book One's: the helper rolls one d20, and it counts only if the helped character scores a success.");
+seatsBox.appendChild(assistNote);
+var seatList = el("div", "cc-seat-list"); seatsBox.appendChild(seatList);
+/* 4. Nightfall */
+var nightRow = el("div", "cc-night");
+var nightBtn = el("button", "cc-nightbtn", "☾ Nightfall"); nightBtn.type = "button"; nightBtn.id = "cc-nightfall";
+nightBtn.title = "The sheet's Nightfall: a night's rest for the whole party. Press twice to confirm.";
+var nightSay = el("div", "cc-night-say"); nightSay.id = "cc-night-say"; nightSay.setAttribute("aria-live", "polite");
+nightRow.appendChild(nightBtn); nightRow.appendChild(nightSay);
+seatsBox.appendChild(nightRow);
+/* 5. the survival board (right): the pane's own read-only glance card, moved in */
+var boardBox = el("div", "cc-board"); boardBox.id = "cc-board";
+
+var top = el("div", "cc-top"); top.appendChild(line); top.appendChild(fore);
+var cols = el("div", "cc-cols"); cols.appendChild(logBox); cols.appendChild(seatsBox); cols.appendChild(boardBox);
+room.appendChild(el("h2", "cc-title", "Camp tonight")); room.appendChild(top); room.appendChild(cols);
+host.insertBefore(room, host.firstChild);
+var glance = $("cp-glance-card"); if(glance) boardBox.appendChild(glance);
+
+var seats = load();
+function sel(seatKey, slot){
+  var s = el("select", "cc-pick"); s.setAttribute("data-seat", seatKey); s.setAttribute("data-slot", slot);
+  s.setAttribute("aria-label", (slot === "main" ? "Who makes it: " : "Who assists: ") + seatKey);
+  return s;
+}
+function fill(s){
+  var v = ((seats[s.getAttribute("data-seat")] || {})[s.getAttribute("data-slot")]) || "";
+  var cs = chars(), have = {};
+  s.innerHTML = "";
+  var o0 = el("option", null, "— nobody —"); o0.value = ""; s.appendChild(o0);
+  cs.forEach(function(c){ var o = el("option", null, c.name); o.value = c.id; have[c.id] = 1; s.appendChild(o); });
+  s.value = have[v] ? v : "";
+}
+var rowEls = {};
+SEATS.forEach(function(st){
+  var row = el("div", "cc-seat"); row.setAttribute("data-seat", st.k);
+  var head = el("div", "cc-seat-h");
+  head.appendChild(el("span", "cc-role cl-label", st.role));
+  head.appendChild(el("span", "cc-test", st.test));
+  row.appendChild(head);
+  var picks = el("div", "cc-seat-p");
+  var lm = el("label", "cc-plab"); lm.appendChild(el("span", null, "Makes it")); var sm = sel(st.k, "main"); lm.appendChild(sm);
+  var la = el("label", "cc-plab"); la.appendChild(el("span", null, "Assist")); var sa = sel(st.k, "assist"); la.appendChild(sa);
+  picks.appendChild(lm); picks.appendChild(la); row.appendChild(picks);
+  var tired = el("div", "cc-tired"); tired.hidden = true; row.appendChild(tired);
+  var acts = el("div", "cc-seat-a");
+  (st.rolls || []).forEach(function(r){
+    var b = el("button", "cc-roll", r.label); b.type = "button"; b.setAttribute("data-press", r.id); b.setAttribute("data-out", r.out);
+    acts.appendChild(b);
+  });
+  if(st.jump){ var j = el("button", "cc-go", "Show it below"); j.type = "button"; j.setAttribute("data-jump", st.jump); acts.appendChild(j); }
+  if(st.tab){ var t = el("button", "cc-go", "Open the Trader"); t.type = "button"; t.setAttribute("data-tab", st.tab); t.setAttribute("data-mode", st.mode); acts.appendChild(t); }
+  if(acts.childNodes.length) row.appendChild(acts);
+  seatList.appendChild(row);
+  rowEls[st.k] = { row:row, main:sm, assist:sa, tired:tired };
+});
+function nameOf(id){ var c = chars().filter(function(x){ return x.id === id; })[0]; return c ? c.name : ""; }
+function paintSeats(){
+  var count = {};
+  SEATS.forEach(function(st){ var v = seats[st.k] || {}; [v.main, v.assist].forEach(function(id){ if(id) count[id] = (count[id] || 0) + 1; }); });
+  SEATS.forEach(function(st){
+    var r = rowEls[st.k], v = seats[st.k] || {};
+    [r.main, r.assist].forEach(function(s){ if(D.activeElement !== s) fill(s); });
+    var two = [v.main, v.assist].filter(function(id){ return id && count[id] > 1; });
+    r.tired.hidden = !two.length;
+    r.tired.textContent = two.length ? nameOf(two[0]) + " has two seats tonight — won't sleep tonight." : "";
+  });
+}
+seatList.addEventListener("change", function(e){
+  var s = e.target; if(!s || !s.getAttribute) return;
+  var k = s.getAttribute("data-seat"), slot = s.getAttribute("data-slot"); if(!k) return;
+  seats[k] = seats[k] || {}; seats[k][slot] = s.value; store(seats); paintSeats(); step("roles");
+});
+
+/* ---- the log ---- */
+function stamp(){ try{ return new Date().toTimeString().slice(0, 5); }catch(e){ return ""; } }
+function log(who, text){
+  if(!text) return;
+  var li = el("li", "cc-log-e");
+  li.appendChild(el("span", "cc-log-t", stamp()));
+  if(who) li.appendChild(el("b", "cc-log-w", who));
+  li.appendChild(el("span", "cc-log-x", text));
+  logList.insertBefore(li, logList.firstChild);
+  logEmpty.hidden = true;
+}
+function seatWho(k){ var v = seats[k] || {}, m = nameOf(v.main), a = nameOf(v.assist); return m ? (m + (a ? " (assist " + a + ")" : "")) : ""; }
+seatList.addEventListener("click", function(e){
+  var b = e.target && e.target.closest ? e.target.closest("button") : null; if(!b) return;
+  var row = b.closest(".cc-seat"), k = row && row.getAttribute("data-seat");
+  if(b.hasAttribute("data-press")){
+    var id = b.getAttribute("data-press"), out = b.getAttribute("data-out"), before = textOf(out);
+    if(!press(id)){ log(seatWho(k), b.textContent + ": that roll is not available right now (" + (id === "lf-roll" ? "no scavenging token left" : "its pane is shut") + ")."); return; }
+    setTimeout(function(){ var t = textOf(out); log(seatWho(k), b.textContent + " — " + (t && t !== before ? t : t || "rolled; the result is on its pane.")); step("rolls"); paintFore(); }, 60);
+    return;
+  }
+  if(b.hasAttribute("data-jump")){ var f = $(b.getAttribute("data-jump")); if(f){ var d = f.querySelector("details"); try{ f.scrollIntoView({ block:"start" }); }catch(x){} } return; }
+  if(b.hasAttribute("data-tab")){
+    if(W.CINDER && W.CINDER.on()) W.CINDER.tab(b.getAttribute("data-tab"));
+    else try{ W.SUITE_SHELL.show(b.getAttribute("data-mode")); }catch(x){}
+  }
+});
+
+/* ---- Nightfall: the sheet's own button, pressed twice (arm, then confirm) ---- */
+var armed = false, armT = 0;
+nightBtn.addEventListener("click", function(){
+  var b = $("cs-nightfall");
+  if(!b){ nightSay.textContent = "The sheet's Nightfall is not on this page."; return; }
+  if(b.disabled){ nightSay.textContent = "Nightfall is the Overseer's in a room: ask them to press it."; return; }
+  if(!armed){
+    b.click();
+    var ask = $("cs-night-ask"), walk = $("cs-night-walk");
+    if(b.getAttribute("data-armed") === "1"){
+      armed = true; nightBtn.textContent = "New day for everyone? Press again";
+      nightSay.textContent = ask && !ask.hidden ? ask.textContent : "Press again within 8 seconds: a new day for everyone.";
+      clearTimeout(armT); armT = setTimeout(disarm, 8000);
+    } else nightSay.textContent = walk && !walk.hidden ? walk.textContent : "Nightfall did not arm.";
+    return;
+  }
+  clearTimeout(armT); armed = false; nightBtn.textContent = "☾ Nightfall";
+  if(b.getAttribute("data-armed") !== "1"){ nightSay.textContent = "The arm ran out; press Nightfall again."; return; }
+  b.click();
+  setTimeout(function(){
+    var walk = $("cs-night-walk"), t = walk ? (walk.textContent || "").replace(/\s+/g, " ").trim() : "";
+    nightSay.textContent = t || "Night passed.";
+    log("", "Nightfall — " + (t || "a night's rest for the whole party."));
+    step("night"); paintFore();
+  }, 80);
+});
+function disarm(){ armed = false; nightBtn.textContent = "☾ Nightfall"; nightSay.textContent = ""; }
+
+/* ---- the timeline: which step the night is on, and Nightfall's preview from the camp pane's own nightAsk ---- */
+var done = {};
+function step(k){ done[k] = true; if(k === "rolls") done.board = true; paintLine(); }
+function paintLine(){
+  line.querySelectorAll(".cc-step").forEach(function(li){ li.classList.toggle("cc-done", !!done[li.getAttribute("data-step")]); });
+}
+function paintFore(){
+  var t = ""; try{ t = W.HELENA_CAMP && W.HELENA_CAMP.nightAsk ? String(W.HELENA_CAMP.nightAsk() || "") : ""; }catch(e){}
+  fore.textContent = "At Nightfall: " + (t || "a night's rest for the whole party, the drains on each sheet.");
+}
+function refresh(){ paintSeats(); paintFore(); }
+refresh(); paintLine();
+try{ if(W.SUITE_STATE && W.SUITE_STATE.subscribe) W.SUITE_STATE.subscribe(function(){ refresh(); }); }catch(e){}
+setInterval(function(){ if(room.offsetParent) refresh(); }, 3000);
+W.CINDER_CAMP = { seats:function(){ return JSON.parse(JSON.stringify(seats)); }, log:log, refresh:refresh };
+})(window);
+</script>
+<script data-suite="cinder-7-trader">/* ============================================================================
+   Helena Suite - Z034 the TRADER room (brief §E).  A barter table in three panes, built from the Merchant
+   pane's own cards (nothing rebuilt, no id renamed, every handler the merchant's own):
+     left   the stock - the Guide's priced list (the counter search) and the haggling card
+     centre the party ledger - shared caps and the shelf, with who paid what
+     right  the counter - the deal, with its running balance (#mc-net) as a large numeral: teal while the
+            party walks away with caps, rust while it pays
+   It lives inside #tool-shop, so Classic's Merchant tab and Cinder's Trader tab show the same room.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document, host = D.getElementById("tool-shop"); if(!host) return;
+var top = host.querySelector(".top"), lg = D.getElementById("mc-lg"), net = D.getElementById("mc-net");
+if(!top || !lg || !net) return;
+var cols = top.children, left = cols[0], right = cols[1];
+var stock = left && left.children[0], deal = left && left.children[1], haggle = right && right.children[0];
+if(!stock || !deal) return;
+function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+var room = el("div", "tr-room"); room.id = "tr-room";
+var pS = el("section", "tr-pane tr-stock"), pL = el("section", "tr-pane tr-ledger"), pC = el("section", "tr-pane tr-counter");
+pS.setAttribute("aria-label", "The trader's stock"); pL.setAttribute("aria-label", "The party ledger"); pC.setAttribute("aria-label", "The counter");
+pS.appendChild(el("h3", "tr-h", "The trader's stock")); pL.appendChild(el("h3", "tr-h", "The party ledger")); pC.appendChild(el("h3", "tr-h", "The counter"));
+top.parentNode.insertBefore(room, top);
+pS.appendChild(stock); if(haggle) pS.appendChild(haggle);
+pL.appendChild(lg);
+pC.appendChild(deal);
+room.appendChild(pS); room.appendChild(pL); room.appendChild(pC);
+top.hidden = true;
+deal.classList.add("tr-deal");
+/* the running balance: teal while the party gains, rust while it pays (the merchant's own label says which) */
+function paint(){
+  var n = parseFloat(String(net.textContent).replace(/[^\d.\-]/g, "")) || 0;
+  var lab = (D.getElementById("mc-netlabel") || {}).textContent || "";
+  var pays = /pay/i.test(lab) && !/walk/i.test(lab);
+  deal.classList.toggle("tr-gain", !pays && n !== 0);
+  deal.classList.toggle("tr-pays", pays && n !== 0);
+}
+try{ new W.MutationObserver(paint).observe(net, { childList:true, characterData:true, subtree:true }); }catch(e){}
+paint();
+})(window);
+</script>
+<script data-suite="cinder-7-workbench">/* ============================================================================
+   Helena Suite - Z034 the WORKBENCH room (brief §F), on the Craft pane's own recipe book (craft.html renders
+   every recipe; nothing is recomputed here - the chips' own "ok" / "short" classes are read):
+     - filters over the book: Can make now (no ingredient short) · Missing 1 (one short) · All
+     - the materials checklist: each ingredient chip carries a ✓ when the party has it and ✗ with how many
+       are missing when it does not (the chip's own "×qty (have)" numbers)
+   "Make" stays the recipe's own Craft button.  It lives inside #tool-craft, so Classic's Craft tab and
+   Cinder's Workbench tab show the same room.  The filter is this device's (localStorage).
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document, host = D.getElementById("tool-craft"), cats = D.getElementById("cf-cats"), q = D.getElementById("cf-q");
+if(!host || !cats || !q) return;
+var KEY = "helena-cinder-wb-filter", mode = "all";
+try{ var sv = W.localStorage.getItem(KEY); if(sv === "now" || sv === "one" || sv === "all") mode = sv; }catch(e){}
+function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+var bar = el("div", "wb-filter"); bar.id = "wb-filter"; bar.setAttribute("role", "group"); bar.setAttribute("aria-label", "Show recipes");
+var say = el("span", "wb-say"); say.id = "wb-say"; say.setAttribute("aria-live", "polite");
+[["now", "Can make now"], ["one", "Missing 1"], ["all", "All"]].forEach(function(f){
+  var b = el("button", "wb-f", f[1]); b.type = "button"; b.setAttribute("data-wb", f[0]);
+  b.addEventListener("click", function(){ mode = f[0]; try{ W.localStorage.setItem(KEY, mode); }catch(e){} if(mode !== "all") openAll(0); apply(); });
+  bar.appendChild(b);
+});
+bar.appendChild(say);
+var qbar = q.closest(".cf-bar"); if(qbar && qbar.parentNode) qbar.parentNode.insertBefore(bar, qbar.nextSibling);
+/* the book draws a recipe only inside an open category and band: a filter opens them all (the book's own toggles) */
+function openAll(round){
+  var shut = cats.querySelectorAll("details.cf-cat:not([open]), details.cf-band:not([open])");
+  if(!shut.length || round > 4) return;
+  shut.forEach(function(d){ d.open = true; });
+  setTimeout(function(){ openAll(round + 1); apply(); }, 30);
+}
+var busy = false;
+function apply(){
+  if(busy) return; busy = true;
+  try{
+    bar.querySelectorAll("[data-wb]").forEach(function(b){ b.setAttribute("aria-pressed", String(b.getAttribute("data-wb") === mode)); });
+    var shown = 0, total = 0;
+    cats.querySelectorAll(".cf-r").forEach(function(r){
+      /* the checklist marks: the chip text is "<label> ×qty (have)" */
+      r.querySelectorAll(".cf-chip").forEach(function(c){
+        if(c.querySelector(".wb-mark")) return;
+        var m = (c.textContent || "").match(/×\s*(\d+)\s*\((\d+)\)/), short = c.classList.contains("short");
+        var k = m ? Math.max(0, (+m[1]) - (+m[2])) : 0;
+        var mk = el("span", "wb-mark " + (short ? "wb-miss" : "wb-have"), short ? "✗" + (k ? " " + k + " short" : "") : "✓");
+        c.insertBefore(mk, c.firstChild);
+      });
+      var n = r.querySelectorAll(".cf-chip.short").length; total++;
+      var ok = mode === "all" || (mode === "now" ? n === 0 : n === 1);
+      r.classList.toggle("wb-off", !ok); if(ok) shown++;
+    });
+    cats.querySelectorAll("details.cf-cat").forEach(function(d){
+      var any = d.querySelector(".cf-r:not(.wb-off)"), rows = d.querySelector(".cf-r");
+      d.classList.toggle("wb-off", !!rows && !any && mode !== "all");
+    });
+    say.textContent = mode === "all" ? "" : (shown ? shown + " of " + total + " recipes" : "None of the " + total + " recipes") +
+      (mode === "now" ? " can be made now with the party's materials." : " are one ingredient short.");
+  } finally { busy = false; }
+}
+try{ new W.MutationObserver(function(){ setTimeout(apply, 0); }).observe(cats, { childList:true, subtree:true }); }catch(e){}
+if(mode !== "all") openAll(0);
+apply();
+})(window);
+</script>
+<script data-suite="cinder-8-maps">/* Z034 map scale presets (Maps tab; Classic's Map tab too).  Each preset only SETS the generator's own Map Scale
+   and Density selects (#size, #dens) - nothing generates until Generate is pressed, so a map in play is never
+   replaced by a click here.
+     Tight skirmish    - Skirmish (6-8 zones), Cluttered: short sight lines, cover close by
+     Normal            - Standard (9-12 zones), Normal density
+     Open long-range   - Battlefield (13-17 zones), Sparse: long lanes, little cover */
+(function(W){
+"use strict";
+var D = W.document, size = D.getElementById("size"), dens = D.getElementById("dens");
+if(!size || !dens) return;
+var fld = dens.closest(".fld"); if(!fld) return;
+var P = [["tight", "Tight skirmish", "s", "1.35"], ["normal", "Normal", "m", "1"], ["open", "Open long-range", "l", "0.7"]];
+var box = D.createElement("div"); box.className = "fld mp-presets"; box.id = "mp-presets"; box.setAttribute("role", "group"); box.setAttribute("aria-label", "Map scale presets");
+var lab = D.createElement("label"); lab.textContent = "Preset"; box.appendChild(lab);
+var row = D.createElement("span"); row.className = "mp-row"; box.appendChild(row);
+var say = D.createElement("span"); say.className = "mp-say"; say.id = "mp-say"; say.setAttribute("aria-live", "polite");
+P.forEach(function(p){
+  var b = D.createElement("button"); b.type = "button"; b.className = "mp-b"; b.textContent = p[1]; b.setAttribute("data-mp", p[0]);
+  b.addEventListener("click", function(){
+    size.value = p[2]; dens.value = p[3];
+    [size, dens].forEach(function(s){ try{ s.dispatchEvent(new W.Event("change", { bubbles:true })); }catch(e){} });
+    paint(); say.textContent = p[1] + " set — press Generate for a new map.";
+  });
+  row.appendChild(b);
+});
+fld.parentNode.insertBefore(box, fld.nextSibling);
+box.appendChild(say);
+function paint(){
+  row.querySelectorAll("[data-mp]").forEach(function(b){
+    var p = P.filter(function(x){ return x[0] === b.getAttribute("data-mp"); })[0];
+    b.setAttribute("aria-pressed", String(size.value === p[2] && String(+dens.value) === String(+p[3])));
+  });
+}
+size.addEventListener("change", paint); dens.addEventListener("change", paint);
+paint();
+})(window);
+</script>
+<script data-suite="cinder-8-overseer">/* ============================================================================
+   Helena Suite - Z034 the OVERSEER DESK (brief §H), GM only.  Every control is an existing door:
+     - the enemy roster: HELENA_ENC.roster() / read(); the HP number is inline-editable (type, Enter) and has
+       -5 / +5, all through HELENA_ENC.setHp - the encounter's own write, its own GM gate
+     - the Place toggle: the map's own #map-place button
+     - the Overseer AP stepper: the rail's own pool buttons ([data-ap=dm])
+     - the Undo history: the session log's own undo entries (#tb-ticker [data-undo] -> SUITE_UNDO.undo)
+   It sits at the head of the Overseer tab's pane (#tool-loot), so Classic's Loot tab shows the same desk.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document, host = D.getElementById("tool-loot"); if(!host) return;
+function $(id){ return D.getElementById(id); }
+function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+function E(){ return W.HELENA_ENC || null; }
+var desk = el("section", "od-desk"); desk.id = "od-desk"; desk.setAttribute("aria-label", "The Overseer's desk");
+desk.appendChild(el("h2", "od-title", "The Overseer's desk"));
+var grid = el("div", "od-grid"); desk.appendChild(grid);
+/* roster */
+var pR = el("section", "od-panel od-roster"); pR.appendChild(el("h3", "od-h", "Enemy roster"));
+var rl = el("div", "od-rows"); rl.id = "od-rows"; pR.appendChild(rl);
+var rsay = el("div", "od-say"); rsay.id = "od-say"; rsay.setAttribute("aria-live", "polite"); pR.appendChild(rsay);
+/* controls */
+var pC = el("section", "od-panel od-ctl"); pC.appendChild(el("h3", "od-h", "The table"));
+var apRow = el("div", "od-ap"); apRow.appendChild(el("span", "od-lab", "Overseer AP"));
+var apDn = el("button", "od-btn", "−"), apN = el("b", "od-apn", "0"), apUp = el("button", "od-btn", "+");
+apDn.type = apUp.type = "button"; apDn.id = "od-ap-dn"; apUp.id = "od-ap-up"; apN.id = "od-ap-n";
+apDn.setAttribute("aria-label", "One fewer Overseer AP"); apUp.setAttribute("aria-label", "One more Overseer AP");
+apRow.appendChild(apDn); apRow.appendChild(apN); apRow.appendChild(apUp); pC.appendChild(apRow);
+var place = el("button", "od-btn od-place", "Place tokens freely: off"); place.type = "button"; place.id = "od-place";
+place.title = "The map's Place toggle: the Overseer drags tokens anywhere, no action or AP prompts";
+pC.appendChild(place);
+/* undo history */
+var pU = el("section", "od-panel od-undo"); pU.appendChild(el("h3", "od-h", "Undo history"));
+pU.appendChild(el("p", "od-sub", "The session log's own undo entries, newest first. Each puts back what that press changed."));
+var ul = el("ol", "od-ulist"); ul.id = "od-ulist"; pU.appendChild(ul);
+grid.appendChild(pR); grid.appendChild(pC); grid.appendChild(pU);
+host.insertBefore(desk, host.firstChild);
+
+function refs(){
+  var out = []; try{ (E() && E().roster ? E().roster() : []).forEach(function(r){ out.push(r.key + "|" + r.rank); }); }catch(e){}
+  return out;
+}
+var editing = false;
+function paintRoster(){
+  if(editing) return;
+  var e = E(); rl.innerHTML = "";
+  var rs = refs();
+  if(!e || !rs.length){ rl.appendChild(el("p", "od-sub", "No enemies in the encounter. Build one on the Encounter tab.")); return; }
+  rs.forEach(function(ref){
+    var r = null; try{ r = e.read(ref); }catch(x){}
+    if(!r || !r.ok) return;
+    var row = el("div", "od-row" + (r.wiped ? " od-down" : "")); row.setAttribute("data-ref", ref);
+    var nm = el("span", "od-nm", r.name + (r.count > 1 ? " ×" + r.count : "") + (r.count > 1 ? " (" + r.alive + " up)" : ""));
+    var m5 = el("button", "od-btn", "−5"); m5.type = "button"; m5.setAttribute("data-d", "-5"); m5.setAttribute("aria-label", "5 damage to " + r.name);
+    var hp = el("input", "od-hp"); hp.type = "number"; hp.min = "0"; hp.max = String(r.total); hp.value = String(r.now);
+    hp.setAttribute("aria-label", r.name + " HP"); hp.setAttribute("data-hp", "1");
+    var tot = el("span", "od-tot", "/ " + r.total);
+    var p5 = el("button", "od-btn", "+5"); p5.type = "button"; p5.setAttribute("data-d", "5"); p5.setAttribute("aria-label", "5 HP back to " + r.name);
+    row.appendChild(nm); row.appendChild(m5); row.appendChild(hp); row.appendChild(tot); row.appendChild(p5);
+    rl.appendChild(row);
+  });
+}
+function set(ref, n){
+  var e = E(); if(!e) return;
+  var r = null; try{ r = e.setHp(ref, n); }catch(x){ r = { ok:false, why:String(x && x.message || x) }; }
+  rsay.textContent = r && r.ok ? (r.name || "The enemy") + ": " + r.before + " → " + r.after + " HP" + (r.killed ? " — down." : ".")
+                               : "Not changed: " + ((r && (r.why || r.refused)) || "the encounter refused it") + ".";
+  editing = false; paint();
+}
+rl.addEventListener("click", function(ev){
+  var b = ev.target.closest ? ev.target.closest("button[data-d]") : null; if(!b) return;
+  var row = b.closest(".od-row"), ref = row.getAttribute("data-ref"), r = null;
+  try{ r = E().read(ref); }catch(x){}
+  if(r && r.ok) set(ref, r.now + (+b.getAttribute("data-d")));
+});
+rl.addEventListener("focusin", function(ev){ if(ev.target.getAttribute && ev.target.getAttribute("data-hp")) editing = true; });
+rl.addEventListener("focusout", function(ev){ if(ev.target.getAttribute && ev.target.getAttribute("data-hp")) setTimeout(function(){ editing = false; }, 0); });
+rl.addEventListener("keydown", function(ev){
+  if(ev.key !== "Enter" || !ev.target.getAttribute || !ev.target.getAttribute("data-hp")) return;
+  ev.preventDefault(); set(ev.target.closest(".od-row").getAttribute("data-ref"), ev.target.value);
+});
+/* Overseer AP: the rail's own buttons */
+function railBtn(d){ return D.querySelector('#suite-rail [data-ap="dm"][data-d="' + d + '"]'); }
+apDn.addEventListener("click", function(){ var b = railBtn("-1"); if(b && !b.disabled) b.click(); paint(); });
+apUp.addEventListener("click", function(){ var b = railBtn("1"); if(b && !b.disabled) b.click(); paint(); });
+place.addEventListener("click", function(){ var b = $("map-place"); if(b) b.click(); setTimeout(paint, 30); });
+/* undo history */
+ul.addEventListener("click", function(ev){
+  var b = ev.target.closest ? ev.target.closest("button[data-u]") : null; if(!b) return;
+  try{ if(W.SUITE_UNDO) W.SUITE_UNDO.undo(b.getAttribute("data-u")); }catch(x){}
+  setTimeout(paint, 30);
+});
+function paintUndo(){
+  var bs = Array.prototype.slice.call(D.querySelectorAll("#tb-ticker [data-undo]")).reverse().slice(0, 50);
+  ul.innerHTML = "";
+  if(!bs.length){ ul.appendChild(el("li", "od-sub", "Nothing to undo yet.")); return; }
+  bs.forEach(function(b){
+    var line = b.parentNode ? (b.parentNode.textContent || "").replace(/\s*Undo\s*$/, "").replace(/\s+/g, " ").trim() : "";
+    var li = el("li", "od-u"); li.appendChild(el("span", "od-ut", line || "a press"));
+    var u = el("button", "od-btn", "Undo"); u.type = "button"; u.setAttribute("data-u", b.getAttribute("data-undo")); li.appendChild(u);
+    ul.appendChild(li);
+  });
+}
+function paint(){
+  var m = null; try{ m = W.SUITE_STATE.get(); }catch(e){}
+  apN.textContent = String(m && m.dmAP != null ? m.dmAP : 0);
+  var pb = $("map-place"), on = !!(pb && pb.getAttribute("aria-pressed") === "true");
+  place.textContent = "Place tokens freely: " + (on ? "on" : "off"); place.setAttribute("aria-pressed", String(on));
+  paintRoster(); paintUndo();
+}
+paint();
+try{ if(W.SUITE_STATE && W.SUITE_STATE.subscribe) W.SUITE_STATE.subscribe(function(){ if(desk.offsetParent) paint(); }); }catch(e){}
+setInterval(function(){ if(desk.offsetParent) paint(); }, 2000);
+})(window);
+</script>
+<script data-suite="cinder-z1-night">/* ============================================================================
+   Helena Suite - Z035 item 1 (2026-10-23): NIGHT SHIFT IN BOTH VIEWS.
+   One flag, window.SUITE_NIGHT = { get(), set(v), on(fn) }, remembered in the Cinder shell's own
+   key "helena-cinder-night" (so an old choice carries), shown as body.cl-night.  Two switches:
+   the Cinder header's Night Shift button (taken over here, so the shell's local copy never
+   disagrees) and a tick box at the top of the Setup rail, which Classic and the phone both reach.
+   While it is on, a sweep marks every light neutral surface (paper, beige, white) z35-dk and the
+   neutral dark ink on it z35-ink; cinder-z1-night.css paints them.  Coloured inks are left alone.
+   Paint only: no record, no store, no id is touched.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document, KEY = "helena-cinder-night", night = false, subs = [];
+try{ night = W.localStorage.getItem(KEY) === "1"; }catch(e){}
+
+function rgb(s){
+  var m = /rgba?\(([^)]+)\)/.exec(s || ""); if(!m) return null;
+  var p = m[1].split(/[\s,\/]+/).filter(Boolean).map(parseFloat);
+  return { r:p[0], g:p[1], b:p[2], a:p.length > 3 ? p[3] : 1 };
+}
+function lum(c){ function f(v){ v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }
+  return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); }
+function chroma(c){ return Math.max(c.r, c.g, c.b) - Math.min(c.r, c.g, c.b); }
+/* a light neutral: paper, beige, cream, white, pale grey - never a coloured chip */
+function lightNeutral(c){ return c && c.a > 0.3 && lum(c) > 0.38 && chroma(c) < 75; }
+var SKIP = { SCRIPT:1, STYLE:1, LINK:1, META:1, CANVAS:1, IMG:1, VIDEO:1, svg:1, SVG:1, BR:1, HR:1, OPTION:1 };
+
+/* the colour actually behind an element: the first ancestor-or-self background that covers */
+function groundOf(e){
+  while(e && e.nodeType === 1){
+    var c = rgb(W.getComputedStyle(e).backgroundColor);
+    if(c && c.a > 0.5) return c;
+    e = e.parentElement;
+  }
+  return null;
+}
+function clear(){
+  ["z35-dk", "z35-ink", "z35-ink2", "z35-sdk", "z35-sink"].forEach(function(k){
+    var l = D.querySelectorAll("." + k); for(var i = 0; i < l.length; i++) l[i].classList.remove(k);
+  });
+}
+function sweep(){
+  if(!night) return;
+  var all = D.body.getElementsByTagName("*"), i, e, cs, c, list = [];
+  for(i = 0; i < all.length; i++){
+    e = all[i];
+    if(SKIP[e.tagName] || e.namespaceURI !== "http://www.w3.org/1999/xhtml") continue;
+    list.push(e);
+  }
+  /* pass 1: the light surfaces */
+  for(i = 0; i < list.length; i++){
+    e = list[i];
+    if(e.classList.contains("z35-dk")) continue;
+    cs = W.getComputedStyle(e);
+    if(cs.display === "none") continue;
+    c = rgb(cs.backgroundColor);
+    var bi = cs.backgroundImage, g = bi && bi !== "none" && /gradient/.test(bi) ? rgb((/rgba?\([^)]+\)/.exec(bi) || [""])[0]) : null;
+    if(lightNeutral(c) || lightNeutral(g)) e.classList.add("z35-dk");
+  }
+  /* pass 2: neutral dark ink now standing on a dark ground */
+  for(i = 0; i < list.length; i++){
+    e = list[i];
+    if(e.classList.contains("z35-ink") || e.classList.contains("z35-ink2")) continue;
+    cs = W.getComputedStyle(e);
+    if(cs.display === "none") continue;
+    c = rgb(cs.color);
+    if(!c || chroma(c) > 60) continue;
+    var L = lum(c), gb = groundOf(e);
+    if(gb && lum(gb) > 0.2) continue;            /* ink on a brass or coloured chip keeps its colour */
+    if(L < 0.12 || (L < 0.3 && /^(INPUT|SELECT|TEXTAREA)$/.test(e.tagName))) e.classList.add("z35-ink");
+    else if(L < 0.3) e.classList.add("z35-ink2");
+  }
+  sweepSvg();
+}
+/* pass 3: drawings outside the map (the sheet's paper doll): paper fills go Burnt, neutral dark lettering goes Ash */
+function sweepSvg(){
+  var l = D.querySelectorAll("svg :is(path, rect, circle, ellipse, polygon, text, tspan)");
+  for(var i = 0; i < l.length; i++){
+    var e = l[i];
+    if(e.closest("#tool-map, #fold-map, #zm-layer")) continue;
+    if(e.classList.contains("z35-sdk") || e.classList.contains("z35-sink")) continue;
+    var f = rgb(W.getComputedStyle(e).fill);
+    if(!f || f.a < 0.3) continue;
+    if(/^(text|tspan)$/.test(e.tagName)){ if(lum(f) < 0.3 && chroma(f) < 60) e.classList.add("z35-sink"); }
+    else if(lightNeutral(f)) e.classList.add("z35-sdk");
+  }
+}
+var queued = false, busy = false;
+function later(){
+  if(queued || !night) return; queued = true;
+  setTimeout(function(){ queued = false; if(busy) return; busy = true; try{ sweep(); }catch(e){} busy = false; }, 120);
+}
+
+function paintSwitches(){
+  var b = D.getElementById("cinder-night"); if(b) b.setAttribute("aria-pressed", String(night));
+  var t = D.getElementById("z35-night"); if(t) t.checked = night;
+}
+function set(v){
+  night = !!v;
+  try{ W.localStorage.setItem(KEY, night ? "1" : "0"); }catch(e){}
+  D.body.classList.toggle("cl-night", night);
+  paintSwitches();
+  if(night){ try{ sweep(); }catch(e){} } else clear();
+  subs.forEach(function(fn){ try{ fn(night); }catch(e){} });
+  try{ D.dispatchEvent(new CustomEvent("suite:night", { detail:{ on:night } })); }catch(e){}
+}
+W.SUITE_NIGHT = { get:function(){ return night; }, set:set, on:function(fn){ if(typeof fn === "function") subs.push(fn); }, sweep:sweep };
+
+/* the Cinder header's button: ours now (capture phase runs before the shell's own listener) */
+D.addEventListener("click", function(ev){
+  var t = ev.target && ev.target.closest ? ev.target.closest("#cinder-night") : null;
+  if(!t) return;
+  ev.stopImmediatePropagation(); ev.preventDefault();
+  set(!night);
+}, true);
+
+/* the Setup rail's tick box: Classic, and the phone in both views */
+try{
+  var rail = D.getElementById("suite-rail");
+  if(rail && !D.getElementById("z35-night")){
+    var lab = D.createElement("label"); lab.className = "tog z35-night-tog";
+    lab.title = "All dark, light text, for evening sessions (both views)";
+    var box = D.createElement("input"); box.type = "checkbox"; box.id = "z35-night";
+    lab.appendChild(box); lab.appendChild(D.createTextNode(" Night Shift"));
+    var h = D.createElement("div"); h.className = "rail-h"; h.textContent = "Night Shift";
+    var body = D.getElementById("rail-body");
+    rail.insertBefore(h, body || rail.firstChild); rail.insertBefore(lab, body || rail.firstChild);
+    box.addEventListener("change", function(){ set(box.checked); });
+  }
+}catch(e){}
+
+try{
+  if(typeof W.MutationObserver === "function")
+    new W.MutationObserver(function(){ later(); }).observe(D.body, { childList:true, subtree:true, attributes:true, attributeFilter:["hidden", "open"] });
+  D.addEventListener("suite-mode", later);
+  ["click", "focusin", "change"].forEach(function(k){ D.addEventListener(k, later, true); });
+}catch(e){}
+set(night);
+})(window);
+</script>
+<script data-suite="cinder-z2-current">/* ============================================================================
+   Helena Suite - Z035 item 2 (2026-10-23): ONE CURRENT CHARACTER, BOTH VIEWS.
+   window.SUITE_CURRENT = { get(), set(id), on(fn) }, and a document event "suite:current"
+   ({ detail:{ id } }) whenever it changes.  The truth stays where it always was: the sheet's open
+   character (HELENA_CHAR.current(), saved under "helena-char-current").  set(id) opens that sheet
+   the way its own tab does; a change made on the sheet is heard through the store's subscribers.
+   Every per-character select follows it and, on a person's change, sets it:
+     Trader's payer (mc-payer) and its send-to (mc-lg-to), the Workbench crafter (cf-who) and
+     salvager (cf-swho), the Dice's roller (gp-who), the fusion tracker's sheet (fz-sheet).
+   Per-character panes (Trader, Workbench, Camp, Medical, Dice, Fusion) get a small "Character"
+   picker on top; the loot window's Give sheet puts the current character first.  No record is
+   written beyond what the sheet's own tab already writes; no save shape changes.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document, subs = [], last = null;
+var FOLLOW = ["mc-payer", "mc-lg-to", "cf-who", "cf-swho", "gp-who", "fz-sheet"];
+var PANES = ["tool-shop", "tool-craft", "tool-camp", "tool-med", "tool-dice", "tool-fuse"];
+function $(id){ return D.getElementById(id); }
+function chars(){ try{ var m = W.SUITE_STATE && W.SUITE_STATE.get(); return m && Array.isArray(m.chars) ? m.chars : []; }catch(e){ return []; } }
+function get(){ try{ var H = W.HELENA_CHAR; return H && typeof H.current === "function" ? H.current() : null; }catch(e){ return null; } }
+function set(id){
+  if(id == null || id === "") return false;
+  id = String(id);
+  if(!chars().some(function(c){ return String(c.id) === id; })) return false;
+  if(String(get()) !== id){
+    var tab = D.querySelector('#tool-char .cs-tab[data-id="' + (W.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
+    if(tab) tab.click();
+    else { try{ W.HELENA_CHAR.open(id); }catch(e){} }
+  }
+  check();
+  return String(get()) === id;
+}
+/* the one place a change is announced */
+function check(){
+  var id = get();
+  if(id === last) return;
+  last = id;
+  follow();
+  subs.forEach(function(fn){ try{ fn(id); }catch(e){} });
+  try{ D.dispatchEvent(new CustomEvent("suite:current", { detail:{ id:id } })); }catch(e){}
+}
+var quiet = false;
+function followOne(sel, id){
+  if(!sel || id == null || sel.value === String(id) || D.activeElement === sel) return;
+  var o = null;
+  for(var i = 0; i < sel.options.length; i++) if(sel.options[i].value === String(id)){ o = sel.options[i]; break; }
+  if(!o || o.disabled) return;
+  sel.value = String(id);
+  quiet = true;
+  try{ sel.dispatchEvent(new Event("change", { bubbles:true })); }catch(e){}
+  quiet = false;
+}
+function follow(){
+  var id = get(); if(id == null) return;
+  FOLLOW.forEach(function(k){ followOne($(k), id); });
+  D.querySelectorAll("select.z35-cur").forEach(function(s){ fillPicker(s); });
+  /* camp's survival rows and the loot window's Give sheet: the current character marked, first */
+  D.querySelectorAll("#tool-camp [data-char]").forEach(function(r){ r.classList.toggle("z35-is-cur", r.getAttribute("data-char") === String(id)); });
+  var g = D.querySelector("#cl-give .cl-give-p");
+  if(g){
+    var b = g.querySelector('.cl-pt[data-char="' + String(id).replace(/"/g, "") + '"]');
+    g.querySelectorAll(".z35-is-cur").forEach(function(x){ if(x !== b) x.classList.remove("z35-is-cur"); });
+    if(b){ b.classList.add("z35-is-cur"); if(g.firstChild !== b) g.insertBefore(b, g.firstChild); }
+  }
+}
+/* the small picker on top of each per-character pane */
+function fillPicker(s){
+  var id = String(get() || ""), cs = chars(), want = cs.map(function(c){ return c.id + "|" + (c.name || ""); }).join(",");
+  if(s.getAttribute("data-list") !== want){
+    s.innerHTML = "";
+    cs.forEach(function(c){ var o = D.createElement("option"); o.value = String(c.id); o.textContent = c.name || "unnamed"; s.appendChild(o); });
+    s.setAttribute("data-list", want);
+  }
+  if(s.value !== id && D.activeElement !== s) s.value = id;
+}
+function mountPickers(){
+  PANES.forEach(function(k){
+    var t = $(k); if(!t || t.querySelector(":scope > .z35-cur-bar")) return;
+    var bar = D.createElement("div"); bar.className = "z35-cur-bar";
+    var lab = D.createElement("label"); lab.textContent = "Character ";
+    var s = D.createElement("select"); s.className = "z35-cur"; s.setAttribute("aria-label", "The current character, shared by every tab");
+    s.addEventListener("change", function(){ set(s.value); });
+    lab.appendChild(s); bar.appendChild(lab); t.insertBefore(bar, t.firstChild);
+    fillPicker(s);
+  });
+}
+W.SUITE_CURRENT = { get:get, set:set, on:function(fn){ if(typeof fn === "function") subs.push(fn); } };
+
+/* a person's change on any followed select sets the one character */
+D.addEventListener("change", function(ev){
+  if(quiet) return;
+  var t = ev.target;
+  if(t && t.id && FOLLOW.indexOf(t.id) >= 0 && t.value) set(t.value);
+}, true);
+/* the sheet's own tabs and doors: heard after they run */
+D.addEventListener("click", function(){ setTimeout(check, 0); }, false);
+try{ if(W.SUITE_STATE && typeof W.SUITE_STATE.subscribe === "function") W.SUITE_STATE.subscribe(function(){ setTimeout(check, 0); }); }catch(e){}
+/* a select rebuilt by its tool (fresh options, blank value) picks the character back up */
+var q = false;
+function soon(){ if(q) return; q = true; setTimeout(function(){ q = false; mountPickers(); follow(); }, 80); }
+try{
+  if(typeof W.MutationObserver === "function"){
+    var mo = new W.MutationObserver(function(list){
+      for(var i = 0; i < list.length; i++){
+        var n = list[i].target;
+        if(n.tagName === "SELECT" && FOLLOW.indexOf(n.id) >= 0){ soon(); return; }
+        if(n.id === "cl-give" || n.id === "tool-camp" || (n.closest && n.closest("#cl-give, #tool-camp"))){ soon(); return; }
+        if(n === D.body){ soon(); return; }
+      }
+    });
+    mo.observe(D.body, { childList:true, subtree:true });
+  }
+  D.addEventListener("suite-mode", soon);
+}catch(e){}
+mountPickers();
+last = get(); follow();
+})(window);
 </script>
 
 </body>
