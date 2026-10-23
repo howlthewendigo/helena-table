@@ -5004,6 +5004,15 @@ body.view-cinder[data-cl-tab="fight"] #cinder-ov-bottom{ display:flex; flex-dire
    the card shows only when it has something in it (its attack buttons) */
 body.view-cinder #cl-mtc:empty,
 body.view-cinder #cl-mtc:not(:has(button)){ display:none !important; }
+/* game-night ask (Howl): a monster's card opens as its own window over the map, with room to read, and an × to close */
+html body.view-cinder[data-cl-tab] #cinder-ov-bottom #cl-mtc:has(button), html body.view-cinder #cl-mtc:has(button), html body.view-cinder #tt-mcard:not([hidden]){
+  position:fixed !important; top:110px !important; left:50% !important; right:auto !important; bottom:auto !important;
+  transform:translateX(-50%) !important; width:min(760px, 94vw) !important; max-width:none !important;
+  max-height:calc(100vh - 140px) !important; overflow:auto !important; z-index:80 !important;
+  box-shadow:0 18px 50px rgba(0,0,0,.6) !important; padding:14px 16px 16px !important;
+}
+body.view-cinder #cl-mtc.cl-mtc-shut, body.view-cinder #tt-mcard.cl-mtc-shut{ display:none !important; }
+.cl-mtc-x{ position:sticky; top:0; float:right; z-index:2; min-width:36px; min-height:36px; font-size:22px; line-height:1; cursor:pointer; }
 </style>
 <style data-suite="cinder-z1-night">/* ============================================================================
    Helena Suite - Z035 item 1 (2026-10-23): NIGHT SHIFT IN BOTH VIEWS.
@@ -68805,6 +68814,33 @@ paint();
 try{ if(W.SUITE_STATE && W.SUITE_STATE.subscribe) W.SUITE_STATE.subscribe(function(){ paint(); }); }catch(e){}
 setInterval(paint, 2000);
 })(window);
+</script>
+<script data-suite="cinder-9-fix">/* game-night ask (Howl, 10-23): the monster card is a window with an × (and Esc) to close; it opens again on the next pick */
+(function(){
+  "use strict";
+  var D = document;
+  function addX(box){
+    if(!box || box.querySelector(":scope > .cl-mtc-x")) return;
+    var x = D.createElement("button"); x.type = "button"; x.className = "cl-mtc-x"; x.textContent = "×"; x.title = "Close (Esc)";
+    x.addEventListener("click", function(ev){ ev.stopPropagation(); box.classList.add("cl-mtc-shut"); });
+    box.insertBefore(x, box.firstChild);
+  }
+  function watch(id){
+    var box = D.getElementById(id); if(!box || box.__clWatched) return; box.__clWatched = true;
+    new MutationObserver(function(muts){
+      var real = muts.some(function(m){ return [].some.call(m.addedNodes, function(n){ return !(n.classList && n.classList.contains("cl-mtc-x")); }); });
+      if(real){ box.classList.remove("cl-mtc-shut"); addX(box); }
+    }).observe(box, { childList:true });
+    addX(box);
+  }
+  function scan(){ watch("cl-mtc"); watch("tt-mcard"); }
+  D.addEventListener("keydown", function(e){
+    if(e.key !== "Escape") return;
+    ["cl-mtc", "tt-mcard"].forEach(function(id){ var b = D.getElementById(id); if(b) b.classList.add("cl-mtc-shut"); });
+  });
+  if(D.readyState === "loading") D.addEventListener("DOMContentLoaded", scan); else scan();
+  setInterval(scan, 1500);
+})();
 </script>
 <script data-suite="cinder-z1-night">/* ============================================================================
    Helena Suite - Z035 item 1 (2026-10-23): NIGHT SHIFT IN BOTH VIEWS.
