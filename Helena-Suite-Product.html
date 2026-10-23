@@ -38382,6 +38382,8 @@ var TT = {
       var v = src[k];
       if(!v || typeof v !== "object" || Array.isArray(v)) continue;
       var rec = { stun:timed(v.stun), prone:v.prone ? 1 : 0, marked:timed(v.marked), persist:[] };
+      /* a swarm's stun carries how many bodies it holds (n, one per Effect); a record with none is the whole swarm */
+      if(rec.stun && v.stun && Math.round(+v.stun.n || 0) > 0) rec.stun.n = Math.round(+v.stun.n);
       if(Array.isArray(v.persist)) v.persist.forEach(function(p){
         if(!p || typeof p !== "object") return;
         var rounds = Math.round(+p.rounds || 0);
@@ -38452,6 +38454,7 @@ var TT = {
     (conds || []).forEach(function(c){
       if(!c) return;
       if(c.key === "stun")   rec.stun   = { until:r + Math.max(1, Math.round(+c.rounds || 1)) };
+      if(c.key === "stun" && Math.round(+c.n || 0) > 0) rec.stun.n = Math.round(+c.n);   /* a swarm: one body per Effect */
       if(c.key === "prone")  rec.prone  = 1;
       if(c.key === "marked") rec.marked = { until:r + Math.max(1, Math.round(+c.rounds || 1)) };
       if(c.key === "persist" && Math.round(+c.rounds || 0) > 0)
@@ -39353,7 +39356,22 @@ var TT = {
      round passes `until`, so the creature is stunned on every turn of a round up to and including `until`.  PURE. */
   stunnedNow: function(rec, round){
     var r = Math.round(+round || 0), u = rec && rec.stun ? Math.round(+rec.stun.until || 0) : 0;
-    return !!(rec && rec.stun) && r > 0 && u >= r;
+    var on = !!(rec && rec.stun) && r > 0 && u >= r;
+    /* a swarm's stun on fewer bodies than are standing (the third argument) is not the whole swarm: see stunCut */
+    var standing = arguments.length > 2 ? arguments[2] : null, n = on ? Math.round(+rec.stun.n || 0) : 0;
+    if(on && n > 0 && standing != null && n < Math.round(+standing || 0)) return false;
+    return on;
+  },
+  /* A STUN ON A SWARM HOLDS ONE BODY PER EFFECT (the stun record's n, laid with the Effects that landed it).  For the swarm's
+     stunned turn each held body counts as one lost: its attacks are made by `eff` = standing - n, so the swarm's bonus drops by n
+     (n fewer d20 and n fewer CD - the drop a member's death already makes).  n at or past the bodies standing, or a record with
+     no n (an old save, or a stun ticked by hand), is the whole swarm stunned, as before.  PURE. */
+  stunCut: function(rec, round, standing){
+    var on = TT.stunnedNow(rec, round), up = Math.max(0, Math.round(+standing || 0));
+    if(!on) return { n:0, whole:false, standing:up, eff:up };
+    var n = Math.round(+rec.stun.n || 0);
+    if(!(n > 0) || n >= up) return { n:up, whole:true, standing:up, eff:0 };
+    return { n:n, whole:false, standing:up, eff:up - n };
   },
   standing: function(facts){
     var f = facts || {};
@@ -41276,7 +41294,8 @@ function tvStrip(row, e, cur, gmLocked, running){
   var meta = document.createElement("div");
   meta.className = "tv-meta";
   meta.innerHTML =
-    (sw ? '<span class="tv-n" title="' + esc(swarmTitle(e)) + '">×' + sw.alive + "</span>" : "") +
+    (sw ? '<span class="tv-n" title="' + esc(swarmTitle(e)) + '">×' + (sw.standing || sw.alive) + "</span>" : "") +
+    (sw && sw.stunned ? '<span class="tv-dying tt-stuncut" title="' + esc(stunCutWords(sw)) + '">' + sw.stunned + " of " + sw.standing + " stunned</span>" : "") +
     (h ? '<label class="tt-hpbox' + (h.total && h.now / h.total <= 0.25 ? " down" : h.total && h.now / h.total <= 0.6 ? " hurt" : "") + '" title="HP. Type a number and press Enter: 12 sets it, -5 takes 5, +3 gives 3.">' +
            '<span class="lab">HP</span><input class="tv-hpin" type="text" inputmode="numeric" aria-label="HP for ' + esc(e.name) + ' (of ' + h.total + ')" title="HP, of ' + h.total + '"' +
            (gmLocked && !(e.kind === "char" && typeof heldHere === "function" && heldHere(e.ref).ok) ? " disabled" : "") + ">" +
@@ -41318,8 +41337,11 @@ function tvCardPaint(list, cur, gmLocked, running){
   box.setAttribute("aria-label", "Card for " + e.name);
   var open = {}; Array.prototype.forEach.call(box.querySelectorAll("details[data-tvk]"), function(d){ open[d.getAttribute("data-tvk")] = d.open; });
   var stunNow = typeof TT.stunnedNow === "function" && TT.stunnedNow(st.cond && st.cond[e.id], st.round);   /* Z026 */
+  var stunSw = typeof swarmOf === "function" ? swarmOf(e) : null;
+  if(stunSw && stunSw.stunned) stunNow = false;                  /* some bodies held, not the swarm: said below instead */
   box.innerHTML = '<div class="tv-ch"><b>' + esc(e.name) + '</b><button class="mini" data-tv="close" aria-label="Close the card">×</button></div>' +
     (stunNow ? '<div class="sb-out warn tt-mcstun"><b>Stunned \u2014 no actions this turn, AP may still be spent.</b> (Guide p.liv)</div>' : "") +
+    (stunSw && stunSw.stunned ? '<div class="sb-out warn tt-mcstun"><b>' + esc(stunCutWords(stunSw)) + ".</b> (Guide p.liv)</div>" : "") +
     '<div class="sbx" data-sbfor="' + esc(e.id) + '">' + statBlockHtml(e, gmLocked) + "</div>";
   if(cur === e.id && running && !gmLocked && typeof mtCardFor === "function"){
     var mtc = null;
@@ -42240,6 +42262,7 @@ function statBlockHtml(e, gmLocked){
             /* PROJECT H, FIGHT (R6): a test is never more than 5d20 (Book One p.15) */
             (2 + sbSw.bonus > 5 ? " (its pool is " + (2 + sbSw.bonus) + "d20; a test is never more than 5d20, Book One p.15)" : "") : "")
         : esc((x.w && x.w.raw) || "")) +
+      (sbSw && sbSw.stunned ? " \u00b7 " + esc(stunCutWords(sbSw)) : "") +
       (pp.rest ? " \u00b7 " + esc(pp.rest) : "") + "</div>" +
       '<div class="sb-r"><span class="lab">at</span>' +
       '<select data-sbact="target" aria-label="Target for ' + esc(x.name) + '">' + tops + "</select>" +
@@ -42396,7 +42419,7 @@ function rollHere(e, wi, tid){
      BEFORE the target question, because picking a target would not help: the rule is
      TT.standing, so it can be tested without a browser, and this is only the writing of it. */
   /* Z026: a stunned creature takes no normal action on its stunned turn - the attack is refused here, before any target */
-  if(typeof TT.stunnedNow === "function" && TT.stunnedNow(st.cond && st.cond[e.id], st.round)){
+  if(typeof TT.stunnedNow === "function" && TT.stunnedNow(st.cond && st.cond[e.id], st.round) && !(typeof stunCutOf === "function" && (stunCutOf(e, (swarmOf(e) || {}).standing || (swarmOf(e) || {}).alive) || {}).whole === false)){
     sbOut[key] = '<div class="sb-out warn"><b>Stunned \u2014 no actions this turn, AP may still be spent.</b> ' + esc(e.name) + " (Guide p.liv)</div>";
     render();
     return;
@@ -43095,13 +43118,25 @@ function swarmOf(e){
   if(!e || e.kind === "char" || !e.swarm) return null;
   var r = encRead(e.ref), s = r && r.swarm;
   if(!s || typeof s !== "object") return null;
-  return { count:Math.max(0, Math.round(+s.count || 0)), alive:Math.max(0, Math.round(+s.alive || 0)),
-           bonus:Math.max(0, Math.round(+s.bonus || 0)) };
+  var o = { count:Math.max(0, Math.round(+s.count || 0)), alive:Math.max(0, Math.round(+s.alive || 0)),
+            bonus:Math.max(0, Math.round(+s.bonus || 0)) };
+  /* stunned bodies count as lost for the swarm's stunned turn (TT.stunCut): fewer standing, the bonus down one per body */
+  var cut = typeof stunCutOf === "function" ? stunCutOf(e, o.alive) : null;
+  if(cut && !cut.whole && cut.n > 0){ o.standing = o.alive; o.stunned = cut.n; o.alive = cut.eff; o.bonus = Math.max(0, o.bonus - cut.n); }
+  return o;
 }
-function swarmWord(e){ var s = swarmOf(e); return s ? "swarm · " + s.alive + "/" + s.count + " up" : "swarm of " + e.swarm; }   /* one line in a 283px cell: the title says it whole */
+function stunCutOf(e, alive){
+  if(!e || e.kind === "char" || !e.swarm || typeof TT.stunCut !== "function" || typeof st === "undefined") return null;
+  return TT.stunCut(st.cond && st.cond[e.id], st.round, alive);
+}
+/* the cut in words: "3 of 4 stunned - attacks as 1 (-3d20, -3 CD)" */
+function stunCutWords(sw){
+  return sw && sw.stunned ? sw.stunned + " of " + sw.standing + " stunned \u2014 attacks as " + sw.alive + " (\u2212" + sw.stunned + "d20, \u2212" + sw.stunned + " CD)" : "";
+}
+function swarmWord(e){ var s = swarmOf(e); if(s && s.stunned) return "swarm · " + s.stunned + " of " + s.standing + " stunned"; return s ? "swarm · " + s.alive + "/" + s.count + " up" : "swarm of " + e.swarm; }   /* one line in a 283px cell: the title says it whole */
 function swarmTitle(e){
   var s = swarmOf(e);
-  return "A swarm fights as one body: one row, one initiative, one turn a round. " +
+  return "A swarm fights as one body: one row, one initiative, one turn a round. " + (s && s.stunned ? stunCutWords(s) + ". " : "") +
          (s ? "Its attacks roll +" + s.bonus + "d20 and +" + s.bonus + " CD while they last, as the stat block prints; every " +
               "lost member drops one of each." : "Its pool and its bonus are the Encounter pane's.");
 }
@@ -43195,7 +43230,11 @@ function applyConds(tgt, plan, lines){
     lines.push("<em>The conditions were not recorded — the turn order belongs to the Overseer.</em>");
     return;
   }
-  st = TT.condApply(st, tgt.id, plan.conds, st.round);
+  /* a Stun on a swarm holds one body per Effect (TT.stunCut): the count rides on its record */
+  var lay = plan.conds;
+  if(tgt.swarm && Math.round(+plan.effects || 0) > 0)
+    lay = plan.conds.map(function(c){ if(!c || c.key !== "stun") return c; var o = {}, k; for(k in c) if(Object.prototype.hasOwnProperty.call(c, k)) o[k] = c[k]; o.n = Math.round(+plan.effects); return o; });
+  st = TT.condApply(st, tgt.id, lay, st.round);
   push();
   plan.conds.forEach(function(c){ if(c && c.line) lines.push("<b>Condition</b> — " + esc(c.line)); });
 }
@@ -45542,7 +45581,12 @@ function encReqApply(key, take){
         " past Rad DR, <em>off HP — no creature Maximum HP rule exists</em>."
       : " <b>Radioactive</b>: " + r.spec.radiation + " Radiation to apply separately — the door did not take it.";
   }
-  if((r.conds || []).length && r.id) st = TT.condApply(st, r.id, r.conds, st.round);
+  if((r.conds || []).length && r.id){
+    /* a Stun on a swarm holds one body per Effect (TT.stunCut) */
+    var rEnt = typeof everyone === "function" ? entryOf(everyone(), r.id) : null, rFx = Math.round(+(r.spec && r.spec.effects) || 0);
+    var rLay = (rEnt && rEnt.swarm && rFx > 0) ? r.conds.map(function(c){ if(!c || c.key !== "stun") return c; var o = {}, k; for(k in c) if(Object.prototype.hasOwnProperty.call(c, k)) o[k] = c[k]; o.n = rFx; return o; }) : r.conds;
+    st = TT.condApply(st, r.id, rLay, st.round);
+  }
   /* WAVE 18, 2c: a player's hit the Overseer confirms is located here when it is a critical — this card never rolled
      the location at all, so a player's Torso critical could not bleed; the one d20 is this device's */
   var critLine = "";
