@@ -5000,6 +5000,10 @@ body.view-cinder[data-cl-tab="fight"] #cinder-ov-bottom #cl-mtc{
   position:relative !important; left:auto !important; right:auto !important; transform:none !important; width:100% !important; margin:0 !important;
 }
 body.view-cinder[data-cl-tab="fight"] #cinder-ov-bottom{ display:flex; flex-direction:column-reverse; gap:4px; }
+/* hotfix (Howl, game night 10-23): the monster card's empty violet frame showed across the map for players -
+   the card shows only when it has something in it (its attack buttons) */
+body.view-cinder #cl-mtc:empty,
+body.view-cinder #cl-mtc:not(:has(button)){ display:none !important; }
 </style>
 <style data-suite="cinder-z1-night">/* ============================================================================
    Helena Suite - Z035 item 1 (2026-10-23): NIGHT SHIFT IN BOTH VIEWS.
