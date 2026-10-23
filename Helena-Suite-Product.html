@@ -33839,8 +33839,10 @@ function renderOwner(){
   }
   var o = ownerInfo(c.id), lk = locked(c), gm = SY.isGM();
   badge.hidden = false; badge.className = "cs-own " + o.state;
-  badge.textContent = o.state === "unowned" ? "Unowned" : o.state === "mine" ? "Your sheet" : o.text + "\u2019s sheet" + (lk ? " \u2014 read-only" : " \u2014 GM edit");
-  cl.hidden = !(o.state === "unowned" || (gm && o.state === "theirs"));
+  /* Howl, 2026-10-23: "just let everyone touch everyone else's sheet" - the table's sheets are shared.  Claim is gone, so no
+     sheet is locked again; Release stays only where an old lock is still held, so the table can let it go */
+  badge.textContent = o.state === "unowned" ? "Shared \u2014 anyone at the table can edit" : o.state === "mine" ? "Your sheet" : o.text + "\u2019s sheet" + (lk ? " \u2014 read-only" : " \u2014 GM edit");
+  cl.hidden = true;
   rl.hidden = !(o.state === "mine" || (gm && o.state === "theirs"));
   lockSheet(lk);
 }
