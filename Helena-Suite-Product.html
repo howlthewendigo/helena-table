@@ -39348,6 +39348,13 @@ var TT = {
      Guided is the override, one press away, and the refusal says so; +1 / +5 on the bar or the
      Encounter tab's reset put a creature the Overseer says is still up back on its feet.
      PURE: `facts` is sbFacts' shape — door, wiped, alive, now, total, count. */
+  /* Z026 (2026-10-23): STUNNED (Guide p.liv) - a creature stunned loses its normal actions on its next turn; AP may still be
+     spent.  The order keeps a stun as { until: <round> } (condApply: the round it was laid + its rounds) and drops it once the
+     round passes `until`, so the creature is stunned on every turn of a round up to and including `until`.  PURE. */
+  stunnedNow: function(rec, round){
+    var r = Math.round(+round || 0), u = rec && rec.stun ? Math.round(+rec.stun.until || 0) : 0;
+    return !!(rec && rec.stun) && r > 0 && u >= r;
+  },
   standing: function(facts){
     var f = facts || {};
     if(!f.door) return { ok:true, wiped:false, why:"no door on this build — nothing is tracking this creature's HP" };
@@ -41310,7 +41317,9 @@ function tvCardPaint(list, cur, gmLocked, running){
   box.hidden = false;
   box.setAttribute("aria-label", "Card for " + e.name);
   var open = {}; Array.prototype.forEach.call(box.querySelectorAll("details[data-tvk]"), function(d){ open[d.getAttribute("data-tvk")] = d.open; });
+  var stunNow = typeof TT.stunnedNow === "function" && TT.stunnedNow(st.cond && st.cond[e.id], st.round);   /* Z026 */
   box.innerHTML = '<div class="tv-ch"><b>' + esc(e.name) + '</b><button class="mini" data-tv="close" aria-label="Close the card">×</button></div>' +
+    (stunNow ? '<div class="sb-out warn tt-mcstun"><b>Stunned \u2014 no actions this turn, AP may still be spent.</b> (Guide p.liv)</div>' : "") +
     '<div class="sbx" data-sbfor="' + esc(e.id) + '">' + statBlockHtml(e, gmLocked) + "</div>";
   if(cur === e.id && running && !gmLocked && typeof mtCardFor === "function"){
     var mtc = null;
@@ -42386,6 +42395,12 @@ function rollHere(e, wi, tid){
   /* SKEPTIC PASS, 2026-09-24 — a row the door says is wiped does not roll from here.  Said
      BEFORE the target question, because picking a target would not help: the rule is
      TT.standing, so it can be tested without a browser, and this is only the writing of it. */
+  /* Z026: a stunned creature takes no normal action on its stunned turn - the attack is refused here, before any target */
+  if(typeof TT.stunnedNow === "function" && TT.stunnedNow(st.cond && st.cond[e.id], st.round)){
+    sbOut[key] = '<div class="sb-out warn"><b>Stunned \u2014 no actions this turn, AP may still be spent.</b> ' + esc(e.name) + " (Guide p.liv)</div>";
+    render();
+    return;
+  }
   var up = TT.standing(sbFacts(e));
   if(!up.ok){
     sbOut[key] = '<div class="sb-out warn"><b>Not rolled here — ' + esc(e.name) + ' is down.</b> ' +
@@ -45697,8 +45712,20 @@ document.addEventListener("helena-roster", function(){ reapNow(); sbSweep(); kee
    ("helena-enc-hp"), so the record hears each one as it happens: a rise is a heal and the bleed ends, with a ticker line; a
    fall is followed down (the record's pool), so the end-of-turn check stays true for a heal this device never saw.  Only
    where the order may be written (the slice is the Overseer's). */
+/* Z026 (2026-10-23, K.11): only the OVERSEER'S OWN PRESS may move a bleed record.  A device opening a fight with a stale copy of the
+   pool, or any write nobody pressed, reads and never heals: the room's pool is the truth.  So the record listens only when this device
+   holds the GM seat (or plays alone, with no room) AND the write came from a live click or key on this device (the browser's own
+   userActivation).  A bleed otherwise ends by treatment, by the fight ending, or by the Overseer's press here. */
+function bleedPressOk(){
+  var gm = true;
+  try{ var SY2 = window.SUITE_SYNC, s = SY2 && typeof SY2.status === "function" ? SY2.status() : null; if(s && s.connected) gm = !!s.gm; }catch(e){ gm = true; }
+  var act = false;
+  try{ var ua = typeof navigator !== "undefined" ? navigator.userActivation : null; act = !!(ua && ua.isActive); }catch(e){ act = false; }
+  return gm && act;
+}
 function bleedHeard(d){
   if(!d || d.ref == null || !st.bleed || typeof st.bleed !== "object") return 0;
+  if(typeof bleedPressOk === "function" && !bleedPressOk()) return 0;
   var b = d.before == null ? NaN : +d.before, a = +d.after;
   if(!isFinite(b) || !isFinite(a) || a === b || !writable()) return 0;
   var ref = String(d.ref), n = 0, k, names = [];
