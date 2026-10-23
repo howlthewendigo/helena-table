@@ -5007,12 +5007,15 @@ body.view-cinder #cl-mtc:not(:has(button)){ display:none !important; }
 /* game-night ask (Howl): a monster's card opens as its own window over the map, with room to read, and an × to close */
 html body.view-cinder[data-cl-tab] #cinder-ov-bottom #cl-mtc:has(button), html body.view-cinder #cl-mtc:has(button), html body.view-cinder #tt-mcard:not([hidden]){
   position:fixed !important; top:110px !important; left:50% !important; right:auto !important; bottom:auto !important;
-  transform:translateX(-50%) !important; width:min(760px, 94vw) !important; max-width:none !important;
-  max-height:calc(100vh - 140px) !important; overflow:auto !important; z-index:80 !important;
-  box-shadow:0 18px 50px rgba(0,0,0,.6) !important; padding:14px 16px 16px !important;
+  transform:translateX(-50%) !important; width:min(440px, 92vw) !important; max-width:none !important;
+  max-height:min(60vh, calc(100vh - 140px)) !important; overflow:auto !important; z-index:80 !important;
+  box-shadow:0 18px 50px rgba(0,0,0,.6) !important; padding:8px 10px 10px !important; font-size:13px !important;
 }
+/* Howl 10-23: the creature card pops out small - tighter text and buttons */
+html body.view-cinder #cl-mtc:has(button) *, html body.view-cinder #tt-mcard:not([hidden]) *{ font-size:inherit; }
+html body.view-cinder #cl-mtc:has(button) button, html body.view-cinder #tt-mcard:not([hidden]) button{ padding:2px 6px !important; min-height:0 !important; }
 body.view-cinder #cl-mtc.cl-mtc-shut, body.view-cinder #tt-mcard.cl-mtc-shut{ display:none !important; }
-.cl-mtc-x{ position:sticky; top:0; float:right; z-index:2; min-width:36px; min-height:36px; font-size:22px; line-height:1; cursor:pointer; }
+.cl-mtc-x{ position:sticky; top:0; float:right; z-index:2; min-width:28px; min-height:28px !important; font-size:18px !important; line-height:1; cursor:pointer; }
 /* game night (Howl): the map scrolls on past the action bar, so the bottom zones can be seen */
 html body.view-cinder[data-cl-tab="fight"] #suite-stage > #fold-map{ overflow-y:auto !important; padding-bottom:150px !important; box-sizing:border-box; }
 /* game night (Howl): Pack and Growth hidden until they work */
@@ -5039,6 +5042,21 @@ html body.view-cinder[data-cl-tab="fight"] #suite-stage > #fold-map{ padding-top
 html body.view-cinder #cx-sheet3 > .cx-full{ grid-column:1 / -1 !important; min-width:0; }
 html body.view-cinder #cx-sheet3 > .cx-full .cs-wwrap{ overflow-x:auto !important; max-width:100%; }
 html body.view-cinder #cx-sheet3 > .cx-full .cs-wtab input[type=text], html body.view-cinder #cx-sheet3 > .cx-full .cs-wtab textarea{ min-width:14ch; }
+/* game night (Howl): the creature stat block pops out small on Fight (cinder-9-fix.js) */
+html body.view-cinder.cl-sb-pop[data-cl-tab="fight"] #suite-stage > #fold-enc{
+  display:block !important; position:fixed !important; top:110px !important; left:50% !important; transform:translateX(-50%) !important;
+  width:min(460px, 92vw) !important; max-height:min(62vh, calc(100vh - 140px)) !important; overflow:auto !important; z-index:80 !important;
+  box-shadow:0 18px 50px rgba(0,0,0,.6) !important; border:2px solid var(--cl-burnt) !important; font-size:13px !important;
+}
+html body.view-cinder.cl-sb-pop #fold-enc > .suite-fold-bar, html body.view-cinder.cl-sb-pop #eb-builder{ display:none !important; }
+html body.view-cinder.cl-sb-pop #tool-enc{ display:block !important; padding:6px 8px !important; }
+html body.view-cinder.cl-sb-pop #eb-stat{ padding:6px 8px !important; margin:0 !important; }
+html body.view-cinder.cl-sb-pop #eb-stat *{ font-size:inherit; }
+html body.view-cinder.cl-sb-pop #eb-stat :is(h2, .eb-stat-who){ font-size:15px !important; }
+html body.view-cinder.cl-sb-pop #eb-stat .stat{ padding:3px 4px !important; min-width:0 !important; }
+html body.view-cinder:not(.cl-sb-pop)[data-cl-tab="fight"] #suite-stage > #fold-enc{ display:none !important; }
+#cl-sb-x{ display:none; }
+html body.view-cinder.cl-sb-pop #cl-sb-x{ display:block; position:sticky; top:0; float:right; z-index:2; min-width:28px; min-height:28px; font-size:18px; line-height:1; cursor:pointer; }
 </style>
 <style data-suite="cinder-z1-night">/* ============================================================================
    Helena Suite - Z035 item 1 (2026-10-23): NIGHT SHIFT IN BOTH VIEWS.
@@ -65362,7 +65380,9 @@ function miniCard(r){
   return '<b>' + esc(r.name) + "</b>" +
     '<div class="cl-mbar"><i class="flesh" style="width:' + (h && h.total ? Math.round(100 * h.now / h.total) : 0) + '%"></i></div><div>' + hpPart + "</div>" +
     (p ? '<div class="cl-mbar"><i class="plate" style="width:' + Math.round(100 * p.now / p.max) + '%"></i></div><div>Plate ' + p.now + " / " + p.max + "</div>" : "") +
-    '<div>Major <span class="o">' + "◆".repeat(u.major) + "◇".repeat(Math.max(0, (r.cap || 1) - u.major)) + '</span> · Minor <span class="c">' + (u.minor ? "●" : "○") + "</span></div>" +
+    /* Howl 10-23: one Major and one Minor a turn; r.cap is the most Majors with the bought ones, so the extras read as for sale */
+    '<div>Major <span class="o">' + (u.major ? "◆" : "◇") + '</span> · Minor <span class="c">' + (u.minor ? "●" : "○") + "</span></div>" +
+    ((r.cap || 1) > 1 ? '<div class="cl-mbuy">' + (u.major > 1 ? "Bought " + (u.major - 1) + " of " : "Can buy ") + ((r.cap || 1) - 1) + " more Major" + ((r.cap || 1) > 2 ? "s" : "") + " for 2 AP each</div>" : "") +
     (r.swarm ? "<div>Swarm ×" + (r.swarm.standing != null ? r.swarm.standing : r.swarm.alive) + (r.swarm.stunned ? " (" + r.swarm.stunned + " stunned)" : "") + "</div>" : "") +
     (r.conds && r.conds.length ? "<div>" + esc(r.conds.join(", ")) + "</div>" : "");
 }
@@ -67180,6 +67200,27 @@ setInterval(paint, 2000);
       card.classList.remove("cx-full");        /* the sheet's own Cinder code puts every card back where it came from */
     }
   }, 600);
+})();
+/* game night (Howl): a creature clicked on the Fight tab pops its stat block out small, with an x - no jump to the Encounter pane */
+(function(){
+  "use strict";
+  var D = document, B = D.body;
+  function fight(){ return B.classList.contains("view-cinder") && B.getAttribute("data-cl-tab") === "fight"; }
+  function shut(){ B.classList.remove("cl-sb-pop"); }
+  var x = D.createElement("button"); x.type = "button"; x.id = "cl-sb-x"; x.textContent = "×"; x.title = "Close (Esc)";
+  x.addEventListener("click", shut);
+  function wrap(){
+    var SH = window.SUITE_SHELL; if(!SH || typeof SH.showTool !== "function") return false;
+    if(SH.showTool.clSbPop) return true;
+    var orig = SH.showTool, fn = function(k){
+      if(k === "enc" && fight()){ B.classList.add("cl-sb-pop"); var t = D.getElementById("tool-enc"); if(t && x.parentNode !== t) t.insertBefore(x, t.firstChild); return true; }
+      return orig.apply(this, arguments);
+    };
+    fn.clSbPop = true; SH.showTool = fn; return true;
+  }
+  D.addEventListener("keydown", function(e){ if(e.key === "Escape" && B.classList.contains("cl-sb-pop")) shut(); });
+  new MutationObserver(function(){ if(!fight()) shut(); }).observe(B, { attributes:true, attributeFilter:["data-cl-tab", "class"] });
+  setInterval(wrap, 1000); wrap();
 })();
 </script>
 <script data-suite="cinder-z1-night">/* ============================================================================
