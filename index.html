@@ -4917,6 +4917,20 @@ body.view-cinder #tool-craft .cf-chip.short{ border-color:var(--wb-miss); }
 #tool-craft .cf-r .ing{ display:flex; flex-direction:column; align-items:stretch; gap:4px; } #tool-craft .cf-r .ing .cf-chip{ display:block; padding:4px 8px; }
 @media (max-width:700px){ #tool-craft .cf-r{ padding-left:4px; padding-right:4px; } #tool-craft details.cf-cat, #tool-craft details.cf-band, #tool-craft .cf-rows{ padding-left:0 !important; padding-right:0 !important; margin-left:0; margin-right:0; } }
 </style>
+<style data-suite="cinder-8-journal">/* Z034 the Journal (brief §G): a two-page spread on the Journal tab - the quests on the left page, the session log
+   and the fight chat on the right - all on Paper (they were dark panes inside the Paper view). */
+@media (min-width:1100px){
+  body.view-cinder[data-cl-tab="journal"] #suite-stage{ display:grid !important; grid-template-columns:minmax(420px, 1.1fr) minmax(380px, 1fr); grid-auto-flow:row dense; column-gap:0; align-items:start; }
+  body.view-cinder[data-cl-tab="journal"] #suite-stage > .suite-fold{ grid-column:2; min-width:0; }
+  body.view-cinder[data-cl-tab="journal"] #suite-stage > #fold-quests{ grid-column:1; grid-row:1 / span 6; border-right:3px double var(--cl-burnt); }
+}
+body.view-cinder :is(#fold-chat, #fold-log){ background:var(--cl-panel) !important; color:var(--cl-text) !important; }
+body.view-cinder :is(#fold-chat, #fold-log) :is(div, section, ol, ul, li, details, summary, p, span, header){ background-color:transparent !important; border-color:var(--cl-paper-shade) !important; }
+body.view-cinder :is(#fold-chat, #fold-log) :is(div, li, p, span, summary, b, i, em, small, time, label){ color:var(--cl-a-ink) !important; }
+body.view-cinder :is(#fold-chat, #fold-log) :is(button, input, select, textarea){ background:var(--cl-a-field, #FBF6EA) !important; color:var(--cl-a-ink) !important; border:1px solid #8C8173 !important; }
+/* quests as cards on the page */
+body.view-cinder #tool-quests :is(.qs-q, .qs-card, details.qs-quest){ background:var(--plate); border:1px solid var(--edge); border-radius:2px; padding:8px 10px; margin:0 0 8px; box-shadow:0 2px 0 var(--edge); }
+</style>
 <style data-suite="cinder-8-maps">/* Z034 map scale presets (cinder-8-maps.js), both views */
 #tool-map .mp-presets{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
 #tool-map .mp-row{ display:inline-flex; flex-wrap:wrap; gap:4px; }
@@ -4949,6 +4963,21 @@ body.view-cinder #tool-craft .cf-chip.short{ border-color:var(--wb-miss); }
 #od-desk .od-u{ display:flex; gap:8px; align-items:center; padding:6px 0; border-top:1px solid var(--edge); font-size:15px; }
 #od-desk .od-ut{ flex:1 1 auto; }
 body.view-cinder.cl-player #od-desk{ display:none; }
+</style>
+<style data-suite="cinder-8-road">/* Z034 the Road strip (cinder-8-road.js), both views */
+#rd-road{ margin:0 0 14px; padding:10px 12px; border:1px solid var(--edge); background:var(--panel); color:var(--ink); }
+#rd-road .rd-title{ margin:0 0 4px; font-size:20px; letter-spacing:.06em; text-transform:uppercase; color:var(--amber); }
+#rd-road .rd-sub{ margin:0 0 8px; font-size:15px; }
+#rd-road .rd-strip{ list-style:none; margin:0; padding:10px 0 4px; display:flex; flex-wrap:wrap; gap:0; align-items:stretch;
+  background:repeating-linear-gradient(90deg, transparent 0 14px, var(--edge) 14px 26px) left 50% / 100% 3px no-repeat; }
+#rd-road .rd-leg, #rd-road .rd-end{ flex:1 1 110px; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 4px; font-size:15px; text-align:center; }
+#rd-road .rd-end{ flex:0 0 auto; padding:6px 10px; }
+#rd-road .rd-pin{ font-size:22px; line-height:1; }
+#rd-road .rd-n{ display:inline-block; padding:2px 10px; border:2px solid var(--edge); border-radius:3px; background:var(--plate); font-weight:700; }
+#rd-road .rd-done .rd-n{ border-color:var(--green); }
+#rd-road .rd-done .rd-n::before{ content:"✓ "; color:var(--green); }
+#rd-road .rd-now .rd-n{ border-color:var(--amber); box-shadow:0 0 0 2px var(--amber); }
+#rd-road .rd-todo{ color:var(--dim); }
 </style>
 <style data-suite="cinder-9-fix">/* Z032 merge fixes (2026-10-23): the four Cinder parts docked into each other.
    - the initiative ribbon asked for a "top" dock the shell does not have: it sits across the top of the Stage
@@ -68727,6 +68756,50 @@ function paint(){
 paint();
 try{ if(W.SUITE_STATE && W.SUITE_STATE.subscribe) W.SUITE_STATE.subscribe(function(){ if(desk.offsetParent) paint(); }); }catch(e){}
 setInterval(function(){ if(desk.offsetParent) paint(); }, 2000);
+})(window);
+</script>
+<script data-suite="cinder-8-road">/* ============================================================================
+   Helena Suite - Z034 the ROAD room: the journey's legs as a road strip, read from the Travel pane's own slice
+   (SUITE_TOOLS "travel": journey { name, legs, walked, pace, status } and its log of walked legs).  Read-only:
+   setting out, walking a leg and abandoning stay the Travel pane's own buttons beneath it.  It sits at the head
+   of #tool-travel, so Classic's Travel tab and Cinder's Road tab show the same strip.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document, host = D.getElementById("tool-travel"); if(!host) return;
+function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+var box = el("section", "rd-road"); box.id = "rd-road"; box.setAttribute("aria-label", "The road");
+host.insertBefore(box, host.firstChild);
+function slice(){ try{ return W.SUITE_TOOLS && W.SUITE_TOOLS.get ? W.SUITE_TOOLS.get("travel") : null; }catch(e){ return null; } }
+var last = "";
+function paint(){
+  var s = slice() || {}, j = s.journey || null, log = Array.isArray(s.log) ? s.log : [];
+  var key = JSON.stringify([j, log.length]); if(key === last) return; last = key;
+  box.innerHTML = "";
+  box.appendChild(el("h2", "rd-title", "The road"));
+  if(!j || j.status !== "out"){
+    box.appendChild(el("p", "rd-sub", "No journey under way. Name where the party is going below and press Set out; its legs appear here as a road."));
+    return;
+  }
+  var legs = Math.max(1, +j.legs || 1), walked = Math.max(0, Math.min(legs, +j.walked || 0));
+  box.appendChild(el("p", "rd-sub", "To " + (j.name || "somewhere") + " · " + walked + " of " + legs + " legs walked" + (j.lost ? " · lost " + j.lost + " time" + (j.lost > 1 ? "s" : "") : "")));
+  var strip = el("ol", "rd-strip"); strip.setAttribute("aria-label", "Legs of the journey");
+  var mine = log.filter(function(x){ return x.journey === j.name; });
+  var start = el("li", "rd-end rd-start"); start.appendChild(el("span", "rd-pin", "◉")); start.appendChild(el("span", "rd-lab", "Set out")); strip.appendChild(start);
+  for(var i = 1; i <= legs; i++){
+    var st = i <= walked ? "rd-done" : (i === walked + 1 ? "rd-now" : "rd-todo");
+    var li = el("li", "rd-leg " + st);
+    li.appendChild(el("span", "rd-n", "Leg " + i));
+    var rec = mine.filter(function(x){ return x.n === i; }).pop();
+    li.appendChild(el("span", "rd-lab", st === "rd-done" ? ("walked" + (rec && rec.navName ? " · " + rec.navName + " navigated" : "")) : st === "rd-now" ? "next" : "ahead"));
+    strip.appendChild(li);
+  }
+  var end = el("li", "rd-end rd-dest"); end.appendChild(el("span", "rd-pin", "⚑")); end.appendChild(el("span", "rd-lab", j.name || "there")); strip.appendChild(end);
+  box.appendChild(strip);
+}
+paint();
+try{ if(W.SUITE_STATE && W.SUITE_STATE.subscribe) W.SUITE_STATE.subscribe(function(){ paint(); }); }catch(e){}
+setInterval(paint, 2000);
 })(window);
 </script>
 <script data-suite="cinder-z1-night">/* ============================================================================
