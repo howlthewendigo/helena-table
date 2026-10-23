@@ -978,6 +978,9 @@
 }
 #tool-enc .budget-row{align-items:flex-start}
 #tool-enc.tv:not(.tv-open) .top, #tool-enc.tv:not(.tv-open) .eb-live{display:none}
+#tool-enc.tv{display:flex;flex-direction:column}
+#tool-enc.tv #eb-builder{order:-1}
+#tool-enc.tv #eb-builder > summary{display:none}
 #tool-enc .eb-newenc{display:block;width:100%;margin:6px 0 8px;text-align:left;font-weight:700;letter-spacing:.06em}
 #tool-enc .eb-newenc[hidden]{display:none}
 
@@ -4151,8 +4154,7 @@
   body.view-table #tb-mv-top{ position:fixed; z-index:97; top:var(--tv-top); left:0; right:0; }
 
   /* ---------------------------------------------------------------- roles: a player's seat */
-  body.view-table.role-player :is(#tv-tab-fight, #tv-tab-sheets, #tv-tab-camp, #tv-tab-craft, #tv-tab-log, #tv-more){ display:none !important; }
-  body.view-table.role-player .tv-tabs{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  /* Z025: a player seat keeps all six tabs (the Fight, Sheets, Camp, Craft, Chat and Log a player uses at the table) */
   body.view-table.role-player .tv-pool-dm .tv-pool-b{ display:none; }
   body.view-table.role-player .suite-rail :is(#nc-start, #rail-body, #rail-apopt, #tb-setup, #rs-box, #nc-store, #table-msg){ display:none !important; }
   body.view-table.role-player .suite-rail .rail-h:has(+ #rail-apopt),
@@ -23435,7 +23437,10 @@ function builderOpen(inSuite, saved){ return !inSuite || saved === "1"; }
   var inSuite = !!(window.SUITE_SHELL && typeof window.SUITE_SHELL.live === "function"), saved = null;
   try{ saved = window.localStorage.getItem(BUILDER_KEY); }catch(e){ saved = null; }
   d.open = builderOpen(inSuite, saved);
-  d.addEventListener("toggle", function(){ try{ window.localStorage.setItem(BUILDER_KEY, d.open ? "1" : "0"); }catch(e){} });
+  d.addEventListener("toggle", function(){
+    if(typeof ebTvOn === "function" && ebTvOn()) return;      /* the table view holds the fold open itself (ebTv): not the classic choice */
+    try{ window.localStorage.setItem(BUILDER_KEY, d.open ? "1" : "0"); }catch(e){}
+  });
 })();
 
 function showRoll(host, r){
@@ -24104,6 +24109,17 @@ function ebTv(){
     b = document.createElement("button"); b.id = "eb-newenc"; b.type = "button"; b.className = "eb-newenc";
     b.addEventListener("click", function(){ ebTvOpen = !ebTvOpen; ebTv(); });
     top.parentNode.insertBefore(b, top);
+  }
+  /* Z025: the fold is held open in the table view so the "New encounter" button inside it shows; the button opens the builder.
+     Back in the classic view the fold returns to the classic choice */
+  var fold = $("eb-builder");
+  if(fold){
+    if(on){ fold.setAttribute("data-tv-held", "1"); fold.open = true; }
+    else if(fold.getAttribute("data-tv-held") === "1"){
+      fold.removeAttribute("data-tv-held");
+      var sv = null; try{ sv = window.localStorage.getItem(BUILDER_KEY); }catch(e){}
+      fold.open = typeof builderOpen === "function" ? builderOpen(!!(window.SUITE_SHELL && typeof window.SUITE_SHELL.live === "function"), sv) : fold.open;
+    }
   }
   if(b){
     b.hidden = !on;
@@ -65282,7 +65298,8 @@ var TABS = [
   { key:"log",    label:"Log",    mode:null,     title:"This session's ticker" }
 ];
 var DOCKS = TABS.map(function(t){ return t.key; }).concat(["dice"]);
-var PLAYER_DOCKS = ["chat", "dice"];
+/* Z025 (2026-10-22): every seat sees the six tabs by name - the room still says who may write what */
+var PLAYER_DOCKS = DOCKS;
 
 function $(id){ try{ return D.getElementById(id); }catch(e){ return null; } }
 function mk(tag, cls, text){ var e = D.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
@@ -65861,7 +65878,8 @@ function boot(){
   dockNow = lsGet(DKEY);
   if(DOCKS.indexOf(dockNow) < 0) dockNow = "fight";
   var sv = lsGet(SKEY);
-  setShut(sv === "1" || (sv == null && narrow()));
+  /* Z025: the dock opens expanded at every width; folding it is the user's choice, and remembered */
+  setShut(sv === "1");
   setView(lsGet(VKEY) === "classic" ? "classic" : "table", true);
   /* the boot script set the view's class before the tools drew, so setView saw no change and announced nothing: say it once
      here, so a tool that drew its classic markup before the shell booted (the order's strips, the tokens) redraws for it */
