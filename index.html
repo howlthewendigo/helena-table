@@ -49583,6 +49583,14 @@ const BANDK=['C','M','L','X'];
 /* Extreme is the top band and nothing is out of range: a shot beyond Extreme is
    still legal, it just carries +1 Difficulty for each zone past the third. */
 function bandOf(d){return d<=0?0:Math.min(3,d);}
+/* Howl 10-23: the words a clicked zone's view uses; cover is the target zone's face toward the shooter (the map door's rule) */
+const RANGE_WORD=['Close','Medium','Long','Extreme'], RANGE_COL=['#8fd7ee','#7ac74f','#f0b429','#e05c4b'];
+const COVER_WORD=['None','Light','Medium','Heavy'];
+function selCover(z,from){
+  const dx=from.cx-z.cx, dy=from.cy-z.cy; if(!z.cover||(!dx&&!dy)) return 0;
+  const f=Math.abs(dx)>=Math.abs(dy)?(dx>=0?'E':'W'):(dy>=0?'S':'N');
+  return Math.max(0,Math.min(3,+z.cover[f]||0));
+}
 function overExtreme(d){return isFinite(d)&&d>3 ? d-3 : 0;}
 
 function dijkstra(n,adj,cost,src,dst){
@@ -50178,6 +50186,17 @@ function render(M){
       }
     }
   }
+  /* Howl 10-23 (game night): a zone clicked shows, on every zone, its range from there and the cover it gets from there */
+  const SELZ = selBands ? M.zones[SELECTED] : null;
+  if(SELZ){
+    for(const z of M.zones){
+      const b=bandOf(selBands[z.id]), cv=z===SELZ?0:selCover(z,SELZ), c=COVER[cv];
+      const t=(z===SELZ?'FROM HERE · ':'')+RANGE_WORD[b]+' · '+(cv?COVER_WORD[cv]:'No cover');
+      const w=t.length*6.2+12, y=z.cy+16;
+      O.push(`<g data-view="${z.id}"><rect x="${z.cx-w/2}" y="${y-10}" width="${w}" height="15" rx="3" fill="#0e100c" fill-opacity=".86" stroke="${RANGE_COL[b]}" stroke-width="1.6"/>`);
+      O.push(`<text x="${z.cx}" y="${y+1}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${RANGE_COL[b]}">${RANGE_WORD[b]}<tspan fill="${cv?c.col:'#b9bdaa'}"> · ${cv?COVER_WORD[cv]:'No cover'}</tspan></text></g>`);
+    }
+  }
   O.push(`<rect width="${MAP_W}" height="${MAP_H}" fill="none" stroke="#3a4032" stroke-width="2"/>`);
   O.push('</g>');
 
@@ -50193,6 +50212,23 @@ function render(M){
     O.push(`<line x1="14" y1="${Y-3.5}" x2="40" y2="${Y-3.5}" stroke="${col}" stroke-width="11" stroke-dasharray="${dash}" stroke-opacity=".85"/>`);
     O.push(`<text class="lg" x="48" y="${Y}">${txt}</text>`);Y+=18;};
 
+  if(SELZ){
+    H('FROM '+SELZ.code+' · '+esc(SELZ.name).toUpperCase());
+    L('Range to each zone, and the cover a target there','14');
+    L('gets from a shot out of '+SELZ.code+'. Click it again to clear.','14');
+    Y+=4;
+    O.push(`<text class="lgh" x="14" y="${Y}">ZONE</text><text class="lgh" x="190" y="${Y}">RANGE</text><text class="lgh" x="256" y="${Y}">COVER</text>`); Y+=15;
+    const rows=M.zones.slice().sort((a,b)=>selBands[a.id]-selBands[b.id]||a.code.localeCompare(b.code));
+    for(const z of rows){
+      const b=bandOf(selBands[z.id]), cv=z===SELZ?0:selCover(z,SELZ);
+      O.push(`<text class="lg" x="14" y="${Y}">${z.code} · ${esc(z.name.length>22?z.name.slice(0,21)+'…':z.name)}</text>`);
+      O.push(`<text class="lg" x="190" y="${Y}" fill="${RANGE_COL[b]}" font-weight="700">${RANGE_WORD[b]}</text>`);
+      O.push(`<text class="lg" x="256" y="${Y}" fill="${cv?COVER[cv].col:'#b9bdaa'}" font-weight="700">${cv?COVER_WORD[cv]:'None'}</text>`);
+      Y+=15;
+    }
+    O.push('</g></svg>');
+    return O.join('');
+  }
   H('COVER — READ THE BAND YOU ARE SHOT THROUGH');
   SW(COVER[1].col,'Light Cover',COVER[1].dash);
   SW(COVER[2].col,'Medium Cover',COVER[2].dash);
@@ -51616,9 +51652,12 @@ function paint(){
       LAYERS.forEach(function(k){ var cb = g("L_" + k); if(cb && typeof L[k] === "boolean") cb.checked = L[k]; });
       setStyle(blocks ? "blocks" : "zones");
       if(!sameMap(before, d)) forgetUndo();          /* another device's map: this device's one-step Undo would undo theirs */
-      if(blocks){ if(sameMap(before, d)) paint(); else { showBlocks(p); reportZones(); } }
+      /* game night (Howl 10-23): every room update used to repaint the same map, so a clicked zone flashed - now only a
+         layer change repaints it */
+      var relayer = !before || JSON.stringify(before.layers || {}) !== JSON.stringify(layerState());
+      if(blocks){ if(sameMap(before, d)){ if(relayer) paint(); } else { showBlocks(p); reportZones(); } }
       // same four inputs => the same map is already on screen; only repaint the layers
-      else if(sameMap(before, d)) paint(); else __regen(true);
+      else if(sameMap(before, d)){ if(relayer) paint(); } else __regen(true);
     } finally { giveBack(held); applying = false; }
   }
   function commit(){
@@ -69479,13 +69518,59 @@ D.addEventListener("click", function(e){
   setTimeout(function(){ note = ""; paintButton(); }, 6000);
 });
 setInterval(function(){ try{ watch(); }catch(e){} try{ paintButton(); }catch(e){} }, 1200);
-W.HELENA_STRANGER = { arm:arm, watch:watch, fire:fire };
+/* ---- Howl 10-24: the same switch as a tick on the Fight tab (Cinder's Fight, or Classic's turn order) ----
+   Ticked: arm(), 1 Luck.  Unticked while he still waits: the Luck goes back and he is stood down.  Once he has come the
+   tick stays on and greys out until the next fight. */
+function disarm(){
+  var rec = st().stranger; if(!rec || rec.done || rec.fid !== fid()) return "";
+  S().update(function(m){ if(m.stranger && m.stranger.fid === rec.fid && !m.stranger.done) m.stranger.done = "stood down";
+    (m.chars || []).forEach(function(c){ if(c && String(c.id) === rec.charId) c.luck = Math.max(0, Math.round(+c.luck || 0)) + 1; }); });
+  say("The stranger is stood down - " + (rec.name || "the holder") + " gets the Luck point back.");
+  return "";
+}
+var tick = null, tickSay = "";
+function holders(){ return (st().chars || []).filter(holds); }
+function fightShown(){
+  var B = D.body; if(!B) return false;
+  if(B.classList.contains("view-cinder")) return B.getAttribute("data-cl-tab") === "fight";
+  var t = D.getElementById("tool-turn"); return !!(t && t.offsetParent);
+}
+function paintTick(){
+  var sn = snap(), hs = holders(), on = fightShown() && sn && sn.phase !== "idle" && hs.length;
+  if(!on){ if(tick) tick.hidden = true; return; }
+  if(!tick){
+    tick = D.createElement("div"); tick.id = "ms-tick";
+    tick.style.cssText = "position:fixed;left:104px;bottom:150px;z-index:33;background:#1b1f14;color:#e8e4d4;border:1px solid #c86fd4;border-radius:4px;padding:6px 10px;font-size:13px;max-width:340px;box-shadow:0 6px 18px rgba(0,0,0,.5)";
+    tick.addEventListener("change", function(e){
+      var cb = e.target; if(!cb || cb.getAttribute("data-ms") == null) return;
+      tickSay = cb.checked ? arm(cb.getAttribute("data-ms")) : disarm();
+      tick.removeAttribute("data-h"); paintTick();                /* redrawn from the table, so a refused tick springs back */ setTimeout(function(){ tickSay = ""; paintTick(); }, 6000);
+    });
+    D.body.appendChild(tick);
+  }
+  var rec = st().stranger, f = fid(), h = "";
+  hs.forEach(function(c){
+    var mine = rec && rec.fid === f && rec.charId === String(c.id), waiting = mine && !rec.done, came = mine && rec.done === "fired";
+    h += '<label style="display:block;cursor:pointer" title="1 Luck: once this fight, on a random turn of the next round, the Stranger shoots a random enemy. Untick before he comes for the Luck back.">' +
+         '<input type="checkbox" data-ms="' + String(c.id).replace(/"/g, "") + '"' + (waiting || came ? " checked" : "") + (came ? " disabled" : "") + "> " +
+         "<b>Mysterious Stranger</b> (" + String(c.name || "").replace(/</g, "&lt;") + ", 1 Luck)" +
+         '<span style="display:block;color:#9aa08a;font-size:12px">' + (came ? "He has come and gone this fight." : waiting ? "Waiting - a random turn of round " + rec.round + "." : "Off.") + "</span></label>";
+  });
+  if(tickSay) h += '<div style="color:#f0b429;font-size:12px;margin-top:3px">' + tickSay.replace(/</g, "&lt;") + "</div>";
+  tick.hidden = false;
+  if(tick.getAttribute("data-h") !== h){ tick.innerHTML = h; tick.setAttribute("data-h", h); }
+}
+setInterval(function(){ try{ paintTick(); }catch(e){} }, 1000);
+W.HELENA_STRANGER = { arm:arm, disarm:disarm, watch:watch, fire:fire };
 })(window);
 </script>
 <script data-suite="cinder-z4-hound">/* ============================================================================
    Helena Suite - THE ATTACK HOUND (Howl, 2026-10-24, game night).  Both views.
    A companion whose card says "Attack Dog" (Minima: "No roll, it hits automatically: 3 CD Physical, Vicious") bites
-   whenever an attack lands on an enemy standing in her zone - Howl's table: any attacker, not only her keeper.
+   whenever an enemy standing in her zone is attacked - Howl's table: any attacker, not only her keeper, hit or miss.
+   A MISS never reaches the damage door, so the turn order's own answer is watched for it (TT.applyPlan, on the device
+   that declared the attack): the bite rolls there and lands directly when that device may write the encounter, else it
+   goes to the Overseer as one press, exactly as a player's hit does ("encdmg").
    Watched where every creature hit lands: the Encounter pane's damage door, on the Overseer's device (a player's hit is
    sent there).  An attack's own hit only - never a Spread extra, a Persistent tick, the Stranger, or her own bite, so one
    blow is one bite.  She does not bite at 0 HP (knocked out).  Her damage rolls here (each Effect +1, Vicious) and goes
@@ -69551,7 +69636,39 @@ function wrap(){
   };
   fn.houndWrapped = true; E.damage = fn;
 }
-setInterval(wrap, 1000); wrap();
+var missSeen = {};
+function biteMiss(rep){
+  var E = W.HELENA_ENC, t = rep.target || {}, ref = String(t.ref || ""), zs = zonesOf(ref), Y = W.SUITE_SYNC;
+  var may = false; try{ may = !!(E && E.canWrite && E.canWrite()); }catch(e){ may = false; }
+  hounds().forEach(function(h){
+    if(!zs[h.zone]) return;
+    if(may){ bite(ref, String(rep.id) + "#miss", t.name || ""); return; }
+    var faces = [], dmg = 0, eff = 0;
+    for(var k = 0; k < h.cd; k++){ var f = d6(); faces.push(f); if(f === 1) dmg += 1; else if(f === 2) dmg += 2; else if(f >= 5){ dmg += 1; eff += 1; } }
+    if(h.vicious) dmg += eff;
+    try{ if(Y && typeof Y.emit === "function")
+      Y.emit("encdmg", { ref:ref, id:t.id, name:t.name || "", spec:{ amount:dmg, type:"Phys", declId:String(rep.id) + "#miss#hound-" + h.name, source:"hound" },
+                         conds:[], attacker:h.name, charId:null, weapon:"Attack Dog bite" }); }catch(e){}
+    say(h.name, h.name + " (" + h.keeper + "'s attack hound) bites " + (t.name || "the enemy") + " on the miss: " + h.cd + "CD [" + faces.join(", ") + "] = " + dmg +
+        " damage" + (h.vicious && eff ? " (Vicious +" + eff + ")" : "") + " - sent to the Overseer to apply.");
+  });
+}
+function wrapTurn(){
+  var T = W.HELENA_TURN; if(!T || typeof T.applyPlan !== "function" || T.applyPlan.houndWrapped) return;
+  var orig = T.applyPlan;
+  var fn = function(rep){
+    var out = orig.apply(this, arguments);
+    try{
+      if(rep && rep.kind === "attack" && !rep.hit && !(rep.damage && rep.damage.blastMiss) && !rep.cancelled &&
+         rep.target && rep.target.kind !== "char" && rep.id != null && !missSeen[rep.id]){
+        missSeen[rep.id] = true; setTimeout(function(){ biteMiss(rep); }, 0);
+      }
+    }catch(e){}
+    return out;
+  };
+  fn.houndWrapped = true; T.applyPlan = fn;
+}
+setInterval(function(){ wrap(); wrapTurn(); }, 1000); wrap(); wrapTurn();
 W.HELENA_HOUND = { hounds:hounds, bite:bite };
 })(window);
 </script>
