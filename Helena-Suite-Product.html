@@ -31334,12 +31334,21 @@ function invUse(i){
     if(U.rating){
       ch.doses = (ch.doses && ch.doses.day === day) ? ch.doses : { day:day, n:{} };
       var k = U.name.toLowerCase(), n = (+ch.doses.n[k] || 0) + 1; ch.doses.n[k] = n;
-      if(n > 1 && !(Array.isArray(ch.addictions) && ch.addictions.some(function(a){ return a.name === U.name; }))){
+      /* Howl, 2026-10-24: CHEM RESISTANT lowers the chem's rating by 1 a rank (min 0; at 0 there is no test) and rank 2
+         cannot be addicted; HABBERD HABITS re-rolls a failed addiction test once, the second result standing */
+      var crRank = 0, hh = false;
+      (Array.isArray(ch.perks) ? ch.perks : []).forEach(function(p){ var nm = String(p && p.name || "");
+        if(/chem\s*resistant/i.test(nm)) crRank = Math.max(crRank, Math.max(1, Math.round(+p.rank || 1)));
+        if(/h[au]b+e?a?r+d\s*habits/i.test(nm)) hh = true; });
+      var rating = crRank >= 2 ? 0 : Math.max(0, U.rating - crRank);
+      if(n > 1 && crRank && rating < U.rating) said.push("Chem Resistant: addiction rating " + U.rating + " \u2192 " + rating + (rating ? "" : ", no test"));
+      if(n > 1 && rating > 0 && !(Array.isArray(ch.addictions) && ch.addictions.some(function(a){ return a.name === U.name; }))){
         var sk = skillOf(ch, "Survival"), tn = attrVal(ch, "END") + sk.rank;
-        test = { tn:tn, roll:rollTest(tn, CH.critRange(sk.rank, sk.tag), 20, 2), rating:U.rating };
-        if(test.roll.succ < U.rating){
+        test = { tn:tn, roll:rollTest(tn, CH.critRange(sk.rank, sk.tag), 20, 2), rating:rating };
+        if(test.roll.succ < rating && hh){ test.first = test.roll; test.roll = rollTest(tn, CH.critRange(sk.rank, sk.tag), 20, 2); test.rerolled = true; }
+        if(test.roll.succ < rating){
           hooked = true;
-          ch.addictions = (Array.isArray(ch.addictions) ? ch.addictions : []).concat([{ name:U.name, rating:U.rating, day:day }]);
+          ch.addictions = (Array.isArray(ch.addictions) ? ch.addictions : []).concat([{ name:U.name, rating:rating, day:day }]);
         }
       }
     }
@@ -31348,9 +31357,10 @@ function invUse(i){
   var line = esc(U.name) + ": " + esc(said.join(", ") || "used") +
     (rr ? "; Rads " + U.rads + "CD → " + rr.eff + (rr.eff === 1 ? " Effect" : " Effects") + (rr.eff ? " (" + radsTaken + " Radiation past your Rad DR)" : "") : "") + "." +
     (U.effect && !U.slots && !/^heals \d+ HP/i.test(U.effect) ? " It prints: " + esc(U.effect) + "." : "") +
-    (test ? "<br>" + testLine("Addiction — END + Survival vs " + U.rating + " (Guide p.clxxii)", test.tn, test.roll) +
+    (test ? "<br>" + (test.rerolled ? testLine("Addiction — END + Survival vs " + test.rating + ", failed", test.tn, test.first) + " — <b>Habberd Habits</b> re-rolls it:<br>" : "") +
+            testLine("Addiction — END + Survival vs " + test.rating + " (Guide p.clxxii)", test.tn, test.roll) +
             (hooked ? " — <b>hooked</b>: +1 Difficulty to everything while you crave, until three days clean, Addictol or the Fixer." : " — not hooked.")
-          : (U.rating ? " (the first dose today: no addiction test)" : ""));
+          : (U.rating && !said.some(function(x){ return /^Chem Resistant/.test(x); }) ? " (the first dose today: no addiction test)" : ""));
   invPrompt(line);
   /* Z003 ruling (2026-10-21): a chem with no track, HP or slot change logged "Jet — ;" - the log line names what it did */
   var logged = said.slice();
@@ -36915,7 +36925,9 @@ window.HELENA_CHAR.coverFor = function(tokenId, fromTokenId){
   var tk = tokenById(tokenId);
   if(!tk || tk.zone == null) return { cover:0, zone:"", name:"", face:null };
   var from = null;
-  if(fromTokenId != null){ var ft = tokenById(fromTokenId); if(ft && ft.zone != null) from = ft.zone; }
+  /* Howl 10-24: the shooter may arrive as a sheet id ("cmurn…") rather than its token id ("c:cmurn…") - both find the token,
+     or a same-zone shot fell back to the zone's best side (3) */
+  if(fromTokenId != null){ var ft = tokenById(fromTokenId) || tokenById("c:" + fromTokenId) || tokenById("e:" + fromTokenId); if(ft && ft.zone != null) from = ft.zone; }
   var i = zoneCoverInfoOf(tk.zone, from);
   return { cover:i.cover, zone:zoneLabelOf(tk), name:i.name || "", face:i.face || null };
 };
@@ -45112,7 +45124,7 @@ function applyResult(rep){
      SUITE_TOKENS.tokId and TT.tokId are character-for-character the same scheme. */
   var cov = { cover:0, zone:"" };
   if(tgt && CH && typeof CH.coverFor === "function"){
-    var fromTok = (rep.attacker && rep.attacker.id) || null;
+    var fromTok = (rep.attacker && (rep.attacker.id || (rep.attacker.charId ? "c:" + rep.attacker.charId : null))) || null;   /* Howl 10-24 */
     try{ cov = (fromTok ? CH.coverFor(tgt.id, fromTok) : CH.coverFor(tgt.id)) || cov; }catch(err){}
   }
   var plan = TT.applyPlan(rep, tgt, {
@@ -67887,7 +67899,8 @@ function holders(){ return (st().chars || []).filter(holds); }
 function fightShown(){
   var B = D.body; if(!B) return false;
   if(B.classList.contains("view-cinder")) return B.getAttribute("data-cl-tab") === "fight";
-  var t = D.getElementById("tool-turn"); return !!(t && t.offsetParent);
+  var t = D.getElementById("tool-turn"), mp = D.getElementById("tool-map");           /* Classic: the turn order or the map */
+  return !!((t && t.offsetParent) || (mp && mp.offsetParent));
 }
 function paintTick(){
   var sn = snap(), hs = holders(), on = fightShown() && sn && sn.phase !== "idle" && hs.length;
