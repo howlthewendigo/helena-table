@@ -53140,14 +53140,22 @@ var API = {
        It arrives on the declaration already computed, from the sheet — see
        RL.declare — so this never has to guess which number is an attribute. */
     var lane = clampInt(opts.lane == null ? d.damageLane : opts.lane, 0, 3);
+    /* Howl, 2026-10-24: MOMENTUM (Guide p.liv) - +1CD if the attacker moved at least one zone this turn before the attack.
+       The Cinder move gate counts the zones (CINDER_MOVED, this device's count); opts.momentum overrides it. */
+    var mom = 0;
+    if(API.hasQuality(w, "Momentum")){
+      if(opts.momentum != null) mom = opts.momentum ? 1 : 0;
+      else try{ var MV = typeof window !== "undefined" ? window.CINDER_MOVED : null; if(typeof MV === "function" && +MV(d.charId || d.attackerId || null) > 0) mom = 1; }catch(e){ mom = 0; }
+    }
     var parts = [];
     if(base) parts.push({ what:(w.name || "the weapon") + (dg ? " (" + full + " CD \u2212" + dg + " CD, " + dg + (dg === 1 ? " Degradation" : " Degradations") + ")" : ""), cd:base });
     if(lane) parts.push({ what:(d.damageLaneWhy || "the attribute damage lane (Guide p.lviii)"), cd:lane });
     if(ammo) parts.push({ what:"ammunition spent before the roll", cd:ammo });
     if(sneak) parts.push({ what:"sneak attack against an unaware target", cd:sneak });
     if(extra) parts.push({ what:"Action Points spent after the hit", cd:extra });
-    return { cd:base + lane + ammo + extra + sneak, base:base, lane:lane, ammo:ammo,
-             extra:extra, sneak:sneak, parts:parts, known:full > 0, degr:dg };
+    if(mom) parts.push({ what:"Momentum: moved a zone before the attack", cd:mom });
+    return { cd:base + lane + ammo + extra + sneak + mom, base:base, lane:lane, ammo:ammo,
+             extra:extra, sneak:sneak, momentum:mom, parts:parts, known:full > 0, degr:dg };
   },
 
   /* WAVE 17, Z4 (Zoe 2026-10-07, ruled) — A MISSED BLAST STILL LANDS, AS PRINTED.  Guide L1645-1647 (the 2026-10-06
@@ -67156,6 +67164,12 @@ function inspired(){ return (S().chars || []).some(function(c){ return c && (c.p
 /* ------------------------------------------------------------------ state of this view (this device only) */
 var sel = null;               /* the selected row id */
 var moved = {};               /* "round|rowId" -> zones moved this turn */
+/* Howl 10-24: the dice drawer's Momentum asks how far a character moved on this turn (this device's count) */
+window.CINDER_MOVED = function(who){
+  try{ var b = B(); if(!b || who == null) return 0; var sn = b.snap(); if(!sn || sn.phase === "idle") return 0;
+       var id = String(who), rid = null; (sn.rows || []).forEach(function(r){ if(r && (r.id === id || r.id === "c:" + id || (r.kind === "char" && r.ref === id))) rid = r.id; });
+       return rid && rid === sn.cur ? (moved[sn.round + "|" + rid] || 0) : 0; }catch(e){ return 0; }
+};
 var gone = {};                /* enemy rows already burnt out */
 var burning = [];             /* rows burning right now: { row, until } */
 var lastRows = {};
@@ -69332,6 +69346,262 @@ try{
 }catch(e){}
 mountPickers();
 last = get(); follow();
+})(window);
+</script>
+<script data-suite="cinder-z3-stranger">/* ============================================================================
+   Helena Suite - THE MYSTERIOUS STRANGER (Howl, 2026-10-24, game night).  Both views.
+   The Guide's perk (Part X): at the start of a fight the holder may spend 1 Luck; once in that scene the Stranger
+   appears, fires one shot at an enemy (AGI 10, Small Guns 6 tagged, 3d20; 8CD physical, Piercing 1, Vicious, always at
+   ideal range) and vanishes; if he never appears, the point comes back.
+   Howl's table: the holder ARMS him from the sheet (the perk's card, during a fight) and he comes on a RANDOM turn of the
+   next round, at a RANDOM enemy still standing - the Overseer's device rolls and lands it through the Encounter pane's own
+   damage door (DR, cover from the holder's zone, crits, swarms), and the session log says every die.  A fight that ends
+   before he comes gives the Luck back.
+   State: table.stranger = { charId, name, fid, round, rowId, done } - one at a time, written by the arming device and
+   closed by the Overseer's.  Nothing else is touched.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document;
+var PERK = /mysterious\s+stranger/i, TN = 16, CRIT = 6, POOL = 3, CD = 8;
+function S(){ return W.SUITE_STATE || null; }
+function st(){ try{ return S().get() || {}; }catch(e){ return {}; } }
+function turn(){ var T = W.HELENA_TURN; return T && T.cinder ? T.cinder : null; }
+function snap(){ try{ var b = turn(); return b ? b.snap() : null; }catch(e){ return null; } }
+function fid(){ try{ var t = st().tools && st().tools.turn; return t && t.fid ? String(t.fid) : ""; }catch(e){ return ""; } }
+function say(text){ try{ var Y = W.SUITE_SYNC; if(Y && typeof Y.emit === "function") Y.emit("roll", { name:"The Mysterious Stranger", text:text }); }catch(e){} }
+function overseer(){ try{ var E = W.HELENA_ENC; return !!(E && typeof E.canWrite === "function" && E.canWrite()); }catch(e){ return false; } }
+function charOf(id){ var cs = st().chars || []; for(var i = 0; i < cs.length; i++) if(cs[i] && String(cs[i].id) === String(id)) return cs[i]; return null; }
+function holds(c){ return !!(c && Array.isArray(c.perks) && c.perks.some(function(p){ return p && PERK.test(p.name || ""); })); }
+function d20(){ return 1 + Math.floor(Math.random() * 20); }
+function d6(){ return 1 + Math.floor(Math.random() * 6); }
+
+/* ---- arming, from the holder's sheet ---- */
+function arm(charId){
+  var c = charOf(charId), sn = snap();
+  if(!c || !holds(c)) return "That sheet does not hold Mysterious Stranger.";
+  if(!sn || sn.phase === "idle") return "Arm him once a fight is running.";
+  var cur = st().stranger;
+  if(cur && cur.fid === fid() && !cur.done) return "He is already waiting in this fight.";
+  if(cur && cur.fid === fid() && cur.done === "fired") return "He has already come this fight - once a scene.";
+  var got = 0; try{ got = W.HELENA_CHAR.spendLuck(String(charId), 1); }catch(e){ got = 0; }
+  if(!got) return "No Luck point left to spend.";
+  var rows = (sn.rows || []).filter(function(r){ return r && r.id; });
+  var pick = rows.length ? rows[Math.floor(Math.random() * rows.length)].id : null;
+  var rec = { charId:String(charId), name:c.name || "", fid:fid(), round:(+sn.round || 0) + 1, rowId:pick, done:false };
+  S().update(function(m){ m.stranger = rec; });
+  say((c.name || "Someone") + " spends 1 Luck: a stranger is watching this fight.");
+  return "";
+}
+
+/* ---- his shot, on the Overseer's device ---- */
+function targets(){
+  var sn = snap(), E = W.HELENA_ENC, out = [];
+  if(!sn || !E) return out;
+  (sn.rows || []).forEach(function(r){
+    if(!r || r.kind === "char" || r.wiped) return;
+    var rd = null; try{ rd = E.read(r.ref); }catch(e){ rd = null; }
+    if(rd && rd.ok !== false && !(rd.now <= 0)) out.push({ row:r, read:rd });
+  });
+  return out;
+}
+function coverFrom(rowId, charId){
+  try{ var CH = W.HELENA_CHAR; if(CH && typeof CH.coverFor === "function"){ var cv = CH.coverFor(rowId, "c:" + charId); return cv ? Math.max(0, Math.round(+cv.cover || 0)) : 0; } }catch(e){}
+  return 0;
+}
+function fire(rec){
+  var ts = targets(), E = W.HELENA_ENC;
+  if(!ts.length){ say("The stranger finds no enemy standing and is gone."); return; }
+  var t = ts[Math.floor(Math.random() * ts.length)], def = Math.max(0, Math.round(+t.read.def || 1));
+  var dice = [], succ = 0;
+  for(var i = 0; i < POOL; i++){ var v = d20(); dice.push(v); if(v <= CRIT) succ += 2; else if(v <= TN) succ += 1; }
+  var hit = succ >= def;
+  var line = "The Mysterious Stranger appears beside " + (rec.name || "his friend") + " and fires at " + t.row.name +
+             ": 3d20 [" + dice.join(", ") + "] vs TN " + TN + " (crit 1-" + CRIT + ") = " + succ + (succ === 1 ? " success" : " successes") +
+             " against Defense " + def + " - " + (hit ? "a hit." : "a miss.");
+  if(!hit){ say(line + " He is gone."); return; }
+  var faces = [], dmg = 0, eff = 0;
+  for(var k = 0; k < CD; k++){ var f = d6(); faces.push(f); if(f === 1) dmg += 1; else if(f === 2) dmg += 2; else if(f >= 5){ dmg += 1; eff += 1; } }
+  dmg += eff;                                                  /* Vicious: +1 damage for each Effect */
+  var cover = coverFrom(t.row.id, rec.charId), res = null;
+  try{ res = E.damage(t.row.ref, { amount:dmg, type:"Phys", piercing:eff, cover:cover, declId:"stranger-" + rec.fid + "-" + rec.round }); }catch(e){ res = null; }
+  line += " 8CD [" + faces.join(", ") + "] = " + dmg + " damage (Vicious, " + eff + (eff === 1 ? " Effect" : " Effects") + "; Piercing 1 ignores " + eff + " DR" +
+          (cover ? ", " + cover + " cover" : "") + ")";
+  if(res && res.ok !== false) line += " - " + (res.past != null ? res.past + " past DR" : "landed") + (res.after != null ? ", " + t.row.name + " now " + res.after + " HP" : "") + ".";
+  else line += " - the Encounter pane did not take it (" + ((res && (res.why || res.refused)) || "no answer") + "); the Overseer applies it by hand.";
+  say(line + " Then he is gone.");
+}
+function close(rec, how){
+  S().update(function(m){ if(m.stranger && m.stranger.fid === rec.fid && m.stranger.round === rec.round) m.stranger.done = how; });
+}
+function watch(){
+  if(!overseer()) return;
+  var rec = st().stranger; if(!rec || rec.done) return;
+  var sn = snap(), f = fid();
+  if(!sn || sn.phase === "idle" || (f && rec.fid && f !== rec.fid)){
+    /* the fight ended (or another began) before he came: the point comes back */
+    close(rec, "refunded");
+    S().update(function(m){ (m.chars || []).forEach(function(c){ if(c && String(c.id) === rec.charId) c.luck = Math.max(0, Math.round(+c.luck || 0)) + 1; }); });
+    say("The stranger never came - " + (rec.name || "the holder") + " gets the Luck point back.");
+    return;
+  }
+  var r = +sn.round || 0;
+  if(r > rec.round || (r === rec.round && (!rec.rowId || sn.cur === rec.rowId || !(sn.rows || []).some(function(x){ return x && x.id === rec.rowId; })))){
+    close(rec, "fired");
+    fire(rec);
+  }
+}
+
+/* ---- the button on the perk's card ---- */
+var note = "";
+function paintButton(){
+  var CH = W.HELENA_CHAR, id = null; try{ id = CH && CH.current ? CH.current() : null; }catch(e){ id = null; }
+  var host = D.getElementById("cs-perks"); if(!host) return;
+  var c = id ? charOf(id) : null, old = D.getElementById("ms-arm-box");
+  var card = null;
+  if(c && holds(c)) Array.prototype.forEach.call(host.querySelectorAll(".cs-perk"), function(d){
+    var nm = d.querySelector('input[data-pf="name"]'); if(nm && PERK.test(nm.value || "")) card = d; });
+  if(!card){ if(old && old.parentNode) old.parentNode.removeChild(old); return; }
+  var rec = st().stranger, sn = snap(), live = rec && !rec.done && rec.fid === fid(), gone = rec && rec.done === "fired" && rec.fid === fid();
+  var text = live ? "Waiting in the shadows - he comes on a random turn of round " + rec.round + "." :
+             gone ? "He has come and gone this fight." :
+             (!sn || sn.phase === "idle") ? "Arm him once a fight is running (1 Luck)." : "";
+  var html = '<button type="button" class="cs-mini" id="ms-arm"' + (live || gone || !sn || sn.phase === "idle" ? " disabled" : "") +
+             ' title="Spend 1 Luck: once this fight, on a random turn of the next round, the Stranger shoots a random enemy (Guide Part X; Howl’s table)">Call the Mysterious Stranger (1 Luck)</button>' +
+             '<span class="cs-hint" style="margin-left:8px">' + (note || text) + "</span>";
+  if(!old || old.parentNode !== card){ if(old && old.parentNode) old.parentNode.removeChild(old); old = D.createElement("div"); old.id = "ms-arm-box"; old.style.margin = "6px 0"; card.insertBefore(old, card.children[1] || null); }
+  if(old.getAttribute("data-h") !== html){ old.innerHTML = html; old.setAttribute("data-h", html); }
+}
+D.addEventListener("click", function(e){
+  var b = e.target && e.target.closest ? e.target.closest("#ms-arm") : null; if(!b) return;
+  var id = null; try{ id = W.HELENA_CHAR.current(); }catch(x){ id = null; }
+  note = arm(id) || ""; paintButton();
+  setTimeout(function(){ note = ""; paintButton(); }, 6000);
+});
+setInterval(function(){ try{ watch(); }catch(e){} try{ paintButton(); }catch(e){} }, 1200);
+W.HELENA_STRANGER = { arm:arm, watch:watch, fire:fire };
+})(window);
+</script>
+<script data-suite="cinder-z4-hound">/* ============================================================================
+   Helena Suite - THE ATTACK HOUND (Howl, 2026-10-24, game night).  Both views.
+   A companion whose card says "Attack Dog" (Minima: "No roll, it hits automatically: 3 CD Physical, Vicious") bites
+   whenever an attack lands on an enemy standing in her zone - Howl's table: any attacker, not only her keeper.
+   Watched where every creature hit lands: the Encounter pane's damage door, on the Overseer's device (a player's hit is
+   sent there).  An attack's own hit only - never a Spread extra, a Persistent tick, the Stranger, or her own bite, so one
+   blow is one bite.  She does not bite at 0 HP (knocked out).  Her damage rolls here (each Effect +1, Vicious) and goes
+   through the same door, DR and all; the session log says the dice.
+   ========================================================================== */
+(function(W){
+"use strict";
+function st(){ try{ return W.SUITE_STATE.get() || {}; }catch(e){ return {}; } }
+function say(name, text){ try{ var Y = W.SUITE_SYNC; if(Y && typeof Y.emit === "function") Y.emit("roll", { name:name, text:text }); }catch(e){} }
+function d6(){ return 1 + Math.floor(Math.random() * 6); }
+/* every Attack Dog on the map: { name, keeper, cd, zone } */
+function hounds(){
+  var m = st(), out = [], spots = {};
+  (m.companionTokens || []).forEach(function(t){ if(t && t.ref != null && t.zone != null) spots[String(t.ref)] = +t.zone; });
+  (m.chars || []).forEach(function(c){
+    var cp = c && c.companion; if(!cp || spots[String(c.id)] == null) return;
+    var ab = String(cp.abilities || ""), mm = /Attack Dog[^\n]*?(\d+)\s*CD/i.exec(ab); if(!mm) return;
+    if(cp.hp != null && +cp.hp <= 0) return;                    /* knocked out */
+    out.push({ name:cp.name || "the dog", keeper:c.name || "", cd:+mm[1], vicious:/Attack Dog[^\n]*Vicious/i.test(ab), zone:spots[String(c.id)] });
+  });
+  return out;
+}
+/* the zones a creature row's living bodies stand in */
+function zonesOf(ref){
+  var m = st(), z = {};
+  (m.tokens || []).forEach(function(t){ if(t && t.kind === "enemy" && String(t.ref) === String(ref) && t.zone != null) z[+t.zone] = true; });
+  return z;
+}
+var busy = false;
+function bite(ref, did, name){
+  var E = W.HELENA_ENC, zs = zonesOf(ref);
+  hounds().forEach(function(h){
+    if(!zs[h.zone]) return;
+    var faces = [], dmg = 0, eff = 0;
+    for(var k = 0; k < h.cd; k++){ var f = d6(); faces.push(f); if(f === 1) dmg += 1; else if(f === 2) dmg += 2; else if(f >= 5){ dmg += 1; eff += 1; } }
+    if(h.vicious) dmg += eff;
+    var res = null;
+    busy = true;
+    try{ res = E.damage(ref, { amount:dmg, type:"Phys", declId:String(did) + "#hound-" + h.name }); }catch(e){ res = null; }
+    busy = false;
+    var line = h.name + " (" + h.keeper + "'s attack hound) bites " + (name || "the enemy") + ": " + h.cd + "CD [" + faces.join(", ") + "] = " + dmg +
+               " damage" + (h.vicious && eff ? " (Vicious +" + eff + ")" : "");
+    if(res && res.repeat) return;
+    if(res && res.ok !== false) line += " - " + (res.past != null ? res.past + " past DR" : "landed") + (res.after != null ? ", now " + res.after + " HP" : "") + ".";
+    else line += " - not applied (" + ((res && (res.why || res.refused)) || "no answer") + "); the Overseer applies it by hand.";
+    say(h.name, line);
+  });
+}
+function wrap(){
+  var E = W.HELENA_ENC; if(!E || typeof E.damage !== "function") return;
+  if(E.damage.houndWrapped) return;
+  var orig = E.damage;
+  var fn = function(ref, spec){
+    var res = orig.apply(this, arguments);
+    try{
+      var did = spec && spec.declId != null ? String(spec.declId) : "";
+      var plain = !did || busy || spec.cause || /#(spread|hound|rad|burst-pay)/i.test(did) || /^(stranger-|tick-|bleed-)/.test(did);
+      if(!plain && res && res.ok !== false && !res.repeat && E.canWrite && E.canWrite()){
+        var nm = res.name || ""; setTimeout(function(){ bite(ref, did, nm); }, 0);
+      }
+    }catch(e){}
+    return res;
+  };
+  fn.houndWrapped = true; E.damage = fn;
+}
+setInterval(wrap, 1000); wrap();
+W.HELENA_HOUND = { hounds:hounds, bite:bite };
+})(window);
+</script>
+<script data-suite="cinder-z5-foes">/* ============================================================================
+   Helena Suite - WHAT AILS THE ENEMY, on Classic's Fight tab (Howl, 2026-10-24, game night).
+   One box at the head of the turn order (Classic view only): every creature in the fight with its HP, a swarm's bodies,
+   and everything on it - Stunned (bodies and until when), each Persistent (cause, damage, rounds left), Prone, Marked,
+   Bleeding heavily, and the Injuries recorded against it.  A read: it writes nothing.  Repainted on a timer, and only
+   when its text changed.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document;
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]; }); }
+function st(){ try{ return W.SUITE_STATE.get() || {}; }catch(e){ return {}; } }
+function snap(){ try{ var T = W.HELENA_TURN; return T && T.cinder ? T.cinder.snap() : null; }catch(e){ return null; } }
+var box = null;
+function lines(r, m){
+  var t = (m.tools && m.tools.turn) || {}, c = (t.cond || {})[r.id] || {}, out = [], rnd = +t.round || 0;
+  if(c.stun) out.push("<b>Stunned</b>" + (c.stun.n ? " (" + c.stun.n + (c.stun.n === 1 ? " body" : " bodies") + ")" : "") + (c.stun.until != null ? " until round " + c.stun.until : ""));
+  (c.persist || []).forEach(function(p){ if(p && +p.rounds > 0) out.push("<b>Persistent" + (p.cause ? " (" + esc(p.cause) + ")" : "") + "</b>: " + (+p.dmg || 0) + " damage, " + (+p.rounds) + (+p.rounds === 1 ? " round" : " rounds") + " left, ignoring DR"); });
+  if(c.prone) out.push("<b>Prone</b>");
+  if(c.marked) out.push("<b>Marked</b>" + (c.marked.until != null ? " until round " + c.marked.until : ""));
+  var bl = (t.bleed || {})[r.id]; if(bl) out.push("<b>Bleeding heavily</b>: 2 CD physical at the end of each of its turns, ignoring DR" + (bl.from ? " (" + esc(bl.from) + ")" : ""));
+  var inj = m.injuries || {}, keys = [r.name, String(r.name || "").replace(/\s*[×x]\s*\d+$/, ""), r.ref, r.id], seen = {};
+  keys.forEach(function(k){ if(k == null || seen[k]) return; seen[k] = 1;
+    (Array.isArray(inj[k]) ? inj[k] : []).forEach(function(w){ if(w) out.push("<b>Injury: " + esc(w.loc || "?") + "</b>" + (w.treated ? " (treated)" : "") + (w.note ? " - " + esc(w.note) : "")); }); });
+  (r.conds || []).forEach(function(l){ if(!/^(Stunned|Persistent|Prone|Marked)/.test(l)) out.push("<b>" + esc(l) + "</b>"); });
+  return out;
+}
+function paint(){
+  var host = D.getElementById("tool-turn");
+  var on = !D.body.classList.contains("view-cinder") && host && host.offsetParent;
+  if(!on){ if(box) box.hidden = true; return; }
+  if(!box){ box = D.createElement("section"); box.id = "foe-ails"; box.setAttribute("aria-label", "Enemy conditions and injuries");
+            box.style.cssText = "margin:0 0 12px;padding:10px 12px;border:1px solid #6d7360;border-radius:4px;background:#1b1f14;color:#e8e4d4;font-size:13px;line-height:1.55"; }
+  if(box.parentNode !== host) host.insertBefore(box, host.firstChild);
+  var sn = snap(), m = st(), rows = sn && sn.phase !== "idle" ? (sn.rows || []).concat(sn.fallen || []).filter(function(r){ return r && r.kind !== "char"; }) : [];
+  var h = '<div style="font-weight:700;letter-spacing:.08em;color:#f0b429;margin-bottom:4px">ENEMIES - CONDITIONS AND INJURIES</div>';
+  if(!rows.length) h += '<div style="color:#9aa08a">No fight running, or no creatures in it.</div>';
+  rows.forEach(function(r){
+    var hp = r.hp ? r.hp.now + "/" + r.hp.total + " HP" : "", sw = r.swarm, ls = lines(r, m);
+    h += '<div style="padding:4px 0;border-top:1px solid #2b3022"><b style="color:#fff">' + esc(r.name) + "</b> " +
+         '<span style="color:#9aa08a">' + esc(hp) + (sw ? " · " + (sw.standing != null ? sw.standing : sw.alive) + " of " + sw.count + " standing" : "") + (r.wiped ? " · down" : "") + "</span>" +
+         (ls.length ? "<div>" + ls.join(" · ") + "</div>" : '<div style="color:#9aa08a">No conditions or injuries.</div>') + "</div>";
+  });
+  box.hidden = false;
+  if(box.getAttribute("data-h") !== h){ box.innerHTML = h; box.setAttribute("data-h", h); }
+}
+setInterval(function(){ try{ paint(); }catch(e){} }, 1500);
 })(window);
 </script>
 
