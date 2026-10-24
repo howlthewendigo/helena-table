@@ -65066,7 +65066,32 @@ var HINT_IDLE = "Pick a token, then click a zone. Drag a token between zones; cl
 function tokens(){ var m = S.get(); return Array.isArray(m.tokens) ? m.tokens : []; }
 function roster(){ var E = root.HELENA_ENC; try{ return E && typeof E.roster === "function" ? E.roster() : []; }catch(e){ return []; } }
 /* stage 6: every name on the strip, the chips and the tray is the CURRENT map's (relabel) */
-function stripList(){ return relabel(strip(S.get().chars, roster(), tokens()), mapZones()); }
+function stripList(){ return relabel(strip(S.get().chars, roster(), tokens()), mapZones()).filter(function(t){ return !swarmGone(t); }); }
+/* Howl 10-24 (game night): A SWARM'S FALLEN BODIES LEAVE THE MAP, ITS STUNNED BODIES STAY PUT WHEN IT MOVES.  The bodies
+   fall in head order (#0 first standing, as the HP bar's share already counts them), so a head at or past the encounter's
+   own `alive` is down: it is drawn nowhere and listed nowhere - its stored spot is kept, so healing brings it back where it
+   fell.  On a move, the turn order's own row says how many of those standing are stunned this round; the last ones standing
+   stay behind and the rest go.  A whole swarm stunned, or Alt held (the Overseer placing), moves as one, as before. */
+function swarmGone(t){
+  if(!t || t.kind !== "enemy" || typeof tvSwarm !== "function") return false;
+  var sw = tvSwarm(t.ref); if(!sw) return false;
+  var a = Math.round(+sw.alive); if(!isFinite(a)) return false;
+  return tvHead(t.id) >= a;
+}
+function swarmStayers(tok){
+  var T = root.HELENA_TURN, b = T && T.cinder, out = {};
+  if(!b || typeof b.snap !== "function" || typeof b.rowOf !== "function") return out;
+  try{
+    var sn = b.snap(); if(!sn || sn.phase === "idle") return out;
+    var rid = b.rowOf(tok.id), row = null; if(!rid) return out;
+    (sn.rows || []).forEach(function(r){ if(r && r.id === rid) row = r; });
+    var sw = row && row.swarm; if(!sw || !(+sw.stunned > 0)) return out;
+    var up = Math.round(+sw.standing || 0), n = Math.round(+sw.stunned);
+    if(n >= up) return out;                                   /* stunned whole: the stun gates its Move, the swarm stays one */
+    for(var h = up - n; h < up; h++) out[h] = true;
+  }catch(e){}
+  return out;
+}
 /* BLOCK 5: the companions' stored spots, and every named companion (live off the sheets), named by the current map */
 function compToks(){ var m = S.get(); return Array.isArray(m[COMP_KEY]) ? m[COMP_KEY] : []; }
 function compList(){ return relabel(companions(S.get().chars, compToks()), mapZones()); }
@@ -65736,7 +65761,7 @@ function drawLayer(){
   var svg = svgEl(); if(!svg) return;
   var old = svg.querySelector("#zm-layer"); if(old) old.parentNode.removeChild(old);
   if(panel.hidden) return;                                   // getBBox on a hidden panel reads zeros
-  var toks = tokens().filter(function(t){ return t && t.id && t.zone != null; });
+  var toks = tokens().filter(function(t){ return t && t.id && t.zone != null && !swarmGone(t); });
   toks = toks.concat(compList().filter(function(t){ return t.zone != null; }));   /* BLOCK 5: named companions, where they stand */
   var tv = typeof tvOn === "function" && tvOn(); if(tv) toks = tvGroup(toks);                 /* TABLEVIEW: a swarm is one token */
   var sight = typeof sightOn === "function" && sightOn();     /* BLOCK 6: the sight view draws with nobody on the map too */
@@ -65795,13 +65820,18 @@ function stunHeld(tok, alt){
 /* PROJECT G, TRACK S (2026-10-01, S-R3): a move is narration, so it is no longer gated on a room — in
    Solo SUITE_SYNC.emit records the line on this device and sends nothing (said(), below) */
 function said(){ return !!(SY && typeof SY.emit === "function"); }
-function moveTo(tok, zp){
+function moveTo(tok, zp, moveAll){
   if(tok && tok.kind === "comp") return compMoveTo(tok, zp);   /* BLOCK 5: its own list, its keeper's gate */
   var label = labelOf(zp);
   /* CMD Z033 (NR-14 A): a swarm moves as one token in every view — dragging any of its bodies moves every member (the retired
      table view's path, no longer behind tvOn).  A split swarm reads no swarm (HELENA_ENC.read), so its members move alone. */
   if(tok && tok.kind === "enemy" && typeof tvSwarm === "function" && tvSwarm(tok.ref)){
-    S.update(function(m){ (m.tokens || []).slice().forEach(function(x){ if(x && x.ref === tok.ref) m.tokens = place(m.tokens, x, zp.z, label); }); });
+    var stay = moveAll ? {} : swarmStayers(tok), left = 0;                       /* Howl 10-24: stunned bodies stay behind */
+    S.update(function(m){ left = 0; (m.tokens || []).slice().forEach(function(x){
+      if(!x || x.ref !== tok.ref || swarmGone(x)) return;
+      if(stay[tvHead(x.id)] && x.zone != null){ left++; return; }
+      m.tokens = place(m.tokens, x, zp.z, label); }); });
+    if(left) refuse(left + (left === 1 ? " stunned body stays" : " stunned bodies stay") + " behind - the rest moved. Alt-drag moves the whole swarm.");
     if(said()) SY.emit("token", { name:String(tok.name || "").replace(/\s+\d+$/, ""), token:tok.id, kind:tok.kind, zone:label, z:zp.z });
     return;
   }
@@ -65912,7 +65942,7 @@ function onChipUp(e){
   var no = compSay(tok, SY); if(no){ refuse(no); return; }
   if(tok.zone != null && +tok.zone !== zp.z && stunHeld(tok, e.altKey)){ refuse(STUN_HELD); renderStrip(); return; }   /* CMD Z033 */
   unrefuse(); sel = null;
-  if(tok.zone == null || +tok.zone !== zp.z) moveTo(tok, zp); else renderStrip();
+  if(tok.zone == null || +tok.zone !== zp.z) moveTo(tok, zp, !!e.altKey); else renderStrip();
 }
 stripEl.addEventListener("pointerdown", onChipDown);
 trayEl.addEventListener("pointerdown", onChipDown);
@@ -65932,7 +65962,7 @@ stage.addEventListener("click", function(e){
   e.stopPropagation(); e.preventDefault();
   var tok = tokOf(sel); sel = null;
   if(tok && tok.zone != null && +tok.zone !== zp.z && stunHeld(tok, e.altKey)){ refuse(STUN_HELD); renderStrip(); return; }   /* CMD Z033 */
-  if(tok) moveTo(tok, zp); else renderStrip();
+  if(tok) moveTo(tok, zp, !!e.altKey); else renderStrip();
 }, true);
 
 /* drag a token between zones; a press without movement is a click that opens it.
@@ -65993,11 +66023,11 @@ function onUp(e){
     var cEl = d.el, cHome = d.home;
     var took = false;
     try{ took = root.CINDER_MOVE.gate({ tok:{ id:tok.id, kind:tok.kind, ref:tok.ref, name:tok.name }, from:was, to:zp.z, alt:!!e.altKey, x:e.clientX, y:e.clientY },
-      function(){ moveTo(tok, zp); }, function(){ if(cEl && cEl.parentNode) cEl.setAttribute("transform", cHome); redraw(); }); }catch(err){ took = false; }
+      function(){ moveTo(tok, zp, !!e.altKey); }, function(){ if(cEl && cEl.parentNode) cEl.setAttribute("transform", cHome); redraw(); }); }catch(err){ took = false; }
     if(took){ renderPending = false; return; }
   }
   if(zp && tok && zp.z !== was && stunHeld(tok, e.altKey)){ refuse(STUN_HELD); if(d.el && d.el.parentNode) d.el.setAttribute("transform", d.home); if(renderPending) redraw(); return; }   /* CMD Z033 */
-  if(zp && tok && zp.z !== was) moveTo(tok, zp);              // S.update → subscribe → redraw pays it
+  if(zp && tok && zp.z !== was) moveTo(tok, zp, !!e.altKey);              // S.update → subscribe → redraw pays it
   else if(d.el && d.el.parentNode) d.el.setAttribute("transform", d.home);   // home again: never the tray, never zone 0
   if(renderPending) redraw();                                 // …and if nothing else did, pay it here
 }
