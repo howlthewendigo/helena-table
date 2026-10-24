@@ -7246,7 +7246,7 @@ end $$;
       <div class="stepper">
         <button type="button" data-step="-1" data-for="s-dice" aria-label="One less die">&minus;</button>
         <input id="s-dice" type="number" min="1" max="20" value="2" inputmode="numeric">
-        <button type="button" data-step="1" data-for="s-dice" aria-label="One more die">+</button>
+        <button type="button" data-step="1" data-for="s-dice" aria-label="One more die" title="One more die - bought with AP, or gifted by the Overseer for good roleplay">+</button>
       </div>
     </div>
     <div class="field">
@@ -7282,7 +7282,7 @@ end $$;
       <div class="stepper">
         <button type="button" data-step="-1" data-for="c-dice" aria-label="One less die">&minus;</button>
         <input id="c-dice" type="number" min="1" max="20" value="3" inputmode="numeric">
-        <button type="button" data-step="1" data-for="c-dice" aria-label="One more die">+</button>
+        <button type="button" data-step="1" data-for="c-dice" aria-label="One more die" title="One more die - bought with AP, or gifted by the Overseer for good roleplay">+</button>
       </div>
     </div>
   </div>
@@ -7368,7 +7368,7 @@ end $$;
       <div class="gp-seg" id="gp-buy"></div>
       <div class="gp-setup" id="gp-buyfields">
         <div class="gp-f"><span class="stencil">From perks or traits</span>
-          <input type="number" id="gp-free" min="0" max="3" value="0" inputmode="numeric" aria-label="Bonus d20s from perks or traits"></div>
+          <input type="number" id="gp-free" min="0" max="3" value="0" inputmode="numeric" aria-label="Bonus d20s from perks or traits" title="Free d20s: from perks or traits, or gifted by the Overseer for good roleplay (5d20 at most)"></div>
         <div class="gp-f"><span class="stencil">Pool</span>
           <select id="gp-pool" aria-label="Which Action Point pool">
             <option value="party">Party</option><option value="gm">Overseer</option></select></div>
@@ -7376,6 +7376,8 @@ end $$;
              character; its words and its title are painted (paintCmd) from the holder's own sheet -->
         <div class="gp-f chk hidden" id="gp-cmd-f"><label id="gp-cmd-l"><input type="checkbox" id="gp-cmd"> <span id="gp-cmd-say">Commanded</span></label></div>
       </div>
+      <!-- Howl 10-24 (table rule): the Overseer may gift a d20 for good roleplay - it goes in the free box -->
+      <p class="gp-note" id="gp-gift-note">Gifted a d20 by the Overseer for good roleplay? Put it in <b>From perks or traits</b> &mdash; it is free, no AP; a test still tops out at 5d20.</p>
       <p class="gp-note" id="gp-buy-note">&nbsp;</p>
       <div class="gp-acts">
         <button type="button" class="gp-b" id="gp-buy-ok">Buy the dice</button>
