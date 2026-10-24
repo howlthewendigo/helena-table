@@ -6549,6 +6549,8 @@ end $$;
             <tbody id="cs-skills"></tbody></table>
           <div class="cs-rollopts" style="margin-top:10px">
             <label class="cs-lab">Buy d20s <input type="number" id="cs-skill-buy" min="0" max="3" value="0"></label>
+            <!-- Howl 10-24: who assists the next skill roll (one d20 on their own attribute + this skill; counts if you score one) -->
+            <label class="cs-lab" title="An assist: the helper rolls 1d20 on their own attribute + the same skill; their successes count only if you score at least one (Book One p.19). Resets after each roll.">Assisted by <select id="cs-skill-assist"><option value="">No one</option></select></label>
             <label class="cs-lab">Complication from <input type="number" id="cs-comp" min="15" max="20" value="20"></label>
             <!-- CMD Z014 (G.10): another attribute than the skill's own needs the Overseer's word (Guide p.ccxcii); one roll per tick -->
             <label class="cs-okpair" title="A roll takes its skill's own attribute. Another needs the Overseer's OK, or Stacked Deck: 1 Luck point to roll LCK instead, before the roll (Guide p.ccxcii). One roll per tick."><input type="checkbox" id="cs-skill-ok"> Overseer OK'd another attribute</label>
@@ -29002,7 +29004,16 @@ function renderCompanionDerived(c){
   $("cs-companion").classList.toggle("cs-cp-none", !cp.name);
 }
 
+/* Howl 10-24: the assist picker lists everyone else at the table, refilled with the sheet */
+function assistOptions(c){
+  var sel = $("cs-skill-assist"); if(!sel) return;
+  var keep = sel.value, h = '<option value="">No one</option>';
+  (S.get().chars || []).forEach(function(x){ if(x && x.id != null && (!c || String(x.id) !== String(c.id))) h += '<option value="' + esc(String(x.id)) + '">' + esc(x.name || "?") + "</option>"; });
+  if(sel.getAttribute("data-h") !== h){ sel.innerHTML = h; sel.setAttribute("data-h", h); }
+  sel.value = keep; if(sel.value !== keep) sel.value = "";
+}
 function renderSkills(c){
+  try{ assistOptions(c); }catch(e){}
   var host = $("cs-skills"); host.innerHTML = "";
   CH.SKILLS.forEach(function(row){
     var name = row[0], s = skillOf(c, name);
@@ -32199,9 +32210,22 @@ function skillRoll(name, attr){
   var bought = want ? spendParty(want) : 0;        // RULE 1: bought d20s debit the party pool
   var pool = 2 + bought, comp = clamp(+$("cs-comp").value || 20, 15, 20);
   var r = rollTest(tn, crit, comp, pool);
+  /* Howl 10-24: THE ASSIST.  One d20 on the helper's own attribute + this skill (their tag sets their crit); it adds its
+     successes only when the roller scores at least one (Book One p.19). */
+  var asEl = $("cs-skill-assist"), helper = null, ar = null, aLine = "";
+  if(asEl && asEl.value){ (S.get().chars || []).forEach(function(x){ if(x && String(x.id) === String(asEl.value)) helper = x; }); asEl.value = ""; }
+  if(helper){
+    var hs = skillOf(helper, name), htn = attrVal(helper, attr) + hs.rank;
+    ar = rollTest(htn, CH.critRange(hs.rank, hs.tag), comp, 1);
+    var adds = r.succ >= 1 ? ar.succ : 0;
+    aLine = (helper.name || "The helper") + " assists (" + attr + " + " + name + ", TN " + htn + "): " + ar.dice[0].v + " = " + ar.succ +
+            (ar.succ === 1 ? " success" : " successes") + (r.succ >= 1 ? (adds ? ", added" : "") : " - not added, the roller scored none");
+    r = { dice:r.dice, succ:r.succ + adds, comps:r.comps + ar.comps };
+  }
   var verdict = D && D.known && !D.immobile ? (r.succ >= D.applied ? " Passes." : " Fails.") : "";
-  tableRoll(c, name + " (" + attr + (how ? ", " + how : "") + "), TN " + tn + ": " + successes(r) + (D && D.known ? ", Difficulty " + D.applied + "." + verdict : ""));
+  tableRoll(c, name + " (" + attr + (how ? ", " + how : "") + "), TN " + tn + ": " + successes(r) + (helper ? " (with " + aLine + ")" : "") + (D && D.known ? ", Difficulty " + D.applied + "." + verdict : ""));
   $("cs-skill-out").innerHTML = rollModLine(c, null, "skill") + testLine(name + " (" + attr + " " + attrVal(c, attr) + " + " + s.rank + (s.tag ? ", tagged: crit ≤ " + crit : "") + ")", tn, r) +
+    (helper ? '<div class="cs-qual" id="cs-assist-line">' + pips(ar.dice) + " " + esc(aLine) + ".</div>" : "") +
     (D && D.line ? '<div class="cs-qual" id="cs-skill-diffline">' + esc(D.line + "." + verdict) + "</div>" : "") +
     (how ? '<div class="cs-qual">' + esc(attr + " in place of " + def + ": " + how) + ".</div>" : "") +
     apNote(want, bought);
@@ -51727,6 +51751,7 @@ if(typeof window !== "undefined") window.HELENA_ROLL = RL;
   // ---------- tabs ----------
   function setMode(next){
     mode = next;
+    last = null; picked = {}; if(luckBar) luckBar.hidden = true;     /* Howl 10-24: a Luck re-roll belongs to the roll on screen */
     var isSkill = mode === 'skill', isGuide = mode === 'guide';
     el.tabSkill.setAttribute('aria-selected', isSkill);
     el.tabCd.setAttribute('aria-selected', mode === 'cd');
@@ -51783,62 +51808,105 @@ if(typeof window !== "undefined") window.HELENA_ROLL = RL;
   }
 
   // ---------- skill test ----------
-  function rollSkill(){
-    var count = val('s-dice');
-    var tn = val('s-tn');
-    var crit = Math.min(val('s-crit'), tn);
-    var comp = val('s-comp');
-
+  /* Howl 10-24: THE QUICK ROLLS KEEP THEIR DICE, so Luck can re-roll them (CRB p.20, Miss Fortune: one Luck point re-rolls
+     ONE d20 or up to THREE combat dice; each die once).  last = { mode, faces[], rr[], tn, crit, comp } */
+  var last = null, picked = {};
+  function scoreSkill(L){
     var successes = 0, complications = 0;
-    var dice = rollDice(count, 20).map(function(v){
-      var isCrit = v <= crit;
-      var isHit  = v <= tn;
-      var isComp = v >= comp;
-      var cls = [], tag;
-
+    var dice = L.faces.map(function(v, i){
+      var isCrit = v <= L.crit, isHit = v <= L.tn, isComp = v >= L.comp, cls = [], tag;
       if (isCrit)      { successes += 2; cls.push('crit'); tag = 'crit x2'; }
       else if (isHit)  { successes += 1; cls.push('hit');  tag = 'success'; }
       else             { tag = 'miss'; }
-
       if (isComp) { complications += 1; cls.push('comp'); tag = isCrit ? 'crit x2' : 'complication'; }
-
+      if (L.rr[i]) tag += ' · re-rolled';
       return { value: v, cls: cls.join(' '), tag: tag };
     });
-
     paintTotals([
       { value: successes,     label: 'Successes',     tone: 'success' },
       { value: complications, label: 'Complications', tone: 'warn' }
     ]);
     paintDice(dice);
-
     var line = successes + (successes === 1 ? ' success' : ' successes');
     if (complications > 0) line += ', ' + complications + (complications === 1 ? ' complication' : ' complications');
-    say(line);
+    return line;
   }
-
-  // ---------- combat dice ----------
-  function rollCd(){
-    var count = val('c-dice');
+  function scoreCd(L){
     var damage = 0, effects = 0;
-
-    var dice = rollDice(count, 6).map(function(v){
-      if (v === 1){ damage += 1; return { value:v, cls:'hit', tag:'1 dmg' }; }
-      if (v === 2){ damage += 2; return { value:v, cls:'hit', tag:'2 dmg' }; }
-      if (v <= 4) { return { value:v, cls:'', tag:'nothing' }; }
+    var dice = L.faces.map(function(v, i){
+      var r = L.rr[i] ? ' · re-rolled' : '';
+      if (v === 1){ damage += 1; return { value:v, cls:'hit', tag:'1 dmg' + r }; }
+      if (v === 2){ damage += 2; return { value:v, cls:'hit', tag:'2 dmg' + r }; }
+      if (v <= 4) { return { value:v, cls:'', tag:'nothing' + r }; }
       damage += 1; effects += 1;
-      return { value:v, cls:'eff', tag:'1 + eff' };
+      return { value:v, cls:'eff', tag:'1 + eff' + r };
     });
-
     paintTotals([
       { value: damage,  label: 'Damage',  tone: 'success' },
       { value: effects, label: 'Effects', tone: 'effect' }
     ]);
     paintDice(dice);
-
     var line = damage + ' damage';
     if (effects > 0) line += ', ' + effects + (effects === 1 ? ' effect' : ' effects');
-    say(line);
+    return line;
   }
+  function rescore(){ return last ? (last.mode === 'skill' ? scoreSkill(last) : scoreCd(last)) : ''; }
+  function rollSkill(){
+    var tn = val('s-tn');
+    last = { mode:'skill', faces:rollDice(val('s-dice'), 20), tn:tn, crit:Math.min(val('s-crit'), tn), comp:val('s-comp') };
+    last.rr = last.faces.map(function(){ return false; }); picked = {};
+    say(rescore()); paintLuck();
+  }
+
+  // ---------- combat dice ----------
+  function rollCd(){
+    last = { mode:'cd', faces:rollDice(val('c-dice'), 6) };
+    last.rr = last.faces.map(function(){ return false; }); picked = {};
+    say(rescore()); paintLuck();
+  }
+
+  // ---------- Luck re-roll (Howl 10-24) ----------
+  var luckBar = null;
+  function who(){ try{ return window.SUITE_CURRENT ? window.SUITE_CURRENT.get() : null; }catch(e){ return null; } }
+  function sheetOf(id){ try{ var cs = window.SUITE_STATE.get().chars || []; for(var i = 0; i < cs.length; i++) if(cs[i] && String(cs[i].id) === String(id)) return cs[i]; }catch(e){} return null; }
+  function costOf(n){ return !last || !n ? 0 : last.mode === 'skill' ? n : Math.ceil(n / 3); }
+  function paintLuck(note){
+    if(!luckBar){ luckBar = document.createElement('div'); luckBar.id = 'luck-bar'; luckBar.style.cssText = 'margin:10px 0 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px';
+                  el.tray.parentNode.insertBefore(luckBar, el.tray.nextSibling); }
+    if(!last || mode === 'guide'){ luckBar.hidden = true; return; }
+    var n = Object.keys(picked).length, c = sheetOf(who()), have = c ? Math.max(0, Math.round(+c.luck || 0)) : 0, cost = costOf(n);
+    var open = last.rr.some(function(r){ return !r; });
+    luckBar.hidden = false;
+    luckBar.innerHTML = '<span class="stencil">Luck re-roll</span> <span>' +
+      (!open ? 'every die has been re-rolled once' : n ? n + (n === 1 ? ' die' : ' dice') + ' picked' : 'click the dice to re-roll (' + (last.mode === 'skill' ? '1 Luck a d20' : '1 Luck per 3 CD') + ')') +
+      '</span> <button type="button" class="ghost" id="luck-go"' + (n && c && have >= cost ? '' : ' disabled') + '>Re-roll with ' + (cost || 1) + ' Luck</button>' +
+      '<span style="opacity:.75">' + (c ? esc(c.name || '') + ' has ' + have + ' Luck' : 'pick a character to spend Luck') + '</span>' +
+      (note ? '<span style="color:var(--amber)">' + esc(note) + '</span>' : '');
+  }
+  function esc(t){ return String(t == null ? '' : t).replace(/[&<>"]/g, function(ch){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]; }); }
+  el.tray.addEventListener('click', function(e){
+    if(!last || mode === 'guide') return;
+    var box = e.target.closest ? e.target.closest('.die') : null; if(!box) return;
+    var i = Array.prototype.indexOf.call(el.tray.children, box); if(i < 0 || last.rr[i]) return;
+    if(picked[i]) delete picked[i]; else picked[i] = true;
+    box.style.outline = picked[i] ? '3px solid var(--amber, #f0b429)' : '';
+    paintLuck();
+  });
+  document.addEventListener('click', function(e){
+    if(!e.target || e.target.id !== 'luck-go' || !last) return;
+    var idx = Object.keys(picked).map(Number), id = who(), cost = costOf(idx.length), got = 0;
+    if(!idx.length || !id) return;
+    try{ got = window.HELENA_CHAR.spendLuck(String(id), cost); }catch(err){ got = 0; }
+    if(got < cost){ paintLuck(got ? 'Only ' + got + ' Luck was taken - nothing re-rolled' : 'No Luck to spend - nothing re-rolled'); return; }
+    var was = idx.map(function(i){ return last.faces[i]; }), sides = last.mode === 'skill' ? 20 : 6, now = rollDice(idx.length, sides);
+    idx.forEach(function(i, k){ last.faces[i] = now[k]; last.rr[i] = true; });
+    picked = {};
+    var line = rescore(), c = sheetOf(id);
+    say(line + ' (re-rolled ' + was.join(', ') + ' → ' + now.join(', ') + ' with ' + cost + ' Luck)');
+    try{ if(window.SUITE_SYNC && typeof window.SUITE_SYNC.emit === 'function')
+      window.SUITE_SYNC.emit('roll', { name:c ? c.name : '', charId:String(id), text:(c ? c.name : 'Someone') + ' spends ' + cost + ' Luck: re-rolled ' + was.join(', ') + ' → ' + now.join(', ') + ' - now ' + line }); }catch(err){}
+    paintLuck();
+  });
 
   el.roll.addEventListener('click', function(){
     if (mode === 'guide') return;            // the guided path rolls from its own step 4
