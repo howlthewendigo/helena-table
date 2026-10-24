@@ -32403,6 +32403,7 @@ function renderWeapons(c){
           (typeof wpnStripBtn === "function" ? wpnStripBtn(w, i) : "") + '</div>'
           : (typeof wpnStripBtn === "function" && wpnStripBtn(w, i) ? '<div class="cs-degr" style="margin-top:2px">' + wpnStripBtn(w, i) + "</div>" : "")) +
         (typeof legRowHtml === "function" ? legRowHtml(w) : "") +       /* CMD Z018 (G.8) */
+        (/syringer/i.test(w.name || "") && typeof stimRowHtml === "function" ? stimRowHtml(c, i) : "") +   /* Howl 10-24: a stimpak at range */
         '</td>' +
       /* WAVE 16 S6: each cell names its column (data-l) — on a phone the row is a card and the header row is
          not on screen, so the stylesheet prints the name over each box (screen, under 760px, only) */
@@ -32944,6 +32945,71 @@ function invCtlAt(wrap, c, ii){
    for an Addictive chem the printed test (Guide p.clxxii): each dose after the first in a day, END + Survival against the
    rating — fail and you are hooked, +1 Difficulty to everything while you crave, until three days clean, Addictol or the
    Fixer (a dose of something that cures addictions clears them all).  A robot gains nothing from food, drink or chems. */
+/* Howl's table rule (2026-10-24): A SYRINGER CAN DELIVER A STIMPAK AT RANGE.  The Syringer's row offers the allies its
+   range reaches (the map's own band between the two tokens: Close, Medium, Long, Extreme against the weapon's range;
+   an unplaced token is not range-checked) and "Fire a stimpak".  One press takes one stimpak from the shooter's pack
+   and heals the ally 4 HP, through the party row exactly as the rail's +1 does (Health only, never past the maximum),
+   and writes a line to the session log.  Which action it takes and any test are the Overseer's call until the Guide
+   prints them. */
+var STIM_HEAL = 4, STIM_REACH = { C:0, M:1, L:2, X:3 }, STIM_BAND = { C:"Close", M:"Medium", L:"Long", X:"Extreme" }, stimSaid = "";
+function stimStock(c){
+  var out = [];
+  (c && c.inventory || []).forEach(function(r, j){ if(r && /stimpak/i.test(r.name || "") && Math.round(+r.qty || 0) > 0) out.push(j); });
+  out.sort(function(a, b){ return (/diluted/i.test(c.inventory[a].name) ? 1 : 0) - (/diluted/i.test(c.inventory[b].name) ? 1 : 0); });
+  return out;
+}
+function stimZone(id){
+  try{ var ts = S.get().tokens || []; for(var k = 0; k < ts.length; k++) if(ts[k] && ts[k].id === "c:" + id) return ts[k].zone == null ? null : +ts[k].zone; }catch(e){}
+  return null;
+}
+function stimTargets(c, w){
+  var reach = STIM_REACH[String(w && w.range || "M").toUpperCase()]; if(reach == null) reach = 1;
+  var from = stimZone(c.id), M = window.HELENA_MAP, out = [];
+  (S.get().players || []).forEach(function(p){
+    if(!p || p.id == null || String(p.id) === String(c.id)) return;
+    var to = stimZone(p.id), band = null;
+    try{ if(from != null && to != null && M && typeof M.band === "function") band = M.band(from, to); }catch(e){ band = null; }
+    out.push({ id:String(p.id), name:p.name || "?", hp:Math.round(+p.hp || 0), max:Math.round(+p.max || 0), band:band,
+               ok:band == null || STIM_REACH[band] == null || STIM_REACH[band] <= reach });
+  });
+  return out;
+}
+function stimRowHtml(c, i){
+  var w = c.weapons[i], st = stimStock(c), n = 0, ts = stimTargets(c, w), any = false;
+  st.forEach(function(j){ n += Math.round(+c.inventory[j].qty || 0); });
+  var opts = ts.map(function(t){ if(t.ok) any = true;
+    return '<option value="' + esc(t.id) + '"' + (t.ok ? "" : " disabled") + ">" + esc(t.name) + " " + t.hp + "/" + t.max +
+           (t.band ? " \u00b7 " + STIM_BAND[t.band] : "") + (t.ok ? "" : " \u2014 out of range") + "</option>"; }).join("");
+  return '<div class="cs-stim" style="margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">' +
+    '<select data-stim-to="' + i + '" aria-label="Ally to fire a stimpak at">' + (opts || '<option value="">no ally</option>') + "</select>" +
+    '<button class="cs-mini" data-act="wpn-stim" data-w="' + i + '"' + (n && any ? "" : " disabled") +
+    ' title="Table rule (Howl, 2026-10-24): fire a stimpak at an ally in this weapon\u2019s range - one stimpak used, +' + STIM_HEAL + ' HP">Fire a stimpak (' + n + " left)</button>" +
+    (stimSaid ? '<span class="cs-hint">' + stimSaid + "</span>" : "") + "</div>";
+}
+function fireStim(i, toId){
+  var c = me(); if(!c || !toId) return false;
+  if(roomOn() && SY && typeof SY.canEdit === "function" && !SY.canEdit(c.id)){ stimSaid = "Not your sheet - nothing was fired."; renderWeapons(c); return false; }
+  var w = c.weapons[i], t = null;
+  stimTargets(c, w).forEach(function(x){ if(x.id === String(toId)) t = x; });
+  if(!t || !t.ok){ stimSaid = "That ally is out of the Syringer\u2019s range."; renderWeapons(c); return false; }
+  var used = "", healed = 0;
+  S.update(function(m){
+    used = ""; healed = 0;
+    var ch = null; (m.chars || []).forEach(function(x){ if(x && String(x.id) === String(c.id)) ch = x; });
+    var p = null; (m.players || []).forEach(function(x){ if(x && String(x.id) === String(toId)) p = x; });
+    if(!ch || !p) return;
+    var st = stimStock(ch); if(!st.length) return;
+    var r = ch.inventory[st[0]]; used = r.name; r.qty = Math.max(0, Math.round(+r.qty || 0) - 1);
+    var before = Math.round(+p.hp || 0); p.hp = Math.min(Math.round(+p.max || 0), before + STIM_HEAL); healed = p.hp - before;
+  });
+  if(!used){ stimSaid = "No stimpak left - nothing was fired."; renderWeapons(me()); return false; }
+  var line = (c.name || "Someone") + " fires a " + used + " from the Syringer at " + t.name + (t.band ? " (" + STIM_BAND[t.band] + ")" : "") +
+             ": +" + healed + " HP" + (healed < STIM_HEAL ? " (to full)" : "") + ".";
+  stimSaid = esc(line);
+  try{ if(SY && typeof SY.emit === "function") SY.emit("roll", { name:c.name, charId:c.id, token:"c:" + c.id, text:line }); }catch(e){}
+  renderWeapons(me());
+  return true;
+}
 function invUse(i){
   var c = me(); if(!c) return { ok:false };
   var row = c.inventory[i]; if(!row) return { ok:false };
@@ -37029,6 +37095,7 @@ root.addEventListener("click", function(e){
       render();
     })(); break;
     case "wpn-mend-at": mendWeapon(+b.getAttribute("data-w")); break;
+    case "wpn-stim": (function(){ var sel = b.parentNode && b.parentNode.querySelector("select[data-stim-to]"); fireStim(+b.getAttribute("data-w"), sel ? sel.value : ""); })(); break;
     case "wpn-strip": stripWeapon(+b.getAttribute("data-w"), +b.getAttribute("data-for")); break;
     case "inv-strip": stripPackRow(+b.getAttribute("data-inv-i")); break;          /* CMD Z016 */
     /* WAVE 10 ITEM 12: both routed through woundWrite now — one door, so the room's
