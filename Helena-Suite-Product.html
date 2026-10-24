@@ -67180,7 +67180,7 @@ setInterval(paint, 2000);
   function shut(){ B.classList.add("rail-shut"); try{ localStorage.setItem("helena-suite-rail", "1"); sessionStorage.setItem("helena-suite-rail", "1"); }catch(e){} }
   var x = D.createElement("button"); x.type = "button"; x.id = "cl-rail-x"; x.textContent = "×"; x.title = "Close the panel (Esc)";
   x.addEventListener("click", shut);
-  function paint(){ x.hidden = !(B.classList.contains("view-cinder") && !B.classList.contains("rail-shut")); }
+  function paint(){ var h = !(B.classList.contains("view-cinder") && !B.classList.contains("rail-shut")); if(x.hidden !== h) x.hidden = h; }
   D.addEventListener("keydown", function(e){ if(e.key === "Escape" && B.classList.contains("view-cinder") && !B.classList.contains("rail-shut")) shut(); });
   function boot(){ B.appendChild(x); paint(); new MutationObserver(paint).observe(B, { attributes:true, attributeFilter:["class"] }); }
   if(D.readyState === "loading") D.addEventListener("DOMContentLoaded", boot); else boot();
@@ -67206,7 +67206,7 @@ setInterval(paint, 2000);
   "use strict";
   var D = document, B = D.body;
   function fight(){ return B.classList.contains("view-cinder") && B.getAttribute("data-cl-tab") === "fight"; }
-  function shut(){ B.classList.remove("cl-sb-pop"); }
+  function shut(){ if(B.classList.contains("cl-sb-pop")) B.classList.remove("cl-sb-pop"); }   /* only when set: a bare remove is a class write, and this runs from a class watcher (froze every tab switch, 10-24) */
   var x = D.createElement("button"); x.type = "button"; x.id = "cl-sb-x"; x.textContent = "×"; x.title = "Close (Esc)";
   x.addEventListener("click", shut);
   function wrap(){
@@ -67220,6 +67220,12 @@ setInterval(paint, 2000);
   }
   D.addEventListener("keydown", function(e){ if(e.key === "Escape" && B.classList.contains("cl-sb-pop")) shut(); });
   new MutationObserver(function(){ if(!fight()) shut(); }).observe(B, { attributes:true, attributeFilter:["data-cl-tab", "class"] });
+  /* any other road that brings the Encounter pane on top while Fight is up: the map goes back on top, the block pops out small */
+  D.addEventListener("suite-mode", function(e){
+    var m = e && e.detail && e.detail.mode; if(m !== "enc" || !fight()) return;
+    B.classList.add("cl-sb-pop"); var t = D.getElementById("tool-enc"); if(t && x.parentNode !== t) t.insertBefore(x, t.firstChild);
+    setTimeout(function(){ try{ var SH = window.SUITE_SHELL; if(SH && SH.active && SH.active() === "enc") SH.show("map"); }catch(err){} }, 0);
+  });
   setInterval(wrap, 1000); wrap();
 })();
 </script>
