@@ -40578,7 +40578,7 @@ var TT = {
     if(target && target.gen != null && isFinite(+target.gen)) r.target.gen = Math.round(+target.gen);
     if(over && r.damage && typeof r.damage === "object"){
       if(over.damage != null) r.damage.damage = Math.max(0, Math.round(+over.damage || 0));
-      if(over.plain){ r.damage.effects = 0; r.damage.persistent = null; r.damage.vicious = null; }
+      if(over.plain){ r.damage.pierceEffects = Math.max(0, Math.round(+r.damage.effects || 0)); r.damage.effects = 0; r.damage.persistent = null; r.damage.vicious = null; }   /* Howl 10-24: a Spread hit keeps the attack's Piercing */
     }
     if(over && over.door) r.doorId = String(over.door);
     if(over && Array.isArray(over.handled)) r.handled = over.handled.slice();
@@ -40725,6 +40725,11 @@ var TT = {
          the armour and whatever is left off the cover that still stands.  breakingDr is only
          ever non-zero once the cover is gone, so Breaking's own order is kept exactly. */
       out.piercing = fx.piercing + fx.breakingDr;
+      /* Howl, 2026-10-24: Spread's extra hits are the same attack, so they keep its Piercing - X DR ignored per Effect the
+         attack rolled (the Guide's Piercing), though the hit itself carries no Effects of its own */
+      if(r.damage && +r.damage.pierceEffects > 0 && !(+out.effects > 0)){
+        try{ var fxP = A.effectPlan(parsed, Math.round(+r.damage.pierceEffects), facts); out.piercing += Math.max(0, +fxP.piercing || 0); }catch(e){}
+      }
       out.cover = Math.max(0, out.cover - fx.breakingCover);
       out.critAt = fx.critAt;
       out.critAtFrom = fx.critAtFrom;
@@ -49682,6 +49687,7 @@ function paint(){
     var A = zoneOf(z); if(!A || !A.cover) return 0;
     var B = zoneOf(from), f = (B && B !== A) ? doorFace(A, B) : null;
     var c = A.cover, best = 0;
+    if(B && B === A) return 0;                                 /* Howl 10-24: one zone, nothing between - no cover */
     if(f) return Math.max(0, Math.min(3, +c[f] || 0));
     ["N", "E", "S", "W"].forEach(function(k){ var v = Math.max(0, Math.min(3, +c[k] || 0)); if(v > best) best = v; });
     return best;
@@ -64565,6 +64571,8 @@ function zoneCoverInfo(z, fromZone){
      side (Light 1, Medium 2, Heavy 3, a wall 3).  A Zones map, a shot within one block and no shooter keep the line above. */
   var bc = blocksCover(mapDoorNow(), z, fromZone);
   if(bc != null) cover = bc;
+  /* Howl, 2026-10-24: shooter and target in the same zone have nothing between them - no cover (it was the zone's best side) */
+  if(fromZone != null && fromZone !== "" && +fromZone === +z){ cover = 0; face = null; }
   return { cover:cover, face:face, name:coverName(cover), bands:bands };
 }
 root.SUITE_TOKENS.zoneCover = function(z, fromZone){ return zoneCoverInfo(z, fromZone).cover; };
