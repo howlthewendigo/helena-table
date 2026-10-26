@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"dad31c61",at:"2026-10-26 15:45 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"008ec76b",at:"2026-10-26 22:16 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -1414,6 +1414,14 @@
 #tool-char .cs-skills td.c, #tool-char .cs-skills th.c{text-align:center}
 #tool-char .cs-skills input[type=number]{width:44px}
 #tool-char .cs-skills .tn{font-family:var(--f-data);color:var(--amber);text-align:center}
+@media screen and (max-width:600px){
+#tool-char .cs-skills, #tool-char .cs-skills thead, #tool-char .cs-skills tbody{display:block;width:100%}
+#tool-char .cs-skills tr{display:grid;grid-template-columns:44px 56px 40px minmax(0,1fr);align-items:center;column-gap:6px;border-bottom:1px solid #232a1b}
+#tool-char .cs-skills td.n, #tool-char .cs-skills th:first-child{grid-column:1 / -1;white-space:normal}
+#tool-char .cs-skills td{border-bottom:none}
+#tool-char .cs-skills tbody tr:nth-child(odd){background:#1f2318}
+#tool-char .cs-skills td.c, #tool-char .cs-skills th.c, #tool-char .cs-skills td.tn{text-align:center}
+}
 #tool-char .cs-okpair{display:flex;align-items:center;gap:6px;font-size:15px;color:var(--dim);cursor:pointer;min-height:32px}
 #tool-char .cs-okpair input{width:18px;height:18px;margin:0;accent-color:var(--amber)}
 #tool-char .cs-combat{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:8px;margin-bottom:8px}
@@ -3879,6 +3887,11 @@
 #tool-med .count[data-any="1"]{ color:var(--rust); text-shadow:0 0 10px rgba(193,68,14,.5); }
 #tool-med .count[data-any="0"]{ color:var(--amber-dim); }
 #tool-med .over{ font-size:15px; color:var(--rust); }
+#tool-med .fa{ grid-column:1 / -1; display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:15px; padding-top:4px; }
+#tool-med .fa .fa-h{ font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+#tool-med .fa select, #tool-med .fa input{ font-size:15px; }
+#tool-med .fa input[type=number]{ width:4.5em; }
+#tool-med .fa .fa-out{ flex:1 1 100%; color:var(--amber-dim); }
 #tool-med .controls{
     display:flex; gap:9px; flex-wrap:wrap; align-items:center;
     padding:16px 0 2px; margin-top:4px; border-top:var(--rule);
@@ -4484,9 +4497,14 @@ body.view-cinder[data-cl-tab="fight"] #cinder-ov-bottom #cl-bar{ position:relati
 body.view-cinder #cl-mtc.cl-win{ position:fixed; top:190px; bottom:auto; left:50%; transform:translateX(-50%); width:min(440px, 92vw); max-height:calc(100vh - 340px); overflow:auto; }
 body.view-cinder #cl-mtc.cl-win *{ font-size:inherit; }
 body.view-cinder #cl-mtc .cl-win-x{ color:#E8DFCC; }
-/* Z037 (NR-22): the Mysterious Stranger's tick, over the map's bottom left, above the action bar */
-#cl-ms{ position:fixed; left:104px; bottom:150px; z-index:33; max-width:340px; padding:6px 10px; border:1px solid #c86fd4; border-radius:4px;
+/* Z037 (NR-22): the Mysterious Stranger's tick.  CMD Z038: docked at the foot of the right column (the Ledger's 360 px), clear of
+   the map - it sat over the map's lower left - with an x (and Esc) to close it */
+#cl-ms{ position:fixed; right:12px; bottom:12px; width:336px; box-sizing:border-box; z-index:33; padding:6px 36px 6px 10px; border:1px solid #c86fd4; border-radius:4px;
   background:#1b1f14; color:#e8e4d4; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.5); font-family:"EB Garamond", Georgia, serif; }
+#cl-ms .cl-ms-x{ position:absolute; top:4px; right:4px; width:28px; height:28px; padding:0; border:1px solid #6d7360; border-radius:4px;
+  background:#23281b; color:#f2eedc; font-size:18px; line-height:1; cursor:pointer; }
+#cl-ms .cl-ms-x:hover, #cl-ms .cl-ms-x:focus-visible{ border-color:#f0b429; color:#f0b429; }
+@media (max-width:700px){ #cl-ms{ left:8px; right:8px; width:auto; bottom:196px; } }
 #cl-ms[hidden]{ display:none !important; }
 #cl-ms label{ display:block; cursor:pointer; }
 #cl-ms small{ display:block; color:#9aa08a; font-size:12px; }
@@ -4610,6 +4628,13 @@ body:not(.view-cinder) #cl-ms{ display:none !important; }
   body.view-cinder #cx-sheet3 .cs-skills tbody tr,body.view-cinder #cx-sheet3 table tr{background:#F4ECD8 !important}
   body.view-cinder #cx-sheet3 table tr:nth-child(even){background:#E6DABE !important}
   body.view-cinder #cx-sheet3 table td{background:transparent !important}
+  /* CMD Z038 (O.7): on a phone each skill stacks in two lines (name and attribute over Tag, Rank, TN, Roll) - the table
+     was 527 px wide and pushed the Sheets tab sideways at 390 */
+  @media (max-width:600px){
+    body.view-cinder #cx-sheet3 .cs-skills,body.view-cinder #cx-sheet3 .cs-skills thead,body.view-cinder #cx-sheet3 .cs-skills tbody{display:block;width:100%}
+    body.view-cinder #cx-sheet3 .cs-skills tr{display:grid;grid-template-columns:44px 56px 40px minmax(0,1fr);align-items:center;column-gap:6px}
+    body.view-cinder #cx-sheet3 .cs-skills td.n,body.view-cinder #cx-sheet3 .cs-skills th:first-child{grid-column:1 / -1;white-space:normal}
+  }
   body.view-cinder #cx-sheet3 table td:first-child{color:#1C1814}
   body.view-cinder #cx-sheet3 .cs-hint,body.view-cinder #cx-sheet3 small{color:#5E5346}
   /* identity: the head as a stacked column */
@@ -5593,7 +5618,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-26 15:45 UTC">dad31c61</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-26 22:16 UTC">008ec76b</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -6328,6 +6353,7 @@ end $$;
       <div class="inj-row">
         <div class="fld"><label for="eb-inj-note">Note</label>
           <input type="text" id="eb-inj-note" maxlength="60" placeholder="what did it (optional)"></div>
+        <label class="fld" title="Injuries dealt by a Debilitating weapon add +1 Difficulty to any test made to treat them (Guide p.lii)"><span><input type="checkbox" id="eb-inj-deb"> Debilitating weapon</span></label>
         <button id="eb-inj-record" disabled>Record</button>
       </div>
       <div class="inj-log" id="eb-inj-log"></div>
@@ -7738,8 +7764,8 @@ end $$;
     <!-- Z037 (the director, 2026-10-26): TOWN SERVICES — no hiring table and no new rule.  A bought meal or drink is its
          Food/Drink row, eaten at the counter by the printed consume rules (the sheet's own Use, HELENA_CHAR.consume); a rented
          room is Nightfall as printed for the sleepers, in warm shelter, waking Well Rested (p.ccviii).  The caps come off the
-         payer through the counter's own confirm (HELENA_LEDGER ops.confirm).  The Guide prints no room price: the Overseer
-         rules one of two (NEEDS-RULING), and nothing is charged for a room until then. -->
+         payer through the counter's own confirm (HELENA_LEDGER ops.confirm).  Ruling B (Zoe 2026-10-26): a room is 25 caps
+         a sleeper, the Private Room row (Guide p.cclxxxiv). -->
     <div class="card" id="mc-town">
       <h2>Town services</h2>
       <h3>A meal or a drink</h3>
@@ -25125,6 +25151,13 @@ function injuryTargets(){
     o.value = injuryRowKey(p); o.textContent = p.name;
     sel.appendChild(o);
   });
+  /* K.16 (CMD Z038): every creature head on the roster, under its one injury key (foeWoundKey) - so a creature's Injury is
+     written where the Fight's enemy box and HELENA_ENC.woundsOf read it, not under a typed name */
+  (typeof foeHeads === "function" ? foeHeads() : []).forEach(function(h){
+    var o = document.createElement("option");
+    o.value = "foe:" + h.key; o.textContent = h.name;
+    sel.appendChild(o); keys.push(o.value);
+  });
   var other = document.createElement("option"); other.value = "*"; other.textContent = "someone else…";
   sel.appendChild(other);
   if(prev && (keys.indexOf(prev) >= 0 || prev === "*")) sel.value = prev;
@@ -25156,7 +25189,9 @@ function injuryRecord(){
      panel is printing rather than a wound nobody took. */
   if(injuryNothingThrough()){ injuryWithdraw(); return false; }
   var sel = $("eb-inj-target"), val = sel.value;
-  var free = val === "*";
+  var free = val === "*", foe = String(val).slice(0, 4) === "foe:" ? String(val).slice(4) : "";
+  /* NR-26 (Zoe 2026-10-26, Guide p.lii): the weapon that dealt it was Debilitating - the record says so, and its treat test reads +1 */
+  var debEl = $("eb-inj-deb"), deb = !!(debEl && debEl.checked);
   var name = free ? $("eb-inj-other").value.trim()
            : (sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : "");
   if(!name){ if(free) $("eb-inj-other").focus(); return; }
@@ -25179,27 +25214,73 @@ function injuryRecord(){
      lookup by name.  The free-text "someone else…" case has no sheet and therefore no id,
      so it keeps the raw name — which is what the name bucket is FOR. */
   var bucket = name;
+  if(foe){ bucket = foe; tok = foe; }                           // K.16: a creature's one key, which IS its token id
   STATE.update(function(m){
-    var S = window.SUITE_STATE, hit = free ? null : injurySheet(m, val);
+    var S = window.SUITE_STATE, hit = free || foe ? null : injurySheet(m, val);
     if(S && typeof S.woundKey === "function" && hit){
       try{ bucket = S.woundKey(hit.id) || name; }catch(err){ bucket = name; }
     }
     if(hit && hit.id != null) tok = "c:" + hit.id;
     if(!m.injuries) m.injuries = {};
     if(!m.injuries[bucket]) m.injuries[bucket] = [];
-    m.injuries[bucket].push({ loc:loc, treated:false, note:note });
+    var rec = { loc:loc, treated:false, note:note };
+    if(deb) rec.debilitating = true;                            // NR-26: optional, absent unless ticked
+    m.injuries[bucket].push(rec);
     total = m.injuries[bucket].length;
   });
   (function(){ var SY = window.SUITE_SYNC;                      // the Table: name the wound in the ticker
     if(!SY || typeof SY.emit !== "function") return;            // TRACK S (S-R3): Solo records it too
     SY.emit("injury", { name:name, loc:loc, token:tok, note:note }); })();
   $("eb-inj-log").innerHTML = "Recorded <b>" + esc(loc) + "</b> on <b>" + esc(name) + "</b> &mdash; " +
-    total + (total === 1 ? " injury" : " injuries") + " carried. The Party Medical pane in Camp has it.";
+    total + (total === 1 ? " injury" : " injuries") + " carried" + (deb ? " (Debilitating: +1 Difficulty to treat it)" : "") +
+    (foe ? ". The Fight's enemy list has it." : ". The Party Medical pane in Camp has it.");
   $("eb-inj-note").value = "";
+  if(debEl) debEl.checked = false;
   injury = { loc:null, roll:null };
   $("eb-inj-record").disabled = true;
   $("eb-inj-loc").setAttribute("data-hit", "0");
   return true;
+}
+/* K.16 (CMD Z038, settled 2026-10-26): ONE KEY FOR A CREATURE'S INJURIES - "e:<key>|<rank>#<n>", the turn order's row id for that
+   head (TT.tokId), which is also its token's id on the map and the token the ticker names.  WHY THAT ONE, of the four the Fight's
+   enemy box tried in turn (the row name, the name without its ×N, the bare ref "key|rank", the row id):
+     - a NAME moves: "Raider ×3" loses its ×3 when the swarm splits, "Raider 2" renumbers when the count changes, a row can be
+       renamed, and two rows can carry one name - a bucket keyed on it is lost or shared;
+     - the bare REF is the whole row: Raider 1's broken arm would be Raider 2's too;
+     - the row id is per head, stable while the row stands, and its "e:" can never be a sheet's id or a character's name, so a
+       creature's bucket never lands on a party member (the Medical board skips "e:" buckets for the same reason).
+   A swarm fights as one row (its first head, #0), so its Injuries sit on #0.
+   OLD RECORDS STILL RESOLVE: woundsOf reads the key first, then each older spelling (the row's name as the order shows it, that
+   name without ×N, the bare ref) - a read-side migration; nothing already written is moved. */
+function foeWoundKey(ref, n){ return "e:" + String(ref == null ? "" : ref) + "#" + Math.max(0, Math.round(+n || 0)); }
+/* the roster's heads as the turn order rows them: a swarm one row (#0, "Name ×N"), anything else a row a head ("Name 2") */
+function foeHeads(){
+  var out = [];
+  ((typeof state === "object" && state && state.roster) || []).forEach(function(e){
+    if(!e || !e.key) return;
+    var ref = e.key + "|" + (e.rank || ""), n = Math.max(1, Math.min(99, Math.round(+e.count || 1))), nm = e.name || e.key;
+    var sw = n > 1 && typeof isSwarm === "function" && (function(){ try{ return !!isSwarm(e); }catch(x){ return false; } })();
+    if(sw){ out.push({ key:foeWoundKey(ref, 0), ref:ref, n:0, name:nm + " \u00d7" + n }); return; }
+    for(var i = 0; i < n; i++) out.push({ key:foeWoundKey(ref, i), ref:ref, n:i, name:nm + (n > 1 ? " " + (i + 1) : "") });
+  });
+  return out;
+}
+/* a creature head's Injuries: the one key first, then the spellings older records were written under.  row = { id, ref, name }
+   (a turn-order row) or a token id string "e:<ref>#<n>". */
+function foeWounds(m, row){
+  var inj = (m && m.injuries && typeof m.injuries === "object") ? m.injuries : {}, out = [], seen = {};
+  if(typeof row === "string"){ var mt = /^e:(.*)#(\d+)$/.exec(row); row = { id:row, ref:mt ? mt[1] : null, name:null }; }
+  row = row || {};
+  var key = row.id != null ? String(row.id) : (row.ref != null ? foeWoundKey(row.ref, 0) : null), nm = row.name == null ? null : String(row.name);
+  [key, nm, nm == null ? null : nm.replace(/\s*[\u00d7x]\s*\d+$/, ""), row.ref == null ? null : String(row.ref)].forEach(function(k){
+    if(k == null || k === "" || seen[k]) return; seen[k] = 1;
+    if(Array.isArray(inj[k])) inj[k].forEach(function(w){ if(w) out.push(w); });
+  });
+  return out;
+}
+if(typeof window === "object" && window && window.HELENA_ENC){
+  window.HELENA_ENC.woundKey = foeWoundKey;
+  window.HELENA_ENC.woundsOf = function(row){ try{ return foeWounds(STATE.get(), row); }catch(e){ return []; } };
 }
 
 /* ---------------------------------------------------------------- the table view
@@ -26076,6 +26157,7 @@ var CH = {
       out.push({ id:r.id.slice(0, CH.DOOR_ID_MAX), past:Math.min(past, 999), critAt:isFinite(at) && at >= 1 ? Math.min(at, 99) : 5,
                  type:r.type === "En" || r.type === "PhEn" ? r.type : "Phys", dr:Math.max(0, Math.round(+r.dr || 0) || 0),
                  from:String(r.from == null ? "" : r.from).slice(0, 80), at:String(r.at == null ? "" : r.at).slice(0, 40) });
+      if(r.deb === true) out[out.length - 1].deb = true;     /* NR-26: the dealing weapon was Debilitating (absent on older holds) */
     });
     return out.slice(-CH.CRIT_HELD_KEEP);
   },
@@ -26091,6 +26173,7 @@ var CH = {
       rec = { id:id, past:Math.min(Math.round(res.past), 999), critAt:Math.max(1, Math.round(+res.critAt || 5)), type:res.type === "En" || res.type === "PhEn" ? res.type : "Phys",
               dr:res.dr === Infinity ? 0 : Math.max(0, Math.round(+res.dr || 0)),
               from:String(hold.from == null ? "" : hold.from).slice(0, 80), at:String(hold.at == null ? "" : hold.at).slice(0, 40) };
+      if(hold.deb === true) rec.deb = true;                 /* NR-26 (Zoe 2026-10-26): carried to the Injury the choice records */
       l.push(rec);
     }
     c.critHeld = l;
@@ -30713,9 +30796,14 @@ function heldChoose(id, how){
       if(key != null){
         if(!m.injuries || typeof m.injuries !== "object" || Array.isArray(m.injuries)) m.injuries = {};
         if(!Array.isArray(m.injuries[key])) m.injuries[key] = [];
-        m.injuries[key].push({ loc:L.loc, treated:false,
+        var wrec = { loc:L.loc, treated:false,
           note:(s.injury ? "critical" : "down to 0 HP") + (rec.from ? " from " + rec.from : "") +
-               (s.injury ? " — the armour took it, and the Injury" : " — the first " + s.flesh + " in the flesh, no injury from the critical") });
+               (s.injury ? " — the armour took it, and the Injury" : " — the first " + s.flesh + " in the flesh, no injury from the critical") };
+        /* NR-26 (Zoe 2026-10-26, Guide p.lii): an Injury dealt by a Debilitating weapon says so on its record - optional, true or
+           absent (never on an old save) - and every test made to treat it reads +1 Difficulty.  A 0-HP Injury from the flesh
+           answer was not dealt by the critical's weapon alone, but the blow that dropped them was that weapon's: it carries it too. */
+        if(rec.deb === true) wrec.debilitating = true;
+        m.injuries[key].push(wrec);
         s.count = m.injuries[key].length;
       }
     }
@@ -32796,6 +32884,7 @@ function renderConditions(c){
       '<input type="text" data-injf="note" data-fkey="' + ik + 'note" value="' + esc(w.note || "") +
         '" maxlength="80" placeholder="how it happened" style="flex:1;min-width:110px">' +
       (w.treated ? '<span class="cs-badge" title="any damage there rolls 1 CD, and an Effect re-opens it">treated</span>' : "") +
+      (w.debilitating === true && !w.treated ? '<span class="cs-badge" title="Dealt by a Debilitating weapon: +1 Difficulty to any test made to treat it (Guide p.lii)">Debilitating</span>' : "") +
       '<button class="cs-mini" data-act="inj-treat">' + (w.treated ? "Untreat" : "Treat") + '</button>' +
       '<button class="cs-x" data-act="inj-del" title="healed">&times;</button>';
     host.appendChild(d);
@@ -33209,10 +33298,11 @@ function stimZone(id){
 function stimWounds(ally){
   var key = null; try{ key = woundKeyOf(ally); }catch(e){ key = null; }
   var l = key == null ? [] : ((S.get().injuries || {})[key] || []);
-  return { key:key, list:l.map(function(w, i){ return { i:i, loc:w && w.loc, treated:!!(w && w.treated) }; }).filter(function(x){ return !x.treated; }) };
+  return { key:key, list:l.map(function(w, i){ return { i:i, loc:w && w.loc, treated:!!(w && w.treated), deb:!!(w && w.debilitating === true) }; }).filter(function(x){ return !x.treated; }) };
 }
 /* the Difficulty, every part named */
 function stimDiff(c, w, ally){
+  var as = arguments.length > 3 ? arguments[3] : null;          /* NR-26: "inj" when the dart is to treat an Injury */
   var from = stimZone(c.id), to = stimZone(ally.id), M = window.HELENA_MAP, R = window.HELENA_ROLL, band = null, parts = [];
   try{ if(from != null && to != null && M && typeof M.band === "function") band = M.band(from, to); }catch(e){ band = null; }
   var def = 1; try{ var dv = CH.defenseOf ? CH.defenseOf(ally) : null; def = dv && dv.value != null ? +dv.value : (typeof dv === "number" ? dv : CH.defense((ally.special || {}).A)); }catch(e){ def = 1; }
@@ -33220,7 +33310,11 @@ function stimDiff(c, w, ally){
   var step = 0; try{ if(R && typeof R.rangeStep === "function"){ var rs = R.rangeStep({ band:band, weaponRange:w.range, weapon:w, mode:"ranged", target:ally.name }); step = rs && rs.step ? +rs.step : 0; if(step) parts.push("range " + rs.part.replace(/^range:\s*/, "")); } }catch(e){ step = 0; }
   var cov = 0; try{ if(to != null) cov = zoneCoverInfoOf(to, from).cover || 0; }catch(e){ cov = 0; }
   if(cov) parts.push("cover " + cov);
-  var raw = def + step + cov;
+  /* NR-26 (Zoe 2026-10-26, Guide p.lii): Debilitating - "+1 Difficulty to any test made to treat" an Injury it dealt.  The dart
+     treats the ally's first open Injury, so that one's record (debilitating:true, written when it was dealt) is read */
+  var deb = 0;
+  if(as === "inj"){ try{ var ow = typeof stimWounds === "function" ? stimWounds(ally).list[0] : null; if(ow && ow.deb){ deb = 1; parts.push("Debilitating +1"); } }catch(e){ deb = 0; } }
+  var raw = def + step + cov + deb;
   return { d:Math.min(5, raw), raw:raw, band:band, parts:parts };
 }
 function stimTargets(c, w){
@@ -33240,11 +33334,27 @@ function stimRowHtml(c, i){
   return '<div class="cs-stim" style="margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">' +
     '<select data-stim-to="' + i + '" aria-label="Ally to fire a stimpak at">' + (opts || '<option value="">no ally</option>') + "</select>" +
     '<select data-stim-as="' + i + '" aria-label="What the stimpak does"><option value="hp">heal its HP</option><option value="inj">treat an Injury</option></select>' +
+    /* ruling A (Zoe 2026-10-26): the Overseer's gift d20 (NR-19) - the Overseer's box only; Buy d20s above buys the rest */
+    '<label class="cs-lab" title="The Overseer gifts one free d20 for good roleplay. It counts toward the 5d20. Only the Overseer can tick it."><input type="checkbox" data-stim-gift="' + i + '"' +
+      (typeof stimGiftMay === "function" && !stimGiftMay() ? " disabled" : "") + "> Overseer’s gift d20</label>" +
     '<button class="cs-mini" data-act="wpn-stim" data-w="' + i + '"' + (n && ts.length ? "" : " disabled") +
-    ' title="A Major action, ' + esc(w.attr + " + " + w.skill) + ' vs 0 + the ally’s Defense, range step and cover (cap 5). The stimpak is spent either way.">Fire a stimpak (' + n + " left)</button>" +
+    ' title="A Major action, ' + esc(w.attr + " + " + w.skill) + ' vs 0 + the ally’s Defense, range step and cover (cap 5). Buy d20s above buys up to 3 more (1, 2, then 3 AP), 5d20 at most. The stimpak is spent either way.">Fire a stimpak (' + n + " left)</button>" +
     (stimSaid ? '<span class="cs-hint">' + stimSaid + "</span>" : "") + "</div>";
 }
+/* ruling A (Zoe 2026-10-26): FIRE A STIMPAK IS A TEST, so bought d20s work as on any test - the 3rd, 4th and 5th die cost 1, 2
+   and 3 AP (Book One p.18; HELENA_ROLL.AP_DICE_COST, cumulative 1/3/6), from the party pool every other test on this sheet pays
+   from (spendParty), never past 5d20; the Overseer's gift (NR-19) is one of the three.  want = the Buy d20s box; have = the pool.
+   -> { gift, dice, cost } : the dice this roll buys and what they cost (as many as the pool can pay). */
+function stimDice(want, gift, have){
+  var R = typeof window !== "undefined" ? window.HELENA_ROLL : null, COST = R && Array.isArray(R.AP_DICE_COST) ? R.AP_DICE_COST : [0, 1, 3, 6];
+  var g = gift ? 1 : 0, k = Math.max(0, Math.min(3 - g, Math.round(+want || 0)));
+  while(k > 0 && +COST[k] > Math.max(0, +have || 0)) k--;
+  return { gift:g, dice:k, cost:+COST[k] || 0 };
+}
+/* NR-19's gate, the dice roller's: the Overseer's alone in a room; anyone in Solo */
+function stimGiftMay(){ try{ var Y = window.SUITE_SYNC; if(!Y || typeof Y.status !== "function" || !Y.status().connected) return true; return typeof Y.isGM === "function" ? !!Y.isGM() : true; }catch(e){ return true; } }
 function fireStim(i, toId, as){
+  var opts = (arguments.length > 3 && arguments[3]) || {};       /* ruling A: { gift } - read off arguments[3], the signature kept */
   var c = me(); if(!c || !toId) return false;
   if(roomOn() && SY && typeof SY.canEdit === "function" && !SY.canEdit(c.id)){ stimSaid = "Not your sheet - nothing was fired."; renderWeapons(c); return false; }
   var w = c.weapons[i], ally = null;
@@ -33265,8 +33375,14 @@ function fireStim(i, toId, as){
       }
     }
   }catch(e){}
-  var df = stimDiff(c, w, ally), sk = skillOf(c, w.skill || "Medicine"), tn = attrVal(c, w.attr || "PER") + sk.rank;
-  var r = rollTest(tn, CH.critRange(sk.rank, sk.tag), 20, 2), hit = r.succ >= df.d, comp = r.comps > 0;
+  var df = stimDiff(c, w, ally, as), sk = skillOf(c, w.skill || "Medicine"), tn = attrVal(c, w.attr || "PER") + sk.rank;
+  /* ruling A: the bought d20s (and the gift) - paid now, after every refusal above, so a refusal spends nothing */
+  var bx = $("cs-wpn-buy"), gift = !!opts.gift && (typeof stimGiftMay !== "function" || stimGiftMay());
+  var sd = typeof stimDice === "function" ? stimDice(bx ? +bx.value || 0 : 0, gift, partyAP()) : { gift:0, dice:0, cost:0 };
+  var paid = sd.cost ? spendParty(sd.cost) : 0;
+  if(paid < sd.cost) sd = typeof stimDice === "function" ? stimDice(sd.dice, sd.gift, paid) : sd;
+  var pool = Math.min(5, 2 + sd.gift + sd.dice);
+  var r = rollTest(tn, CH.critRange(sk.rank, sk.tag), 20, pool), hit = r.succ >= df.d, comp = r.comps > 0;
   var used = "", U = null, before = null, said = "", wounds = stimWounds(ally), undoRev = null;
   S.update(function(m){
     used = ""; said = ""; undoRev = null;
@@ -33291,7 +33407,9 @@ function fireStim(i, toId, as){
   if(!used){ stimSaid = "No stimpak left - nothing was fired."; renderWeapons(me()); return false; }
   var line = (c.name || "Someone") + " fires a " + used + " from the " + (w.name || "Syringer") + " at " + ally.name +
     (df.band ? " (" + STIM_BAND[df.band] + ")" : "") + ": " + w.attr + " + " + w.skill + " TN " + tn + ", " + r.dice.map(function(d){ return d.v; }).join(", ") +
-    " = " + r.succ + (r.succ === 1 ? " success" : " successes") + " vs Difficulty " + df.d + " (" + df.parts.join(", ") + (df.raw > 5 ? ", capped at 5" : "") + ")" +
+    " = " + r.succ + (r.succ === 1 ? " success" : " successes") +
+    (sd.gift || sd.dice ? " (" + pool + "d20: " + [sd.gift ? "the Overseer’s gift" : "", sd.dice ? sd.dice + " bought for " + sd.cost + " AP" : ""].filter(Boolean).join(", ") + ")" : "") +
+    " vs Difficulty " + df.d + " (" + df.parts.join(", ") + (df.raw > 5 ? ", capped at 5" : "") + ")" +
     (comp && hit ? " - a complication: the dart lands but delivers nothing" : hit ? " - a hit: " + said : " - a miss") + "; the stimpak is spent" + actNote + ".";
   stimSaid = esc(line);
   var rv = undoRev;
@@ -34253,6 +34371,15 @@ function wfx(w){
   var lg = typeof CH === "object" && CH && typeof CH.legOf === "function" ? CH.legOf(w, "weapon") : null;
   return lg && lg.mech ? CH.legFx(t, lg.mech) : t;
 }
+/* NR-25 (Zoe 2026-10-26, Guide p.liii): MOMENTUM on the sheet's own Damage button - "+1 CD if the attacker moved at least one
+   zone this turn before the attack", read exactly as the dice roller reads it: this character's token's move on its own turn,
+   in the shared token record (SUITE_TOKENS.movedThisTurn - any view, any device; a Place stamps none).  0 or 1. */
+function momentumCd(c, w){
+  var fx = typeof wfx === "function" ? wfx(w || {}) : ((w && w.qualities) || "");
+  if(!c || !/\bMomentum\b/i.test(fx)) return 0;
+  try{ var TK = window.SUITE_TOKENS; return TK && typeof TK.movedThisTurn === "function" && +TK.movedThisTurn("c:" + c.id) > 0 ? 1 : 0; }
+  catch(e){ return 0; }
+}
 /* CMD Z018 (G.8): the line an attack and its damage print for a legendary weapon: its property, in the Guide's words */
 function legLine(w){
   var lg = w && typeof CH === "object" && CH && typeof CH.legOf === "function" ? CH.legOf(w, "weapon") : null;
@@ -34716,7 +34843,10 @@ function damageRoll(i, again){
   /* CMD Z016: each Degradation is −1 CD off the weapon's own dice, never under 0 (CH.degrCd) */
   var wcd = (typeof CH.degrCd === "function") ? CH.degrCd(w) : (+w.cd || 0), dsay = (typeof CH.degrSay === "function") ? CH.degrSay(w) : "";
   var lgc = typeof CH.legCd === "function" ? CH.legCd(w, c) : { cd:0, why:"" };    /* CMD Z018 (G.8): a legendary property's CD */
+  /* NR-25 (Zoe 2026-10-26): Momentum's +1 CD after a move this turn (a Luck re-roll keeps the first roll's answer) */
+  var mom = again ? Math.max(0, +again.ctx.mom || 0) : (typeof momentumCd === "function" ? momentumCd(c, w) : 0);
   var n = wcd + lane + extra + apDice + buy + lgc.cd;
+  n += mom;
   var r = again ? facesToCD(again.faces) : rollCD(n), E = r.eff, fx = wfx(w), notes = [];
   var total = r.dmg;
   if(/Vicious/i.test(fx) && E){ total += E; notes.push("Vicious: +" + E + " damage (added)"); }
@@ -34800,7 +34930,7 @@ function damageRoll(i, again){
               wi:+i };                                  /* WAVE 17, Z4: the Blast panel's Missed rolls this weapon's half dice */
   tableRoll(c, (w.name || "weapon") + ": " + total + " " + (w.type || "") + " damage, " + E + " Effect" + (E === 1 ? "" : "s") + (again ? " (re-rolled with " + again.luck + " Luck)" : ""));
   var html = rollModLine(c, w, "damage") + "<b>" + esc(w.name || "weapon") + "</b> — " + n + " CD (" + (+w.cd || 0) + " base" + (dsay ? " " + dsay : "") + (lane - heavy ? " + " + (lane - heavy) + " " + w.attr : "") + (heavy ? " + " + heavy + " Heavy Handed" : "") +
-    (extra ? " + " + extra + " ammo" : "") + (apDice ? " + " + apDice + " AP" : "") + (buy ? " + " + buy + " bought" : "") + (lgc.cd ? " + " + esc(lgc.why) : "") + "): " + pips(r.dice) +
+    (extra ? " + " + extra + " ammo" : "") + (apDice ? " + " + apDice + " AP" : "") + (buy ? " + " + buy + " bought" : "") + (lgc.cd ? " + " + esc(lgc.why) : "") + (mom ? " + " + mom + " Momentum (moved a zone this turn)" : "") + "): " + pips(r.dice) +
     " → <b>" + total + " " + esc(w.type || "") + " damage</b>, " + E + " Effect" + (E === 1 ? "" : "s") +
     (spent ? '<span class="cs-hint" style="display:inline;margin-left:6px">(' + spent + " round" + (spent === 1 ? "" : "s") + " spent)</span>" : "");
   html += apNote(wantCD, buy) + (typeof legLine === "function" ? legLine(w) : "");
@@ -34832,7 +34962,7 @@ function damageRoll(i, again){
   if(CH.isBlast(w)) html += blastPanel(c, w, total, lastHit);       // RULE 5 + Contract 2
   if(again) html = '<div class="cs-qual">Re-rolled with ' + again.luck + " Luck (" + again.was.join(", ") + " \u2192 " + again.now.join(", ") + ").</div>" + html;
   $("cs-wpn-out").innerHTML = html;
-  var dctx = { extra:extra, apDice:apDice, wantCD:wantCD, buy:buy, late:late };
+  var dctx = { extra:extra, apDice:apDice, wantCD:wantCD, buy:buy, late:late, mom:mom };
   if(typeof luckOffer === "function") luckOffer("cs-wpn-out", { kind:"cd", c:String(c.id), faces:r.dice.map(function(d){ return d.v; }), rr:again ? again.rr : null,
     redo:function(faces, rr, cost, was, now){ damageRoll(i, { ctx:dctx, faces:faces, rr:rr, luck:cost, was:was, now:now }); } });
   clearPending();
@@ -37082,6 +37212,7 @@ function onEdit(e){
         if(fout) fout.innerHTML = '<span style="color:var(--amber,#FFB000)">' + esc(gate.reason) + "</span>";
       }
     }
+    if(f === "hp" && typeof hpTypedFrom === "function") hpTypedFrom(me());     /* Zoe 2026-10-26: the HP before the typing */
     edit(function(c){
       setPath(c, f, v);
       if(f === "hp") c.hp = clamp(+c.hp || 0, 0, effMax(c));
@@ -37216,6 +37347,7 @@ root.addEventListener("focusout", function(e){
   try{ render(); } finally { csBlurring = null; }
 });
 root.addEventListener("input", onEdit);
+root.addEventListener("change", function(e){ if(e.target && e.target.getAttribute && e.target.getAttribute("data-f") === "hp" && typeof hpTypedDone === "function") hpTypedDone(me()); });   /* Zoe 2026-10-26 */
 root.addEventListener("change", function(e){ if(e.target && (e.target.type === "checkbox" || e.target.tagName === "SELECT")) onEdit(e); });
 /* CMD Z019: a rank box under the skills — this character's rank with one party faction (repRankSet) */
 root.addEventListener("change", function(e){
@@ -37562,7 +37694,8 @@ root.addEventListener("click", function(e){
       setTimeout(function(){ msSheetSay = ""; var s2 = $("cs-ms-say"); if(s2) s2.textContent = ""; }, 6000);
     })(); break;
     case "wpn-stim": (function(){ var sel = b.parentNode && b.parentNode.querySelector("select[data-stim-to]"), as = b.parentNode && b.parentNode.querySelector("select[data-stim-as]");
-      fireStim(+b.getAttribute("data-w"), sel ? sel.value : "", as ? as.value : "hp"); })(); break;
+      var gf = b.parentNode && b.parentNode.querySelector("input[data-stim-gift]");
+      fireStim(+b.getAttribute("data-w"), sel ? sel.value : "", as ? as.value : "hp", { gift:!!(gf && gf.checked) }); })(); break;
     case "wpn-strip": stripWeapon(+b.getAttribute("data-w"), +b.getAttribute("data-for")); break;
     case "inv-strip": stripPackRow(+b.getAttribute("data-inv-i")); break;          /* CMD Z016 */
     /* WAVE 10 ITEM 12: both routed through woundWrite now — one door, so the room's
@@ -39002,6 +39135,8 @@ window.HELENA_CHAR.takeDamageNow = function(amount, type, ignoresDR, opts){
                 The turn order's Blast on a zone lands on each character once this way; a Spread hit or a Burst target sends
                 an id of its own (the report's burstAdded[i].id, the declaration's id + "#spread<i>").  Absent: as before.
      spec.from  optional: who or what dealt it ("Raider Psycho’s MACHETE") — said over a held critical, written on its Injury.
+     spec.debilitating  optional, true when the dealing weapon is Debilitating (NR-26, Zoe 2026-10-26, Guide p.lii): the Injury the
+                held critical's choice records carries debilitating:true, and its treat test reads +1 Difficulty.
      A CRITICAL IS HELD FOR ITS CHOICE (the crit-or-flesh house rule, Howl's final version, CH.critHold): on a hit that is a
      critical by damage through a PLAYER CHARACTER's worn armour, NOTHING comes off the armour or Health and no Injury is due
      yet — the report carries
@@ -39026,8 +39161,11 @@ function pcHitDiff(before, c, hp0){
 }
 function pcHitUndo(u, what){
   var U = window.SUITE_UNDO; if(!u || !U || typeof U.keep !== "function") return null;
+  /* Zoe 2026-10-26: an optional third argument { kind, text } — a Persistent tick per character, an HP typed in — keeps its own
+     Undo slot and says its own line; with none it is the character hit's, as before */
+  var how = arguments.length > 2 && arguments[2] ? arguments[2] : {};
   try{
-    return U.keep("pc-hit", { text:(u.name || "A character") + " took " + what + ": HP " + u.hp0 + " \u2192 " + u.hp1 +
+    return U.keep(how.kind || "pc-hit", { text:how.text ? String(how.text) : (u.name || "A character") + " took " + what + ": HP " + u.hp0 + " \u2192 " + u.hp1 +
                                    (u.pl0 != null && u.pl0 !== u.pl1 ? ", plate " + u.pl0 + " \u2192 " + u.pl1 : ""),
       rev:{ id:u.id, keys:u.keys }, chars:[u.id], revert:function(x){
         if(!x || !x.id || !x.keys) return { ok:false, note:"This hit changed too much of the sheet to keep an Undo; fix it on the sheet." };
@@ -39038,6 +39176,21 @@ function pcHitUndo(u, what){
       } });
   }catch(e){ return null; }
 }
+/* Zoe 2026-10-26: the same diff and Undo for the turn order's Persistent ticks and its typed HP (no second Undo path) */
+window.HELENA_CHAR.hitDiff = function(before, c, hp0){ return pcHitDiff(before, c, hp0); };
+window.HELENA_CHAR.hitUndo = function(u, what, how){ return pcHitUndo(u, what, how); };
+/* Zoe 2026-10-26: TYPING INTO THE HP FIELD SETS HP (no DR) AND IS LOGGED WITH UNDO.  onEdit writes every keystroke; the HP the
+   first keystroke found is held here, and the box's change (Enter, or leaving it) says one line whose Undo puts it back. */
+var hpTyped = null;
+function hpTypedFrom(c){ if(c && (!hpTyped || hpTyped.id !== String(c.id))) hpTyped = { id:String(c.id), name:c.name || "", hp0:Math.max(0, Math.round(+c.hp || 0)) }; }
+function hpTypedDone(c){
+  var t = hpTyped; hpTyped = null;
+  if(!t || !c || String(c.id) !== t.id) return null;
+  var hp1 = Math.max(0, Math.round(+c.hp || 0));
+  if(hp1 === t.hp0 || typeof pcHitUndo !== "function") return null;
+  return pcHitUndo({ id:t.id, name:t.name, hp0:t.hp0, hp1:hp1, pl0:null, pl1:null, keys:{ hp:t.hp0 } }, "",
+                   { kind:"pc-hp", text:(t.name || "A character") + "\u2019s HP set to " + hp1 + " (was " + t.hp0 + ")" });
+}
 window.HELENA_CHAR.applyDamage = function(charId, spec){
   spec = spec || {};
   var res = null, held = null, seen = null, undoRec = null;
@@ -39045,6 +39198,7 @@ window.HELENA_CHAR.applyDamage = function(charId, spec){
   /* the held record's id is named BEFORE the update, so a room's re-run of this closure holds the same one (never twice) */
   var hold = spec.hold === false ? null
            : { id:sid || ("h" + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36)), from:spec.from, at:spec.at };
+  if(hold && spec.debilitating === true) hold.deb = true;   /* NR-26: the caller says the dealing weapon is Debilitating */
   S.update(function(m){
     var c = null; (m.chars || []).forEach(function(x){ if(x && x.id === String(charId)) c = x; });
     if(!c) return;
@@ -44359,20 +44513,30 @@ function sweepRound(){
   /* characters — the sheet is where their Persistent lives */
   var ticks = TT.roundTicks(charList(), all);
   if(ticks.length){
+    /* Zoe 2026-10-26: a Persistent tick keeps an Undo like every other damage line — the sheet's character-hit diff and
+       Undo (HELENA_CHAR.hitDiff / hitUndo: the HP and the rounds left go back), one per character ticked */
+    var CHx = window.HELENA_CHAR, undoOf = {};
     S.update(function(m){
+      undoOf = {};
       (m.chars || []).forEach(function(ch){
         if(!ch || !ticks.some(function(t){ return t.id === String(ch.id); })) return;
+        var b4 = JSON.parse(JSON.stringify(ch)), h0 = Math.max(0, Math.round(+ch.hp || 0));
         TT.tickOne(ch);
+        if(CHx && typeof CHx.hitDiff === "function") undoOf[String(ch.id)] = CHx.hitDiff(b4, ch, h0);
       });
     });
-    ticks.forEach(function(t){ lines.push(t.text); tick("turn", "— " + t.text); });
+    ticks.forEach(function(t){
+      lines.push(t.text); tick("turn", "— " + t.text);
+      if(undoOf[t.id] && CHx && typeof CHx.hitUndo === "function" && typeof undoKind === "function")
+        CHx.hitUndo(undoOf[t.id], "", { kind:undoKind("pt-", t.id), text:t.text.replace(/ → \d+ HP$/, "") + " (HP " + undoOf[t.id].hp0 + " \u2192 " + undoOf[t.id].hp1 + ")" });
+    });
   }
   /* creatures — the turn slice is where theirs lives, and Contract 1 applies it */
   var E = encApi();
   var plans = TT.creatureTicks(st, all, immuneTo);
   if(plans.length){
     plans.forEach(function(p){
-      var landed = null;
+      var landed = null, bleed0 = st.bleed && st.bleed[p.id] ? JSON.parse(JSON.stringify(st.bleed[p.id])) : null;
       if(E && p.damage){
         try{ landed = E.damage(p.ref, { amount:p.damage, type:"Phys", ignoresDR:true,
                                         declId:"tick-" + p.id + (typeof FIGHT_TAG === "string" && FIGHT_TAG ? "-f" + FIGHT_TAG : "") + "-r" + st.round,
@@ -44381,6 +44545,9 @@ function sweepRound(){
       lines.push(p.text + (p.damage && !E ? " — no door on this build, take it off in the Encounter pane" :
                            p.damage && (!landed || landed.ok === false) ? " — the Encounter pane did not take it" : ""));
       tick("turn", "— " + p.text);
+      /* Zoe 2026-10-26: …and a creature's tick keeps an Undo too (its pool back through the door's setHp) */
+      if(landed && landed.ok !== false && !landed.repeat && landed.before !== landed.after && typeof keepTickUndo === "function" && typeof undoKind === "function")
+        keepTickUndo(E, p.id, p.ref, landed, bleed0, undoKind("pt-", p.id), p.text + " (" + landed.before + " \u2192 " + landed.after + " HP)");
     });
     st = TT.creatureTicked(st, plans);
   }
@@ -44817,20 +44984,27 @@ function tvHpCommit(e, raw){
   if(!isFinite(n)) return null;
   var want = /^[+-]/.test(s) ? h.now + n : n, d = Math.round(want - h.now);
   if(!d) return null;
-  if(e.kind === "char") return tvCharHp(e, d);
+  /* Zoe 2026-10-26: typing into an HP field SETS the HP — no DR and no plate — and the line it logs carries an Undo.  A
+     character's went through the rail's −N press (armour first); it is written on the sheet now (tvCharSet). */
+  if(e.kind === "char") return typeof tvCharSet === "function" ? tvCharSet(e, want) : tvCharHp(e, d);
   var E = window.HELENA_ENC;
   if(!(E && typeof E.setHp === "function")){ msg = { cls:"warn", hd:"No creature door", body:"The Encounter pane publishes no setHp on this build, so HP cannot be written from here." }; render(); return null; }
   var r = null; try{ r = E.setHp(e.ref, Math.max(0, (h.pool != null ? h.pool : h.now) + d)); }catch(err){ r = null; }
   if(!r || r.ok === false){ msg = { cls:"warn", hd:"Not written — " + esc(e.name), body:esc((r && r.why) || "The Encounter pane refused the write.") }; render(); return r; }
-  var U = window.SUITE_UNDO;
-  if(U && typeof U.keep === "function" && r.before !== r.after)
-    U.keep("creature-hp", { text:e.name + (r.after < r.before ? " took " + (r.before - r.after) : " healed " + (r.after - r.before)) + " HP (" + r.before + " → " + r.after + ")",
-      rev:{ ref:e.ref, before:r.before, after:r.after },
-      revert:function(rev){ var q = null; try{ q = E.setHp(rev.ref, rev.before); }catch(err){ q = { ok:false, why:String(err && err.message || err) }; }
-                            return (q && q.ok === false) ? { ok:false, note:"The Encounter pane refused it: " + (q.why || "refused") } : { ok:true }; } });
+  if(typeof keepHpUndo === "function") keepHpUndo(E, e.ref, e.name, r);
   if(r.after <= 0) tvFall();
   render();
   return r;
+}
+/* a creature's HP written through setHp keeps one Undo on the session log (its pool back through setHp).  Zoe 2026-10-26: every
+   HP field logs with Undo, so the Overseer desk's typed HP and its −5 / +5 use this too (HELENA_TURN.keepHpUndo). */
+function keepHpUndo(E, ref, name, r){
+  var U = window.SUITE_UNDO;
+  if(!U || typeof U.keep !== "function" || !E || typeof E.setHp !== "function" || !r || r.ok === false || r.before == null || r.before === r.after) return null;
+  return U.keep("creature-hp", { text:(name || "A creature") + (r.after < r.before ? " took " + (r.before - r.after) : " healed " + (r.after - r.before)) + " HP (" + r.before + " → " + r.after + ")",
+    rev:{ ref:ref, before:r.before, after:r.after },
+    revert:function(rev){ var q = null; try{ q = E.setHp(rev.ref, rev.before); }catch(err){ q = { ok:false, why:String(err && err.message || err) }; }
+                          return (q && q.ok === false) ? { ok:false, note:"The Encounter pane refused it: " + (q.why || "refused") } : { ok:true }; } });
 }
 function tvCharHp(e, d){
   var h = tvHp(e), rail = document.getElementById("rail-body"), m = S.get();
@@ -44846,6 +45020,61 @@ function tvCharHp(e, d){
   msg = { cls:"warn", hd:"Not written — " + esc(e.name), body:"The party-health rail is not keeping this sheet's HP (Track HP is off), so change it on the sheet." };
   render();
   return { ok:false, via:"none" };
+}
+/* Zoe 2026-10-26: A TYPED HP ON A CHARACTER SETS IT.  The sheet's HP, written straight (0 to the row's Max), synced on the
+   chars slice; the line and its Undo are the sheet's own character-hit Undo (HELENA_CHAR.hitUndo), which puts the HP back. */
+function tvCharSet(e, want){
+  var c0 = charOf(e.ref), h = tvHp(e);
+  if(!c0 || !h){ msg = { cls:"warn", hd:"Not written — " + esc(e.name), body:"No sheet answers to this row, so change it on the sheet." }; render(); return { ok:false }; }
+  var id = String(c0.id), to = Math.max(0, Math.min(h.total > 0 ? h.total : 999, Math.round(+want || 0))), from = null, name = c0.name || e.name || "";
+  S.update(function(m){
+    (m.chars || []).forEach(function(c){ if(c && String(c.id) === id){ from = Math.max(0, Math.round(+c.hp || 0)); c.hp = to; } });
+  });
+  if(from == null || from === to){ render(); return { ok:from != null, from:from, to:to }; }
+  var CHx = window.HELENA_CHAR;
+  if(CHx && typeof CHx.hitUndo === "function")
+    CHx.hitUndo({ id:id, name:name, hp0:from, hp1:to, pl0:null, pl1:null, keys:{ hp:from } }, "",
+                { kind:"pc-hp", text:(name || "A character") + "\u2019s HP set to " + to + " (was " + from + ")" });
+  render();
+  return { ok:true, via:"sheet", from:from, to:to };
+}
+/* Zoe 2026-10-26: THE DAMAGE BOX (the token menu's, and the strip's — the same menu) RUNS DR → PLATE → FLESH like every other
+   path.  It was sent on as a typed HP drop (−N, no DR).  Now: a character's through the sheet's damage door
+   (HELENA_CHAR.applyDamage — CH.takeDamage, its line and its Undo), a creature's through the Encounter pane's door
+   (HELENA_ENC.damage — its DR for the type, then the pool) with the creature-hit Undo (keepHitUndo).  The box names no type,
+   so it is Physical — the default both doors already give untyped damage (CH.takeDamage and the encounter's damage() read
+   anything that is not En/Rad/PhEn as "Phys"). */
+function tvDamage(e, n){
+  var amount = Math.max(0, Math.round(+n || 0));
+  if(!e || !amount) return null;
+  if(e.kind === "char"){
+    var CHx = window.HELENA_CHAR;
+    if(!(CHx && typeof CHx.applyDamage === "function")){ msg = { cls:"warn", hd:"No sheet door", body:"The Characters pane is not on this build, so take it on the sheet." }; render(); return null; }
+    var res = null; try{ res = CHx.applyDamage(e.ref, { amount:amount, type:"Phys", from:"a typed " + amount + "-damage" }); }catch(err){ res = null; }
+    if(!res || res.ok === false || res.refused){
+      msg = { cls:"warn", hd:"Not written — " + esc(e.name), body:esc((res && res.why) || "The sheet did not take it; take it on the sheet.") };
+      render(); return res;
+    }
+    msg = res.held
+      ? { cls:"warn", hd:"Damage — " + esc(e.name), body:esc(amount + " physical: a critical through the armour — " + (res.held.line || "the sheet asks how it lands") + ".") }
+      : { cls:"good", hd:"Damage — " + esc(e.name),
+          body:esc(amount + " physical − " + (res.dr === Infinity ? "immune" : (res.dr || 0) + " DR") + " → " + (res.past || 0) + " past" +
+                   (res.armour ? "; " + res.armour + " off the plate" : "") + (res.health ? "; " + res.health + " off Health" : "") + ".") };
+    render();
+    return res;
+  }
+  var E = encApi();
+  if(!E){ msg = { cls:"warn", hd:"No creature door", body:"The Encounter pane publishes no damage door on this build, so take it off there." }; render(); return null; }
+  var cond0 = st.cond && st.cond[e.id] ? JSON.parse(JSON.stringify(st.cond[e.id])) : null;
+  var bleed0 = st.bleed && st.bleed[e.id] ? JSON.parse(JSON.stringify(st.bleed[e.id])) : null;
+  var r = null; try{ r = E.damage(e.ref, { amount:amount, type:"Phys", source:"turn-tracker" }); }catch(err){ r = { ok:false, why:String(err && err.message || err) }; }
+  if(!r || r.ok === false){ msg = { cls:"warn", hd:"Not written — " + esc(e.name), body:esc((r && r.why) || "The Encounter pane refused it.") }; render(); return r; }
+  if(r.before !== r.after && typeof keepHitUndo === "function") keepHitUndo(E, { ref:e.ref, id:e.id, name:e.name }, r, cond0, bleed0, "", "typed " + amount + " damage");
+  msg = { cls:"good", hd:"Damage — " + esc(e.name),
+          body:esc(amount + " physical − " + (r.dr === Infinity ? "immune" : (r.dr || 0) + " DR") + " → " + (r.past || 0) + " past; " + r.before + " → " + r.after + " HP.") };
+  if(r.after <= 0) tvFall();
+  render();
+  return r;
 }
 /* CONDITIONS: the order's own condition store, set and cleared through its core (TT.condApply / TT.condClear) */
 function tvCond(id, key, on){
@@ -44914,7 +45143,7 @@ function tvMenu(id, x, y, tok){
     if(a === "conds"){ var p = m.querySelector(".tt-tvmc"); p.hidden = !p.hidden; b.setAttribute("aria-expanded", p.hidden ? "false" : "true"); return; }
     tvMenuClose();
     if(a === "atk") tvAttack(rid);
-    else if(a === "dmg"){ var n = Math.max(0, Math.round(+m.querySelector("input[type=number]").value || 0)); if(n) tvHpCommit(e, "-" + n); }
+    else if(a === "dmg"){ var n = Math.max(0, Math.round(+m.querySelector("input[type=number]").value || 0)); if(n){ if(typeof tvDamage === "function") tvDamage(e, n); else tvHpCommit(e, "-" + n); } }   /* Zoe 2026-10-26: DR → plate → flesh */
     else if(a === "loot") tvLoot();
     else if(a === "split") tvSplit(rid);
   });
@@ -45000,6 +45229,7 @@ function tvContext(ev){
 TT.tvSelect = tvSelect; TT.tvMenu = tvMenu; TT.tvOpen = tvOpen; TT.tvRowOf = tvRowOf;
 TT.tvSelected = function(){ return tvSel; };
 TT.tvAttack = tvAttack;
+TT.keepHpUndo = keepHpUndo;          /* Zoe 2026-10-26: the Overseer desk's HP writes log with this Undo */
 /* TABLEVIEW:end */
 
 /* --------------------------------------------------------------- row handlers */
@@ -46435,13 +46665,15 @@ function woundKeyFor(charRef, name){
   }
   return String(name == null ? "" : name);
 }
-function recordInjury(key, loc, note){
+function recordInjury(key, loc, note, deb){
   var n = 0;
   if(!key) return 0;
   S.update(function(m){
     if(!m.injuries || typeof m.injuries !== "object" || Array.isArray(m.injuries)) m.injuries = {};
     if(!Array.isArray(m.injuries[key])) m.injuries[key] = [];
-    m.injuries[key].push({ loc:loc, treated:false, note:String(note || "") });
+    var rec = { loc:loc, treated:false, note:String(note || "") };
+    if(deb === true) rec.debilitating = true;    /* NR-26 (Zoe 2026-10-26, Guide p.lii): optional, absent unless the weapon was Debilitating */
+    m.injuries[key].push(rec);
     n = m.injuries[key].length;
   });
   return n;
@@ -46944,10 +47176,10 @@ function applyToCreature(rep, tgt, plan, facts, lines, head, at, side){
    Encounter pane's own setHp door) and the head's conditions and bleed to what they were; the session log's line carries
    both (rev).  A hit sent to the Overseer is not this device's to undo, so only a hit written here keeps one. */
 function keepHitUndo(E, tgt, res, cond, bleed, who){
-  var U = window.SUITE_UNDO;
+  var U = window.SUITE_UNDO, what = arguments.length > 6 ? arguments[6] : "";   /* Zoe 2026-10-26: the Damage box names itself */
   if(!U || typeof U.keep !== "function" || !E || typeof E.setHp !== "function" || !tgt || res.before == null) return null;
   return U.keep("creature-hit", {
-    text:"applied " + (who ? who + "’s " : "a ") + "hit on " + (tgt.name || "a creature") + " (" + res.before + " → " + res.after + " HP)",
+    text:(what ? what + " on " : "applied " + (who ? who + "’s " : "a ") + "hit on ") + (tgt.name || "a creature") + " (" + res.before + " → " + res.after + " HP)",
     rev:{ ref:tgt.ref, id:tgt.id, before:res.before, after:res.after, cond:cond, bleed:bleed },
     revert:function(rev){
       var r = null;
@@ -46997,6 +47229,30 @@ function bleedRecord(id, after, from){
 }
 /* WAVE 19, F6: whose turn it is now, by the order as it stands (the record's "own" turn) */
 function curNow(){ try{ return TT.currentOf(st, orderOf(combatants())); }catch(e){ return null; } }
+/* Zoe 2026-10-26: PERSISTENT AND BLEED TICKS GET UNDO like every other damage line.  undoKind names a tick's Undo by its
+   target (SUITE_UNDO keeps the last press per kind, so one round's ticks on three creatures keep three Undos, and the next
+   tick on the same one replaces its own).  keepTickUndo is a creature's: the pool back through the Encounter pane's setHp,
+   and its bleed record as the tick found it. */
+function undoKind(pre, id){
+  var s = String(id == null ? "" : id), h = 0;
+  for(var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return String(pre || "") + (h >>> 0).toString(36);
+}
+function keepTickUndo(E, id, ref, res, bleed, kind, text){
+  var U = window.SUITE_UNDO;
+  if(!U || typeof U.keep !== "function" || !E || typeof E.setHp !== "function" || !res || res.before == null) return null;
+  return U.keep(kind || "tick", { text:text, rev:{ ref:ref, id:id, before:res.before, after:res.after, bleed:bleed || null },
+    revert:function(rev){
+      var r = null;
+      try{ r = E.setHp(rev.ref, rev.before); }catch(e){ r = { ok:false, why:String(e && e.message || e) }; }
+      if(r && r.ok === false) return { ok:false, note:"The Encounter pane refused it: " + (r.why || r.refused || "refused") };
+      if(typeof mutate === "function") mutate(function(){
+        if(!st.bleed || typeof st.bleed !== "object") st.bleed = {};
+        if(rev.bleed) st.bleed[rev.id] = rev.bleed; else delete st.bleed[rev.id];
+      });
+      return { ok:true };
+    } });
+}
 function bleedEndTurn(id, name, ref){
   var k = String(id == null ? "" : id);
   var rec = st.bleed && Object.prototype.hasOwnProperty.call(st.bleed, k) ? st.bleed[k] : null;
@@ -47023,7 +47279,7 @@ function bleedEndTurn(id, name, ref){
     tick("turn", "— " + who + why);
     return who + why + ".";
   }
-  var landed = null;
+  var landed = null, rec0 = JSON.parse(JSON.stringify(rec));
   try{ landed = E.damage(ref, { amount:plan.damage, type:"Phys", ignoresDR:true,
                                 declId:"bleed-" + k + (typeof FIGHT_TAG === "string" && FIGHT_TAG ? "-f" + FIGHT_TAG : "") + "-r" + st.round + "-i" + st.idx,
                                 source:"turn-tracker" }); }catch(e){ landed = null; }
@@ -47036,6 +47292,9 @@ function bleedEndTurn(id, name, ref){
                  : " — the Encounter pane did not take it; take it off there");
   tick("turn", "— " + line);
   if(ok && st.bleed && st.bleed[k] === rec){ rec.tk = sig; rec.ln = (line + ".").slice(0, 300); }   /* WAVE 19, F6: this turn has bled */
+  /* Zoe 2026-10-26: the bleed's line keeps an Undo — the pool back, the bleed record as this tick found it */
+  if(ok && !landed.repeat && landed.before !== landed.after && typeof keepTickUndo === "function" && typeof undoKind === "function")
+    keepTickUndo(E, k, ref, landed, rec0, undoKind("bl-", k), who + " bled " + (landed.before - landed.after) + " (Bleeding heavily, " + landed.before + " \u2192 " + landed.after + " HP)");
   return line + ".";
 }
 
@@ -47630,6 +47889,7 @@ function applyResult(rep){
                                        sheet under — set on each target of a several-target answer (TT.doorIdOf);
                                        and who dealt it, said over a critical the sheet holds for its choice */
                                     id:rep.doorId || undefined,
+                                    debilitating:(typeof TT !== "undefined" && typeof TT.hasQuality === "function" && TT.hasQuality(rep.weapon, "Debilitating")) || undefined,   /* NR-26: a held critical's Injury records it */
                                     from:(rep.attacker && rep.attacker.name ? rep.attacker.name + "’s " : "") + ((rep.weapon && rep.weapon.name) || "attack") });
   }catch(err){ res = null; }
   if(!res){
@@ -47719,7 +47979,7 @@ function applyResult(rep){
     try{ loc = CH.locationFor(roll); }catch(err){ loc = null; }
     if(loc){
       var n = recordInjury(woundKeyFor(tgt.ref, tgt.name), loc.loc,
-                           "from " + ((rep.weapon && rep.weapon.name) || "an attack"));
+                           "from " + ((rep.weapon && rep.weapon.name) || "an attack"), (typeof TT !== "undefined" && typeof TT.hasQuality === "function" && TT.hasQuality(rep.weapon, "Debilitating")));
       cls = "warn";
       lines.push("<b>Critical hit</b> — " + critWhy + ". Location d20 <b>" + roll +
                  "</b>: <b>" + esc(loc.loc) + "</b>. " + esc(loc.pen) +
@@ -50862,7 +51122,7 @@ function zoneLayout(M,z){
 function zoneSpots(M,z,n){
   n=Math.max(0,Math.floor(+n||0)); if(!n) return [];
   const C=zoneCells(M,z), L=zoneLayout(M,z), bx=C.box;
-  L.spots=L.spots||{}; if(L.spots[n]) return L.spots[n].map(p=>({x:p.x,y:p.y}));
+  L.spots=L.spots||{}; if(L.spots[n]) return L.spots[n].map(p=>p.s?{x:p.x,y:p.y,s:p.s}:{x:p.x,y:p.y});
   const ax=L.tok.x, ay=L.tok.y, out=[], taken=[];
   /* a token's whole mark: the disc (r 11), a swarm's count badge up and left, a companion's C or the Cinder view's cover shield
      up and right, the meter and chips below */
@@ -50890,9 +51150,12 @@ function zoneSpots(M,z,n){
     if(out.length>=n) break;
   }
   /* a crowd the zone cannot hold side by side: the rest stand half a token over the others, still inside the zone */
-  /* in a narrow zone the whole mark is pared back to what must be inside: the disc and its meter, then the disc alone */
-  const FEET=[foot, (x,y)=>({x0:x-13, y0:y-12, x1:x+13, y1:y+19}), (x,y)=>({x0:x-11.5, y0:y-11.5, x1:x+11.5, y1:y+11.5})];
-  for(const ft of FEET){
+  /* in a narrow zone the whole mark is pared back to what must be inside: the disc and its meter, then the same mark drawn
+     smaller (s: the token layer scales the whole badge - disc, meter and chips - so the meter stays inside a thin zone,
+     CMD Z038), then the disc alone */
+  const meterFoot=s=>(x,y)=>({x0:x-13*s, y0:y-12*s, x1:x+13*s, y1:y+19*s});
+  const FEET=[[foot,1], [meterFoot(1),1], [meterFoot(0.75),0.75], [meterFoot(0.6),0.6], [(x,y)=>({x0:x-11.5, y0:y-11.5, x1:x+11.5, y1:y+11.5}),1]];
+  for(const [ft,sc] of FEET){
     if(out.length>=n) break;
     const inside=[];
     for(let y=bx.y0;y<=bx.y1;y+=6) for(let x=bx.x0;x<=bx.x1;x+=6) if(rectClear(C,ft(x,y),0)) inside.push({x,y,d:(x-ax)*(x-ax)+(y-ay)*(y-ay)});
@@ -50902,14 +51165,14 @@ function zoneSpots(M,z,n){
     while(out.length<n){
       let best=null, bd=-1;
       for(const q of inside){ let m=1e9; for(const o of out){ const dx=o.x-q.x, dy=o.y-q.y; m=Math.min(m,dx*dx+dy*dy); } if(!out.length) m=1e9-q.d; if(m>bd){ bd=m; best=q; } }
-      out.push({x:best.x,y:best.y});
+      out.push(sc<1?{x:best.x,y:best.y,s:sc}:{x:best.x,y:best.y});
     }
   }
   /* and a zone too small for even a disc: at its deepest point */
   for(let i=out.length,j=0;i<n;i++,j++) out.push({x:z.cx+(j%3-1)*4, y:z.cy});
   out.sort((p,q)=>p.y-q.y||p.x-q.x);
   L.spots[n]=out;
-  return out.map(p=>({x:p.x,y:p.y}));
+  return out.map(p=>p.s?{x:p.x,y:p.y,s:p.s}:{x:p.x,y:p.y});
 }
 
 let SELECTED=-1;
@@ -51063,7 +51326,8 @@ function render(M){
    in the shooter's own zone. */
 /* the clicked view's group and the panel beside the map, the same two groups on both map types (one SVG is drawn at a time) */
 function selGroup(inner){ return `<g id="zm-sel" pointer-events="none">${inner}</g>`; }
-function panelGroup(top, inner){ return `<g id="zm-panel" transform="translate(${MAP_W},${top})">${inner}</g>`; }
+function panelGroup(top, inner){ return panelAt(`translate(${MAP_W},${top})`, inner); }
+function panelAt(tf, inner){ return `<g id="zm-panel" transform="${tf}">${inner}</g>`; }   /* Z038: one #zm-panel in the source, for both map types */
 function zoneSelSvg(M){
   const sb=SELECTED>=0&&M.bands?M.bands[SELECTED]:null, A=sb?M.zones[SELECTED]:null; if(!A) return '';
   const O=[];
@@ -51649,7 +51913,7 @@ let STYLE='blocks', BRUSH='off', PREV=null, STROKE=null;
 const BRUSH_ID={'off':'bk_b_off','#':'bk_b_wall','1':'bk_b_l','2':'bk_b_m','3':'bk_b_h','.':'bk_b_open'};
 const BRUSH_WORD={'#':'Wall','1':'Light cover','2':'Medium cover','3':'Heavy cover','.':'Open'};
 const TIP_ZONES='Click any zone to see the range (C / M / L / X) and the cover from it on every zone; the panel beside the map lists them.';
-const TIP_BLOCKS='Click a block to see the range and the cover from it on every other block, and # where a wall hides one; the panel beside the map lists them, with moves.';
+const TIP_BLOCKS='Click a block to see the range and the cover from it on every other block, and # where a wall hides one; a table over the map’s edge lists them, with moves (its × closes it).';
 const SIZE_TXT={zones:{s:'Skirmish · 6-8 zones',m:'Standard · 9-12 zones',l:'Battlefield · 13-17 zones'},
                 blocks:{s:'Skirmish · 6 × 4 blocks',m:'Standard · 9 × 6 blocks',l:'Battlefield · 12 × 8 blocks'}};
 function bkEl(id){ return document.getElementById(id); }
@@ -51836,8 +52100,9 @@ function renderBlocks(M,opt){
   const E=M.env, B=M.B, w=M.w, h=M.h, T=M.tiles;
   const sfs=Math.round(Math.max(18,B*0.2));
   const O=[];
-  /* CMD Z037 G: the panel beside the grid, as a Zones map has - the legend, or the clicked zone's table (blocksPanel) */
-  O.push(`<svg xmlns="http://www.w3.org/2000/svg" class="zm-blocks${BRUSH!=='off'?' bk-painting':''}" viewBox="0 0 ${SVG_W} ${BK_HEAD+MAP_H}" width="${SVG_W}" height="${BK_HEAD+MAP_H}" font-family="Segoe UI, system-ui, sans-serif" data-grid="${w}x${h}">`);
+  /* CMD Z038: the drawing is the grid alone (MAP_W wide), as it was before Z037 G - the clicked zone's table (blocksPanel) lies
+     OVER the map's edge, away from the clicked zone, and closes with its x; the map never shrinks for it (Zoe's rule) */
+  O.push(`<svg xmlns="http://www.w3.org/2000/svg" class="zm-blocks${BRUSH!=='off'?' bk-painting':''}" viewBox="0 0 ${MAP_W} ${BK_HEAD+MAP_H}" width="${MAP_W}" height="${BK_HEAD+MAP_H}" font-family="Segoe UI, system-ui, sans-serif" data-grid="${w}x${h}">`);
   O.push(`<style>
     svg.zm-blocks .zl{font-size:28px;font-weight:700;fill:#f2eedc;paint-order:stroke;stroke:#000b;stroke-width:5px}
     svg.zm-blocks .ttl{font-size:20px;font-weight:700;fill:#f0b429;letter-spacing:.1em}
@@ -51852,10 +52117,13 @@ function renderBlocks(M,opt){
     svg.zm-blocks.bk-painting{touch-action:none;cursor:crosshair}
     svg.zm-blocks.bk-painting .zone{cursor:crosshair}
   </style>`);
-  O.push(`<rect x="0" y="0" width="${SVG_W}" height="${BK_HEAD}" fill="#15180f"/>`);
+  O.push(`<rect x="0" y="0" width="${MAP_W}" height="${BK_HEAD}" fill="#15180f"/>`);
   O.push(`<text class="ttl" x="16" y="27">${esc(E.label.toUpperCase())}</text>`);
-  O.push(`<text class="sub" x="16" y="46">FALLOUT 2d20 BLOCK MAP · ${w} × ${h} BLOCKS · ${M.n} ZONES · SEED ${esc(M.seed)} · ${M.v2?'ROOMS & HALLS · SAME ZONE = CLOSE, NEXT ZONE = MEDIUM, 2 = LONG, 3+ = EXTREME':'SAME BLOCK = CLOSE, NEXT = MEDIUM, 2 = LONG, 3 OR MORE = EXTREME'}</text>`);
-  O.push(`<line x1="0" y1="${BK_HEAD}" x2="${SVG_W}" y2="${BK_HEAD}" stroke="#3a4032" stroke-width="2"/>`);
+  /* CMD Z038: the drawing is the grid's width again, so a long line is fitted to it rather than cut at its edge */
+  const subT=`FALLOUT 2d20 BLOCK MAP · ${w} × ${h} BLOCKS · ${M.n} ZONES · SEED ${M.seed} · ${M.v2?'ROOMS & HALLS · SAME ZONE = CLOSE, NEXT ZONE = MEDIUM, 2 = LONG, 3+ = EXTREME':'SAME BLOCK = CLOSE, NEXT = MEDIUM, 2 = LONG, 3 OR MORE = EXTREME'}`;
+  const subFit=(TXW(subT,11.5,false)+subT.length*0.69)>MAP_W-32?` textLength="${MAP_W-32}" lengthAdjust="spacingAndGlyphs"`:'';
+  O.push(`<text class="sub" x="16" y="46"${subFit}>${esc(subT)}</text>`);
+  O.push(`<line x1="0" y1="${BK_HEAD}" x2="${MAP_W}" y2="${BK_HEAD}" stroke="#3a4032" stroke-width="2"/>`);
   O.push(`<g id="bk_grid" transform="translate(0,${BK_HEAD})">`);
   O.push(`<rect width="${MAP_W}" height="${MAP_H}" fill="${E.floor}"/>`);
   const sq=(x0,y0,s)=>`M${x0} ${y0}h${s}v${s}h-${s}z`;
@@ -51935,7 +52203,7 @@ function renderBlocks(M,opt){
   O.push(selGroup(blockSelSvg(M)));
   O.push(`<rect width="${MAP_W}" height="${MAP_H}" fill="none" stroke="#3a4032" stroke-width="2" pointer-events="none"/>`);
   O.push('</g>');
-  O.push(panelGroup(BK_HEAD, blocksPanel(M)));
+  O.push(panelAt(blocksPanelAt(M), blocksPanel(M)));
   if(opt.strip) O.push(blocksStrip(M));
   O.push('</svg>');
   return O.join('');
@@ -51964,16 +52232,38 @@ function blockSelSvg(M){
 }
 /* the panel beside a Blocks map: the legend, or the clicked zone's from-this-zone table (range, cover, moves; a zone a
    wall hides reads Unseen).  A map with more zones than the panel has rows lists them by range instead. */
+/* CMD Z038: the panel lies over the map's edge (the drawing stays the grid's size): on the side away from the clicked zone -
+   the side its outline overlaps least - and only while a zone is clicked.  Its x shuts it (PANEL_SHUT); a small "Table" tab
+   on the same edge opens it again, and a new click on a zone opens it too.  Nothing clicked: no panel (the legend is the
+   card under the map). */
+let PANEL_SHUT=false;
+function blocksPanelAt(M){
+  const A=SELECTED>=0&&M&&M.byId?M.byId[SELECTED]:null;
+  let left=false;
+  if(A){ const bx=zoneCells(M,A).box, onR=Math.max(0,bx.x1-(MAP_W-PANEL_W)), onL=Math.max(0,PANEL_W-bx.x0); left=onL<onR; }
+  const x=left?0:(PANEL_SHUT?MAP_W-PANEL_TAB_W:MAP_W-PANEL_W);
+  return `translate(${x},${BK_HEAD})`;
+}
+const PANEL_TAB_W=96;
 function blocksPanel(M){
-  const O=[], A=SELECTED>=0&&M.byId?M.byId[SELECTED]:null;
-  O.push(`<rect width="${PANEL_W}" height="${MAP_H}" fill="#16190f"/>`);
-  O.push(`<line x1="0" y1="0" x2="0" y2="${MAP_H}" stroke="#3a4032" stroke-width="2"/>`);
+  const A=SELECTED>=0&&M.byId?M.byId[SELECTED]:null;
+  if(!A) return '';
+  if(PANEL_SHUT)
+    return `<g data-zm-panel="open" style="cursor:pointer"><title>Open the range table</title><rect width="${PANEL_TAB_W}" height="40" rx="4" fill="#16190f" fill-opacity=".94" stroke="#f0b429" stroke-width="2"/>`+
+           `<text class="lgh" x="${PANEL_TAB_W/2}" y="25" text-anchor="middle">TABLE</text></g>`;
+  const B=blocksPanelBody(M,A), h=B.h+10;
+  return `<rect width="${PANEL_W}" height="${h}" fill="#16190f" fill-opacity=".95" stroke="#3a4032" stroke-width="2"/>`+B.svg+
+         `<g data-zm-panel="close" style="cursor:pointer"><title>Close the table</title><rect x="${PANEL_W-38}" y="4" width="34" height="34" rx="4" fill="#23281b" stroke="#6d7360"/>`+
+         `<text x="${PANEL_W-21}" y="28" text-anchor="middle" font-size="22" font-weight="700" fill="#f2eedc">×</text></g>`;
+}
+function blocksPanelBody(M,A){
+  const O=[];
   let Y=26;
   const H=t=>{O.push(`<text class="lgh" x="14" y="${Y}">${esc(t)}</text>`);Y+=17;};
   const L=t=>{ for(const ln of wrapWords(t,42)){ O.push(`<text class="lg" x="14" y="${Y}">${esc(ln)}</text>`);Y+=16; } };
-  if(A){
+  {
     const mv=blockMoves(M,A), rows=M.zones.slice().sort((a,b)=>blockBand(A,a)-blockBand(A,b)||String(a.code).localeCompare(String(b.code),undefined,{numeric:true}));
-    H('FROM '+A.code+(A.name?' · '+A.name.toUpperCase():''));
+    H('FROM '+A.code+(A.name?' · '+(A.name.length>22?A.name.slice(0,21)+'…':A.name).toUpperCase():''));
     L('Range, cover and moves to every zone from '+A.code+'. Click it again to clear.');
     Y+=4;
     if(rows.length*16<=MAP_H-Y-40){
@@ -51998,24 +52288,8 @@ function blocksPanel(M){
       L('After each zone: its cover from '+A.code+' (L M H, – none), or # where a wall hides it. The From list under the map adds moves.');
     }
     if(M.zones.some(z=>!(zoneLayout(M,z).slot||{}).word)){ Y+=6; L('A small zone shows letters: C M L X for the range, L M H for the cover (– none), # unseen.'); }
-    return O.join('');
   }
-  H('ZONES');
-  L(M.v2?'Every room or hall is one zone, named by its letter. A dashed line is a way through; a solid bar is a wall.':'Every open block is one zone, named by its column and row.');
-  Y+=6; H('COVER');
-  for(const v of [1,2,3]){
-    O.push(`<rect x="14" y="${Y-11}" width="26" height="13" fill="${MAT_FILL[v]}" stroke="${COVER[v].col}" stroke-width="3" stroke-dasharray="${COVER[v].dash}"/><text class="lg" x="48" y="${Y}">${COVER[v].key} · ${COVER_WORD[v]} cover</text>`); Y+=18;
-  }
-  L(M.v2?'A piece standing in a zone: a token in that zone stands beside it.':'The block beside the target on the side the shot comes from: Light 1, Medium 2, Heavy 3, a wall 3.');
-  Y+=6; H('WALLS');
-  L('Stop sight and movement. A target is attacked only by something that can see it.');
-  Y+=6; H('RANGE (2d20)');
-  L(M.v2?'Same zone Close · the next Medium · 2 Long · 3 or more Extreme.':'Same block Close · the next Medium · 2 Long · 3 or more Extreme.');
-  Y+=6; H('MOVES');
-  L('Counted around walls and cover: a Move is 1, a Sprint 2.');
-  Y+=6; H('CLICK A ZONE');
-  L('Every other zone shows its range and cover from it, and one a wall hides is hatched and marked #. This panel lists them all, with moves.');
-  return O.join('');
+  return {svg:O.join(''), h:Y};
 }
 function wrapWords(t,n){
   const out=[]; let cur='';
@@ -52039,6 +52313,7 @@ function blocksExportStrip(s){
   try{
     const VH=BK_HEAD+MAP_H+BK_STRIP;
     s.setAttribute('viewBox','0 0 '+MAP_W+' '+VH); s.setAttribute('height',String(VH)); s.setAttribute('width',String(MAP_W));   /* the grid and its strip, not the screen's panel */
+    const pn=s.querySelector('#zm-panel'); if(pn&&pn.parentNode) pn.parentNode.removeChild(pn);   /* CMD Z038: the panel lies over the grid on screen only */
     const doc=new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg">'+blocksStrip(MAP)+'</svg>','image/svg+xml');
     const g=doc.documentElement.firstElementChild;
     if(g) s.appendChild(s.ownerDocument.importNode(g,true));
@@ -52052,12 +52327,12 @@ function blocksLegend(M){
     `<p class="hint">${sw(MAT_FILL[M.env.shell]||MAT_FILL[3])}<b>Walls</b> stop sight and movement only &mdash; a wall is never cover.</p>`+
     `<p class="hint">${sw(C[1].col)}${sw(C[2].col)}${sw(C[3].col)}<b>Cover</b> is its own piece standing in a zone: <b>L</b> Light 1, <b>M</b> Medium 2, <b>H</b> Heavy 3 (it adds to DR). A token in that zone stands beside it. Every zone with a sightline has at least one.</p>`+
     `<p class="hint"><b>Range</b> is zones crossed: the same zone Close, the next Medium, 2 Long, 3 or more Extreme (Book One p.28). <b>Moves</b> count the same way: a Move is 1 zone, a Sprint 2.</p>`+
-    `<p class="hint"><b>Click a zone</b>: every other zone shows its range and cover from it, and one it cannot see is hatched and marked <b>#</b> (Book One p.38); the panel beside the map lists each with its moves.</p>`;
+    `<p class="hint"><b>Click a zone</b>: every other zone shows its range and cover from it, and one it cannot see is hatched and marked <b>#</b> (Book One p.38); the table on the map's edge lists each with its moves.</p>`;
   return `<h3>Reading a Blocks map</h3>`+
     `<p class="hint">${sw(MAT_FILL[M.env.shell]||MAT_FILL[3])}<b>Wall</b> stops sight and feet. ${sw(C[1].col)}${sw(C[2].col)}${sw(C[3].col)}<b>L / M / H</b> Light, Medium or Heavy cover stops feet, not sight. Every open block is one zone.</p>`+
     `<p class="hint"><b>Cover</b> counts when the block beside the target, on the side the shot comes from, is cover or wall: Light 1, Medium 2, Heavy 3, a wall 3. Shoot from a side with nothing beside the target and it has none.</p>`+
     `<p class="hint"><b>Range</b> is blocks counted straight: the same block Close, the next block (diagonals too) Medium, 2 Long, 3 or more Extreme, the last band (Book One p.28). <b>Moves</b> are blocks walked around walls and cover: a Move is 1, a Sprint 2 (Book One pp.25&ndash;26).</p>`+
-    `<p class="hint"><b>Click a block</b> with Paint off: every other block shows its range and cover from it (letters on a small block), and a block it cannot see is hatched and marked <b>#</b>; the panel beside the map lists each with its moves (&mdash; is no way through). A wall in between ends the shot: a target is attacked only by something that can see it (Book One p.38).</p>`;
+    `<p class="hint"><b>Click a block</b> with Paint off: every other block shows its range and cover from it (letters on a small block), and a block it cannot see is hatched and marked <b>#</b>; the table on the map's edge lists each with its moves (&mdash; is no way through). A wall in between ends the shot: a target is attacked only by something that can see it (Book One p.38).</p>`;
 }
 function paintBlocks(){
   const st=document.getElementById('stage'); if(!st) return;
@@ -52070,6 +52345,7 @@ function paintBlocks(){
       if(brushOn()) return;                       /* with a brush chosen the press painted; it did not select */
       const z=+g.getAttribute('data-z');
       SELECTED = SELECTED===z?-1:z;
+      PANEL_SHUT=false;                           /* CMD Z038: a zone clicked opens its table again */
       paintSel();
     });
   });
@@ -52246,6 +52522,7 @@ function paintSel(){
   const bk=MAP.kind==='blocks';
   putSvg(sg,bk?blockSelSvg(MAP):zoneSelSvg(MAP));
   putSvg(pg,bk?blocksPanel(MAP):zonePanel(MAP));
+  if(bk){ const at=blocksPanelAt(MAP); if(pg.getAttribute('transform')!==at) pg.setAttribute('transform',at); }   /* CMD Z038: the side away from the clicked zone */
   if(bk) syncFrom();
   try{ st.dispatchEvent(new CustomEvent('zm-select',{detail:{zone:SELECTED}})); }catch(e){}
 }
@@ -52262,6 +52539,14 @@ function putSvg(g,html){ if(SVG_OF.get(g)===html) return; g.innerHTML=html; SVG_
   document.getElementById('reroll').onclick=()=>{ keepUndo(); regenerate(false); };
   wireBlocksUi();
   document.getElementById('prt').onclick=()=>window.print();
+  /* CMD Z038: the Blocks table's x shuts it and its "Table" tab opens it again (the panel is redrawn, so the stage listens) */
+  const zmSt=document.getElementById('stage');
+  if(zmSt&&zmSt.addEventListener) zmSt.addEventListener('click',e=>{
+    const t=e&&e.target&&typeof e.target.closest==='function'?e.target.closest('[data-zm-panel]'):null; if(!t) return;
+    PANEL_SHUT=t.getAttribute('data-zm-panel')==='close';
+    if(e.stopPropagation) e.stopPropagation();
+    paintSel();
+  });
   /* stage 6: a printed map carries its rules — every shut "why" opens for the page */
   window.addEventListener('beforeprint',()=>document.querySelectorAll('details.zm-why').forEach(d=>{d.open=true;}));
   /* CMD Z015 (P.1): the phone's one tap over the roster and the range list (and a second over the reading card) - it flips its own aria-expanded, and the
@@ -52460,7 +52745,8 @@ function putSvg(g,html){ if(SVG_OF.get(g)===html) return; g.innerHTML=html; SVG_
   window.HELENA_MAP.spots = function(z, n){
     var A = zoneOf(z); if(!A || !MAP) return null;
     var head = isBlocks() ? BK_HEAD : HEAD_H;
-    return zoneSpots(MAP, A, n).map(function(p){ return { x:p.x, y:p.y + head }; });
+    /* CMD Z038: s (under 1) where a thin zone holds the badge only drawn smaller - the token layer scales it by s */
+    return zoneSpots(MAP, A, n).map(function(p){ return p.s ? { x:p.x, y:p.y + head, s:p.s } : { x:p.x, y:p.y + head }; });
   };
   /* MAP-DOOR:end */
   /* PROJECT C stage 2 (Decision 2): the pane's one live number on its header is the zone
@@ -54166,7 +54452,9 @@ var API = {
        It arrives on the declaration already computed, from the sheet — see
        RL.declare — so this never has to guess which number is an attribute. */
     var lane = clampInt(opts.lane == null ? d.damageLane : opts.lane, 0, 3);
-    /* Howl, 2026-10-24: MOMENTUM (Guide p.liv) - +1CD if the attacker moved at least one zone this turn before the attack.
+    /* Howl, 2026-10-24: MOMENTUM - +1CD if the attacker moved at least one zone this turn before the attack.
+       NR-25 (Zoe 2026-10-26, Guide p.liii): a move in either view, on any device, counts; the Overseer's Place (or an Alt-drag)
+       does not - the token layer stamps no move for a placing (moveTo's `placed`), so movedThisTurn reads 0 after one.
        The attacker's token records its move on the token itself (SUITE_TOKENS.movedThisTurn); opts.momentum overrides it. */
     var mom = 0;
     if(API.hasQuality(w, "Momentum")){
@@ -59315,9 +59603,8 @@ function dealKeptWatch(r){
        through ops.confirm — the counter's one purchase path, with its replay gate and its caps check — and then the
        sheet's door runs the very body its inventory Use runs, on the eater.  A door that refuses after the payment
        (the sheet moved in between) gives the caps back, as a delta, and says so.
-     THE ROOM.  The Guide prints no price for a night's lodging (the settlement catalogue's Private Room, p.cclxxxiv,
-       is a BUILD cost in materials, not a rent), so the Overseer rules one of two candidates and the pick is kept for
-       the table in tools.town (GM-owned, like the reputation ranks).  Until then nothing is charged.  Renting runs the
+     THE ROOM.  25 caps a sleeper (ruling B, Zoe 2026-10-26: the Private Room row, p.cclxxxiv, at 1 cap a Common
+       material; it was an A/B pick for the Overseer before, kept in tools.town, now read by nothing).  Renting runs the
        table's Nightfall door (HELENA_CHAR.scene.night) with the sleepers named on the night's event: the night as
        printed for everyone, and on the sleepers' sheets warm shelter and Well Rested (the sheet's sceneApply).  Asked
        before any cap moves: a night already fallen, or a scene this device may not press, charges nothing.  A night the
@@ -59325,17 +59612,12 @@ function dealKeptWatch(r){
      Each purchase says one line on the session log (SUITE_SYNC.emit, topic "trade").  The counter's purchases keep no
      Undo, so neither does this. */
 /* TOWN:begin */
-var TOWN_ROOM = {
-  A:{ caps:15, src:"the Sleeping Bag row — 15 caps, “comfortable sleep outdoors” (Guide p.clxxix): a night in a bed costs what the bed you carry costs" },
-  B:{ caps:25, src:"the Private Room row — 25 Common materials, +1 Bed (Guide p.cclxxxiv), at the printed 1 cap a Common material (p.cclxxviii)" }
-};
-function townRule(){
-  var t = null;
-  try{ t = TL ? TL.get("town") : null; }catch(e){ t = null; }
-  var r = t && t.room && typeof t.room === "object" ? t.room : null;
-  if(!r || !Object.prototype.hasOwnProperty.call(TOWN_ROOM, r.pick)) return null;
-  return { pick:r.pick, caps:TOWN_ROOM[r.pick].caps, src:TOWN_ROOM[r.pick].src };
-}
+/* Ruling B (Zoe 2026-10-26): A ROOM IS 25 CAPS A SLEEPER A NIGHT - the Private Room row (Guide p.cclxxxiv), 25 Common
+   materials at the printed 1 cap a Common material (p.cclxxviii).  The A/B candidates and the Overseer's pick are retired: an old
+   table's tools.town.room (pick A or B) is left where it is and read by nothing, so every table charges the one ruled price. */
+var TOWN_ROOM_CAPS = 25;
+var TOWN_ROOM_SRC = "the Private Room row — 25 Common materials, +1 Bed (Guide p.cclxxxiv), at the printed 1 cap a Common material (p.cclxxviii)";
+function townRule(){ return { caps:TOWN_ROOM_CAPS, src:TOWN_ROOM_SRC }; }
 function townMeals(){ return CATALOGUE.filter(function(c){ return /^(food|drink)$/i.test(c.cat); }); }
 function townSet(el, html){ if(el && el.getAttribute("data-was") !== html){ var v = el.value; el.innerHTML = html; el.setAttribute("data-was", html); if(v) el.value = v; } }
 function townWho(){ var ch = LIVE ? env.chars() : []; return ch; }
@@ -59377,33 +59659,13 @@ function townPrices(){
   var mp = c ? "<b>" + buyPrice(c.caps, 1) + "</b> caps — the row's " + c.caps + " at <b>" + Math.round(buyRate() * 100) + "%</b> (the counter's rate)" +
                (c.effect ? " · it prints: " + esc(c.effect) : "") : "";
   var el = $("mc-tw-mprice"); if(el.getAttribute("data-was") !== mp){ el.innerHTML = mp; el.setAttribute("data-was", mp); }
-  var rule = townRule(), rb = "";
-  if(!rule){
-    var may = overseerMay();
-    rb = '<div class="tw-rule"><b class="nr">NEEDS-RULING</b> — the Guide prints no price for a room (the settlement catalogue’s Private Room is a build cost, not a rent). ' +
-         (may ? "Overseer, pick one; it is kept for the table. " : "The Overseer picks one; it is kept for the table. ") + "Nothing is charged for a room until then." +
-         '<div class="tw-opts">' + ["A", "B"].map(function(k){
-           return '<button data-tw-rule="' + k + '"' + (may ? "" : " disabled") + ' title="' + esc(TOWN_ROOM[k].src) + '">' + k + ": " + TOWN_ROOM[k].caps + " caps a sleeper</button>"; }).join("") +
-         "</div><div class=\"rate\">A — " + esc(TOWN_ROOM.A.src) + ".<br>B — " + esc(TOWN_ROOM.B.src) + ".</div></div>";
-  } else {
-    rb = '<div class="tw-ruled">A room: <b>' + rule.caps + "</b> caps a sleeper a night — the Overseer’s ruling, option " + rule.pick + " (" + esc(rule.src) + ")." +
-         (overseerMay() ? ' <button data-tw-rule="">rule again</button>' : "") + "</div>";
-  }
+  var rule = townRule();
+  var rb = '<div class="tw-ruled">A room: <b>' + rule.caps + "</b> caps a sleeper a night (" + esc(rule.src) + ").</div>";
   var rr = $("mc-tw-rule"); if(rr.getAttribute("data-was") !== rb){ rr.innerHTML = rb; rr.setAttribute("data-was", rb); }
   var n = $("mc-tw-sleepers").querySelectorAll("input:checked").length;
   var rp = rule ? (n ? n + (n === 1 ? " sleeper" : " sleepers") + " × " + rule.caps + " = <b>" + (n * rule.caps) + "</b> caps" : "Tick who sleeps in the room.") : "";
   var rpe = $("mc-tw-rprice"); if(rpe.getAttribute("data-was") !== rp){ rpe.innerHTML = rp; rpe.setAttribute("data-was", rp); }
   $("mc-tw-rent").disabled = !rule;
-}
-function townRuleSet(pick){
-  if(!overseerMay()){ say("mc-tw-msg", "bad", "The room’s price is the Overseer’s to rule — nothing was changed."); return; }
-  var t = null; try{ t = TL.get("town"); }catch(e){ t = null; }
-  t = t && typeof t === "object" && !Array.isArray(t) ? t : {};
-  if(pick) t.room = { pick:pick, caps:TOWN_ROOM[pick].caps, at:env.now() }; else delete t.room;
-  var r = TL.set("town", t);
-  if(r && r.ok === false){ say("mc-tw-msg", "bad", r.note || "The ruling was not kept."); return; }
-  say("mc-tw-msg", "plain", pick ? "Ruled: a room is " + TOWN_ROOM[pick].caps + " caps a sleeper (option " + pick + "), kept for the table." : "The room’s price is open again (NEEDS-RULING).");
-  townPrices();
 }
 function townMint(){ return "tw-" + Date.now().toString(36) + "-" + Math.floor(Math.random() * 1e9).toString(36); }
 function townRefund(payer, n){ return !n || !!env.updateChar(payer, function(ch){ ch.caps = Math.max(0, Math.round(+ch.caps || 0) + n); }); }
@@ -59442,7 +59704,6 @@ function townRent(){
   var HC = window.HELENA_CHAR, sc = HC && HC.scene;
   if(!OPS || !sc || typeof sc.night !== "function"){ say("mc-tw-msg", "bad", "Open the Trader inside the suite — the sheets and the night are not here."); return { ok:false }; }
   var rule = townRule();
-  if(!rule){ say("mc-tw-msg", "bad", "NEEDS-RULING — the Overseer has not ruled a room’s price, so nothing is charged."); return { ok:false }; }
   var ids = Array.prototype.map.call($("mc-tw-sleepers").querySelectorAll("input:checked"), function(b){ return b.value; });
   var payer = $("mc-tw-rpayer").value;
   if(!ids.length){ say("mc-tw-msg", "plain", "Tick who sleeps in the room."); return { ok:false }; }
@@ -59460,8 +59721,7 @@ function townRent(){
     say("mc-tw-msg", "bad", ((n && n.note) || "The night was refused.") + (back ? " The " + total + " caps are back on " + who + "’s sheet." : " Put the " + total + " caps back on " + who + "’s sheet by hand."));
     return { ok:false };
   }
-  var line = who + " — rented a room for " + names.join(" and ") + ": " + ids.length + " × " + rule.caps + " = " + total + " caps (the Overseer’s ruling, option " + rule.pick +
-             "); Nightfall as printed, in warm shelter — " + (ids.length === 1 ? "wakes" : "they wake") + " Well Rested, +2 Maximum HP until the next sleep (p.ccviii)";
+  var line = who + " — rented a room for " + names.join(" and ") + ": " + ids.length + " × " + rule.caps + " = " + total + " caps (the Private Room row, Guide p.cclxxxiv); Nightfall as printed, in warm shelter — " + (ids.length === 1 ? "wakes" : "they wake") + " Well Rested, +2 Maximum HP until the next sleep (p.ccviii)";
   townSay(line, [payer].concat(ids));
   say("mc-tw-msg", "good", "Done — " + line.replace(/^[^—]*— /, who + " ") + ".");
   renderPay(); renderTown();
@@ -59472,10 +59732,6 @@ $("mc-tw-item").addEventListener("change", townPrices);
 $("mc-tw-sleepers").addEventListener("change", townPrices);
 $("mc-tw-buy").onclick = function(){ townBuy(); };
 $("mc-tw-rent").onclick = function(){ townRent(); };
-$("mc-tw-rule").addEventListener("click", function(e){
-  var b = e.target && e.target.closest ? e.target.closest("[data-tw-rule]") : null;
-  if(b) townRuleSet(b.getAttribute("data-tw-rule"));
-});
 if(LIVE){
   TL.subscribe("town", function(){ TL.keepFocus(townPrices); });
   if(SY){
@@ -64490,6 +64746,132 @@ var document = new Proxy(__rdoc, {
 
   function stamp(msg){ document.getElementById("saveline").innerHTML = msg; }
 
+  /* FIRSTAID:begin */
+  /* CMD Z038 (Zoe 2026-10-26): FIRST AID, AS BOOK ONE PRINTS IT (Core Rulebook pp.33-34, read off the scan 2026-10-26; the
+     wording is DEFAULT_FIRSTAID's, below).  The board used to tick a wound treated and heal nothing.  p.33: a major action, an
+     INT + Medicine test at a Difficulty of the patient's injuries, +1 on yourself; a success does ONE of: stabilize a dying
+     patient, heal HP equal to the medic's Medicine rank, or treat one injury.  p.34 (Regaining Health): +1 HP for every AP spent,
+     and only a stable character's HP can be healed; Stabilizing puts them at 1 HP, AP buying more at 1 HP each.
+     NR-26 (Zoe 2026-10-26, Guide p.lii): treating an Injury a Debilitating weapon dealt (its record's debilitating:true) is +1
+     Difficulty.  Difficulty never past 5 (the suite's cap, as the stimpak's).  Pure: no DOM, no store.
+       faDiff(n, self, deb)      -> { d, raw, parts }   n = the injuries the patient has (treated ones are still injuries)
+       faTest(tn, crit, d, faces) -> { succ, comps, pass }   faces = the d20s rolled (2)
+       faHeal(what, rank, ap, hp, max) -> { ok, hp, healed, why }   what "heal" | "stab" */
+  function faDiff(n, self, deb){
+    var parts = [], raw = Math.max(0, Math.round(+n || 0));
+    parts.push(raw + (raw === 1 ? " injury" : " injuries"));
+    if (self){ raw += 1; parts.push("+1 on yourself"); }
+    if (deb){ raw += 1; parts.push("+1 Debilitating"); }
+    return { d:Math.min(5, raw), raw:raw, parts:parts };
+  }
+  function faTest(tn, crit, d, faces){
+    var succ = 0, comps = 0;
+    (faces || []).forEach(function(v){ v = +v; if (v <= crit) succ += 2; else if (v <= tn) succ += 1; if (v >= 20) comps += 1; });
+    return { succ:succ, comps:comps, pass:succ >= d };
+  }
+  function faHeal(what, rank, ap, hp, max){
+    rank = Math.max(0, Math.round(+rank || 0)); ap = Math.max(0, Math.round(+ap || 0));
+    hp = Math.max(0, Math.round(+hp || 0)); max = Math.max(1, Math.round(+max || 0) || 1);
+    if (what === "stab"){
+      if (hp > 0) return { ok:false, hp:hp, healed:0, why:"not dying - nothing to stabilize" };
+      var s = Math.min(max, 1 + ap);
+      return { ok:true, hp:s, healed:s, why:"stabilized at 1 HP" + (ap ? ", +" + (s - 1) + " for " + ap + " AP" : "") };
+    }
+    if (hp <= 0) return { ok:false, hp:hp, healed:0, why:"dying - stabilize first (only a stable character's HP can be healed)" };
+    var to = Math.min(max, hp + rank + ap);
+    return { ok:true, hp:to, healed:to - hp, why:"+" + (to - hp) + " HP (Medicine " + rank + (ap ? " + " + ap + " AP" : "") + (to === max ? ", at maximum" : "") + ")" };
+  }
+  /* FIRSTAID:end */
+
+  /* CMD Z038: THE FIRST AID ROW (the rules are FIRSTAID's, above).  Who gives it (any sheet; the patient's own is "on yourself",
+     +1), what a success does (heal HP / treat one open injury / stabilize, offered by the patient's state), the AP the party
+     pool spends for more HP (heal and stabilize; Book One p.34), and the button.  The test is rolled here, 2d20 at INT + Medicine,
+     a tagged Medicine's rank its critical range; a failure changes nothing.  A success writes the patient's sheet (its HP, or
+     the wound's treated tick) through the store, and AP come off the party pool (m.pcAP) only on a success, as many as it holds. */
+  var faPick = {}, faSaid = {};
+  function faMax(c){
+    var m = SUITE.get(), pl = (m.players || []).filter(function(x){ return x && String(x.id) === String(c.id); })[0];
+    if (pl && isFinite(+pl.max) && +pl.max > 0) return +pl.max;
+    try{ var H = window.HELENA_CHAR; if (H && typeof H.effMax === "function") return +H.effMax(c) || 0; }catch(e){}
+    return +c.max || +c.hp || 1;
+  }
+  function faRow(p, key, list){
+    if (!SUITE) return null;
+    var pat = sheetOf(p); if (!pat) return null;
+    var cs = (SUITE.get().chars || []).filter(function(c){ return c && c.id != null; });
+    var pk = faPick[key] || (faPick[key] = {});
+    var hp = Math.max(0, Math.round(+pat.hp || 0)), opts = [];
+    if (hp <= 0) opts.push(["stab", "stabilize (dying)"]);
+    else opts.push(["heal", "heal HP"]);
+    list.forEach(function(w, k){ if (w && !w.treated) opts.push(["t" + k, "treat " + w.loc + (w.debilitating === true ? " (Debilitating, +1)" : "")]); });
+    if (!pk.what || !opts.some(function(o){ return o[0] === pk.what; })) pk.what = opts[0][0];
+    if (!pk.medic || !cs.some(function(c){ return String(c.id) === pk.medic; })){
+      var other = cs.filter(function(c){ return String(c.id) !== String(pat.id); })[0];
+      pk.medic = String((other || pat).id);
+    }
+    var d = document.createElement("div"); d.className = "fa";
+    var h = document.createElement("span"); h.className = "fa-h"; h.textContent = "First Aid"; d.appendChild(h);
+    var ms = document.createElement("select"); ms.setAttribute("data-fkey", key + "|fa-medic"); ms.setAttribute("aria-label", "Who gives " + p.name + " first aid");
+    cs.forEach(function(c){ var o = document.createElement("option"); o.value = String(c.id); o.textContent = "by " + (c.name || "?") + (String(c.id) === String(pat.id) ? " (yourself, +1)" : ""); ms.appendChild(o); });
+    ms.value = pk.medic; ms.onchange = function(){ pk.medic = ms.value; };
+    d.appendChild(ms);
+    var ws = document.createElement("select"); ws.setAttribute("data-fkey", key + "|fa-what"); ws.setAttribute("aria-label", "What a success does for " + p.name);
+    opts.forEach(function(o){ var x = document.createElement("option"); x.value = o[0]; x.textContent = o[1]; ws.appendChild(x); });
+    ws.value = pk.what; ws.onchange = function(){ pk.what = ws.value; };
+    d.appendChild(ws);
+    var al = document.createElement("label"); al.textContent = "AP for more HP ";
+    var ap = document.createElement("input"); ap.type = "number"; ap.min = "0"; ap.max = "9"; ap.value = String(pk.ap || 0);
+    ap.setAttribute("data-fkey", key + "|fa-ap"); ap.title = "Heal or stabilize: +1 HP for every AP spent, from the party pool, after a success (Book One p.34)";
+    ap.onchange = function(){ pk.ap = Math.max(0, Math.round(+ap.value || 0)); };
+    al.appendChild(ap); d.appendChild(al);
+    var go = document.createElement("button"); go.setAttribute("data-fkey", key + "|fa-go"); go.textContent = "Roll First Aid";
+    go.disabled = !canTick(p);
+    go.title = go.disabled ? "That sheet belongs to someone else — they, or the GM, give it" : "A major action: INT + Medicine, Difficulty = the patient's injuries (+1 on yourself), Book One p.33";
+    go.onclick = function(){ faRun(p, key); };
+    d.appendChild(go);
+    if (faSaid[key]){ var o2 = document.createElement("div"); o2.className = "fa-out"; o2.setAttribute("role", "status"); o2.textContent = faSaid[key]; d.appendChild(o2); }
+    return d;
+  }
+  function faRun(p, key){
+    if (!SUITE || !canTick(p)) return null;
+    var pat = sheetOf(p), pk = faPick[key] || {}, m = SUITE.get(), med = null;
+    (m.chars || []).forEach(function(c){ if (c && String(c.id) === String(pk.medic)) med = c; });
+    if (!pat || !med) return null;
+    var list = injuriesOf(p), what = pk.what || "heal", k = /^t\d+$/.test(what) ? +what.slice(1) : -1, w = k >= 0 ? list[k] : null;
+    if (k >= 0 && (!w || w.treated)){ faSaid[key] = "That injury is already treated - nothing was rolled."; render(); return null; }
+    var self = String(med.id) === String(pat.id);
+    var D = faDiff(list.length, self, !!(w && w.debilitating === true));
+    var sk = (med.skills || {}).Medicine || {}, rank = Math.max(0, Math.round(+sk.rank || 0));
+    var tn = Math.max(0, Math.round(+((med.special || {}).I) || 0)) + rank, crit = sk.tag ? Math.max(1, rank) : 1;
+    var faces = [1 + Math.floor(Math.random() * 20), 1 + Math.floor(Math.random() * 20)];
+    var T = faTest(tn, crit, D.d, faces);
+    var line = (med.name || "Someone") + " gives " + (self ? "themself" : p.name) + " first aid: INT + Medicine TN " + tn + ", " + faces.join(", ") +
+      " = " + T.succ + (T.succ === 1 ? " success" : " successes") + (T.comps ? " and a complication" : "") + " vs Difficulty " + D.d +
+      " (" + D.parts.join(", ") + (D.raw > 5 ? ", capped at 5" : "") + ")";
+    if (!T.pass){ faSaid[key] = line + " - failed; nothing changes (Book One p.33)."; faSay(med, faSaid[key]); render(); return { pass:false, line:faSaid[key] }; }
+    if (k >= 0){
+      editInjuries(p, function(l){ if (l[k]) l[k].treated = true; });
+      faSaid[key] = line + " - the " + w.loc + " injury is treated: patched, no penalty, it can re-open (Book One p.34).";
+    } else {
+      var want = Math.max(0, Math.round(+pk.ap || 0)), pool = Math.max(0, Math.round(+m.pcAP || 0)), apUse = Math.min(want, pool);
+      var hp0 = Math.max(0, Math.round(+pat.hp || 0)), H = faHeal(what === "stab" ? "stab" : "heal", rank, apUse, hp0, faMax(pat));
+      if (!H.ok){ faSaid[key] = line + " - passed, but " + H.why + "."; faSay(med, faSaid[key]); render(); return { pass:true, line:faSaid[key] }; }
+      var extra = H.hp - Math.min(faMax(pat), hp0 + (what === "stab" ? 1 : rank));
+      apUse = Math.max(0, Math.min(apUse, extra));            // an AP the maximum would not let heal is not spent
+      SUITE.update(function(mm){
+        (mm.chars || []).forEach(function(c){ if (c && String(c.id) === String(pat.id)) c.hp = H.hp; });
+        if (apUse) mm.pcAP = Math.max(0, Math.round(+mm.pcAP || 0) - apUse);
+      });
+      faSaid[key] = line + " - " + H.why + (apUse ? ", " + apUse + " AP from the party pool" : "") + (apUse < want ? " (" + (want - apUse) + " AP not spent)" : "") + " (Book One p.34).";
+    }
+    faSay(med, faSaid[key]);
+    render();
+    return { pass:true, line:faSaid[key] };
+  }
+  function faSay(med, text){
+    try{ var SY = window.SUITE_SYNC; if (SY && typeof SY.emit === "function") SY.emit("roll", { name:med.name, charId:med.id, token:"c:" + med.id, text:text }); }catch(e){}
+  }
+
   /* MEDLIVE:begin */
   /* PROJECT C, STAGE 3: the Camp fold header's figure — how many people carry an injury,
      and how many wounds are still open (untreated).  Nobody hurt says so.
@@ -64617,6 +64999,8 @@ var document = new Proxy(__rdoc, {
       var have = {};
       state.people.forEach(function(p){ have[p.name] = 1; if (p.id != null) have[String(p.id)] = 1; });
       Object.keys(inj).forEach(function(n){
+        /* K.16 (CMD Z038): a creature's bucket ("e:<ref>#<n>", HELENA_ENC.woundKey) is not a party member - never enrolled */
+        if (/^e:/.test(n)) return;
         if (!have[n] && inj[n] && inj[n].length){ state.people.push(makePerson(n)); added = true; }
       });
       /* Only PUBLISH the enrolment if this device may write the board's slice.  A player in
@@ -64831,7 +65215,9 @@ var document = new Proxy(__rdoc, {
         row.appendChild(wounds);
       }
 
+      /* CMD Z038: the First Aid action (Book One p.33-34) - a sheet behind the row, in the suite */
       box.appendChild(row);
+      if (typeof faRow === "function"){ var far = faRow(p, key, list); if (far) box.appendChild(far); }   /* beside the .row, not in it */
       host.appendChild(box);
     });
 
@@ -67192,11 +67578,13 @@ function drawLayer(){
     list.forEach(function(t, i){
       var x = a.x + (i - (n - 1) / 2) * step, y = a.y, ch = t.kind === "char";
       if(rows && rows[i]){ x = a.x + rows[i].dx; y = a.y + rows[i].dy; }
-      if(spots && spots[i]){ x = spots[i].x; y = spots[i].y; }
+      var sc = 1;
+      if(spots && spots[i]){ x = spots[i].x; y = spots[i].y; if(+spots[i].s > 0 && +spots[i].s < 1) sc = +spots[i].s; }
       var tg = document.createElementNS(NS, "g");
       tg.setAttribute("class", "zm-tok " + t.kind + (flash === t.id ? " flash" : ""));
       tg.setAttribute("data-tok", t.id); tg.setAttribute("data-zone", String(zp.z));
-      tg.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ")");
+      /* CMD Z038: a thin zone's badge is drawn smaller (the map's s), so its HP meter stays inside the zone */
+      tg.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ")" + (sc < 1 ? " scale(" + sc + ")" : ""));
       if(t.hidden) tg.setAttribute("opacity", ".45");                 /* Z037 (NR-16): hidden from the players - the Overseer sees it dimmed */
       var c = document.createElementNS(NS, "circle");
       c.setAttribute("r", "11"); c.setAttribute("fill", ch ? whoFill(t.id) : "#e05c4b"); c.setAttribute("stroke", "#0b0c08"); c.setAttribute("stroke-width", "2");
@@ -67219,7 +67607,12 @@ function drawLayer(){
   if(old && old === layerEl && html != null && html === layerHtml) return;
   layerEl = g; layerHtml = html;
   if(old && old.parentNode && old.parentNode.replaceChild) old.parentNode.replaceChild(g, old);
-  else { gone(); svg.appendChild(g); }                       // on top of the map's own drawing
+  else {
+    gone();
+    /* CMD Z038: under a Blocks map's table, which lies over the map's edge (it shuts with its x); on top of the rest */
+    var pn = typeof svg.querySelector === "function" ? svg.querySelector("#zm-panel") : null;
+    if(pn && pn.parentNode === svg && typeof svg.insertBefore === "function") svg.insertBefore(g, pn); else svg.appendChild(g);
+  }
 }
 var layerEl = null, layerHtml = null;
 /* CMD Z037 G: a character's disc in its own colour (SUITE_WHO, z031.js) from the first draw - it was drawn blue and
@@ -67279,7 +67672,11 @@ function movedThisTurn(id){
   var own = !!(mv && t && (mv.cur === t.id || (t.ref != null && mv.cur.indexOf("e:" + t.ref + "#") === 0)));
   return (tn && mv && own && mv.fid === tn.fid && mv.round === tn.round && mv.cur === tn.cur) ? Math.max(0, Math.round(+mv.n || 0)) : 0;
 }
+/* NR-25 (Zoe 2026-10-26, Guide p.liii): Momentum counts a MOVE, not a placing.  `placed` (the Overseer's Place toggle or an
+   Alt-drag - the move gate let the drop through unpaid - or Alt on the strip) moves the token and stamps no move.  It is read
+   off arguments[3] so the signature every lifted test finds stays as it was. */
 function moveTo(tok, zp, moveAll){
+  var placed = arguments.length > 3 && !!arguments[3];
   if(tok && tok.kind === "comp") return compMoveTo(tok, zp);   /* BLOCK 5: its own list, its keeper's gate */
   var label = labelOf(zp);
   /* CMD Z033 (NR-14 A): a swarm moves as one token in every view — dragging any of its bodies moves every member (the retired
@@ -67290,14 +67687,14 @@ function moveTo(tok, zp, moveAll){
       if(!x || x.ref !== tok.ref || (typeof swarmGone === "function" && swarmGone(x))) return;
       if(typeof tvHead === "function" && stay[tvHead(x.id)] && x.zone != null){ left++; return; }
       var from = x.zone;
-      m.tokens = place(m.tokens, x, zp.z, label); if(typeof stampMove === "function") stampMove(m, x.id, from, zp.z); }); });
+      m.tokens = place(m.tokens, x, zp.z, label); if(!placed && typeof stampMove === "function") stampMove(m, x.id, from, zp.z); }); });
     if(left && typeof refuse === "function") refuse(left + (left === 1 ? " stunned body stays" : " stunned bodies stay") + " behind - the rest moved. Alt-drag moves the whole swarm.");
     if(said()) SY.emit("token", { name:String(tok.name || "").replace(/\s+\d+$/, ""), token:tok.id, kind:tok.kind, zone:label, z:zp.z });
     return;
   }
   S.update(function(m){
     var from = null; (m.tokens || []).forEach(function(x){ if(x && x.id === tok.id) from = x.zone; });
-    m.tokens = place(m.tokens, tok, zp.z, label); if(typeof stampMove === "function") stampMove(m, tok.id, from, zp.z);
+    m.tokens = place(m.tokens, tok, zp.z, label); if(!placed && typeof stampMove === "function") stampMove(m, tok.id, from, zp.z);
   });
   if(said()) SY.emit("token", { name:tok.name, token:tok.id, kind:tok.kind, zone:label, z:zp.z });
 }
@@ -67406,7 +67803,7 @@ function onChipUp(e){
   var no = compSay(tok, SY); if(no){ refuse(no); return; }
   if(tok.zone != null && +tok.zone !== zp.z && stunHeld(tok, e.altKey)){ refuse(STUN_HELD); renderStrip(); return; }   /* CMD Z033 */
   unrefuse(); sel = null;
-  if(tok.zone == null || +tok.zone !== zp.z) moveTo(tok, zp, !!e.altKey); else renderStrip();
+  if(tok.zone == null || +tok.zone !== zp.z) moveTo(tok, zp, !!e.altKey, !!e.altKey); else renderStrip();
 }
 stripEl.addEventListener("pointerdown", onChipDown);
 trayEl.addEventListener("pointerdown", onChipDown);
@@ -67426,7 +67823,7 @@ stage.addEventListener("click", function(e){
   e.stopPropagation(); e.preventDefault();
   var tok = tokOf(sel); sel = null;
   if(tok && tok.zone != null && +tok.zone !== zp.z && stunHeld(tok, e.altKey)){ refuse(STUN_HELD); renderStrip(); return; }   /* CMD Z033 */
-  if(tok) moveTo(tok, zp, !!e.altKey); else renderStrip();
+  if(tok) moveTo(tok, zp, !!e.altKey, !!e.altKey); else renderStrip();
 }, true);
 
 /* drag a token between zones; a press without movement is a click that opens it.
@@ -67482,19 +67879,21 @@ function onUp(e){
      device's zone silently stood.  tokOf() reads the live list, so tok.zone is the truth. */
   var was = tok ? (tok.zone == null ? null : +tok.zone) : d.zone;
   renderPending = true;                                       // a drop always owes exactly one re-render
+  var gated = false;                                          // NR-25: the move gate was asked (and, below, let it through unpaid)
   /* Z032 CINDER MOVE HOOK: only while body has "view-cinder".  window.CINDER_MOVE.gate(info, go, back) may take the drop: it
      calls go() (the same moveTo) once the move is paid or free, back() to snap the token home; it returns false to let the
      drop land as before.  Off the Cinder view this line does nothing. */
   /* Z037 (F): the move gate (NR-9: the first zone the Minor, each further zone 1 AP) holds in both views */
   if(zp && tok && zp.z !== was && root.CINDER_MOVE && typeof root.CINDER_MOVE.gate === "function"){
     var cEl = d.el, cHome = d.home;
-    var took = false;
+    var took = false; gated = true;
     try{ took = root.CINDER_MOVE.gate({ tok:{ id:tok.id, kind:tok.kind, ref:tok.ref, name:tok.name }, from:was, to:zp.z, alt:!!e.altKey, x:e.clientX, y:e.clientY },
       function(){ moveTo(tok, zp, !!e.altKey); }, function(){ if(cEl && cEl.parentNode) cEl.setAttribute("transform", cHome); redraw(); }); }catch(err){ took = false; }
     if(took){ renderPending = false; return; }
   }
   if(zp && tok && zp.z !== was && stunHeld(tok, e.altKey)){ refuse(STUN_HELD); if(d.el && d.el.parentNode) d.el.setAttribute("transform", d.home); if(renderPending) redraw(); return; }   /* CMD Z033 */
-  if(zp && tok && zp.z !== was) moveTo(tok, zp, !!e.altKey);              // S.update → subscribe → redraw pays it
+  /* NR-25: a drop the move gate let through unpaid is a placing (Place on, Alt held; off-turn and no-fight stamp nothing anyway) */
+  if(zp && tok && zp.z !== was) moveTo(tok, zp, !!e.altKey, gated || !!e.altKey);   // S.update → subscribe → redraw pays it
   else if(d.el && d.el.parentNode) d.el.setAttribute("transform", d.home);   // home again: never the tray, never zone 0
   if(renderPending) redraw();                                 // …and if nothing else did, pay it here
 }
@@ -67677,14 +68076,24 @@ function zoneCoverInfo(z, fromZone){
 root.SUITE_TOKENS.zoneCover = function(z, fromZone){ return zoneCoverInfo(z, fromZone).cover; };
 root.SUITE_TOKENS.setHidden = function(id, on){ var t = tokOf(String(id)); return t ? setHidden(t, !!on) : false; };   /* Z037 (NR-16) */
 root.SUITE_TOKENS.movedThisTurn = function(id){ try{ return movedThisTurn(String(id)); }catch(e){ return 0; } };   /* Z037: Momentum */
+/* Z038 (NR-25, Zoe 2026-10-26): an undone move is no move - Undo takes its zones back off the token's record for this turn,
+   so Momentum reads what the token really moved.  Only this turn's record; a record from another turn is left alone. */
+root.SUITE_TOKENS.unmove = function(id, n){
+  try{ id = String(id); n = Math.max(0, Math.round(+n || 0)); if(!n) return;
+    S.update(function(m){ var tn = turnNow(m); if(!tn) return;
+      (m.tokens || []).forEach(function(x){ var mv = x && x.id === id && x.moved;
+        if(mv && mv.fid === tn.fid && mv.round === tn.round && mv.cur === tn.cur){ var left = Math.round(+mv.n || 0) - n; if(left > 0) mv.n = left; else delete x.moved; } }); });
+  }catch(e){}
+};
 root.SUITE_TOKENS.zoneCoverInfo = zoneCoverInfo;
 root.SUITE_TOKENS.zoneBands = zoneBands;
 root.SUITE_TOKENS.zoneCentre = zoneCentre;
 /* stage 6: a writer that places by zone id needs no drawing — with the SVG released (any mode but
    Fight) the zone is found on the model, and moveTo records its name off the model (labelOf) */
-root.SUITE_TOKENS.placeIn = function(id, z){ var tok = tokOf(id), zp = null; zonePaths().forEach(function(x){ if(x.z === +z) zp = x; });
+/* Z038: placed (optional) - a placing, not a move: Momentum's record is not stamped (an Undo putting a token home) */
+root.SUITE_TOKENS.placeIn = function(id, z, placed){ var tok = tokOf(id), zp = null; zonePaths().forEach(function(x){ if(x.z === +z) zp = x; });
   if(!zp && modelZone(z)) zp = { z:+z };
-  if(tok && zp) moveTo(tok, zp); return !!(tok && zp); };
+  if(tok && zp){ if(placed === true) moveTo(tok, zp, false, true); else moveTo(tok, zp); } return !!(tok && zp); };
 /* stage 6: the current map's name for a zone, for any reader (the sheet's cover line included) */
 root.SUITE_TOKENS.zoneName = function(z){ return zoneTitle(modelZone(z)); };
 /* BLOCK 6: what the rest of the suite may ask about tokens on a Blocks map — every answer a copy, nothing written.
@@ -68547,7 +68956,7 @@ W.CINDER = {
    A windowed pane keeps its place in the page; the Fight layout rules skip any pane carrying .cl-win, so a window never
    has to out-rank the dock rules.  Every write here changes something real (the watcher rule). */
 var wins = {}, winOrder = [], winZ = 80;
-function winClose(key){
+function winClose(key, why){
   var w = wins[key]; if(!w) return false;
   delete wins[key]; winOrder = winOrder.filter(function(k){ return k !== key; });
   if(w.el.classList.contains("cl-win")) w.el.classList.remove("cl-win");
@@ -68555,7 +68964,7 @@ function winClose(key){
   if(w.el.hasAttribute("data-cl-win")) w.el.removeAttribute("data-cl-win");
   w.el.style.zIndex = ""; w.el.style.top = ""; w.el.style.transform = "";
   if(w.x && w.x.parentNode) w.x.parentNode.removeChild(w.x);
-  if(typeof w.onClose === "function"){ try{ w.onClose(); }catch(e){} }
+  if(typeof w.onClose === "function"){ try{ w.onClose(why === "leave" ? "leave" : "shut"); }catch(e){} }   /* Z038: why it shut - the x / Esc, or the tab left */
   return true;
 }
 function winOpen(key, node, opts){
@@ -68589,8 +68998,8 @@ D.addEventListener("keydown", function(e){
   var t = e.target; if(t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && !wins[winOrder[winOrder.length - 1]].el.contains(t)) return;
   winClose(winOrder[winOrder.length - 1]);
 });
-D.addEventListener("cinder-tab", function(){ Object.keys(wins).forEach(winClose); });
-D.addEventListener("cinder-view", function(){ Object.keys(wins).forEach(winClose); });
+D.addEventListener("cinder-tab", function(){ Object.keys(wins).forEach(function(k){ winClose(k, "leave"); }); });
+D.addEventListener("cinder-view", function(){ Object.keys(wins).forEach(function(k){ winClose(k, "leave"); }); });
 /* the shell asks Cinder first (SUITE_SHELL.showTool): on Fight the turn order and the Encounter pane open as windows over
    the map, so the mode never changes and the map is never released (game night: the map went black on every weapon) */
 function fightUp(){ return W.CINDER.on() && cur === "fight"; }
@@ -68683,7 +69092,10 @@ function build(){
   bar.addEventListener("click", onBarClick);
   mtc.addEventListener("click", onMtcClick);
 }
-function showAll(v){ [ribbon, party, bar, mtc].forEach(function(x){ if(x) x.hidden = !v; }); if(!v && tip) tip.hidden = true; if(!v) clearWash(); }
+/* Z038: the monster card is paintMtc's alone to show - showAll used to unhide it on every paint, so a card the Overseer shut
+   (x / Esc) or a turn that wanted none came back unstyled, half over the map's lower-left; here it is only ever hidden */
+function showAll(v){ [ribbon, party, bar].forEach(function(x){ if(x && x.hidden !== !v) x.hidden = !v; }); if(!v && mtc && !mtc.hidden){ mtc.hidden = true; mtcWin(false); }
+  if(!v && tip) tip.hidden = true; if(!v) clearWash(); }
 
 function rowById(id){ var r = null; if(snap) snap.rows.concat(snap.fallen).forEach(function(x){ if(x.id === id) r = x; }); return r; }
 function pick(id){ sel = sel === id ? null : id; var b = B(); if(b && sel) try{ b.select(sel); }catch(e){} paint(true); }
@@ -68821,12 +69233,15 @@ document.addEventListener("keydown", function(e){
 var mtcShut = null, mtcQuiet = false;
 function mtcWin(open, key){
   var C = window.CINDER, W2 = C && C.win; if(!W2) return;
-  if(open){ if(!W2.isOpen("mtc")) W2.open("mtc", mtc, { onClose:function(){ if(!mtcQuiet) mtcShut = key; } }); }
+  /* Z038: a window that shuts takes the card with it (it was left on screen, unstyled, half over the map's corner); only the
+     Overseer's x / Esc keeps it shut for the turn - a tab change does not, and the card comes back on the Fight tab */
+  if(open){ if(!W2.isOpen("mtc")) W2.open("mtc", mtc, { onClose:function(why){ if(!mtc.hidden) mtc.hidden = true; if(!mtcQuiet && why !== "leave") mtcShut = key; sig = ""; } }); }
   else if(W2.isOpen("mtc")){ mtcQuiet = true; W2.close("mtc"); mtcQuiet = false; }
 }
 function paintMtc(){
   var a = actRow(), key = a ? a.id + "|" + (snap && snap.round) + "|" + (sel || "") : "";
-  if(!a || a.kind !== "enemy" || !snap.gm || mtcShut === key){ if(!mtc.hidden) mtc.hidden = true; mtcWin(false); return; }
+  var onFight = document.body.getAttribute("data-cl-tab") === "fight";   /* Z038: the card is the Fight tab's; no other tab shows it */
+  if(!a || a.kind !== "enemy" || !snap.gm || mtcShut === key || !onFight){ if(!mtc.hidden) mtc.hidden = true; mtcWin(false); return; }
   if(mtc.hidden) mtc.hidden = false;
   mtcWin(true, key);
   var advice = "";
@@ -68986,7 +69401,8 @@ window.CINDER_MOVE = {
         undoKeep(r.name + " moved " + n + (n === 1 ? " zone" : " zones"), function(){
           mine.forEach(function(s){ if(s === "1 AP") b.refund(rid, 1); else if(s === "Minor" || s === "Sprint") b.undoMinor(rid); });
           var T = window.SUITE_TOKENS;
-          if(home0 != null && T && typeof T.placeIn === "function"){ try{ T.placeIn(tok0, home0); }catch(e){} }
+          if(home0 != null && T && typeof T.placeIn === "function"){ try{ T.placeIn(tok0, home0, true); }catch(e){} }
+          if(T && typeof T.unmove === "function") T.unmove(tok0, n);   /* Z038 (NR-25): the undone zones no longer count for Momentum */
           moved[mk] = was; paint(true); });
         paint(true); return; }
       var u = (b.snap().rows.filter(function(x){ return x.id === rid; })[0] || r).used;
@@ -69019,14 +69435,23 @@ window.CINDER_MOVE = {
 var sig = "";
 /* Z037 (NR-22; was cinder-z3-stranger.js): the Mysterious Stranger's tick on Cinder's Fight, one per holder - the rules and the
    record are the turn order's (HELENA_TURN.stranger); this only shows them and passes the tick on */
-var msBox = null, msNote = "";
+var msBox = null, msBody = null, msNote = "", msShut = null;
+/* CMD Z038: the box docks in the right column, clear of the map (it sat over the map's lower left), and closes with its x or
+   Esc.  Shut, it stays shut while the ticks read the same; a change to them (a new holder, the Stranger waiting or come and
+   gone) shows it again. */
+function msClose(){ if(!msBox) return; msShut = msBox.getAttribute("data-t") || ""; if(!msBox.hidden) msBox.hidden = true; }
 function paintStranger(){
   var T = window.HELENA_TURN, M = T && T.stranger, ts = [];
   try{ ts = M ? M.ticks() : []; }catch(e){ ts = []; }
   var show = on() && document.body.getAttribute("data-cl-tab") === "fight" && ts.length;
   if(!show){ if(msBox && !msBox.hidden) msBox.hidden = true; return; }
   if(!msBox){
-    msBox = el("div", "cl-ms"); msBox.id = "cl-ms"; document.body.appendChild(msBox);
+    msBox = el("div", "cl-ms"); msBox.id = "cl-ms"; msBox.setAttribute("role", "group"); msBox.setAttribute("aria-label", "Mysterious Stranger");
+    var x = document.createElement("button"); x.type = "button"; x.className = "cl-ms-x"; x.setAttribute("aria-label", "Close"); x.title = "Close (Esc)"; x.textContent = "\u00d7";
+    x.addEventListener("click", msClose);
+    msBody = document.createElement("div"); msBody.className = "cl-ms-body";
+    msBox.appendChild(x); msBox.appendChild(msBody); document.body.appendChild(msBox);
+    document.addEventListener("keydown", function(e){ if(e.key === "Escape" && msBox && !msBox.hidden) msClose(); });
     msBox.addEventListener("change", function(e){
       var cb = e.target, MM = window.HELENA_TURN && window.HELENA_TURN.stranger; if(!cb || cb.getAttribute("data-ms") == null || !MM) return;
       msNote = cb.checked ? MM.arm(cb.getAttribute("data-ms")) : MM.disarm();
@@ -69034,13 +69459,15 @@ function paintStranger(){
       setTimeout(function(){ msNote = ""; if(msBox) msBox.removeAttribute("data-h"); paintStranger(); }, 6000);
     });
   }
-  var h = ts.map(function(t){
+  var ht = ts.map(function(t){
     return '<label title="1 Luck: once this fight, on a random turn of the next round, the Stranger shoots a random enemy. Untick before he comes for the Luck back.">' +
            '<input type="checkbox" data-ms="' + esc(t.id) + '"' + (t.waiting || t.came ? " checked" : "") + (t.came ? " disabled" : "") + "> <b>Mysterious Stranger</b> (" + esc(t.name) + ", 1 Luck)" +
            "<small>" + (t.came ? "He has come and gone this fight." : t.waiting ? "Waiting - a random turn of round " + t.round + "." : "Off.") + "</small></label>";
-  }).join("") + (msNote ? '<div class="cl-ms-say">' + esc(msNote) + "</div>" : "");
+  }).join(""), h = ht + (msNote ? '<div class="cl-ms-say">' + esc(msNote) + "</div>" : "");
+  if(msShut != null){ if(msShut === ht){ if(!msBox.hidden) msBox.hidden = true; return; } msShut = null; }
   if(msBox.hidden) msBox.hidden = false;
-  if(msBox.getAttribute("data-h") !== h){ msBox.innerHTML = h; msBox.setAttribute("data-h", h); }
+  if(msBox.getAttribute("data-t") !== ht) msBox.setAttribute("data-t", ht);
+  if(msBox.getAttribute("data-h") !== h){ msBody.innerHTML = h; msBox.setAttribute("data-h", h); }
 }
 function paint(force){
   var b = B();
@@ -69056,7 +69483,8 @@ function paint(force){
     if(r.kind === "enemy" && r.wiped && !gone[r.id]){ gone[r.id] = 1; if(lastRows[r.id]) burning.push({ row:r, until:Date.now() + 400 }); setTimeout(function(){ paint(true); }, 420); }
   });
   lastRows = {}; snap.rows.forEach(function(r){ if(!r.wiped) lastRows[r.id] = 1; });
-  var s2 = JSON.stringify([snap, sel, burning.length, moved, tactics, placeFree, (S().chars || []).length]) + (S().pcAP) + (S().dmAP);
+  var s2 = JSON.stringify([snap, sel, burning.length, moved, tactics, placeFree, (S().chars || []).length]) + (S().pcAP) + (S().dmAP) +
+           "|" + document.body.getAttribute("data-cl-tab");   /* Z038: a tab change repaints (the monster card is the Fight tab's) */
   var sv = svg();
   if(force || s2 !== sig){ sig = s2; paintRibbon(); paintParty(); paintBar(); paintMtc(); }
   var dragging = false; try{ dragging = !!(window.SUITE_TOKENS && window.SUITE_TOKENS.dragging && window.SUITE_TOKENS.dragging()); }catch(e){}
@@ -69066,7 +69494,7 @@ function soon(){ setTimeout(function(){ paint(false); }, 0); }
 function start(){
   if(window.SUITE_STATE && typeof window.SUITE_STATE.subscribe === "function") window.SUITE_STATE.subscribe(soon);
   ["helena-turn-cur", "helena-enc-hp", "helena-tv-select", "suite:view"].forEach(function(n){ document.addEventListener(n, soon); });
-  new MutationObserver(soon).observe(document.body, { attributes:true, attributeFilter:["class"] });
+  new MutationObserver(soon).observe(document.body, { attributes:true, attributeFilter:["class", "data-cl-tab"] });
   setInterval(function(){ paint(false); }, 900);
   paint(true);
 }
@@ -70499,6 +70927,9 @@ function paintRoster(){
 function set(ref, n){
   var e = E(); if(!e) return;
   var r = null; try{ r = e.setHp(ref, n); }catch(x){ r = { ok:false, why:String(x && x.message || x) }; }
+  /* Zoe 2026-10-26: every HP field logs with Undo - the turn order's creature-HP Undo (HELENA_TURN.keepHpUndo) */
+  var T = W.HELENA_TURN;
+  if(r && r.ok && T && typeof T.keepHpUndo === "function") try{ T.keepHpUndo(e, ref, r.name, r); }catch(x){}
   rsay.textContent = r && r.ok ? (r.name || "The enemy") + ": " + r.before + " → " + r.after + " HP" + (r.killed ? " — down." : ".")
                                : "Not changed: " + ((r && (r.why || r.refused)) || "the encounter refused it") + ".";
   editing = false; paint();
