@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"008ec76b",at:"2026-10-26 22:16 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"81e4ec17",at:"2026-10-27 13:08 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -3892,6 +3892,7 @@
 #tool-med .fa select, #tool-med .fa input{ font-size:15px; }
 #tool-med .fa input[type=number]{ width:4.5em; }
 #tool-med .fa .fa-out{ flex:1 1 100%; color:var(--amber-dim); }
+#tool-med .fa .fa-gear{ color:var(--amber-dim); }
 #tool-med .controls{
     display:flex; gap:9px; flex-wrap:wrap; align-items:center;
     padding:16px 0 2px; margin-top:4px; border-top:var(--rule);
@@ -5087,6 +5088,20 @@ body.view-cinder #tool-quests :is(.qs-q, .qs-card, details.qs-quest){ background
 #tool-map .mp-b[aria-pressed="true"]{ border-color:var(--amber); box-shadow:inset 0 -3px 0 var(--amber); font-weight:700; }
 #tool-map .mp-say{ flex-basis:100%; font-size:15px; color:var(--ink); }
 #tool-map .mp-say:empty{ display:none; }
+/* CMD Z039: Cinder's Fight map fits the Stage (cinder-8-maps.js writes --cl-map-h: the stage's top to the action bar's top).
+   The stage is that tall and pans (scrolls) on both axes; the map is drawn whole inside it, or 1.5x / 2x / 3x when zoomed.
+   The map pane no longer scrolls past the bar - nothing of the map is under it. */
+body.view-cinder[data-cl-tab="fight"] #suite-stage > #fold-map{ padding-bottom:0; }
+body.view-cinder[data-cl-tab="fight"] #tool-map > main{ padding-bottom:0; }
+body.view-cinder[data-cl-tab="fight"] #tool-map #stage{ height:var(--cl-map-h, auto); box-sizing:border-box; overflow:auto; overscroll-behavior:contain; }
+body.view-cinder[data-cl-tab="fight"] #tool-map #stage > svg{ display:block; width:auto; height:auto; max-width:100%; max-height:100%; margin:0 auto; }
+body.view-cinder[data-cl-tab="fight"] #tool-map #stage[data-cl-zoom] > svg{ max-width:none; max-height:none; height:calc((var(--cl-map-h) - 2px) * var(--cl-zoom, 1)); }
+#cl-zoom{ display:none; }
+body.view-cinder[data-cl-tab="fight"] #cl-zoom{ display:flex; position:fixed; z-index:25; transform:translateX(-100%); gap:2px; }
+#cl-zoom button{ min-width:32px; min-height:32px; padding:0 8px; font:15px/1 "EB Garamond", Georgia, serif; cursor:pointer;
+  background:#221C17; color:#E8DFCC; border:1px solid #9C7A3C; border-radius:4px; opacity:.9; }
+#cl-zoom button:disabled{ opacity:.4; cursor:default; }
+#cl-zoom button:focus-visible{ outline:2px solid #E8692C; outline-offset:1px; }
 </style>
 <style data-suite="cinder-8-overseer">/* Z034 the Overseer desk (cinder-8-overseer.js), both views; violet edge = GM only */
 #od-desk{ margin:0 0 16px; color:var(--ink); border-left:4px solid var(--od-gm, #8A5CD6); padding-left:12px; }
@@ -5618,7 +5633,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-26 22:16 UTC">008ec76b</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-27 13:08 UTC">81e4ec17</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -6617,7 +6632,7 @@ end $$;
           <table class="cs-skills"><thead><tr><th>Name</th><th class="c">Tag</th><th class="c">Rank</th><th class="c">TN</th><th></th></tr></thead>
             <tbody id="cs-skills"></tbody></table>
           <div class="cs-rollopts" style="margin-top:10px">
-            <label class="cs-lab">Buy d20s <input type="number" id="cs-skill-buy" min="0" max="3" value="0"></label>
+            <label class="cs-lab" title="The 3rd, 4th and 5th d20 cost 1, 2 and 3 AP from the party pool (Book One p.15) - 5d20 at most">Buy d20s <input type="number" id="cs-skill-buy" min="0" max="3" value="0"></label>
             <!-- Howl 10-24: who assists the next skill roll (one d20 on their own attribute + this skill; counts if you score one) -->
             <label class="cs-lab" title="An assist: the helper rolls one d20 on THEIR OWN attribute + skill (it need not match yours); it counts only if you score at least one success (Book One). Resets after each roll.">Assisted by <select id="cs-skill-assist"><option value="">No one</option></select></label>
             <label class="cs-lab" id="cs-assist-pair" hidden title="The helper's own attribute and skill for their d20 - blank skill means the one being rolled">with <select id="cs-assist-attr" aria-label="Helper's attribute"><option value="">same attribute</option></select> + <select id="cs-assist-skill" aria-label="Helper's skill"><option value="">same skill</option></select></label>
@@ -7010,7 +7025,7 @@ end $$;
     <details class="cs-card cs-fold" id="cs-f-wpn" data-card="wpn">
       <summary><span class="cs-rib" style="--c:var(--c-per)">Weapons</span><span class="cs-fold-n" id="cs-fn-wpn"></span></summary>
       <div class="cs-rollopts">
-        <label class="cs-lab">Buy d20s <input type="number" id="cs-wpn-buy" min="0" max="3" value="0"></label>
+        <label class="cs-lab" title="The 3rd, 4th and 5th d20 cost 1, 2 and 3 AP from the party pool (Book One p.15) - 5d20 at most">Buy d20s <input type="number" id="cs-wpn-buy" min="0" max="3" value="0"></label>
         <label class="cs-lab">Extra ammo dice <input type="number" id="cs-wpn-extra" min="0" max="6" value="0"></label>
         <label class="cs-lab">Buy CD <input type="number" id="cs-dmg-buy" min="0" max="3" value="0"></label>
       </div>
@@ -33352,6 +33367,19 @@ function stimDice(want, gift, have){
   return { gift:g, dice:k, cost:+COST[k] || 0 };
 }
 /* NR-19's gate, the dice roller's: the Overseer's alone in a room; anyone in Solo */
+/* CMD Z039 (Zoe 2026-10-26, Book One p.15): EVERY d20 the sheet buys is priced by stimDice - the skill test, the weapon attack
+   and Fire a stimpak alike: the 3rd, 4th and 5th die 1, 2 and 3 AP (1 + 2 + 3 = 6 AP for 5d20 from 2d20), never past 5d20, the
+   gift (when a roll offers one) taking a slot and not a price step, as stimDice already reads it.  Prices `want` against the party
+   pool, pays it (spendParty) and keeps only the dice that were paid for.  -> { want, gift, dice, cost } */
+function buyD20s(want, gift){
+  want = Math.max(0, Math.min(3, Math.round(+want || 0)));
+  var have = typeof partyAP === "function" ? partyAP() : 0;
+  var sd = stimDice(want, gift, have);
+  var paid = sd.cost ? spendParty(sd.cost) : 0;
+  if(paid < sd.cost) sd = stimDice(sd.dice, sd.gift, paid);
+  sd.want = want;
+  return sd;
+}
 function stimGiftMay(){ try{ var Y = window.SUITE_SYNC; if(!Y || typeof Y.status !== "function" || !Y.status().connected) return true; return typeof Y.isGM === "function" ? !!Y.isGM() : true; }catch(e){ return true; } }
 function fireStim(i, toId, as){
   var opts = (arguments.length > 3 && arguments[3]) || {};       /* ruling A: { gift } - read off arguments[3], the signature kept */
@@ -34444,8 +34472,9 @@ function skillRoll(name, attr){
   var dEl = $("cs-skill-diff"), fac = typeof repPicked === "function" ? repPicked() : null;
   var D = typeof CH.testDifficulty === "function" ? CH.testDifficulty(c, { typed:dEl ? dEl.value : "", attr:attr, faction:fac }) : null;
   var want = clamp(+$("cs-skill-buy").value || 0, 0, 3);
-  var bought = want ? spendParty(want) : 0;        // RULE 1: bought d20s debit the party pool
-  var pool = 2 + bought, comp = clamp(+$("cs-comp").value || 20, 15, 20);
+  /* RULE 1: bought d20s debit the party pool - Z039: at 1, 2, then 3 AP a die (buyD20s, the one price on this sheet) */
+  var bd = want && typeof buyD20s === "function" ? buyD20s(want, false) : { want:want, gift:0, dice:0, cost:0 };
+  var pool = 2 + bd.dice, comp = clamp(+$("cs-comp").value || 20, 15, 20);
   var r = rollTest(tn, crit, comp, pool);
   /* Howl 10-24: THE ASSIST.  One d20 on the helper's own attribute + this skill (their tag sets their crit); it adds its
      successes only when the roller scores at least one (Book One p.19). */
@@ -34472,7 +34501,7 @@ function skillRoll(name, attr){
     (helper ? '<div class="cs-qual" id="cs-assist-line">' + pips(ar.dice) + " " + esc(aLine) + ".</div>" : "") +
     (D && D.line ? '<div class="cs-qual" id="cs-skill-diffline">' + esc(D.line + "." + verdict) + "</div>" : "") +
     (how ? '<div class="cs-qual">' + esc(attr + " in place of " + def + ": " + how) + ".</div>" : "") +
-    apNote(want, bought);
+    apNote(want, bd);
   /* Z037 (E): Luck can re-roll the roller's own dice (not the helper's) */
   var lkAdd = helper && ar ? (r.succ - (r.succ - (r.succ >= 1 ? ar.succ : 0))) : 0, lkBase = r.dice.map(function(d){ return d.v; });
   if(typeof luckOffer === "function") luckOffer("cs-skill-out", { kind:"d20", c:String(c.id), faces:lkBase, redo:function(faces, rr, cost, was, now){
@@ -34487,11 +34516,23 @@ function skillRoll(name, attr){
   outInView("cs-skill-out");                        // WAVE 16 S6: a skill's answer too
 }
 
-/* the line that says the party pool could not pay for everything asked for (RULE 1) */
-function apNote(want, got){
-  if(want <= got) return "";
-  return '<div class="cs-qual">The party pool held only ' + got + ' of the ' + want +
-    ' AP asked for — rolled with ' + got + '.</div>';
+/* the line that says the party pool could not pay for everything asked for (RULE 1).  Z039: for bought d20s, bd is buyD20s'
+   answer - the 3rd, 4th and 5th die 1, 2 and 3 AP - and the line also says what they cost */
+function apNote(want, bd){
+  /* a number is the damage roll's bought CD (1 AP each, Book One p.18): the old line, unchanged */
+  if(typeof bd !== "object" || !bd){
+    var got = Math.max(0, +bd || 0);
+    if(want <= got) return "";
+    return '<div class="cs-qual">The party pool held only ' + got + ' of the ' + want +
+      ' AP asked for — rolled with ' + got + '.</div>';
+  }
+  var n = Math.max(0, +bd.dice || 0), cost = Math.max(0, +bd.cost || 0), steps = [];
+  for(var k = 1; k <= n; k++) steps.push(k);
+  var line = n ? n + " d20" + (n === 1 ? "" : "s") + " bought for " + cost + " AP" + (n > 1 ? " (" + steps.join(" + ") + ")" : "") +
+                 " from the party pool — " + (2 + n) + "d20." : "";
+  if(want > n) line += (line ? " " : "") + "The party pool could pay for " + (n ? "only " + n : "none") + " of the " + want +
+                       " asked for (the 3rd, 4th and 5th d20 cost 1, 2 and 3 AP) — rolled with " + (2 + n) + "d20.";
+  return line ? '<div class="cs-qual" id="cs-d20-paid">' + line + "</div>" : "";
 }
 
 /* ---- RULE 2 (2026-09-22, Core p.29) ----
@@ -34762,8 +34803,9 @@ function doAttack(i, roundsSpent){
   var mode = CH.attackMode(w);
   var s = skillOf(c, w.skill), tn = attrVal(c, w.attr) + s.rank, crit = CH.critRange(s.rank, s.tag);
   var want = clamp(+$("cs-wpn-buy").value || 0, 0, 3);
-  var bought = want ? spendParty(want) : 0;        // RULE 1
-  var pool = 2 + bought, comp = clamp(+$("cs-comp").value || 20, 15, 20);
+  /* RULE 1, Z039: 1, 2, then 3 AP a die (buyD20s) */
+  var bd = want && typeof buyD20s === "function" ? buyD20s(want, false) : { want:want, gift:0, dice:0, cost:0 };
+  var pool = 2 + bd.dice, comp = clamp(+$("cs-comp").value || 20, 15, 20);
   var r = rollTest(tn, crit, comp, pool);
   pendingCD = { w:i, ammo:Math.max(0, +roundsSpent || 0), ap:0 };
   tableRoll(c, (w.name || "weapon") + " attack, TN " + tn + ": " + successes(r) +
@@ -34771,7 +34813,7 @@ function doAttack(i, roundsSpent){
     (used ? " (one used, " + (used.left ? used.left + " left" : "none left") + ")" : ""));
   var html = rollModLine(c, w, "attack") + testLine((w.name || "weapon") + " — " + w.attr + " + " + w.skill + (s.tag ? " (tagged)" : ""), tn, r) +
     (r.comps && /Unreliable|Dangerous/i.test(wfx(w)) ? '<div class="cs-qual">Complication on an ' + esc((/Unreliable|Dangerous/i.exec(wfx(w)) || [""])[0]) + ' weapon — see the quality.</div>' : "") +
-    apNote(want, bought) + (typeof legLine === "function" ? legLine(w) : "");               /* CMD Z018 (G.8): a legendary weapon's property, in its words */
+    apNote(want, bd) + (typeof legLine === "function" ? legLine(w) : "");               /* CMD Z018 (G.8): a legendary weapon's property, in its words */
   if(used) html += '<div class="cs-qual" id="cs-unit-note">' + esc(used.note) + "</div>";
   if(dzPaid) html += '<div class="cs-qual" id="cs-dz-ap-paid">' + esc(dzAp[0].name + ": 1 AP from the party pool to attempt it. Paid.") + "</div>";
   var dzT = typeof CH.diseaseTest === "function" ? CH.diseaseTest(c, w.attr) : [];
@@ -46678,6 +46720,25 @@ function recordInjury(key, loc, note, deb){
   });
   return n;
 }
+/* CMD Z039 (K.16): a creature row's one injury key - its row id "e:<ref>#<n>" (TT.tokId; a swarm's row is its first head, #0),
+   HELENA_ENC.woundKey's spelling; a row without one is keyed on its ref's first head.  "" for a character or nothing. */
+function foeInjKey(row){
+  if(!row || row.kind === "char") return "";
+  if(/^e:.*#\d+$/.test(String(row.id || ""))) return String(row.id);
+  return row.ref != null && row.ref !== "" ? "e:" + String(row.ref) + "#0" : "";
+}
+/* the Undo of a recorded Injury: the record recordInjury put at position n of that key, taken off if it is still there */
+function unrecordInjury(r){
+  if(!r || !r.key || !S || typeof S.update !== "function") return false;
+  var done = false;
+  S.update(function(m){
+    var a = m && m.injuries && Array.isArray(m.injuries[r.key]) ? m.injuries[r.key] : null, i = Math.round(+r.n || 0) - 1;
+    if(!a || i < 0 || i >= a.length || !a[i] || (r.loc && a[i].loc !== r.loc)) return;
+    a.splice(i, 1); done = true;
+    if(!a.length) delete m.injuries[r.key];
+  });
+  return done;
+}
 
 
 /* ====================================================== WAVE 7 — AFTER THE ATTACK
@@ -47044,7 +47105,9 @@ function applyToCreature(rep, tgt, plan, facts, lines, head, at, side){
                             /* WAVE 16, A1: whose sheet the hit came from, so the Overseer's decision is filed
                                under that character in the session log and said back on their device */
                             charId:(rep.attacker && rep.attacker.charId) || null,
-                            weapon:(rep.weapon && rep.weapon.name) || "" });
+                            weapon:(rep.weapon && rep.weapon.name) || "",
+                            /* Z039: Debilitating rides to the Overseer's Apply, for a critical's Injury (NR-26); absent otherwise */
+                            deb:(typeof TT !== "undefined" && typeof TT.hasQuality === "function" && TT.hasQuality(rep.weapon, "Debilitating")) || undefined });
         sent = true;
       }
     }catch(e){ sent = false; }
@@ -47068,7 +47131,7 @@ function applyToCreature(rep, tgt, plan, facts, lines, head, at, side){
   }
 
   /* Z010 (V.3, 2026-10-21): what this hit is about to change — the conditions and the bleed on this head — kept for its Undo */
-  var undoCond = null, undoBleed = null;
+  var undoCond = null, undoBleed = null, injDone = null;
   try{
     undoCond = (st.cond && Object.prototype.hasOwnProperty.call(st.cond, tgt.id)) ? JSON.parse(JSON.stringify(st.cond[tgt.id])) : null;
     undoBleed = (st.bleed && Object.prototype.hasOwnProperty.call(st.bleed, tgt.id)) ? JSON.parse(JSON.stringify(st.bleed[tgt.id])) : null;
@@ -47138,10 +47201,18 @@ function applyToCreature(rep, tgt, plan, facts, lines, head, at, side){
     var loc = null, roll = 1 + Math.floor(Math.random() * 20);
     if(CHx && typeof CHx.locationFor === "function"){ try{ loc = CHx.locationFor(roll); }catch(e){ loc = null; } }
     cls = "warn";
+    /* CMD Z039 (K.16): THE INJURY IS RECORDED, not only printed - on this head's one key (the row id "e:<ref>#<n>"; a swarm's
+       first head, #0), Debilitating carried from the weapon (NR-26), where the order's enemy box reads it; the hit's Undo takes it back */
+    var injKey = loc && typeof foeInjKey === "function" ? foeInjKey(tgt) : "", injN = 0;
+    if(injKey && typeof recordInjury === "function")
+      injN = recordInjury(injKey, loc.loc, "from " + ((rep.weapon && rep.weapon.name) || "an attack"),
+                          (typeof TT !== "undefined" && typeof TT.hasQuality === "function" && TT.hasQuality(rep.weapon, "Debilitating")));
+    injDone = injN ? { key:injKey, n:injN, loc:loc.loc } : null;
     lines.push("<b>Critical hit</b> — " + why + ". " +
       (loc ? "Location d20 <b>" + roll + "</b>: <b>" + esc(loc.loc) + "</b>. " + esc(loc.pen)
            : "Roll the location on the Encounter pane.") +
-      " <em>Creatures roll the same table (Guide p.lvii).</em>");
+      " <em>Creatures roll the same table (Guide p.lvii).</em>" +
+      (injN ? " <em>Recorded — " + injN + (injN === 1 ? " injury" : " injuries") + " on its row.</em>" : ""));
     /* WAVE 18, 2c: a Torso critical bleeds — recorded on this device (it wrote the hit), ticked at the end of its turns */
     if(bleedIs(loc) && tgt && bleedRecord(tgt.id, res.after, (rep.weapon && rep.weapon.name) || "")){
       push();
@@ -47169,7 +47240,7 @@ function applyToCreature(rep, tgt, plan, facts, lines, head, at, side){
   msg = { cls:cls, hd:"Applied — " + head, body:lines.join("<br>") };
   tick("turn", "— " + ((rep.attacker && rep.attacker.name) || "someone") + " hit " +
        (tgt.name || "a creature") + " for " + res.past + " past DR");
-  keepHitUndo(E, tgt, res, undoCond, undoBleed, (rep.attacker && rep.attacker.name) || "");
+  keepHitUndo(E, tgt, res, undoCond, undoBleed, (rep.attacker && rep.attacker.name) || "", "", injDone);   /* Z039: the Injury rides the Undo */
   render();
 }
 /* Z010 (V.3): ONE UNDO FOR THE LAST HIT APPLIED TO A CREATURE.  Its row's pool goes back to the number before the blow (the
@@ -47177,10 +47248,12 @@ function applyToCreature(rep, tgt, plan, facts, lines, head, at, side){
    both (rev).  A hit sent to the Overseer is not this device's to undo, so only a hit written here keeps one. */
 function keepHitUndo(E, tgt, res, cond, bleed, who){
   var U = window.SUITE_UNDO, what = arguments.length > 6 ? arguments[6] : "";   /* Zoe 2026-10-26: the Damage box names itself */
+  var inj = arguments.length > 7 && arguments[7] && arguments[7].key ? arguments[7] : null;   /* Z039: { key, n, loc } - the critical's Injury */
   if(!U || typeof U.keep !== "function" || !E || typeof E.setHp !== "function" || !tgt || res.before == null) return null;
   return U.keep("creature-hit", {
     text:(what ? what + " on " : "applied " + (who ? who + "’s " : "a ") + "hit on ") + (tgt.name || "a creature") + " (" + res.before + " → " + res.after + " HP)",
-    rev:{ ref:tgt.ref, id:tgt.id, before:res.before, after:res.after, cond:cond, bleed:bleed },
+    rev:inj ? { ref:tgt.ref, id:tgt.id, before:res.before, after:res.after, cond:cond, bleed:bleed, inj:inj }
+            : { ref:tgt.ref, id:tgt.id, before:res.before, after:res.after, cond:cond, bleed:bleed },
     revert:function(rev){
       var r = null;
       try{ r = E.setHp(rev.ref, rev.before); }catch(e){ r = { ok:false, why:String(e && e.message || e) }; }
@@ -47192,6 +47265,7 @@ function keepHitUndo(E, tgt, res, cond, bleed, who){
         if(!st.bleed || typeof st.bleed !== "object") st.bleed = {};
         if(rev.bleed) st.bleed[rev.id] = rev.bleed; else delete st.bleed[rev.id];
       });
+      if(rev.inj && typeof unrecordInjury === "function") unrecordInjury(rev.inj);   /* Z039: the critical's Injury goes with the hit */
       return { ok:ok };
     }
   });
@@ -49273,6 +49347,10 @@ function encReqApply(key, take){
                                                : "roll the location on the Encounter pane.");
     if(bleedIs(cloc) && bleedRecord(r.id, res.after, r.weapon || ""))
       critLine += " <b>Bleeding heavily</b> — recorded: 2 CD physical ignoring DR at the end of each of its turns, until it is healed or the fight ends.";
+    /* CMD Z039 (K.16): and the Injury is recorded on the head's one key (the row id), Debilitating as the player's weapon carried it */
+    var rKey = cloc && typeof foeInjKey === "function" ? foeInjKey({ id:r.id, ref:r.ref, kind:"enemy" }) : "";
+    var rN = rKey && typeof recordInjury === "function" ? recordInjury(rKey, cloc.loc, "from " + (r.weapon || "an attack"), r.deb === true) : 0;
+    if(rN) critLine += " <em>Recorded — " + rN + (rN === 1 ? " injury" : " injuries") + " on its row.</em>";
   }
   push();
   encDecided(r, "applied", res.past);
@@ -49297,7 +49375,7 @@ function encReqTake(ev){
                   name:String(ev.data.name || ev.data.ref), spec:ev.data.spec,
                   conds:ev.data.conds || [], attacker:String(ev.data.attacker || ""),
                   charId:ev.data.charId == null ? null : String(ev.data.charId),
-                  weapon:String(ev.data.weapon || "") };
+                  weapon:String(ev.data.weapon || ""), deb:ev.data.deb === true };
   return true;
 }
 if(SY && typeof SY.onEvent === "function"){
@@ -52094,6 +52172,17 @@ function strokeUp(e,svg){
   if(s.list.length) applyStroke(s.list,BRUSH);
 }
 
+/* CMD Z039: the header's subtitle in one line, or two split at a word boundary (at a " · " where one fits, else a space).  The
+   width is the measured one for its 11.5px capitals and .06em spacing (8.75 px a character; 8.97 kept as the margin) */
+const SUB_CH=11.5*0.72+0.69;
+function subLines(s,max){
+  s=String(s); const fits=t=>t.length*SUB_CH<=max;
+  if(fits(s)) return [s];
+  const cut=(sep)=>{ let at=-1; for(let i=s.indexOf(sep);i>0;i=s.indexOf(sep,i+1)) if(fits(s.slice(0,i))) at=i; return at; };
+  let i=cut(' · '), k=3;
+  if(i<0){ i=cut(' '); k=1; }
+  return i<0?[s]:[s.slice(0,i),s.slice(i+k)];
+}
 /* ---- the drawing ---- */
 function renderBlocks(M,opt){
   opt=opt||{};
@@ -52119,10 +52208,11 @@ function renderBlocks(M,opt){
   </style>`);
   O.push(`<rect x="0" y="0" width="${MAP_W}" height="${BK_HEAD}" fill="#15180f"/>`);
   O.push(`<text class="ttl" x="16" y="27">${esc(E.label.toUpperCase())}</text>`);
-  /* CMD Z038: the drawing is the grid's width again, so a long line is fitted to it rather than cut at its edge */
+  /* CMD Z039: a line too long for the grid's width wraps to two lines (the map's facts, then the range rule) - never squeezed */
   const subT=`FALLOUT 2d20 BLOCK MAP · ${w} × ${h} BLOCKS · ${M.n} ZONES · SEED ${M.seed} · ${M.v2?'ROOMS & HALLS · SAME ZONE = CLOSE, NEXT ZONE = MEDIUM, 2 = LONG, 3+ = EXTREME':'SAME BLOCK = CLOSE, NEXT = MEDIUM, 2 = LONG, 3 OR MORE = EXTREME'}`;
-  const subFit=(TXW(subT,11.5,false)+subT.length*0.69)>MAP_W-32?` textLength="${MAP_W-32}" lengthAdjust="spacingAndGlyphs"`:'';
-  O.push(`<text class="sub" x="16" y="46"${subFit}>${esc(subT)}</text>`);
+  const subL=subLines(subT,MAP_W-32);
+  O.push(subL.length<2?`<text class="sub" x="16" y="46">${esc(subT)}</text>`:
+    `<text class="sub" x="16" y="42"><tspan x="16" y="42">${esc(subL[0])}</tspan><tspan x="16" y="55">${esc(subL[1])}</tspan></text>`);
   O.push(`<line x1="0" y1="${BK_HEAD}" x2="${MAP_W}" y2="${BK_HEAD}" stroke="#3a4032" stroke-width="2"/>`);
   O.push(`<g id="bk_grid" transform="translate(0,${BK_HEAD})">`);
   O.push(`<rect width="${MAP_W}" height="${MAP_H}" fill="${E.floor}"/>`);
@@ -64756,12 +64846,27 @@ var document = new Proxy(__rdoc, {
      Difficulty.  Difficulty never past 5 (the suite's cap, as the stimpak's).  Pure: no DOM, no store.
        faDiff(n, self, deb)      -> { d, raw, parts }   n = the injuries the patient has (treated ones are still injuries)
        faTest(tn, crit, d, faces) -> { succ, comps, pass }   faces = the d20s rolled (2)
-       faHeal(what, rank, ap, hp, max) -> { ok, hp, healed, why }   what "heal" | "stab" */
+       faHeal(what, rank, ap, hp, max) -> { ok, hp, healed, why }   what "heal" | "stab"
+     CMD Z039 (the rest of pp.33-34, and the two kits of p.181).  Read off arguments past the old ones, so every caller and
+     every lift keeps its signature:
+       faDiff(n, self, deb, bot, bag)  bot: the patient is a machine - "INT + Repair test, with a difficulty of 2. This increases
+         by +1 for each injury" (p.34, Healing Robots); bag: the medic carries a Doctor's Bag - "Reduce the difficulty of
+         Medicine tests by 1 (minimum 0)" (p.181), so never on a machine's Repair test.  The modifiers sum, then the cap of 5.
+       faHeal(what, rank, ap, hp, max, per, skill)  per: HP each AP heals - 2 when a stimpak is given as part of the action
+         ("2 HP per AP spent, rather than 1", p.34); skill: the rank's name in the line (Repair on a machine).
+       faExtra(hp, max, stim, kit, what) -> { hp, said }  after a success: the stimpak's own HP ("The patient regains 4 HP
+         immediately in addition to any other effects", p.34; a dying patient it stabilizes), then the First Aid Kit's "+2 HP
+         upon succeeding at the First Aid action" (p.181) - only on a stable patient, as every HP First Aid heals (p.34).
+       faStimHp(name, hp) / faStimInj(name)  what one stimpak does: its catalogue HP (4 if none read), a Diluted one 2
+         ("only heal 2 HP", p.170); it treats one Injury, a Super Stimpak "up to two" (p.170). */
   function faDiff(n, self, deb){
+    var bot = arguments.length > 3 && !!arguments[3], bag = arguments.length > 4 && !!arguments[4] && !bot;
     var parts = [], raw = Math.max(0, Math.round(+n || 0));
-    parts.push(raw + (raw === 1 ? " injury" : " injuries"));
+    if (bot){ parts.push("2 for a machine"); parts.push("+" + raw + (raw === 1 ? " injury" : " injuries")); raw += 2; }
+    else parts.push(raw + (raw === 1 ? " injury" : " injuries"));
     if (self){ raw += 1; parts.push("+1 on yourself"); }
     if (deb){ raw += 1; parts.push("+1 Debilitating"); }
+    if (bag && raw > 0){ raw -= 1; parts.push("-1 Doctor's Bag"); }
     return { d:Math.min(5, raw), raw:raw, parts:parts };
   }
   function faTest(tn, crit, d, faces){
@@ -64772,15 +64877,30 @@ var document = new Proxy(__rdoc, {
   function faHeal(what, rank, ap, hp, max){
     rank = Math.max(0, Math.round(+rank || 0)); ap = Math.max(0, Math.round(+ap || 0));
     hp = Math.max(0, Math.round(+hp || 0)); max = Math.max(1, Math.round(+max || 0) || 1);
+    var per = arguments.length > 5 ? Math.max(1, Math.round(+arguments[5] || 1)) : 1, skill = (arguments.length > 6 && arguments[6]) || "Medicine";
+    var apN = ap, apTxt = apN + " AP" + (per > 1 ? " x" + per : "");
+    ap = apN * per;
     if (what === "stab"){
       if (hp > 0) return { ok:false, hp:hp, healed:0, why:"not dying - nothing to stabilize" };
       var s = Math.min(max, 1 + ap);
-      return { ok:true, hp:s, healed:s, why:"stabilized at 1 HP" + (ap ? ", +" + (s - 1) + " for " + ap + " AP" : "") };
+      return { ok:true, hp:s, healed:s, why:"stabilized at 1 HP" + (apN ? ", +" + (s - 1) + " for " + apTxt : "") };
     }
     if (hp <= 0) return { ok:false, hp:hp, healed:0, why:"dying - stabilize first (only a stable character's HP can be healed)" };
     var to = Math.min(max, hp + rank + ap);
-    return { ok:true, hp:to, healed:to - hp, why:"+" + (to - hp) + " HP (Medicine " + rank + (ap ? " + " + ap + " AP" : "") + (to === max ? ", at maximum" : "") + ")" };
+    return { ok:true, hp:to, healed:to - hp, why:"+" + (to - hp) + " HP (" + skill + " " + rank + (apN ? " + " + apTxt : "") + (to === max ? ", at maximum" : "") + ")" };
   }
+  function faExtra(hp, max, stim, kit, what){
+    hp = Math.max(0, Math.round(+hp || 0)); max = Math.max(1, Math.round(+max || 0) || 1); stim = Math.max(0, Math.round(+stim || 0));
+    var said = [], h = hp;
+    if (stim){ var a = Math.min(max, h + stim); said.push("+" + (a - h) + " HP from the " + (what || "stimpak") + (h <= 0 && a > 0 ? ", stabilized" : "")); h = a; }
+    if (kit && h > 0){ var b = Math.min(max, h + 2); said.push("+" + (b - h) + " HP from the First Aid Kit"); h = b; }
+    return { hp:h, said:said };
+  }
+  function faStimHp(name, hp){
+    var v = Math.round(+hp || 0) > 0 ? Math.round(+hp) : 4;
+    return /diluted/i.test(String(name || "")) ? Math.max(1, Math.floor(v / 2)) : v;
+  }
+  function faStimInj(name){ return /super/i.test(String(name || "")) ? 2 : 1; }
   /* FIRSTAID:end */
 
   /* CMD Z038: THE FIRST AID ROW (the rules are FIRSTAID's, above).  Who gives it (any sheet; the patient's own is "on yourself",
@@ -64789,6 +64909,39 @@ var document = new Proxy(__rdoc, {
      a tagged Medicine's rank its critical range; a failure changes nothing.  A success writes the patient's sheet (its HP, or
      the wound's treated tick) through the store, and AP come off the party pool (m.pcAP) only on a success, as many as it holds. */
   var faPick = {}, faSaid = {};
+  /* CMD Z039: what the First Aid row reads off the sheets (the rules are FIRSTAID's, above).
+       faBotOf(c)        the patient is a machine: the sheet's Robot tick (c.robot, the same flag Camp and the sheet read)
+       faGearOf(c)       the medic carries a Doctor's Bag / a First Aid Kit: a row of that name in the sheet's inventory with
+                         a count above 0 (a row with no count is one carried), as every other inventory read in the suite
+       faStimsOf(c, bot) the rows the medic can give as part of the action: Stimpaks (any but the Diffuser, which is not given
+                         to one patient); for a machine Robot Repair Kits instead ("Robots cannot be healed from Stimpaks, but
+                         you can use robot repair kits for the same benefits", p.34) - { i, name, qty, hp, inj, what } each */
+  function faCarried(r){ return !!r && String(r.name || "").trim() !== "" && (r.qty == null || Math.round(+r.qty || 0) > 0); }
+  function faBotOf(c){ return !!(c && c.robot); }
+  function faGearOf(c){
+    var g = { bag:false, kit:false };
+    ((c && c.inventory) || []).forEach(function(r){
+      if (!faCarried(r)) return;
+      var n = String(r.name || "");
+      if (/^\s*doctor[’']?s bag\b/i.test(n)) g.bag = true;
+      if (/^\s*first aid kit\b/i.test(n)) g.kit = true;
+    });
+    return g;
+  }
+  function faStimsOf(c, bot){
+    var out = [], CHR = (typeof window !== "undefined") ? window.HELENA_CHAR : null;
+    ((c && c.inventory) || []).forEach(function(r, i){
+      if (!faCarried(r)) return;
+      var n = String(r.name || "");
+      var ok = bot ? /robot repair kit/i.test(n) : (/stimpak/i.test(n) && !/diffuser/i.test(n));
+      if (!ok) return;
+      var U = null;
+      try{ U = CHR && typeof CHR.consumableOf === "function" ? CHR.consumableOf(n, window.ITEMS, window.RECIPES) : null; }catch(e){ U = null; }
+      out.push({ i:i, name:n.trim(), qty:r.qty == null ? 1 : Math.round(+r.qty || 0), hp:bot ? 4 : faStimHp(n, U && U.hp), inj:bot ? 1 : faStimInj(n),
+                 what:bot ? "repair kit" : "stimpak" });
+    });
+    return out;
+  }
   function faMax(c){
     var m = SUITE.get(), pl = (m.players || []).filter(function(x){ return x && String(x.id) === String(c.id); })[0];
     if (pl && isFinite(+pl.max) && +pl.max > 0) return +pl.max;
@@ -64800,6 +64953,7 @@ var document = new Proxy(__rdoc, {
     var pat = sheetOf(p); if (!pat) return null;
     var cs = (SUITE.get().chars || []).filter(function(c){ return c && c.id != null; });
     var pk = faPick[key] || (faPick[key] = {});
+    var bot = faBotOf(pat), skill = bot ? "Repair" : "Medicine";
     var hp = Math.max(0, Math.round(+pat.hp || 0)), opts = [];
     if (hp <= 0) opts.push(["stab", "stabilize (dying)"]);
     else opts.push(["heal", "heal HP"]);
@@ -64809,11 +64963,14 @@ var document = new Proxy(__rdoc, {
       var other = cs.filter(function(c){ return String(c.id) !== String(pat.id); })[0];
       pk.medic = String((other || pat).id);
     }
+    var med = cs.filter(function(c){ return String(c.id) === pk.medic; })[0] || null;
+    var gear = faGearOf(med), st = faStimsOf(med, bot);
+    if (pk.stim != null && pk.stim !== "" && !st.some(function(s){ return String(s.i) === String(pk.stim); })) pk.stim = "";
     var d = document.createElement("div"); d.className = "fa";
-    var h = document.createElement("span"); h.className = "fa-h"; h.textContent = "First Aid"; d.appendChild(h);
+    var h = document.createElement("span"); h.className = "fa-h"; h.textContent = bot ? "First Aid (Repair)" : "First Aid"; d.appendChild(h);
     var ms = document.createElement("select"); ms.setAttribute("data-fkey", key + "|fa-medic"); ms.setAttribute("aria-label", "Who gives " + p.name + " first aid");
     cs.forEach(function(c){ var o = document.createElement("option"); o.value = String(c.id); o.textContent = "by " + (c.name || "?") + (String(c.id) === String(pat.id) ? " (yourself, +1)" : ""); ms.appendChild(o); });
-    ms.value = pk.medic; ms.onchange = function(){ pk.medic = ms.value; };
+    ms.value = pk.medic; ms.onchange = function(){ pk.medic = ms.value; pk.stim = ""; render(); };
     d.appendChild(ms);
     var ws = document.createElement("select"); ws.setAttribute("data-fkey", key + "|fa-what"); ws.setAttribute("aria-label", "What a success does for " + p.name);
     opts.forEach(function(o){ var x = document.createElement("option"); x.value = o[0]; x.textContent = o[1]; ws.appendChild(x); });
@@ -64821,12 +64978,36 @@ var document = new Proxy(__rdoc, {
     d.appendChild(ws);
     var al = document.createElement("label"); al.textContent = "AP for more HP ";
     var ap = document.createElement("input"); ap.type = "number"; ap.min = "0"; ap.max = "9"; ap.value = String(pk.ap || 0);
-    ap.setAttribute("data-fkey", key + "|fa-ap"); ap.title = "Heal or stabilize: +1 HP for every AP spent, from the party pool, after a success (Book One p.34)";
+    ap.setAttribute("data-fkey", key + "|fa-ap"); ap.title = "Heal or stabilize: +1 HP for every AP spent (2 with a " + (bot ? "repair kit" : "stimpak") + "), from the party pool, after a success (Book One p.34)";
     ap.onchange = function(){ pk.ap = Math.max(0, Math.round(+ap.value || 0)); };
     al.appendChild(ap); d.appendChild(al);
+    /* CMD Z039: a stimpak (a repair kit, on a machine) given as part of the action - the medic's own, spent on a success */
+    if (st.length){
+      var ss = document.createElement("select"); ss.setAttribute("data-fkey", key + "|fa-stim"); ss.setAttribute("aria-label", "Give a " + st[0].what + " as part of the action");
+      var o0 = document.createElement("option"); o0.value = ""; o0.textContent = "no " + st[0].what; ss.appendChild(o0);
+      st.forEach(function(s){ var o = document.createElement("option"); o.value = String(s.i); o.textContent = "+ " + s.name + " (" + s.qty + " left)"; ss.appendChild(o); });
+      ss.value = pk.stim == null ? "" : String(pk.stim);
+      ss.title = "Given as part of the action: on a success the patient regains its HP too, and each AP heals 2 (Book One p.34)";
+      ss.onchange = function(){ pk.stim = ss.value; render(); };
+      d.appendChild(ss);
+      if (pk.stim != null && pk.stim !== ""){
+        var sa = document.createElement("select"); sa.setAttribute("data-fkey", key + "|fa-stimas"); sa.setAttribute("aria-label", "What the " + st[0].what + " does");
+        [["hp", "its HP"], ["inj", "treat an injury"]].forEach(function(o){ var x = document.createElement("option"); x.value = o[0]; x.textContent = o[1]; sa.appendChild(x); });
+        sa.value = pk.stimAs === "inj" ? "inj" : "hp"; sa.onchange = function(){ pk.stimAs = sa.value; };
+        d.appendChild(sa);
+      }
+    }
+    if (!bot && (gear.bag || gear.kit)){
+      var gn = document.createElement("span"); gn.className = "fa-gear";
+      gn.textContent = [gear.bag ? "Doctor's Bag: -1 Difficulty" : "", gear.kit ? "First Aid Kit: +2 HP on a success" : ""].filter(Boolean).join(" · ");
+      gn.title = "Carried by " + ((med && med.name) || "the medic") + " (Book One p.181)";
+      d.appendChild(gn);
+    }
     var go = document.createElement("button"); go.setAttribute("data-fkey", key + "|fa-go"); go.textContent = "Roll First Aid";
     go.disabled = !canTick(p);
-    go.title = go.disabled ? "That sheet belongs to someone else — they, or the GM, give it" : "A major action: INT + Medicine, Difficulty = the patient's injuries (+1 on yourself), Book One p.33";
+    go.title = go.disabled ? "That sheet belongs to someone else — they, or the GM, give it"
+      : bot ? "A major action on a machine: INT + Repair, Difficulty 2 + its injuries (+1 on yourself), Book One p.34"
+      : "A major action: INT + Medicine, Difficulty = the patient's injuries (+1 on yourself), Book One p.33";
     go.onclick = function(){ faRun(p, key); };
     d.appendChild(go);
     if (faSaid[key]){ var o2 = document.createElement("div"); o2.className = "fa-out"; o2.setAttribute("role", "status"); o2.textContent = faSaid[key]; d.appendChild(o2); }
@@ -64840,33 +65021,78 @@ var document = new Proxy(__rdoc, {
     var list = injuriesOf(p), what = pk.what || "heal", k = /^t\d+$/.test(what) ? +what.slice(1) : -1, w = k >= 0 ? list[k] : null;
     if (k >= 0 && (!w || w.treated)){ faSaid[key] = "That injury is already treated - nothing was rolled."; render(); return null; }
     var self = String(med.id) === String(pat.id);
-    var D = faDiff(list.length, self, !!(w && w.debilitating === true));
-    var sk = (med.skills || {}).Medicine || {}, rank = Math.max(0, Math.round(+sk.rank || 0));
+    /* CMD Z039: a machine is INT + Repair at Difficulty 2 + its injuries (p.34); the medic's Doctor's Bag is -1 to a Medicine
+       test and the First Aid Kit +2 HP on a success (p.181) - neither on a machine; the stimpak picked (a repair kit on a machine) */
+    var bot = faBotOf(pat), gear = faGearOf(med), bag = gear.bag && !bot, kit = gear.kit && !bot, skill = bot ? "Repair" : "Medicine";
+    var sr = null;
+    if (pk.stim != null && pk.stim !== "") faStimsOf(med, bot).forEach(function(s){ if (String(s.i) === String(pk.stim)) sr = s; });
+    var D = faDiff(list.length, self, !!(w && w.debilitating === true), bot, bag);
+    var sk = (med.skills || {})[skill] || {}, rank = Math.max(0, Math.round(+sk.rank || 0));
     var tn = Math.max(0, Math.round(+((med.special || {}).I) || 0)) + rank, crit = sk.tag ? Math.max(1, rank) : 1;
     var faces = [1 + Math.floor(Math.random() * 20), 1 + Math.floor(Math.random() * 20)];
     var T = faTest(tn, crit, D.d, faces);
-    var line = (med.name || "Someone") + " gives " + (self ? "themself" : p.name) + " first aid: INT + Medicine TN " + tn + ", " + faces.join(", ") +
+    var line = (med.name || "Someone") + " gives " + (self ? "themself" : p.name) + " first aid: INT + " + skill + " TN " + tn + ", " + faces.join(", ") +
       " = " + T.succ + (T.succ === 1 ? " success" : " successes") + (T.comps ? " and a complication" : "") + " vs Difficulty " + D.d +
       " (" + D.parts.join(", ") + (D.raw > 5 ? ", capped at 5" : "") + ")";
-    if (!T.pass){ faSaid[key] = line + " - failed; nothing changes (Book One p.33)."; faSay(med, faSaid[key]); render(); return { pass:false, line:faSaid[key] }; }
+    if (!T.pass){ faSaid[key] = line + " - failed; nothing changes" + (sr ? ", the " + sr.name + " is kept" : "") + " (Book One p.33)."; faSay(med, faSaid[key]); render(); return { pass:false, line:faSaid[key] }; }
+    var hp0 = Math.max(0, Math.round(+pat.hp || 0)), mx = faMax(pat), per = sr ? 2 : 1;
+    var open = [];                                               // the open injuries a stimpak could treat, besides the one this success treats
+    list.forEach(function(x, j){ if (x && !x.treated && j !== k) open.push(j); });
+    var stimAs = sr ? (pk.stimAs === "inj" && open.length ? "inj" : "hp") : "";
+    var stimHp = stimAs === "hp" ? sr.hp : 0, stimT = stimAs === "inj" ? open.slice(0, sr.inj) : [];
+    var want = Math.max(0, Math.round(+pk.ap || 0)), pool = Math.max(0, Math.round(+m.pcAP || 0)), apUse = 0, main = "", E = null;
     if (k >= 0){
-      editInjuries(p, function(l){ if (l[k]) l[k].treated = true; });
-      faSaid[key] = line + " - the " + w.loc + " injury is treated: patched, no penalty, it can re-open (Book One p.34).";
+      main = "the " + w.loc + " injury is treated: patched, no penalty, it can re-open";
+      E = faExtra(hp0, mx, stimHp, kit, sr && sr.what);
     } else {
-      var want = Math.max(0, Math.round(+pk.ap || 0)), pool = Math.max(0, Math.round(+m.pcAP || 0)), apUse = Math.min(want, pool);
-      var hp0 = Math.max(0, Math.round(+pat.hp || 0)), H = faHeal(what === "stab" ? "stab" : "heal", rank, apUse, hp0, faMax(pat));
-      if (!H.ok){ faSaid[key] = line + " - passed, but " + H.why + "."; faSay(med, faSaid[key]); render(); return { pass:true, line:faSaid[key] }; }
-      var extra = H.hp - Math.min(faMax(pat), hp0 + (what === "stab" ? 1 : rank));
-      apUse = Math.max(0, Math.min(apUse, extra));            // an AP the maximum would not let heal is not spent
-      SUITE.update(function(mm){
-        (mm.chars || []).forEach(function(c){ if (c && String(c.id) === String(pat.id)) c.hp = H.hp; });
-        if (apUse) mm.pcAP = Math.max(0, Math.round(+mm.pcAP || 0) - apUse);
-      });
-      faSaid[key] = line + " - " + H.why + (apUse ? ", " + apUse + " AP from the party pool" : "") + (apUse < want ? " (" + (want - apUse) + " AP not spent)" : "") + " (Book One p.34).";
+      var hs = what === "stab" ? "stab" : "heal", H0 = faHeal(hs, rank, 0, hp0, mx, per, skill);
+      if (!H0.ok){ faSaid[key] = line + " - passed, but " + H0.why + (sr ? "; the " + sr.name + " is kept" : "") + "."; faSay(med, faSaid[key]); render(); return { pass:true, line:faSaid[key] }; }
+      var room = Math.max(0, mx - faExtra(H0.hp, mx, stimHp, kit, "").hp);
+      apUse = Math.min(want, pool, Math.ceil(room / per));      // an AP the maximum would not let heal is not spent
+      var H = faHeal(hs, rank, apUse, hp0, mx, per, skill);
+      main = H.why;
+      E = faExtra(H.hp, mx, stimHp, kit, sr && sr.what);
     }
+    var hpTo = E.hp, rev = { pat:String(pat.id), hp:hp0, med:String(med.id), row:sr ? sr.i : -1, name:sr ? sr.name : "", qty:sr ? sr.qty : 0,
+                             ap:apUse, wk:woundKeyFor(p), inj:(k >= 0 ? [k] : []).concat(stimT) };
+    if (k >= 0 || stimT.length) editInjuries(p, function(l){ if (l[k]) l[k].treated = true; stimT.forEach(function(j){ if (l[j]) l[j].treated = true; }); });
+    SUITE.update(function(mm){
+      (mm.chars || []).forEach(function(c){
+        if (!c) return;
+        if (String(c.id) === String(pat.id) && hpTo !== hp0) c.hp = hpTo;
+        if (sr && String(c.id) === String(med.id) && c.inventory && c.inventory[sr.i] && String(c.inventory[sr.i].name || "").trim() === sr.name)
+          c.inventory[sr.i].qty = Math.max(0, (c.inventory[sr.i].qty == null ? 1 : Math.round(+c.inventory[sr.i].qty || 0)) - 1);
+      });
+      if (apUse) mm.pcAP = Math.max(0, Math.round(+mm.pcAP || 0) - apUse);
+    });
+    var bits = [main].concat(E.said);
+    if (stimT.length) bits.push("the " + sr.what + " treats " + stimT.map(function(j){ return "the " + list[j].loc; }).join(" and ") + " injury");
+    if (sr) bits.push("one " + sr.name + " spent");
+    faSaid[key] = line + " - " + bits.join("; ") + (apUse ? ", " + apUse + " AP from the party pool" : "") + (k < 0 && apUse < want ? " (" + (want - apUse) + " AP not spent)" : "") + " (Book One p.34).";
     faSay(med, faSaid[key]);
+    faUndo(faSaid[key], rev);
     render();
-    return { pass:true, line:faSaid[key] };
+    return { pass:true, line:faSaid[key], hp:hpTo };
+  }
+  /* CMD Z039: a First Aid success takes back with one Undo, as the board's other writes (window.SUITE_UNDO): the patient's HP,
+     the stimpak's count, the party pool's AP, the injuries it ticked treated */
+  function faUndo(text, rev){
+    var U = (typeof window !== "undefined") ? window.SUITE_UNDO : null;
+    if (!U || typeof U.keep !== "function") return;
+    try{ U.keep("first-aid", { text:text, rev:rev, chars:[rev.pat, rev.med], revert:function(x){
+      SUITE.update(function(mm){
+        (mm.chars || []).forEach(function(c){
+          if (!c) return;
+          if (String(c.id) === x.pat) c.hp = x.hp;
+          if (x.row >= 0 && String(c.id) === x.med && c.inventory && c.inventory[x.row] && String(c.inventory[x.row].name || "").trim() === x.name) c.inventory[x.row].qty = x.qty;
+        });
+        if (x.ap) mm.pcAP = Math.max(0, Math.round(+mm.pcAP || 0)) + x.ap;
+        var l = x.wk != null && mm.injuries ? mm.injuries[x.wk] : null;
+        if (l) (x.inj || []).forEach(function(j){ if (l[j]) l[j].treated = false; });
+      });
+      render();
+      return { ok:true };
+    } }); }catch(e){}
   }
   function faSay(med, text){
     try{ var SY = window.SUITE_SYNC; if (SY && typeof SY.emit === "function") SY.emit("roll", { name:med.name, charId:med.id, token:"c:" + med.id, text:text }); }catch(e){}
@@ -70859,6 +71085,70 @@ function paint(){
 }
 size.addEventListener("change", paint); dens.addEventListener("change", paint);
 paint();
+})(window);
+
+/* CMD Z039 - THE FIGHT MAP FITS THE STAGE.  In Cinder's Fight the map (Zones or Blocks) is drawn to the visible Stage: its top
+   below the ribbon and the token strip, its foot above the action bar - the whole map at load, never under the bar (the Blocks
+   map grew to 72vh in Z038 and its foot sat under the bar at 1440 x 900).  fit() measures the room once - the stage's top
+   against the action bar's top (on a phone, the map pane's own foot) - and writes it as --cl-map-h on #stage only when it
+   changed; the window's size, the token strip's and the bar's (a ResizeObserver) and a tab change call it.  Nothing that opens
+   OVER the map (its table, the dice, the monster card) moves either edge, so the map never shrinks for a panel.
+   Zoom: - / Fit / + over the map's corner make the map 1x, 1.5x, 2x or 3x the fitted size; #stage then scrolls on both axes,
+   so every edge of the zoomed map can be panned to (the stage stays between the strip and the bar). */
+(function(W){
+"use strict";
+var D = W.document, B = D.body, fold = D.getElementById("fold-map"), stage = D.getElementById("stage");
+if(!B || !fold || !stage) return;
+var ZOOM = [1, 1.5, 2, 3], zi = 0;
+function fight(){ return B.classList.contains("view-cinder") && B.getAttribute("data-cl-tab") === "fight"; }
+function put(e, k, v){ if(e.style.getPropertyValue(k) !== v) e.style.setProperty(k, v); }
+var box = D.createElement("div"); box.id = "cl-zoom"; box.className = "cl-zoom"; box.setAttribute("role", "group"); box.setAttribute("aria-label", "Map zoom");
+[["out", "−", "Zoom out"], ["fit", "Fit", "Fit the whole map"], ["in", "+", "Zoom in"]].forEach(function(b){
+  var e = D.createElement("button"); e.type = "button"; e.setAttribute("data-zoom", b[0]); e.textContent = b[1]; e.setAttribute("aria-label", b[2]); e.title = b[2]; box.appendChild(e);
+});
+B.appendChild(box);
+function zoomTo(i){
+  i = Math.max(0, Math.min(ZOOM.length - 1, i)); if(i === zi) return;
+  /* the point at the middle of the view stays in the middle */
+  var cx = (stage.scrollLeft + stage.clientWidth / 2) / Math.max(1, stage.scrollWidth), cy = (stage.scrollTop + stage.clientHeight / 2) / Math.max(1, stage.scrollHeight);
+  zi = i;
+  if(i) { stage.setAttribute("data-cl-zoom", ""); put(stage, "--cl-zoom", String(ZOOM[i])); } else { stage.removeAttribute("data-cl-zoom"); stage.style.removeProperty("--cl-zoom"); }
+  stage.scrollLeft = cx * stage.scrollWidth - stage.clientWidth / 2; stage.scrollTop = cy * stage.scrollHeight - stage.clientHeight / 2;
+  paintZoom();
+}
+function paintZoom(){
+  box.querySelectorAll("button").forEach(function(b){
+    var k = b.getAttribute("data-zoom"), off = k === "in" ? zi === ZOOM.length - 1 : zi === 0;
+    if(b.disabled !== off) b.disabled = off;
+  });
+}
+box.addEventListener("click", function(e){
+  var b = e.target.closest("button[data-zoom]"); if(!b) return;
+  var k = b.getAttribute("data-zoom"); zoomTo(k === "in" ? zi + 1 : k === "out" ? zi - 1 : 0);
+});
+var watched = [];
+function watch(id){
+  var e = D.getElementById(id); if(!e || watched.indexOf(e) >= 0 || typeof W.ResizeObserver !== "function") return;
+  watched.push(e); new W.ResizeObserver(function(){ fit(); }).observe(e);
+}
+function fit(){
+  if(!fight()) return;
+  watch("zm-bar"); watch("cl-bar");
+  var f = fold.getBoundingClientRect(); if(!(f.height > 0)) return;
+  var r = stage.getBoundingClientRect(), top = r.top + fold.scrollTop, lim = f.bottom;
+  /* the action bar, where it stands over the map pane (a desktop); on a phone it is under the pane, which is the limit */
+  var bar = D.getElementById("cl-bar"), q = bar ? bar.getBoundingClientRect() : null;
+  if(q && q.height > 0 && q.top > top && q.top < lim) lim = q.top;
+  put(stage, "--cl-map-h", Math.max(160, Math.floor(lim - top - 8)) + "px");
+  put(box, "top", Math.round(top + 6) + "px");
+  put(box, "left", Math.round(r.right - 22) + "px");
+}
+W.addEventListener("resize", fit);
+new W.MutationObserver(fit).observe(B, { attributes:true, attributeFilter:["class", "data-cl-tab"] });
+if(D.readyState === "loading") D.addEventListener("DOMContentLoaded", fit); else fit();
+W.addEventListener("load", fit);
+paintZoom();
+W.CINDER_MAPFIT = { fit:fit, zoom:function(i){ if(i != null) zoomTo(+i); return ZOOM[zi]; } };
 })(window);
 </script>
 <script data-suite="cinder-8-overseer">/* ============================================================================
