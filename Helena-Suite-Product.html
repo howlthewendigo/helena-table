@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"8baa02ba",at:"2026-10-28 16:10 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"42eab42d",at:"2026-10-28 19:05 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -4511,6 +4511,24 @@ body.view-cinder #cl-mtc .cl-win-x{ color:#E8DFCC; }
 #cl-ms small{ display:block; color:#9aa08a; font-size:12px; }
 .cl-ms-say{ color:#f0b429; font-size:12px; margin-top:3px; }
 body:not(.view-cinder) #cl-ms{ display:none !important; }
+/* CMD Z041: the monster card docks as a tab in the right column (cinder-1-combat.js mtcTab) - on the Overseer's desktop the
+   column's head is a strip "Ledger | Monster" (40 px) and the card lies under it, 360 px wide like the column, above the
+   Mysterious Stranger's tick at the column's foot; none of it is over the map.  A phone keeps the card as its window (Z040). */
+#cl-rtabs{ display:none; }
+@media screen and (min-width:701px){
+  body.view-cinder[data-cl-tab="fight"] #cl-rtabs:not([hidden]){ display:flex; position:fixed; top:var(--cl-top); right:0; width:360px; height:40px; box-sizing:border-box;
+    z-index:2; background:#3a2e22; border-left:2px solid #3a2e22; }
+  body.view-cinder[data-cl-tab="fight"] #cl-rtabs .cl-rt{ flex:1 1 0; min-height:40px; padding:0 8px; background:none; border:0; border-bottom:3px solid transparent; cursor:pointer;
+    color:#cfc5b0; font:15px/1 "Special Elite", "Courier New", monospace; letter-spacing:.1em; text-transform:uppercase; }
+  body.view-cinder[data-cl-tab="fight"] #cl-rtabs .cl-rt[aria-selected="true"]{ color:#f2d27a; border-bottom-color:#b8862b; }
+  body.view-cinder[data-cl-tab="fight"] #cl-rtabs .cl-rt[data-new]::after{ content:" \2022"; color:#E8692C; }
+  body.view-cinder[data-cl-tab="fight"] #cl-rtabs .cl-rt:focus-visible{ outline:2px solid #E8692C; outline-offset:-3px; }
+  body.view-cinder[data-cl-tab="fight"] #cl-mtc[data-cl-dock="tab"]{ position:fixed; z-index:3; top:calc(var(--cl-top) + 40px); right:0; left:auto; bottom:auto; transform:none;
+    width:360px; max-height:calc(100vh - var(--cl-top) - 40px - 76px); overflow:auto; border-radius:0 0 0 4px; box-shadow:-6px 4px 14px rgba(0,0,0,.45); }
+  body.view-cinder[data-cl-tab="fight"] #cl-mtc .cl-mpop{ float:right; margin:0 0 4px 8px; padding:2px 8px; min-height:28px; cursor:pointer; font:13px/1 "EB Garamond", Georgia, serif;
+    background:#D9CAA8; border:1px solid #5E5346; border-radius:3px; }
+  body.view-cinder[data-cl-tab="fight"] #cl-mtc.cl-win .cl-mpop{ margin-right:6px; }
+}
 </style>
 <style data-suite="cinder-2-loot">/* Z032 — Cinder Ledger, part 2: the Loot Window.  A3 rarity edges: 0 grey · 1 bone · 2 green · 3–4 blue ·
    5–6 blue with a brass double edge · Legendary brass star + gold edge.  No purple on items. */
@@ -4605,6 +4623,12 @@ body:not(.view-cinder) #cl-ms{ display:none !important; }
     border-top:2px solid #3a2e22; border-radius:10px 10px 0 0; }
   .cl-grip{ display:none; }
   .cl-tip{ left:0 !important; right:0; top:auto !important; bottom:0; max-width:none !important; border-radius:10px 10px 0 0; }
+}
+/* CMD Z041: in Cinder's Fight on a desktop the Ledger starts under the header (its own header, LOG | CHAT and x, stood under the
+   page's header at top 0), and under the right column's "Ledger | Monster" strip while that shows (cinder-1-combat.css) */
+@media screen and (min-width:701px){
+  body.view-cinder[data-cl-tab="fight"] #cl-ledger{ top:var(--cl-top); }
+  body.view-cinder[data-cl-tab="fight"]:has(#cl-rtabs:not([hidden])) #cl-ledger{ top:calc(var(--cl-top) + 40px); }
 }
 </style>
 <style data-suite="cinder-4-sheet">/* Z032 (2026-10-23) Cinder Ledger - the Sheet (brief SC, amendment A1).  Only under body.view-cinder; the
@@ -5102,6 +5126,15 @@ body.view-cinder[data-cl-tab="fight"] #cl-zoom{ display:flex; position:fixed; z-
   background:#221C17; color:#E8DFCC; border:1px solid #9C7A3C; border-radius:4px; opacity:.9; }
 #cl-zoom button:disabled{ opacity:.4; cursor:default; }
 #cl-zoom button:focus-visible{ outline:2px solid #E8692C; outline-offset:1px; }
+/* CMD Z041: "Key", just left of the zoom buttons over a Zones map in Cinder's Fight (cinder-8-maps.js places it; the
+   generator lays the key over the map's edge while it is pressed) */
+#cl-key{ display:none; }
+@media screen and (min-width:701px){
+  body.view-cinder[data-cl-tab="fight"] #cl-key:not([hidden]){ display:block; position:fixed; z-index:25; transform:translateX(-100%); min-width:32px; min-height:32px;
+    padding:0 10px; font:15px/1 "EB Garamond", Georgia, serif; cursor:pointer; background:#221C17; color:#E8DFCC; border:1px solid #9C7A3C; border-radius:4px; opacity:.9; }
+  body.view-cinder[data-cl-tab="fight"] #cl-key[aria-pressed="true"]{ border-color:#E8692C; box-shadow:inset 0 -3px 0 #E8692C; opacity:1; }
+  body.view-cinder[data-cl-tab="fight"] #cl-key:focus-visible{ outline:2px solid #E8692C; outline-offset:1px; }
+}
 /* CMD Z040: THE FIGHT MAP GETS ITS SPACE (a desktop; a phone keeps Z039's layout).  Measured at 1440 x 900 the fitted map was
    450 px of 900: the token strip (112 px) and its gaps stood above it, the ribbon was 76 px, and the action bar was 112 px tall
    lifted 10 px off its dock.  Now: the strip folds behind "Tokens" (cinder-8-maps.js) and lies over the map's top edge when
@@ -5124,7 +5157,8 @@ body.view-cinder[data-cl-tab="fight"] #cl-zoom{ display:flex; position:fixed; z-
     background:#221C17; color:#E8DFCC; border:1px solid #9C7A3C; border-radius:4px; }
   body.view-cinder[data-cl-tab="fight"] #cl-tok[aria-expanded="true"]{ border-color:#E8692C; box-shadow:inset 0 -3px 0 #E8692C; }
   body.view-cinder[data-cl-tab="fight"] #cl-tok:focus-visible{ outline:2px solid #E8692C; outline-offset:1px; }
-  /* the monster card docks against the Stage's left side, under the ribbon: narrower than half the stage, so the map's centre
+  /* (CMD Z041: this is now the card POPPED OUT - its window; docked, it is the Monster tab in the right column, cinder-1-combat.css)
+     the monster card docks against the Stage's left side, under the ribbon: narrower than half the stage, so the map's centre
      and the zoom buttons (the stage's top right) stay clear.  CINDER.win writes a window's top and its step-aside transform
      inline (a second window steps down and right); the card holds its dock instead, so those two are said !important here. */
   body.view-cinder[data-cl-tab="fight"] #cl-mtc.cl-win{ top:calc(var(--cl-top) + 72px) !important; left:120px; transform:none !important;
@@ -5668,7 +5702,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-28 16:10 UTC">8baa02ba</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-28 19:05 UTC">42eab42d</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -15911,6 +15945,51 @@ try{
       landSettle(id);
       return true;
     },
+    /* CMD Z041 (2026-10-28): TWO DEVICES PAYING AT ONCE - THE ROLL WAITS FOR THE ROOM.  Z040 made every AP payment one
+       read-check-write (payParty / payAll / payPool), and a device whose push the room refuses re-runs it on the room's state,
+       where it stands down when the pool is short.  But the roll was made the moment the LOCAL write was, so the device that
+       lost still showed its dice.  whenPaid(pay, h) runs h.go() only once the round the payment rode in WON (whenWon):
+         Solo, no room, a payment of 0, or a round that pushed nothing: h.go() at once, and its answer is returned (as before).
+         In a room: h.say(PAY_WAIT, "wait") while it waits; won -> h.go(); lost (another device spent the pool first: the
+         re-run wrote nothing, or the push failed) -> h.say(PAY_LOST, "lost") and nothing is rolled - the AP was not taken.
+         No answer within h.ms (8 s) -> h.say(PAY_LATE, "late"): nothing is rolled, ever, for that press; and if the payment
+         then lands after all, its AP is given back by one more write (a lost one needs nothing back: the room never took it).
+       pay: { ok, paid, round (lastWrite() straight after the payment), key ("pcAP" | "dmAP") }.  -> h.go()'s answer, or
+       undefined while it waits. */
+    PAY_MS: 8000,                 /* how long a payment waits for the room before the press gives up (h.ms overrides) */
+    PAY_WAIT: "Waiting for the room to confirm the AP…",
+    PAY_LOST: "The pool changed — another device spent it first. Nothing was rolled or spent.",
+    PAY_LATE: "The room did not answer in time — nothing was rolled, and no AP is spent.",
+    whenPaid: function(pay, h){
+      h = h || {};
+      var SS = window.SUITE_STATE, go = typeof h.go === "function" ? h.go : function(){ return true; };
+      var say = function(line, kind){ if(typeof h.say === "function"){ try{ h.say(line, kind); }catch(e){} } };
+      var n = pay && pay.ok ? Math.max(0, Math.round(+pay.paid || 0)) : 0, rid = n ? pay.round : null;
+      if(rid == null || !live()) return go();
+      var key = pay.key === "dmAP" ? "dmAP" : "pcAP", phase = "wait", out, t = null;
+      landOf(rid).fns.push(function(won){
+        if(phase === "wait"){
+          phase = "done"; if(t){ try{ clearTimeout(t); }catch(e){} t = null; }
+          if(won) out = go(); else say(SS.PAY_LOST, "lost");
+          return;
+        }
+        if(phase === "late"){
+          phase = "done";
+          /* the payment landed after the press gave up: nothing was rolled for it, so its AP goes back (a write of its own,
+             re-run on the room's state if refused - which holds the payment, since it won) */
+          if(won) SS.update(function(m){
+            var v = Math.max(0, Math.round(+m[key] || 0)) + n, cap = key === "pcAP" ? Math.round(+m.pcCap) : NaN;
+            m[key] = isFinite(cap) && cap > 0 ? Math.min(cap, v) : v;
+          });
+        }
+      });
+      landSettle(rid);
+      if(phase === "done") return out;
+      say(SS.PAY_WAIT, "wait");
+      t = setTimeout(function(){ t = null; if(phase !== "wait") return; phase = "late"; say(SS.PAY_LATE, "late"); },
+                     Math.max(1, +h.ms || +SS.PAY_MS || 8000));
+      return undefined;
+    },
     /* PROJECT G ROUND 4 (see commit, above): fn(savingKey, chars) gives storage back when the main save is
        refused and answers how many characters it freed (0: nothing left to give).  SUITE_LOG registers. */
     yieldSpace: function(fn){ if(typeof fn === "function" && yielders.indexOf(fn) < 0) yielders.push(fn); return fn; },
@@ -25294,7 +25373,10 @@ var CH = {
     var hp = rcD ? (+rcD.hp || 0) : (+(rc && rc.hp != null ? rc.hp : st.hp) || 0);
     var mh = /heals (\d+) HP/i.exec(eff); if(!hp && mh) hp = +mh[1];
     var mr = /^(\d+)\s*CD/i.exec(String(st.rads || "")), ms = /\+(\d+) Inventory Slots?/i.exec(eff), ma = /Yes \((\d+)\)/i.exec(String(st.addictive || ""));
-    return { name:String(name).trim(), kind:kind, hp:hp, rads:mr ? +mr[1] : 0, slots:ms ? +ms[1] : 0, slotsUntilNext:!!ms && /next scene/i.test(eff),
+    /* CMD Z041 (Book One p.169): radHeal - the Radiation damage it heals, read off its printed effect ("heals 4 Rad damage":
+       RadAway; its Diluted row "heals 2 Rad damage"; a Refreshing Beverage "heals 10 Rad"), 0 if it prints none */
+    var mrh = /heals (\d+) Rad(?:iation)?\b/i.exec(eff);
+    return { name:String(name).trim(), kind:kind, hp:hp, rads:mr ? +mr[1] : 0, radHeal:mrh ? +mrh[1] : 0, slots:ms ? +ms[1] : 0, slotsUntilNext:!!ms && /next scene/i.test(eff),
              rating:ma ? +ma[1] : 0, cures:/cures? (all )?addictions?|every addiction/i.test(eff), effect:eff,
              cooked:kind === "food" && !!rc, purified:kind === "drink" && /purified water/i.test(String(name)),
              folio:(it && it.folio) || (rc && rc.folio) || "" };
@@ -31714,7 +31796,17 @@ function buyD20s(want, gift){
   var pay = sd.cost && typeof payParty === "function" ? payParty(sd.cost) : { ok:true, paid:0, have:typeof partyAP === "function" ? partyAP() : 0 };
   sd.want = want; sd.refused = !pay.ok; sd.have = pay.have;
   if(!pay.ok){ sd.dice = 0; sd.paid = 0; } else sd.paid = sd.cost;
+  sd.pay = pay;                                    /* CMD Z041: the roll waits for the room on it (payThen) */
   return sd;
+}
+/* CMD Z041 (2026-10-28): TWO DEVICES PAYING AT ONCE.  A roll the party pool paid for is made only once the room has taken the
+   payment (SUITE_STATE.whenPaid): go() then; in a room, say(line, "wait") while it waits, and say(line, "lost" | "late") when
+   the pool changed first or the room did not answer - nothing rolled, no AP spent.  Solo, or a build without whenPaid: go() at
+   once, its answer returned, exactly as before. */
+function payThen(pay, go, say){
+  var SS = window.SUITE_STATE;
+  if(!SS || typeof SS.whenPaid !== "function") return go();
+  return SS.whenPaid(pay, { go:go, say:say });
 }
 function stimGiftMay(){ try{ var Y = window.SUITE_SYNC; if(!Y || typeof Y.status !== "function" || !Y.status().connected) return true; return typeof Y.isGM === "function" ? !!Y.isGM() : true; }catch(e){ return true; } }
 function fireStim(i, toId, as){
@@ -31731,13 +31823,14 @@ function fireStim(i, toId, as){
   var sd0 = stimDice(bx ? +bx.value || 0 : 0, gift, Infinity);
   if(sd0.cost && partyAP() < sd0.cost){ stimSaid = esc(poolShortSay(partyAP(), sd0.cost)); renderWeapons(c); return false; }
   /* the Major action, through the turn order's own door while a fight runs */
-  var T = window.HELENA_TURN, b = T && T.cinder, actNote = "";
+  var T = window.HELENA_TURN, b = T && T.cinder, actNote = "", marked = null;
   try{
     var sn = b && b.snap ? b.snap() : null;
     if(sn && sn.phase !== "idle"){
       var rid = b.rowOf ? b.rowOf("c:" + c.id) : null;
       if(!rid || rid !== sn.cur){ stimSaid = "A Major action - it is not " + esc(c.name || "your") + "’s turn."; renderWeapons(c); return false; }
       var ar = b.act(rid, "major");
+      if(ar && ar.ok !== false && !ar.ap) marked = rid;       /* CMD Z041: a free Major this press marked, taken back if the room refuses the AP */
       if(ar && ar.ok === false){
         if(/GM/.test(ar.note || "")) actNote = " (the Major is the Overseer’s to mark)";
         else { stimSaid = "No Major action: " + esc(ar.note || "refused") + " - nothing was fired."; renderWeapons(c); return false; }
@@ -31749,6 +31842,9 @@ function fireStim(i, toId, as){
      the 3rd die (stimDice), and the price is paid whole in one read-check-write (buyD20s -> payParty) or nothing is rolled */
   var sd = buyD20s(sd0.dice, gift);
   if(sd.refused){ stimSaid = esc(poolShortSay(sd.have, sd.cost)); renderWeapons(c); return false; }
+  /* CMD Z041: the dart is fired once the room has taken the payment (payThen) - at once in Solo.  Refused or unanswered: nothing
+     fired, no stimpak spent, and the Major this press marked is taken back */
+  var go = function(){
   var pool = Math.min(5, 2 + sd.gift + sd.dice);
   var r = rollTest(tn, CH.critRange(sk.rank, sk.tag), 20, pool), hit = r.succ >= df.d, comp = r.comps > 0;
   var used = "", U = null, before = null, said = "", wounds = stimWounds(ally), undoRev = null;
@@ -31795,6 +31891,13 @@ function fireStim(i, toId, as){
   try{ if(SY && typeof SY.emit === "function") SY.emit("roll", { name:c.name, charId:c.id, token:"c:" + c.id, text:line }); }catch(e){}
   renderWeapons(me());
   return true;
+  };
+  if(sd.pay && typeof payThen === "function")
+    return payThen(sd.pay, go, function(line, kind){
+      if(kind !== "wait" && marked != null){ try{ if(b && typeof b.undoMinor === "function") b.undoMinor(marked); }catch(e){} marked = null; }
+      stimSaid = esc(line) + (kind === "wait" ? "" : " The stimpak was not fired."); renderWeapons(me());
+    });
+  return go();
 }
 /* Z037 (town services, the director 2026-10-26): ONE BODY FOR "USE ONE".  What a consumable does to the one who takes it —
    the printed consume rules, a track raised one step at a time (CH.eatRaise / CH.drinkRaise through CH.trackRaise), its HP,
@@ -31814,6 +31917,8 @@ function consumeCore(ch, ctx){
   if(U.kind === "drink"){ var dn = CH.drinkRaise(ch, U.purified); var gotD = CH.trackRaise(ch, "thirst", dn); said.push("Thirst up " + dn + (i < 0 && gotD < dn ? " (" + gotD + " moved: a track never rises above Sound)" : "")); }
   if(U.hp){ var before = +ch.hp || 0; ch.hp = Math.min(effMax(ch), before + U.hp); said.push("+" + (ch.hp - before) + " HP"); }
   if(rr && rr.eff){ var res = CH.takeDamage(ch, rr.eff, "Rad", {}); out.radsTaken = res ? (res.past || 0) : 0; }
+  /* CMD Z041 (Book One p.169): RadAway takes its printed Radiation off (consumableOf's radHeal: 4, Diluted 2), never below 0 */
+  if(U.radHeal){ var rad0 = Math.max(0, Math.round(+ch.rads || 0)); ch.rads = Math.max(0, rad0 - U.radHeal); out.radsHealed = rad0 - ch.rads; said.push("\u2212" + out.radsHealed + " Radiation (Rads " + rad0 + " \u2192 " + ch.rads + ")"); }
   if(U.slots){
     ch.boosts = (Array.isArray(ch.boosts) ? ch.boosts : []).filter(function(b){ return b && (b.until == null || seq <= +b.until); });
     ch.boosts.push({ slots:U.slots, until:U.slotsUntilNext ? seq + 1 : seq, from:U.name });
@@ -31866,12 +31971,16 @@ function invUse(i){
   if(invNone(row)) return { ok:false, note:"none left" };
   if(!CH.tracksAtAll(c)){ invPrompt("A robot gains nothing from " + esc(U.name) + " — nothing was used."); return { ok:false, note:"robot" }; }
   var ctx = consumeCtx(U, i), rr = ctx.rr, rep = { said:[], radsTaken:0, test:null, hooked:false };
+  /* CMD Z041: every Use keeps an Undo (the session log's one Undo, pcHitUndo's diff of the fields it changed) */
+  var useBefore = JSON.parse(JSON.stringify(c)), useHp0 = Math.max(0, +c.hp || 0);
   edit(function(ch){ rep = consumeCore(ch, ctx); });
   var said = rep.said, radsTaken = rep.radsTaken, test = rep.test, hooked = rep.hooked;
   var after = me();
+  if(rep.done && after && typeof pcHitDiff === "function" && typeof pcHitUndo === "function")
+    pcHitUndo(pcHitDiff(useBefore, after, useHp0), "", { kind:"use", text:(after.name || "Someone") + " used " + U.name + ": " + (said.join(", ") || "used") });
   var line = esc(U.name) + ": " + esc(said.join(", ") || "used") +
     (rr ? "; Rads " + U.rads + "CD → " + rr.eff + (rr.eff === 1 ? " Effect" : " Effects") + (rr.eff ? " (" + radsTaken + " Radiation past your Rad DR)" : "") : "") + "." +
-    (U.effect && !U.slots && !/^heals \d+ HP/i.test(U.effect) ? " It prints: " + esc(U.effect) + "." : "") +
+    (U.effect && !U.slots && !U.radHeal && !/^heals \d+ HP/i.test(U.effect) ? " It prints: " + esc(U.effect) + "." : "") +
     (test ? "<br>" + (test.rerolled ? testLine("Addiction — END + Survival vs " + test.rating + ", failed", test.tn, test.first) + " — <b>Habberd Habits</b> re-rolls it:<br>" : "") +
             testLine("Addiction — END + Survival vs " + test.rating + " (Guide p.clxxii)", test.tn, test.roll) +
             (hooked ? " — <b>hooked</b>: +1 Difficulty to everything while you crave, until three days clean, Addictol or the Fixer." : " — not hooked.")
@@ -32751,6 +32860,9 @@ function payParty(n){
       if(ok) m.pcAP = have - n;
     });
   }finally{ quiet = false; }
+  /* CMD Z041: the round the payment rode in, so the roll can wait for the room to take it (SUITE_STATE.whenPaid, payThen) */
+  out.key = "pcAP";
+  if(out.ok){ try{ out.round = typeof S.lastWrite === "function" ? S.lastWrite() : null; }catch(e){ out.round = null; } }
   return out;
 }
 /* the one refusal every atomic party spend says */
@@ -32841,6 +32953,8 @@ function skillRoll(name, attr){
      whole or not at all; a pool short of the price rolls nothing */
   var bd = want && typeof buyD20s === "function" ? buyD20s(want, false) : { want:want, gift:0, dice:0, cost:0 };
   if(bd.refused){ $("cs-skill-out").innerHTML = '<div class="cs-qual cs-pool-short">' + esc(poolShortSay(bd.have, bd.cost)) + "</div>"; outInView("cs-skill-out"); return; }
+  /* CMD Z041: the dice are rolled once the room has taken the payment (payThen) - at once in Solo */
+  var go = function(){
   var pool = 2 + bd.dice, comp = clamp(+$("cs-comp").value || 20, 15, 20);
   var r = rollTest(tn, crit, comp, pool);
   /* Howl 10-24: THE ASSIST.  One d20 on the helper's own attribute + this skill (their tag sets their crit); it adds its
@@ -32881,6 +32995,10 @@ function skillRoll(name, attr){
     if(typeof luckOffer === "function") luckOffer("cs-skill-out", { kind:"d20", c:String(c.id), faces:faces, rr:rr, redo:luckCur.redo });
   } });
   outInView("cs-skill-out");                        // WAVE 16 S6: a skill's answer too
+  };
+  if(bd.pay && typeof payThen === "function")
+    return payThen(bd.pay, go, function(line, kind){ $("cs-skill-out").innerHTML = '<div class="cs-qual ' + (kind === "wait" ? "cs-pool-wait" : "cs-pool-short") + '">' + esc(line) + "</div>"; outInView("cs-skill-out"); });
+  return go();
 }
 
 /* the line that says the party pool could not pay for everything asked for (RULE 1).  Z039: for bought d20s, bd is buyD20s'
@@ -33160,6 +33278,9 @@ function attackOwe(c, w){
 }
 function doAttack(i, roundsSpent){
   var c = me(), w = c && c.weapons[i]; if(!w) return;
+  /* CMD Z041: arguments[2], optional - what the press spends before the roll (the Attack ask's rounds), run only once the room
+     has taken the payment, so a payment the room refuses spends no round either (the signature kept) */
+  var pre = typeof arguments[2] === "function" ? arguments[2] : null, apPay = null;
   /* CMD Z017 (G.3): Jelly Fingers / Lock Joint — "a ranged / melee attack costs 1 AP to attempt" (Guide p.ccxc).  Paid from the
      party pool before anything is used or rolled; an empty pool refuses the attack. */
   /* CMD Z040: THE PRICE AND THE PAYMENT ARE ONE STEP - that 1 AP and the bought d20s (attackOwe) are paid together, whole, in ONE
@@ -33183,7 +33304,11 @@ function doAttack(i, roundsSpent){
       return;
     }
     dzPaid = dzAp.length ? 1 : 0;
+    apPay = pay;
   }
+  /* CMD Z041: the unit, the rounds and the roll wait for the room to take the payment (payThen) - at once in Solo */
+  var go = function(){
+  if(pre){ pre(); c = me(); w = c && c.weapons[i]; if(!w) return; }
   var used = unitsSpend(c, i);                     // WAVE 19, S1: one unit off before the roll, or refused by name
   if(used && !used.ok) return;
   if(c.stealthOn === true){ window.HELENA_CHAR.stealthAct(c.id); renderDerived(); }   // Z002: an attack is an action (p.cxxvii)
@@ -33226,8 +33351,12 @@ function doAttack(i, roundsSpent){
     r = r2;
     if(typeof luckOffer === "function") luckOffer("cs-wpn-out", { kind:"d20", c:String(c.id), faces:faces, rr:rr, redo:luckCur.redo });
   } });
-  if(used){ renderWeapons(me()); renderDerived(); } // WAVE 19, S1: the row's count follows the throw (renderDerived refills the TN cells)
+  if(used || pre){ renderWeapons(me()); renderDerived(); } // WAVE 19, S1: the row's count follows the throw (renderDerived refills the TN cells)
   outInView("cs-wpn-out");                          // WAVE 16 S6
+  };
+  if(apPay && typeof payThen === "function")
+    return payThen(apPay, go, function(line, kind){ $("cs-wpn-out").innerHTML = '<div class="cs-qual ' + (kind === "wait" ? "cs-pool-wait" : "cs-pool-short") + '">' + esc(line) + "</div>"; outInView("cs-wpn-out"); });
+  return go();
 }
 /* the AP offer a melee or thrown hit earns: up to 3, each one a CD on the damage roll
    WAVE 18, 1d (Zoe 2026-10-07, ruled): A BLAST'S PANEL IS NEUTRAL UNTIL THE HIT IS KNOWN.  PRESSED in the third walkthrough
@@ -33263,11 +33392,14 @@ function damageRoll(i, again){
   /* CMD Z040: the bought CD are paid whole, in one read-check-write, before a round or a die (payParty) - a pool short of them
      rolls nothing and spends nothing */
   var wantCD = again ? again.ctx.wantCD : clamp(+$("cs-dmg-buy").value || 0, 0, 3), buy = again ? again.ctx.buy : 0;
+  var cdPay = null;
   if(!again && wantCD){
     var cpay = typeof payParty === "function" ? payParty(wantCD) : { ok:spendParty(wantCD) >= wantCD, have:0 };
     if(!cpay.ok){ $("cs-wpn-out").innerHTML = '<div class="cs-qual cs-pool-short">' + esc(poolShortSay(cpay.have, wantCD)) + "</div>"; outInView("cs-wpn-out"); return; }
-    buy = wantCD;
+    buy = wantCD; cdPay = cpay;
   }
+  /* CMD Z041: the rounds and the dice wait for the room to take the bought CD's AP (payThen) - at once in Solo */
+  var go = function(){
   if(again) late = !!again.ctx.late;
   if(!again && !extra && mode === "ranged"){
     extra = CH.ammoSpend(w, +$("cs-wpn-extra").value || 0);
@@ -33404,6 +33536,10 @@ function damageRoll(i, again){
   if(w.ammoCount != null){ var el = $("cs-weapons").querySelector('.cs-wpn[data-w="' + i + '"] [data-wf="ammoCount"]'); if(el) el.value = me().weapons[i].ammoCount; }
   critVerdict();
   outInView("cs-wpn-out");                          // WAVE 16 S6
+  };
+  if(cdPay && typeof payThen === "function")
+    return payThen(cdPay, go, function(line, kind){ $("cs-wpn-out").innerHTML = '<div class="cs-qual ' + (kind === "wait" ? "cs-pool-wait" : "cs-pool-short") + '">' + esc(line) + "</div>"; outInView("cs-wpn-out"); });
+  return go();
 }
 function critVerdict(){
   var drEl = $("cs-crit-dr"), v = $("cs-crit-verdict"), b = $("cs-crit-roll"); if(!drEl) return;
@@ -37492,8 +37628,9 @@ root.addEventListener("click", function(e){
     /* CMD Z040: and a pool short of the whole price (the d20s with it) spends no round either - doAttack's one payment says so */
     if(typeof attackOwe === "function" && partyAP() < attackOwe(c, w).owe){ doAttack(i, 0); return; }
     var n = CH.ammoSpend(w, +$("cs-ask-n").value || 0);
-    if(n) edit(function(ch){ var ww = ch.weapons[i]; if(ww && ww.ammoCount != null) ww.ammoCount = Math.max(0, (+ww.ammoCount || 0) - n); });
-    doAttack(i, n);
+    /* CMD Z041: the rounds are spent inside doAttack, once the room has taken the AP (a payment it refuses spends no round);
+       doAttack re-renders the ammunition column after them (WAVE 16, A1: and renderDerived refills the TN cells) */
+    doAttack(i, n, n ? function(){ edit(function(ch){ var ww = ch.weapons[i]; if(ww && ww.ammoCount != null) ww.ammoCount = Math.max(0, (+ww.ammoCount || 0) - n); }); } : null);
     if(n){ renderWeapons(me()); renderDerived(); } // the ammunition column follows the spend (WAVE 16, A1: and renderDerived refills the TN cells the rebuild left at 0)
     return;
   }
@@ -37505,12 +37642,17 @@ root.addEventListener("click", function(e){
     var apy = typeof payParty === "function" ? payParty(want) : { ok:true, paid:spendParty(want), have:0 };
     if(!apy.ok){ $("cs-ap-out").innerHTML = esc(poolShortSay(apy.have, want)); return; }
     var got = apy.paid;
-    if(pendingCD.w !== wi) pendingCD = { w:wi, ammo:0, ap:0 };
-    pendingCD.ap += got;
-    $("cs-ap-out").innerHTML = got
-      ? "<b>" + got + " AP</b> spent \u2014 +" + pendingCD.ap + " CD on the damage roll. The party pool holds " + partyAP() + "."
-      : (want ? "The party pool is empty \u2014 nothing spent." : "Nothing asked for.");
     $("cs-ap-n").value = 0;
+    /* CMD Z041: the CD are added once the room has taken the AP (payThen) - at once in Solo */
+    var apGo = function(){
+      if(pendingCD.w !== wi) pendingCD = { w:wi, ammo:0, ap:0 };
+      pendingCD.ap += got;
+      $("cs-ap-out").innerHTML = got
+        ? "<b>" + got + " AP</b> spent \u2014 +" + pendingCD.ap + " CD on the damage roll. The party pool holds " + partyAP() + "."
+        : (want ? "The party pool is empty \u2014 nothing spent." : "Nothing asked for.");
+    };
+    if(typeof payThen === "function") payThen(apy, apGo, function(line){ var o = $("cs-ap-out"); if(o) o.innerHTML = esc(line); });
+    else apGo();
     return;
   }
   if(el.id === "cs-crit-cover-zero"){ $("cs-crit-cover").value = 0; critVerdict(); return; }
@@ -41666,8 +41808,12 @@ var TT = {
     var room = Math.max(0, Math.min(3, 5 - base) - bought), cost = bought + 1;
     /* CMD Z040 (Zoe 2026-10-27, ruling 1): the price is the dice roller's one pricer, HELENA_ROLL.diceCost - the card's dice already
        bought hold the 3rd and 4th places, so the next is that place's price (the card has no free die: its 1, 2, 3 stand) */
+    /* CMD Z041 (Zoe 2026-10-28, ruling 4): a swarm's dice above 2d20 hold their places too, as free dice: a 4d20 swarm's 3rd and
+       4th dice are its own, so the one die it buys is the 5th, 3 AP.  `places`: its dice past 2d20 and the ones bought here */
+    var places = Math.max(0, base - 2) + bought;
+    cost = places + 1;
     var RL0 = typeof window !== "undefined" && window ? window.HELENA_ROLL : null;
-    if(room > 0 && RL0 && typeof RL0.diceCost === "function") cost = +RL0.diceCost(bought, 1) || cost;
+    if(room > 0 && RL0 && typeof RL0.diceCost === "function") cost = +RL0.diceCost(places, 1) || cost;
     var out = { can:false, cost:cost, room:room, bought:bought, full:room <= 0, note:"" };
     if(out.full) out.note = "Its next attack is " + Math.min(5, base + bought) + "d20 — a test is never more than 5d20 (Book One p.15), so no more can be bought.";
     else if(have < cost) out.note = "The Overseer’s pool holds " + have + " AP, and the next d20 costs " + cost + " (Book One p.15).";
@@ -42123,7 +42269,18 @@ function payPool(e, n){
     if(first){ out = { ok:ok, paid:ok ? n : 0, have:have }; first = false; }
     if(ok) m[key] = have - n;
   });
+  /* CMD Z041: the round the payment rode in (SUITE_STATE.whenPaid waits on it, payThen) */
+  out.key = key;
+  if(out.ok){ try{ out.round = typeof S.lastWrite === "function" ? S.lastWrite() : null; }catch(e){ out.round = null; } }
   return out;
+}
+/* CMD Z041 (2026-10-28): TWO DEVICES PAYING AT ONCE.  What the turn card's AP bought stands only once the room has taken the
+   payment (SUITE_STATE.whenPaid): go() then; in a room, say(line, "wait") while it waits, say(line, "lost" | "late") when another
+   device spent the pool first or the room did not answer - nothing bought, no AP spent.  Solo, or no whenPaid: go() at once. */
+function payThen(pay, go, say){
+  var SS = typeof window !== "undefined" && window ? window.SUITE_STATE : null;
+  if(!SS || typeof SS.whenPaid !== "function") return go();
+  return SS.whenPaid(pay, { go:go, say:say });
 }
 function poolShortLine(e, have){
   return "The " + (e && e.kind === "char" ? "party" : "Overseer’s") + " pool has only " + Math.max(0, Math.round(+have || 0)) + " AP now — nothing was rolled or spent.";
@@ -44891,10 +45048,16 @@ function mtD20(e){
   if(!q.can){ mtSay("warn", "No d20 bought — " + esc(e.name), esc(q.note)); return; }
   var pay = payPool(e, q.cost);                                           /* CMD Z040: whole or nothing, one step */
   if(!pay.ok){ mtSay("warn", "Not paid", esc(poolShortLine(e, pay.have)) + " No d20 was bought."); return; }
-  b.bought++; b.paid += q.cost;
-  tick("turn", "— " + e.name + " bought a d20 for its next attack (" + q.cost + " AP)");
-  mtSay("good", "A d20 bought — " + esc(e.name), "<b>" + q.cost + " AP</b> came off the Overseer’s pool: its next attack this turn rolls <b>" +
-        Math.min(5, base + b.bought) + "d20</b> (Book One p.15). The dice ride to the drawer as its pool, so the drawer sells no more for that attack.");
+  /* CMD Z041: the d20 is the creature's once the room has taken the AP (payThen) - at once in Solo */
+  var go = function(){
+    b = mtBag(e);
+    b.bought++; b.paid += q.cost;
+    tick("turn", "— " + e.name + " bought a d20 for its next attack (" + q.cost + " AP)");
+    mtSay("good", "A d20 bought — " + esc(e.name), "<b>" + q.cost + " AP</b> came off the Overseer’s pool: its next attack this turn rolls <b>" +
+          Math.min(5, base + b.bought) + "d20</b> (Book One p.15). The dice ride to the drawer as its pool, so the drawer sells no more for that attack.");
+  };
+  if(typeof payThen !== "function"){ go(); return; }
+  payThen(pay, go, function(line, kind){ mtSay("warn", (kind === "wait" ? "Paying — " : "No d20 bought — ") + esc(e.name), esc(line)); });
 }
 function mtD20Back(e){
   var b = mtPeek(e);
@@ -44916,9 +45079,14 @@ function mtAbility(e, i, n){
   if(have < n){ mtSay("warn", esc(ab.name) + " — not spent", "The Overseer’s pool holds " + have + " AP; " + esc(ab.name) + " asks " + n + "."); return; }
   var pay = payPool(e, n);                                                /* CMD Z040: whole or nothing, one step */
   if(!pay.ok){ mtSay("warn", "Not paid", esc(poolShortLine(e, pay.have))); return; }
-  mtBag(e).spent.push({ name:ab.name, ap:n });
-  tick("turn", "— " + e.name + " spent " + n + " AP: " + ab.name);
-  mtSay("good", esc(ab.name) + " — " + esc(e.name), "<b>" + n + " AP</b> came off the Overseer’s pool. What it does is the stat block’s: " + esc(ab.text));
+  /* CMD Z041: the spend stands once the room has taken the AP (payThen) - at once in Solo */
+  var go = function(){
+    mtBag(e).spent.push({ name:ab.name, ap:n });
+    tick("turn", "— " + e.name + " spent " + n + " AP: " + ab.name);
+    mtSay("good", esc(ab.name) + " — " + esc(e.name), "<b>" + n + " AP</b> came off the Overseer’s pool. What it does is the stat block’s: " + esc(ab.text));
+  };
+  if(typeof payThen !== "function"){ go(); return; }
+  payThen(pay, go, function(line, kind){ mtSay("warn", esc(ab.name) + (kind === "wait" ? " — paying" : " — not spent"), esc(line)); });
 }
 function mtUndo(e){
   var b = mtPeek(e);
@@ -49687,7 +49855,10 @@ function layerOn(id){const el=document.getElementById(id);return !el||el.checked
 function render(M){
   const E=M.env;
   const O=[];   // svg fragments
-  O.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SVG_W} ${SVG_H}" width="${SVG_W}" height="${SVG_H}" font-family="Segoe UI, system-ui, sans-serif">`);
+  /* CMD Z041: where the host asks for it (Cinder's Fight on a desktop) the drawing is the map alone, MAP_W wide - the key
+     lies over the map's edge only when it is asked for (keyedPanel); otherwise the drawing is exactly as it was */
+  const KO=keyOff(), VW=KO?MAP_W:SVG_W; PAINTED_KO=KO;
+  O.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VW} ${SVG_H}" width="${VW}" height="${SVG_H}" font-family="Segoe UI, system-ui, sans-serif">`);
   // Selectors are prefixed with `svg` so this block cannot reach HTML outside the
   // map — an inline <svg><style> otherwise applies to the whole document, and
   // .ttl / .sub are common enough class names to collide when embedded.
@@ -49704,7 +49875,8 @@ function render(M){
   /* header band */
   O.push(`<rect x="0" y="0" width="${SVG_W}" height="${HEAD_H}" fill="#15180f"/>`);
   O.push(`<text class="ttl" x="16" y="27">${esc(E.label.toUpperCase())}</text>`);
-  O.push(`<text class="sub" x="16" y="46">FALLOUT 2d20 ZONE MAP · ${M.n} ZONES · SEED ${esc(M.seed)} · RANGE: SAME ZONE = CLOSE, +1 = MEDIUM, +2 = LONG, +3 = EXTREME</text>`);
+  const SB=zoneSub(M,KO);
+  O.push(`<text class="sub" x="16" y="${SB.y}">${SB.h}</text>`);
   O.push(`<line x1="0" y1="${HEAD_H}" x2="${SVG_W}" y2="${HEAD_H}" stroke="#3a4032" stroke-width="2"/>`);
 
   O.push(`<g transform="translate(0,${HEAD_H})">`);
@@ -49821,7 +49993,7 @@ function render(M){
   O.push(selGroup(zoneSelSvg(M)));
   O.push(`<rect width="${MAP_W}" height="${MAP_H}" fill="none" stroke="#3a4032" stroke-width="2"/>`);
   O.push('</g>');
-  O.push(panelGroup(HEAD_H, zonePanel(M)));
+  O.push(KO?panelAt(keyedPanelAt(M),keyedPanel(M)):panelGroup(HEAD_H, zonePanel(M)));
   O.push('</svg>');
   return O.join('');
 }
@@ -49856,9 +50028,12 @@ function selTag(M,z,here,b,cv,hid,fs){
 }
 /* the legend panel beside a Zones map: the from-this-zone table while a zone is clicked, else the legend */
 function zonePanel(M){
+  return `<rect width="${PANEL_W}" height="${MAP_H}" fill="#16190f"/>`+`<line x1="0" y1="0" x2="0" y2="${MAP_H}" stroke="#3a4032" stroke-width="2"/>`+zonePanelBody(M).svg;
+}
+/* the panel's words - the legend, or the clicked zone's table - and how far down they run (CMD Z041: the keyed panel is as
+   tall as its words) */
+function zonePanelBody(M,noSel){
   const O=[];
-  O.push(`<rect width="${PANEL_W}" height="${MAP_H}" fill="#16190f"/>`);
-  O.push(`<line x1="0" y1="0" x2="0" y2="${MAP_H}" stroke="#3a4032" stroke-width="2"/>`);
   let Y=24;
   const H=t=>{O.push(`<text class="lgh" x="14" y="${Y}">${t}</text>`);Y+=15;};
   const L=(t,x)=>{O.push(`<text class="lg" x="${x||24}" y="${Y}">${t}</text>`);Y+=15;};
@@ -49867,7 +50042,7 @@ function zonePanel(M){
     O.push(`<line x1="14" y1="${Y-3.5}" x2="40" y2="${Y-3.5}" stroke="${col}" stroke-width="11" stroke-dasharray="${dash}" stroke-opacity=".85"/>`);
     O.push(`<text class="lg" x="48" y="${Y}">${txt}</text>`);Y+=18;};
 
-  const selBands = SELECTED>=0&&M.bands ? M.bands[SELECTED] : null, SELZ = selBands ? M.zones[SELECTED] : null;
+  const selBands = !noSel&&SELECTED>=0&&M.bands ? M.bands[SELECTED] : null, SELZ = selBands ? M.zones[SELECTED] : null;
   if(SELZ){
     H('FROM '+SELZ.code+' · '+esc(SELZ.name).toUpperCase());
     L('Range to each zone, and the cover a target there','14');
@@ -49883,7 +50058,7 @@ function zonePanel(M){
       Y+=15;
     }
     if(M.zones.some(z=>!(zoneLayout(M,z).slot||{}).word)){ Y+=6; L('A small zone shows letters: C M L X for the range,','14'); L('L M H for the cover (– none).','14'); }
-    return O.join('');
+    return {svg:O.join(''), h:Y};
   }
   H('COVER — READ THE BAND YOU ARE SHOT THROUGH');
   SW(COVER[1].col,'Light Cover',COVER[1].dash);
@@ -49920,7 +50095,60 @@ function zonePanel(M){
   DSW('#5aa9e6','Players deploy here');
   DSW('#c86fd4','Enemies deploy here');
 
-  return O.join('');
+  return {svg:O.join(''), h:Y};
+}
+
+/* CMD Z041: THE KEY OFF THE DRAWING.  In Cinder's Fight on a desktop the Zones drawing was 1424 wide - 344 of it the key
+   beside the map - so the stage's width, not its height, sized the map (934 x 512 at 1440 x 900).  There (the host says
+   where: ZM_KEYDOCK.when) the drawing is the map alone, 1080 wide like a Blocks map, and the key and the clicked zone's
+   table lie OVER the map's edge, as tall as their words, on the side away from the clicked zone:
+     the key        - while it is asked for (ZM_KEYDOCK.key(true): the "Key" button by the zoom buttons); its x shuts it;
+     a zone clicked - its range-and-cover table, x to shut it, then a small "Table" tab to open it again (the Blocks way);
+                      a zone clicked shuts the key, the key asked for covers the table.
+   Nothing asked for, nothing over the map.  An exported or printed map is drawn whole, the key beside it as before
+   (keyedExport).  Everywhere else - Classic, the Maps tab, a phone, the generator's own page - nothing here runs. */
+let KEY_OPEN=false, PAINTED_KO=false;
+/* the header's subtitle: one line, as it always was; keyed, two (the map's facts, then the range rule) so the Key and zoom
+   buttons over the header's right end never stand on it */
+function zoneSub(M,ko){
+  const t=`FALLOUT 2d20 ZONE MAP · ${M.n} ZONES · SEED ${M.seed} · RANGE: SAME ZONE = CLOSE, +1 = MEDIUM, +2 = LONG, +3 = EXTREME`;
+  const L=ko?subLines(t,MAP_W-360):[t];
+  return L.length<2?{y:'46',h:esc(t)}:{y:'42',h:`<tspan x="16" y="42">${esc(L[0])}</tspan><tspan x="16" y="55">${esc(L[1])}</tspan>`};
+}
+function keyOff(){ try{ const K=window.ZM_KEYDOCK; return !!(K&&typeof K.when==='function'&&K.when()); }catch(e){ return false; } }
+function keyedSel(M){ return !KEY_OPEN&&SELECTED>=0&&M&&M.bands&&M.zones&&M.zones[SELECTED]?M.zones[SELECTED]:null; }
+function keyedPanelAt(M){
+  const A=SELECTED>=0&&M&&M.zones?M.zones[SELECTED]||null:null, open=KEY_OPEN||(A&&!PANEL_SHUT);
+  let left=false;
+  if(A&&open){ const bx=zoneCells(M,A).box, onR=Math.max(0,bx.x1-(MAP_W-PANEL_W)), onL=Math.max(0,PANEL_W-bx.x0); left=onR>onL; }
+  const x=left?0:(open?MAP_W-PANEL_W:MAP_W-PANEL_TAB_W);
+  return `translate(${x},${HEAD_H})`;
+}
+function keyedPanel(M){
+  const A=keyedSel(M);
+  if(!KEY_OPEN&&!A) return '';
+  if(A&&PANEL_SHUT)
+    return `<g data-zm-panel="open" style="cursor:pointer"><title>Open the range table</title><rect width="${PANEL_TAB_W}" height="40" rx="4" fill="#16190f" fill-opacity=".94" stroke="#f0b429" stroke-width="2"/>`+
+           `<text class="lgh" x="${PANEL_TAB_W/2}" y="25" text-anchor="middle">TABLE</text></g>`;
+  const top=A?0:30, B=zonePanelBody(M,!A), h=B.h+top+6;
+  const x=A?`<g data-zm-panel="close" style="cursor:pointer"><title>Close the table</title>`:`<g data-zm-key="close" style="cursor:pointer"><title>Close the key</title>`;
+  return `<rect width="${PANEL_W}" height="${h}" fill="#16190f" fill-opacity=".95" stroke="#3a4032" stroke-width="2"/>`+
+         (top?`<g transform="translate(0,${top})">${B.svg}</g>`:B.svg)+
+         x+`<rect x="${PANEL_W-38}" y="4" width="34" height="34" rx="4" fill="#23281b" stroke="#6d7360"/>`+
+         `<text x="${PANEL_W-21}" y="28" text-anchor="middle" font-size="22" font-weight="700" fill="#f2eedc">×</text></g>`;
+}
+/* an exported or printed Zones map drawn keyed is put back whole: 1424 wide, the key (or the clicked zone's table) beside
+   the map as it always was */
+function keyedExport(s){
+  try{
+    if(!s||s.getAttribute('viewBox')===`0 0 ${SVG_W} ${SVG_H}`) return;
+    s.setAttribute('viewBox',`0 0 ${SVG_W} ${SVG_H}`); s.setAttribute('width',String(SVG_W)); s.setAttribute('height',String(SVG_H));
+    const pn=s.querySelector('#zm-panel'); if(!pn) return;
+    pn.setAttribute('transform',`translate(${MAP_W},${HEAD_H})`);
+    while(pn.firstChild) pn.removeChild(pn.firstChild);
+    const doc=new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg">'+zonePanel(MAP)+'</svg>','image/svg+xml');
+    Array.prototype.slice.call(doc.documentElement.childNodes).forEach(n=>pn.appendChild(s.ownerDocument.importNode(n,true)));
+  }catch(e){}
 }
 
 /* ============================================================================
@@ -51024,6 +51252,7 @@ function paint(){
     g.addEventListener('click',()=>{
       const z=+g.getAttribute('data-z');
       SELECTED = SELECTED===z?-1:z;
+      if(PAINTED_KO){ KEY_OPEN=false; PANEL_SHUT=false; }   /* CMD Z041: a zone clicked shuts the key and opens its table */
       paintSel();
     });
   });
@@ -51038,12 +51267,39 @@ function paintSel(){
   const sg=q('#zm-sel'), pg=q('#zm-panel');
   if(!MAP||PAINTED!==MAP||!sg||!pg){ paint(); return; }
   const bk=MAP.kind==='blocks';
+  if(!bk&&PAINTED_KO!==keyOff()) rekey(st.querySelector('svg'),pg);   /* CMD Z041: the host moved between keyed and whole */
+  const ko=!bk&&PAINTED_KO;
   putSvg(sg,bk?blockSelSvg(MAP):zoneSelSvg(MAP));
-  putSvg(pg,bk?blocksPanel(MAP):zonePanel(MAP));
+  putSvg(pg,bk?blocksPanel(MAP):ko?keyedPanel(MAP):zonePanel(MAP));
   if(bk){ const at=blocksPanelAt(MAP); if(pg.getAttribute('transform')!==at) pg.setAttribute('transform',at); }   /* CMD Z038: the side away from the clicked zone */
+  if(ko){ const at=keyedPanelAt(MAP); if(pg.getAttribute('transform')!==at) pg.setAttribute('transform',at); }   /* CMD Z041: the same, on a keyed Zones map */
   if(bk) syncFrom();
   try{ st.dispatchEvent(new CustomEvent('zm-select',{detail:{zone:SELECTED}})); }catch(e){}
 }
+/* CMD Z041: the host's door to the keyed drawing.  when() - set by the host - says where the key comes off the drawing;
+   sync() draws the map again only when that answer changed since it was drawn; key(v) opens or shuts the key and answers
+   whether it is open.  Nothing is written when nothing changed. */
+/* keyed <-> whole without drawing the map again: the drawing's width and the panel group, each written only if it differs */
+function rekey(s,pg){
+  if(!s||!pg) return;
+  const ko=keyOff(), VW=String(ko?MAP_W:SVG_W), vb=`0 0 ${VW} ${SVG_H}`;
+  PAINTED_KO=ko;
+  if(s.getAttribute('viewBox')!==vb) s.setAttribute('viewBox',vb);
+  if(s.getAttribute('width')!==VW) s.setAttribute('width',VW);
+  const sub=s.querySelector('text.sub');
+  if(sub&&MAP){ const SB=zoneSub(MAP,ko); if(sub.getAttribute('y')!==SB.y) sub.setAttribute('y',SB.y); putSvg(sub,SB.h); }
+  putSvg(pg,ko?keyedPanel(MAP):zonePanel(MAP));
+  const at=ko?keyedPanelAt(MAP):`translate(${MAP_W},${HEAD_H})`;
+  if(pg.getAttribute('transform')!==at) pg.setAttribute('transform',at);
+}
+window.ZM_KEYDOCK={ when:null,
+  sync:function(){
+    if(!MAP||MAP.kind==='blocks'||PAINTED!==MAP||PAINTED_KO===keyOff()) return;
+    const st=document.getElementById('stage'), s=st&&st.querySelector('svg'), pg=s&&s.querySelector('#zm-panel');
+    if(s&&pg) rekey(s,pg); else paint();
+  },
+  key:function(v){ if(v!=null&&!!v!==KEY_OPEN&&PAINTED_KO){ KEY_OPEN=!!v; paintSel(); } return KEY_OPEN&&PAINTED_KO; },
+  keyed:function(){ return !!(MAP&&MAP.kind!=='blocks'&&PAINTED===MAP&&PAINTED_KO); } };
 const SVG_OF=new WeakMap();
 function putSvg(g,html){ if(SVG_OF.get(g)===html) return; g.innerHTML=html; SVG_OF.set(g,html); }
 
@@ -51060,6 +51316,8 @@ function putSvg(g,html){ if(SVG_OF.get(g)===html) return; g.innerHTML=html; SVG_
   /* CMD Z038: the Blocks table's x shuts it and its "Table" tab opens it again (the panel is redrawn, so the stage listens) */
   const zmSt=document.getElementById('stage');
   if(zmSt&&zmSt.addEventListener) zmSt.addEventListener('click',e=>{
+    const k=e&&e.target&&typeof e.target.closest==='function'?e.target.closest('[data-zm-key]'):null;   /* CMD Z041: the key's x */
+    if(k){ KEY_OPEN=k.getAttribute('data-zm-key')==='open'; if(e.stopPropagation) e.stopPropagation(); paintSel(); return; }
     const t=e&&e.target&&typeof e.target.closest==='function'?e.target.closest('[data-zm-panel]'):null; if(!t) return;
     PANEL_SHUT=t.getAttribute('data-zm-panel')==='close';
     if(e.stopPropagation) e.stopPropagation();
@@ -51067,6 +51325,9 @@ function putSvg(g,html){ if(SVG_OF.get(g)===html) return; g.innerHTML=html; SVG_
   });
   /* stage 6: a printed map carries its rules — every shut "why" opens for the page */
   window.addEventListener('beforeprint',()=>document.querySelectorAll('details.zm-why').forEach(d=>{d.open=true;}));
+  /* CMD Z041: a keyed Zones map prints whole, its key beside it; drawn keyed again after */
+  window.addEventListener('beforeprint',()=>{ if(PAINTED_KO) keyedExport(document.querySelector('#stage svg:not(.zm-blocks)')); });
+  window.addEventListener('afterprint',()=>{ if(PAINTED_KO) paint(); });
   /* CMD Z015 (P.1): the phone's one tap over the roster and the range list (and a second over the reading card) - it flips its own aria-expanded, and the
      screen-only phone rule reads that; a desktop never draws the button */
   const zmZr=document.getElementById('zm_zr');
@@ -51095,6 +51356,7 @@ function putSvg(g,html){ if(SVG_OF.get(g)===html) return; g.innerHTML=html; SVG_
     const s=svg.cloneNode(true);
     s.setAttribute('xmlns','http://www.w3.org/2000/svg');
     if(MAP&&MAP.kind==='blocks') blocksExportStrip(s);   /* the Blocks legend rides under the grid on paper */
+    else keyedExport(s);                                  /* CMD Z041: a keyed Zones map is exported whole, its key beside it */
     return '<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(s);
   }
   document.getElementById('svgx').onclick=()=>{
@@ -52215,15 +52477,18 @@ var API = {
     var buy  = Math.min(want, room);
     var have = (opts.have == null) ? null : Math.max(0, int(opts.have, 0));
     var afford = buy;
-    if(have != null) while(afford > 0 && API.diceCost(free, afford) > have) afford--;
+    /* CMD Z041 (Zoe 2026-10-28, ruling 4): A SWARM'S DICE ABOVE 2d20 HOLD THEIR PRICE PLACES, as free dice do - a 4d20 swarm's 3rd
+       and 4th dice are its own, so the one die it buys is the 5th, 3 AP.  `places`: the dice before the first bought one, past 2d20 */
+    var places = Math.max(0, base - API.BASE_POOL) + free;
+    if(have != null) while(afford > 0 && API.diceCost(places, afford) > have) afford--;
     var full = base + free >= API.MAX_POOL;     /* the 5d20 ceiling binds, not the three-dice cap */
     return {
       wanted: want,
       free: free,
       bought: buy,
-      cost: API.diceCost(free, buy),
+      cost: API.diceCost(places, buy),
       affordable: afford,
-      affordableCost: API.diceCost(free, afford),
+      affordableCost: API.diceCost(places, afford),
       bonus: free + buy,
       base: base,
       pool: base + free + buy,
@@ -52239,7 +52504,7 @@ var API = {
                (free ? " — " + plural(free, "already comes", "already come") + " from perks or traits" : "")))
         : (have != null && afford < buy
             ? ("The pool holds " + plural(have, "Action Point", "Action Points") + " — " +
-               (afford ? plural(afford, "die", "dice") + " for " + API.diceCost(free, afford) + " AP" : "not enough for one extra die"))
+               (afford ? plural(afford, "die", "dice") + " for " + API.diceCost(places, afford) + " AP" : "not enough for one extra die"))
             : "")
     };
   },
@@ -52369,7 +52634,7 @@ var API = {
     var bought = clampInt(t.bought, 0, cap - free);
     t.freeDice = free; t.bought = bought;
     if(t.commanded && t.commanded.dice > free) t.commanded.dice = free;
-    if(bought < clampInt(test.bought, 0, API.MAX_BONUS_DICE)) t.apCost = API.diceCost(free, bought);   /* Z040: from the free dice's places */
+    if(bought < clampInt(test.bought, 0, API.MAX_BONUS_DICE)) t.apCost = API.diceCost(Math.max(0, base - API.BASE_POOL) + free, bought);   /* Z040: from the free dice's places; Z041: a swarm's own dice past 2d20 hold theirs */
     /* the bill follows the price down, but never below what was already handed over */
     t.apOwed = Math.max(0, Math.max(0, int(t.apCost, 0)) - Math.max(0, int(t.apPaid, 0)));
     var count = Math.min(base + free + bought, API.MAX_POOL), i, f;
@@ -53512,7 +53777,30 @@ function payAll(which, n){
     if(first){ out = { ok:ok, paid:ok ? n : 0, have:have }; first = false; }
     if(ok) m[key] = have - n;
   });
+  /* CMD Z041: the round the payment rode in (SUITE_STATE.whenPaid waits on it, payThen) */
+  out.key = key;
+  if(out.ok){ try{ out.round = typeof s.lastWrite === "function" ? s.lastWrite() : null; }catch(e){ out.round = null; } }
   return out;
+}
+/* CMD Z041 (2026-10-28): TWO DEVICES PAYING AT ONCE.  What a payment bought goes ahead only once the room has taken the payment
+   (SUITE_STATE.whenPaid): go() then; in a room, say(line, "wait") while it waits, say(line, "lost" | "late") when another device
+   spent the pool first or the room did not answer - nothing rolled, no AP spent.  Solo, or no whenPaid: go() at once.  payWait
+   holds the drawer's buy and roll buttons while a payment waits, so a second press cannot pay twice. */
+var payWait = false;
+function payThen(pay, go, say){
+  var SS = window.SUITE_STATE;
+  if(!SS || typeof SS.whenPaid !== "function") return go();
+  var r, done = false;
+  r = SS.whenPaid(pay, { go:function(){ done = true; payWait = false; return go(); },
+                         say:function(line, kind){ if(kind !== "wait"){ done = true; payWait = false; } else if(!done) payWait = true; say(line, kind); } });
+  return r;
+}
+/* the AP of a payment whose purchase went away while it waited (the test was replaced) goes back - one write */
+function payBack(pay){
+  var s = ST(), n = pay && pay.ok ? Math.max(0, Math.round(+pay.paid || 0)) : 0, key = pay && pay.key === "dmAP" ? "dmAP" : "pcAP";
+  if(!s || !n) return 0;
+  s.update(function(m){ m[key] = Math.max(0, Math.round(+m[key] || 0)) + n; });
+  return n;
 }
 function poolShort(which, have){
   return "The " + (which === "gm" ? "Overseer’s" : "party") + " pool has only " + Math.max(0, Math.floor(+have || 0)) + " AP now — nothing was rolled or spent.";
@@ -55170,6 +55458,7 @@ panel.addEventListener("click", function(e){
   }
 
   /* ---- step 2: dice, bought before the roll and never after ---- */
+  if(typeof payWait !== "undefined" && payWait && (b.hasAttribute("data-buy") || b.id === "gp-buy-ok" || b.id === "gp-buy-skip" || b.id === "gp-roll" || b.id === "gp-dmg-roll" || b.hasAttribute("data-dmgbuy"))) return;   /* CMD Z041: a payment waits on the room */
   if(b.hasAttribute("data-buy")){
     var want = +b.getAttribute("data-buy");
     var which = $("gp-pool").value, free = freeNow();        /* R6/R10: the box's free dice and a Command's, inside the cap */
@@ -55191,8 +55480,19 @@ panel.addEventListener("click", function(e){
          priced): nothing is spent, the step stays open on the price it showed, and the buttons repaint against the pool as it is */
       var pay = payAll(T.apPool, owe);
       if(!pay.ok){ paint(); $("gp-buy-note").innerHTML = "<b>" + esc(poolShort(T.apPool, pay.have)) + "</b> Buy fewer dice, or press <b>No extra dice</b>."; return; }
-      paid += owe;
-      T = RL.payDice(T, owe);
+      /* CMD Z041: the step closes, and the dice are the test's, only once the room has taken the payment (payThen) - at once in Solo;
+         another device spent the pool first, or no answer: the step stays open on its price, nothing spent */
+      var T0 = T, payGo = typeof payThen === "function" ? payThen : function(p0, g){ return g(); };
+      payGo(pay, function(){
+        if(T !== T0){ if(typeof payBack === "function") payBack(pay); paint(); return; }          /* the test went away while it waited: nothing bought, the AP back */
+        paid += owe;
+        T = RL.payDice(T, owe);
+        step2done = true; cur = 3; paint();
+      }, function(line, kind){
+        if(kind !== "wait") paint();
+        var nb = $("gp-buy-note"); if(nb) nb.innerHTML = "<b>" + esc(line) + "</b>" + (kind === "wait" ? "" : " Buy again, or press <b>No extra dice</b>.");
+      });
+      return;
     }
     step2done = true; cur = 3; paint(); return;
   }
@@ -55323,6 +55623,43 @@ panel.addEventListener("click", function(e){
   if(b.id === "gp-dmg-roll"){
     if(!(decl && decl.kind === "attack" && T && T.result && T.result.passed) || dmg) return;
     var want = RL.extraDamage(decl, true, dmgBuy);
+    /* CMD Z041: the roll itself, once whatever it bought is paid (and, in a room, taken by the room) */
+    var dmgRollPaid = function(spent){
+      dmgPaid = spent;
+      var pool = dmgPool(), faces = [], i;
+      for(i = 0; i < pool.cd; i++) faces.push(1 + Math.floor(Math.random() * 6));
+      var cdr = RL.countCD(faces);
+      /* WAVE 7 — VICIOUS, WHICH THIS PIPELINE HAD NEVER APPLIED.  Until now the damage
+         build read exactly one quality (Persistent), so every Vicious weapon in the
+         suite under-reported its damage through the guided roll while the character
+         sheet's own Damage button added it correctly.  Two answers for one weapon is
+         worse than either.  `raw` keeps the faces' own total so the read-out can show
+         the arithmetic instead of a number that does not match the dice on screen. */
+      var vic = RL.viciousFrom(decl.weapon, cdr.effects, sneakNow());
+      /* Q9 (WAVE8_ANSWERS): a dual damage type — seven instances, all plasma — is the
+         ATTACKER'S CHOICE, declared before the DR is read, and the card records which.
+         `typePick` is that choice, made in the Turn Order tab's panel; with no choice to
+         make it is the weapon's single type and nothing changes.  `types` rides along so
+         the applying side can SAY it was a choice rather than presenting it as the only
+         reading the Guide allows — the Guide does not say what a dual type means. */
+      var tpick = RL.damageTypeOf(decl.weapon);
+      dmg = { cd:pool.cd, parts:pool.parts, faces:faces, dice:cdr.dice,
+              raw:cdr.damage, vicious:vic, lane:pool.lane,
+              damage:cdr.damage + (vic ? vic.add : 0), effects:cdr.effects,
+              type:tpick,
+              types:(decl.weapon && decl.weapon.types) ? decl.weapon.types.slice() : [],
+              apSpent:spent,
+              persistent:RL.persistentFrom(decl.weapon, cdr.effects), sent:"" };
+      /* PROJECT H, FIGHT (Zoe 2026-10-13, on Howl's word): R8 — Spread's extra hits on the same target, each half the damage
+         reported (its Vicious in it), rounded down; R9 — Burst's offer, one button per Effect, nothing paid until one is pressed */
+      dmg.spread = RL.spreadFrom(decl.weapon, cdr.effects, dmg.damage);
+      var bf = RL.burstFrom(decl.weapon, cdr.effects, decl.attackerKind);
+      dmg.burst = bf ? { n:bf.n, pay:bf.pay, label:bf.label, line:bf.line, added:[], tries:{}, done:false, note:"" } : null;
+      reportBack("damage");
+      paint();
+      ticker(plural(dmg.damage, "damage", "damage") + " on " + ((decl.target && decl.target.name) || "the target") +
+             (dmg.effects ? ", " + plural(dmg.effects, "Effect", "Effects") : ""), decl.charId, tickWho());
+    };
     var spent = 0;
     /* CRB p.18: the extra dice are bought AFTER the hit, and only for melee or thrown.
        The pool is the attacker's own — a character's party pool, a creature's Overseer
@@ -55332,41 +55669,17 @@ panel.addEventListener("click", function(e){
       var dpay = payAll(dmgPurse(), want.ap);
       if(!dpay.ok){ $("gp-dmg-note").innerHTML = "<b>" + esc(poolShort(dmgPurse(), dpay.have)) + "</b> Buy fewer extra dice and roll again."; return; }
       spent = want.ap;
+      /* CMD Z041: the damage is rolled once the room has taken the extra dice's AP (payThen) - at once in Solo */
+      var D0 = decl, payGo2 = typeof payThen === "function" ? payThen : function(p0, g){ return g(); };
+      payGo2(dpay, function(){
+        if(decl !== D0 || dmg){ if(typeof payBack === "function") payBack(dpay); paint(); return; }     /* the attack went away (or was rolled) while it waited */
+        dmgRollPaid(spent);
+      }, function(line, kind){
+        var dn = $("gp-dmg-note"); if(dn) dn.innerHTML = "<b>" + esc(line) + "</b>" + (kind === "wait" ? "" : " Roll again.");
+      });
+      return;
     }
-    dmgPaid = spent;
-    var pool = dmgPool(), faces = [], i;
-    for(i = 0; i < pool.cd; i++) faces.push(1 + Math.floor(Math.random() * 6));
-    var cdr = RL.countCD(faces);
-    /* WAVE 7 — VICIOUS, WHICH THIS PIPELINE HAD NEVER APPLIED.  Until now the damage
-       build read exactly one quality (Persistent), so every Vicious weapon in the
-       suite under-reported its damage through the guided roll while the character
-       sheet's own Damage button added it correctly.  Two answers for one weapon is
-       worse than either.  `raw` keeps the faces' own total so the read-out can show
-       the arithmetic instead of a number that does not match the dice on screen. */
-    var vic = RL.viciousFrom(decl.weapon, cdr.effects, sneakNow());
-    /* Q9 (WAVE8_ANSWERS): a dual damage type — seven instances, all plasma — is the
-       ATTACKER'S CHOICE, declared before the DR is read, and the card records which.
-       `typePick` is that choice, made in the Turn Order tab's panel; with no choice to
-       make it is the weapon's single type and nothing changes.  `types` rides along so
-       the applying side can SAY it was a choice rather than presenting it as the only
-       reading the Guide allows — the Guide does not say what a dual type means. */
-    var tpick = RL.damageTypeOf(decl.weapon);
-    dmg = { cd:pool.cd, parts:pool.parts, faces:faces, dice:cdr.dice,
-            raw:cdr.damage, vicious:vic, lane:pool.lane,
-            damage:cdr.damage + (vic ? vic.add : 0), effects:cdr.effects,
-            type:tpick,
-            types:(decl.weapon && decl.weapon.types) ? decl.weapon.types.slice() : [],
-            apSpent:spent,
-            persistent:RL.persistentFrom(decl.weapon, cdr.effects), sent:"" };
-    /* PROJECT H, FIGHT (Zoe 2026-10-13, on Howl's word): R8 — Spread's extra hits on the same target, each half the damage
-       reported (its Vicious in it), rounded down; R9 — Burst's offer, one button per Effect, nothing paid until one is pressed */
-    dmg.spread = RL.spreadFrom(decl.weapon, cdr.effects, dmg.damage);
-    var bf = RL.burstFrom(decl.weapon, cdr.effects, decl.attackerKind);
-    dmg.burst = bf ? { n:bf.n, pay:bf.pay, label:bf.label, line:bf.line, added:[], tries:{}, done:false, note:"" } : null;
-    reportBack("damage");
-    paint();
-    ticker(plural(dmg.damage, "damage", "damage") + " on " + ((decl.target && decl.target.name) || "the target") +
-           (dmg.effects ? ", " + plural(dmg.effects, "Effect", "Effects") : ""), decl.charId, tickWho());
+    dmgRollPaid(spent);
     return;
   }
   /* PROJECT H, FIGHT (R9): Burst — one more target per press, paid and sent back; or no more */
@@ -63331,7 +63644,32 @@ var document = new Proxy(__rdoc, {
          its own printed HP - no Medicine bonus, no injury treated, nothing stabilized, so a dying patient (0 HP) gets none.
          RadAway's Radiation damage is its own (faRads).
        faRads(rads, off) -> { rads, off }  RadAway "healing 4 Radiation damage in addition to any other healing done (remove
-         Radiation damage before applying other healing effects)", a Diluted one 2 (p.169). */
+         Radiation damage before applying other healing effects)", a Diluted one 2 (p.169).
+     CMD Z041 (Book One p.167, p.169, pp.33-34):
+       faExtra(hp, max, stim, kit, what, salve)  salve: a Healing Salve given in the action - "adding +2 to the number of HP
+         healed overall" (p.167), so only on a stable patient (as the First Aid Kit), after the stimpak, before the kit.  It does
+         not double the AP (that is the stimpak's, p.34) and is never a machine's (machines cannot use chems, p.34).
+       faWhats(hp, max, list) -> [[key, label]]  the success choices that can apply right now: stabilize only a dying patient
+         (0 HP), heal only a stable one (p.34 "You can only heal the HP of a stable character") below their maximum, treat
+         only an injury not yet treated.  Empty: First Aid can do nothing for them.
+       faChemCan(c, what, hp, max, others, rads)  the chem can do something for this patient: RadAway only with Radiation
+         damage; a Healing Salve only below the maximum; a stimpak (a repair kit) below the maximum or with another open
+         injury to treat (`others`: the open injuries besides the one this action treats). */
+  function faWhats(hp, max, list){
+    hp = Math.max(0, Math.round(+hp || 0)); max = Math.max(1, Math.round(+max || 0) || 1);
+    var o = [];
+    if (hp <= 0) o.push(["stab", "stabilize (dying)"]);
+    else if (hp < max) o.push(["heal", "heal HP"]);
+    (list || []).forEach(function(w, k){ if (w && !w.treated) o.push(["t" + k, "treat " + w.loc + (w.debilitating === true ? " (Debilitating, +1)" : "")]); });
+    return o;
+  }
+  function faChemCan(c, what, hp, max, others, rads){
+    c = c || {}; hp = Math.max(0, Math.round(+hp || 0)); max = Math.max(1, Math.round(+max || 0) || 1);
+    if (c.kind === "rad") return Math.round(+rads || 0) > 0;
+    var room = hp < max;
+    if (c.kind === "salve") return room;
+    return room || Math.round(+others || 0) > 0;
+  }
   function faDiff(n, self, deb){
     var bot = arguments.length > 3 && !!arguments[3], bag = arguments.length > 4 && !!arguments[4] && !bot;
     var tool = arguments.length > 5 && arguments[5] && bot ? (typeof arguments[5] === "string" ? arguments[5] : "Multi-Tool") : "";
@@ -63368,6 +63706,8 @@ var document = new Proxy(__rdoc, {
     hp = Math.max(0, Math.round(+hp || 0)); max = Math.max(1, Math.round(+max || 0) || 1); stim = Math.max(0, Math.round(+stim || 0));
     var said = [], h = hp;
     if (stim){ var a = Math.min(max, h + stim); said.push("+" + (a - h) + " HP from the " + (what || "stimpak") + (h <= 0 && a > 0 ? ", stabilized" : "")); h = a; }
+    var salve = arguments.length > 5 ? Math.max(0, Math.round(+arguments[5] || 0)) : 0;
+    if (salve && h > 0){ var c = Math.min(max, h + salve); said.push("+" + (c - h) + " HP from the Healing Salve"); h = c; }
     if (kit && h > 0){ var b = Math.min(max, h + 2); said.push("+" + (b - h) + " HP from the First Aid Kit"); h = b; }
     return { hp:h, said:said };
   }
@@ -63433,17 +63773,37 @@ var document = new Proxy(__rdoc, {
     ((c && c.inventory) || []).forEach(function(r, i){
       if (!faCarried(r)) return;
       var n = String(r.name || "");
-      var ok = bot ? /robot repair kit/i.test(n) : ((/stimpak/i.test(n) && !/diffuser/i.test(n)) || /\brad-?away\b/i.test(n));
+      var sal = !bot && /\bhealing salve\b/i.test(n);           // CMD Z041: a Healing Salve (p.167), a person's only
+      var ok = bot ? /robot repair kit/i.test(n) : ((/stimpak/i.test(n) && !/diffuser/i.test(n)) || /\brad-?away\b/i.test(n) || sal);
       if (!ok) return;
-      var rad = !bot && /\brad-?away\b/i.test(n), dil = /diluted/i.test(n);
+      var rad = !bot && !sal && /\brad-?away\b/i.test(n), dil = /diluted/i.test(n);
       var U = bot ? null : faCat(n), B = !bot && dil ? faCat(n.replace(/\(\s*diluted\s*\)|\bdiluted\b/ig, " ").replace(/\s+/g, " ").trim()) : null;
       var num = function(X){ if (!X) return 0; if (!rad) return Math.round(+X.hp || 0); var mm = /heals (\d+) Rad/i.exec(String(X.effect || "")); return mm ? +mm[1] : 0; };
-      var v = bot ? 4 : faStimHp(n, num(U), num(B));
-      out.push({ i:i, name:n.trim(), qty:r.qty == null ? 1 : Math.round(+r.qty || 0), kind:bot ? "kit" : rad ? "rad" : "stim",
-                 hp:rad ? 0 : v, rad:rad ? v : 0, inj:bot ? 1 : rad ? 0 : faStimInj(n),
-                 what:bot ? "repair kit" : rad ? "RadAway" : "stimpak" });
+      var v = bot ? 4 : sal ? (num(U) > 0 ? num(U) : 2) : faStimHp(n, num(U), num(B));   // a salve "healing 2 HP" (p.167)
+      out.push({ i:i, name:n.trim(), qty:r.qty == null ? 1 : Math.round(+r.qty || 0), kind:bot ? "kit" : rad ? "rad" : sal ? "salve" : "stim",
+                 hp:rad ? 0 : v, rad:rad ? v : 0, inj:bot ? 1 : (rad || sal) ? 0 : faStimInj(n),
+                 what:bot ? "repair kit" : rad ? "RadAway" : sal ? "healing salve" : "stimpak" });
     });
     return out;
+  }
+  /* CMD Z041: what First Aid can do for this patient right now, read by the row (to offer only those) and by the roll (to refuse
+     anything else): the success choices (faWhats) and the medic's chems that can do something (faChemCan).  The maximum the
+     choices read is after the picked RadAway (its Radiation damage comes off first, p.169).
+       -> { opts, what, st, pick, mx, others, why }  what: the choice in force (pk.what if it can apply, else the first);
+          pick: the picked chem if it can apply; why: when no choice can apply, the reason (the button says it) */
+  function faPlan(pat, list, med, bot, pk){
+    var all = faStimsOf(med, bot), hp = Math.max(0, Math.round(+pat.hp || 0)), rads = bot ? 0 : Math.max(0, Math.round(+pat.rads || 0));
+    var p0 = all.filter(function(s){ return pk.stim != null && pk.stim !== "" && String(s.i) === String(pk.stim); })[0] || null;
+    var mx0 = faMax(pat), mx = p0 && p0.kind === "rad" && rads ? faMaxAfter(pat, faRads(rads, p0.rad).off) : mx0;
+    var opts = faWhats(hp, mx, list);
+    var what = opts.some(function(o){ return o[0] === pk.what; }) ? pk.what : (opts[0] ? opts[0][0] : "");
+    var k = /^t\d+$/.test(what) ? +what.slice(1) : -1, others = 0;
+    (list || []).forEach(function(w, j){ if (w && !w.treated && j !== k) others += 1; });
+    var st = all.filter(function(s){ return faChemCan(s, what, hp, mx0, others, rads); });
+    var pick = p0 && st.some(function(s){ return s.i === p0.i; }) ? p0 : null, why = "";
+    if (!opts.length) why = "nothing First Aid can do: at full HP and no untreated injury" +
+      (st.some(function(s){ return s.kind === "rad"; }) ? " (give the RadAway to free maximum HP to heal)" : "");
+    return { opts:opts, what:what, st:st, pick:pick, mx:mx, mx0:mx0, others:others, hp:hp, why:why };
   }
   /* the patient's maximum once RadAway has taken `off` Radiation damage away (radiation comes off Maximum HP) */
   function faMaxAfter(c, off){
@@ -63464,28 +63824,27 @@ var document = new Proxy(__rdoc, {
     var cs = (SUITE.get().chars || []).filter(function(c){ return c && c.id != null; });
     var pk = faPick[key] || (faPick[key] = {});
     var bot = faBotOf(pat), skill = bot ? "Repair" : "Medicine";
-    var hp = Math.max(0, Math.round(+pat.hp || 0)), opts = [];
-    if (hp <= 0) opts.push(["stab", "stabilize (dying)"]);
-    else opts.push(["heal", "heal HP"]);
-    list.forEach(function(w, k){ if (w && !w.treated) opts.push(["t" + k, "treat " + w.loc + (w.debilitating === true ? " (Debilitating, +1)" : "")]); });
-    if (!pk.what || !opts.some(function(o){ return o[0] === pk.what; })) pk.what = opts[0][0];
     if (!pk.medic || !cs.some(function(c){ return String(c.id) === pk.medic; })){
       var other = cs.filter(function(c){ return String(c.id) !== String(pat.id); })[0];
       pk.medic = String((other || pat).id);
     }
     var med = cs.filter(function(c){ return String(c.id) === pk.medic; })[0] || null;
-    var gear = faGearOf(med), st = faStimsOf(med, bot);
-    if (pk.stim != null && pk.stim !== "" && !st.some(function(s){ return String(s.i) === String(pk.stim); })) pk.stim = "";
+    /* CMD Z041: only the choices that can apply to this patient now (faPlan): the success choice, then the chems for it */
+    var gear = faGearOf(med), P = faPlan(pat, list, med, bot, pk), opts = P.opts, st = P.st;
+    pk.what = P.what;
+    if (pk.stim != null && pk.stim !== "" && !P.pick) pk.stim = "";
     var d = document.createElement("div"); d.className = "fa";
     var h = document.createElement("span"); h.className = "fa-h"; h.textContent = bot ? "First Aid (Repair)" : "First Aid"; d.appendChild(h);
     var ms = document.createElement("select"); ms.setAttribute("data-fkey", key + "|fa-medic"); ms.setAttribute("aria-label", "Who gives " + p.name + " first aid");
     cs.forEach(function(c){ var o = document.createElement("option"); o.value = String(c.id); o.textContent = "by " + (c.name || "?") + (String(c.id) === String(pat.id) ? " (yourself, +1)" : ""); ms.appendChild(o); });
     ms.value = pk.medic; ms.onchange = function(){ pk.medic = ms.value; pk.stim = ""; render(); };
     d.appendChild(ms);
-    var ws = document.createElement("select"); ws.setAttribute("data-fkey", key + "|fa-what"); ws.setAttribute("aria-label", "What a success does for " + p.name);
-    opts.forEach(function(o){ var x = document.createElement("option"); x.value = o[0]; x.textContent = o[1]; ws.appendChild(x); });
-    ws.value = pk.what; ws.onchange = function(){ pk.what = ws.value; };
-    d.appendChild(ws);
+    if (opts.length){
+      var ws = document.createElement("select"); ws.setAttribute("data-fkey", key + "|fa-what"); ws.setAttribute("aria-label", "What a success does for " + p.name);
+      opts.forEach(function(o){ var x = document.createElement("option"); x.value = o[0]; x.textContent = o[1]; ws.appendChild(x); });
+      ws.value = pk.what; ws.onchange = function(){ pk.what = ws.value; render(); };
+      d.appendChild(ws);
+    }
     var al = document.createElement("label"); al.textContent = "AP for more HP ";
     var ap = document.createElement("input"); ap.type = "number"; ap.min = "0"; ap.max = "9"; ap.value = String(pk.ap || 0);
     ap.setAttribute("data-fkey", key + "|fa-ap"); ap.title = "Heal or stabilize: +1 HP for every AP spent (2 with a " + (bot ? "repair kit" : "stimpak") + "), from the party pool, after a success (Book One p.34)";
@@ -63500,14 +63859,18 @@ var document = new Proxy(__rdoc, {
       st.forEach(function(s){ var o = document.createElement("option"); o.value = String(s.i); o.textContent = "+ " + s.name + " (" + s.qty + " left)"; ss.appendChild(o); });
       ss.value = pk.stim == null ? "" : String(pk.stim);
       ss.title = "One " + cw + " given as part of the action (only one, Book One p.169): on a success the patient regains its HP too, and each AP heals 2" +
-        (bot ? "" : "; RadAway heals its Radiation damage first") + " (Book One p.34). On a failure it is still spent and gives only its own printed effect";
+        (bot ? "" : "; RadAway heals its Radiation damage first; a Healing Salve adds +2 HP (Book One p.167), AP still 1 each") + " (Book One p.34). On a failure it is still spent and gives only its own printed effect" +
+        ". Only what can do something for " + p.name + " now is offered";
       ss.onchange = function(){ pk.stim = ss.value; render(); };
       d.appendChild(ss);
       var sk0 = st.filter(function(s){ return String(s.i) === String(pk.stim); })[0];
-      if (sk0 && sk0.kind !== "rad"){
-        var sa = document.createElement("select"); sa.setAttribute("data-fkey", key + "|fa-stimas"); sa.setAttribute("aria-label", "What the " + st[0].what + " does");
-        [["hp", "its HP"], ["inj", "treat an injury"]].forEach(function(o){ var x = document.createElement("option"); x.value = o[0]; x.textContent = o[1]; sa.appendChild(x); });
-        sa.value = pk.stimAs === "inj" ? "inj" : "hp"; sa.onchange = function(){ pk.stimAs = sa.value; };
+      if (sk0 && (sk0.kind === "stim" || sk0.kind === "kit")){
+        /* CMD Z041: its HP only below the maximum, an injury only when another is open (faChemCan let it in for one of them) */
+        var sas = [P.hp < P.mx0 ? ["hp", "its HP"] : null, P.others ? ["inj", "treat an injury"] : null].filter(Boolean);
+        var sa = document.createElement("select"); sa.setAttribute("data-fkey", key + "|fa-stimas"); sa.setAttribute("aria-label", "What the " + sk0.what + " does");
+        sas.forEach(function(o){ var x = document.createElement("option"); x.value = o[0]; x.textContent = o[1]; sa.appendChild(x); });
+        if (!sas.some(function(o){ return o[0] === pk.stimAs; })) pk.stimAs = sas[0][0];
+        sa.value = pk.stimAs; sa.onchange = function(){ pk.stimAs = sa.value; };
         d.appendChild(sa);
       }
     }
@@ -63518,8 +63881,10 @@ var document = new Proxy(__rdoc, {
       d.appendChild(gn);
     }
     var go = document.createElement("button"); go.setAttribute("data-fkey", key + "|fa-go"); go.textContent = "Roll First Aid";
-    go.disabled = !canTick(p);
-    go.title = go.disabled ? "That sheet belongs to someone else — they, or the GM, give it"
+    go.disabled = !canTick(p) || !opts.length;
+    if (!opts.length) go.textContent = "No First Aid: " + P.why.replace(/^nothing First Aid can do: /, "");
+    go.title = !opts.length ? p.name + ": " + P.why + " (Book One pp.33-34)"
+      : go.disabled ? "That sheet belongs to someone else — they, or the GM, give it"
       : bot ? "A major action on a machine: INT + Repair, Difficulty 2 + its injuries (+1 on yourself), Book One p.34"
       : "A major action: INT + Medicine, Difficulty = the patient's injuries (+1 on yourself), Book One p.33";
     go.onclick = function(){ faRun(p, key); };
@@ -63541,6 +63906,14 @@ var document = new Proxy(__rdoc, {
     var tool = bot ? gear.tool : "";                             // CMD Z040: a Multi-Tool / Deluxe Toolkit, -1 on a machine (p.181)
     var sr = null;
     if (pk.stim != null && pk.stim !== "") faStimsOf(med, bot).forEach(function(s){ if (String(s.i) === String(pk.stim)) sr = s; });
+    /* CMD Z041: only a choice that can apply now is rolled (the row offers no other; this holds if the sheet moved since) -
+       the success choice, and the chem picked able to do something for this patient; otherwise nothing is rolled or spent */
+    var PL = faPlan(pat, list, med, bot, { what:what, stim:sr ? sr.i : "" });
+    var no = !PL.opts.length ? PL.why
+      : !PL.opts.some(function(o){ return o[0] === what; }) ? (what === "stab" ? "not dying - nothing to stabilize" : what === "heal" ? (PL.hp <= 0 ? "dying - stabilize first (only a stable character's HP can be healed)" : "at full HP - nothing to heal") : "that choice cannot apply now")
+      : sr && !PL.pick ? "the " + sr.name + " can do nothing for " + p.name + " now"
+      : "";
+    if (no){ faSaid[key] = "Nothing rolled for " + p.name + ": " + no + (sr ? "; the " + sr.name + " is kept" : "") + " (Book One pp.33-34)."; render(); return null; }
     var D = faDiff(list.length, self, !!(w && w.debilitating === true), bot, bag, tool);
     var sk = (med.skills || {})[skill] || {}, rank = Math.max(0, Math.round(+sk.rank || 0));
     var tn = Math.max(0, Math.round(+((med.special || {}).I) || 0)) + rank, crit = sk.tag ? Math.max(1, rank) : 1;
@@ -63564,23 +63937,25 @@ var document = new Proxy(__rdoc, {
       return { pass:false, line:faSaid[key], hp:FF.hp };
     }
     var R = faRads(pat.rads, sr ? sr.rad : 0);                   // RadAway first: "remove Radiation damage before applying other healing effects" (p.169)
-    var hp0 = Math.max(0, Math.round(+pat.hp || 0)), mx = faMaxAfter(pat, R.off), per = sr && sr.kind !== "rad" ? 2 : 1;
+    var hp0 = Math.max(0, Math.round(+pat.hp || 0)), mx = faMaxAfter(pat, R.off), per = sr && (sr.kind === "stim" || sr.kind === "kit") ? 2 : 1;
     var open = [];                                               // the open injuries a stimpak could treat, besides the one this success treats
     list.forEach(function(x, j){ if (x && !x.treated && j !== k) open.push(j); });
-    var stimAs = sr ? (pk.stimAs === "inj" && open.length ? "inj" : "hp") : "";
-    var stimHp = stimAs === "hp" ? sr.hp : 0, stimT = stimAs === "inj" ? open.slice(0, sr.inj) : [];
+    /* CMD Z041: a stimpak (repair kit) treats an open injury when picked to, or when there is no HP left for it to heal; a
+       Healing Salve adds its +2 HP after the rest (p.167) and does not double the AP */
+    var stimAs = sr && (sr.kind === "stim" || sr.kind === "kit") ? ((pk.stimAs === "inj" || hp0 >= faMax(pat)) && open.length ? "inj" : "hp") : "";
+    var stimHp = stimAs === "hp" ? sr.hp : 0, stimT = stimAs === "inj" ? open.slice(0, sr.inj) : [], salve = sr && sr.kind === "salve" ? sr.hp : 0;
     var want = Math.max(0, Math.round(+pk.ap || 0)), pool = Math.max(0, Math.round(+m.pcAP || 0)), apUse = 0, main = "", E = null;
     if (k >= 0){
       main = "the " + w.loc + " injury is treated: patched, no penalty, it can re-open";
-      E = faExtra(hp0, mx, stimHp, kit, sr && sr.what);
+      E = faExtra(hp0, mx, stimHp, kit, sr && sr.what, salve);
     } else {
       var hs = what === "stab" ? "stab" : "heal", H0 = faHeal(hs, rank, 0, hp0, mx, per, skill);
       if (!H0.ok){ faSaid[key] = line + " - passed, but " + H0.why + (sr ? "; the " + sr.name + " is kept" : "") + "."; faSay(med, faSaid[key]); render(); return { pass:true, line:faSaid[key] }; }
-      var room = Math.max(0, mx - faExtra(H0.hp, mx, stimHp, kit, "").hp);
+      var room = Math.max(0, mx - faExtra(H0.hp, mx, stimHp, kit, "", salve).hp);
       apUse = Math.min(want, pool, Math.ceil(room / per));      // an AP the maximum would not let heal is not spent
       var H = faHeal(hs, rank, apUse, hp0, mx, per, skill);
       main = H.why;
-      E = faExtra(H.hp, mx, stimHp, kit, sr && sr.what);
+      E = faExtra(H.hp, mx, stimHp, kit, sr && sr.what, salve);
     }
     var hpTo = E.hp;
     if (k >= 0 || stimT.length) editInjuries(p, function(l){ if (l[k]) l[k].treated = true; stimT.forEach(function(j){ if (l[j]) l[j].treated = true; }); });
@@ -68002,15 +68377,81 @@ function mtcWin(open, key){
   if(open){ if(!W2.isOpen("mtc")) W2.open("mtc", mtc, { onClose:function(why){ if(!mtc.hidden) mtc.hidden = true; if(!mtcQuiet && why !== "leave") mtcShut = key; sig = ""; } }); }
   else if(W2.isOpen("mtc")){ mtcQuiet = true; W2.close("mtc"); mtcQuiet = false; }
 }
+/* CMD Z041 - THE MONSTER CARD DOCKS AS A TAB IN THE RIGHT COLUMN.  On the Overseer's desktop (wider than 700 px) the card was
+   a window docked at the Stage's left (Z040), over the map's title and its top-left zones.  It now docks in the right column,
+   under a tab strip "Ledger | Monster" at the column's head - none of it over the map:
+     Monster  the card, docked (no window: Esc and a tab change leave it be; the next tab, Ledger, is its way aside);
+     Ledger   the Ledger (cinder-3-ledger.js; its own L key does the same) - the card waits behind its tab.
+   "Pop out" on the card makes it the window it was (CINDER.win: its x / Esc shut it for the turn, as Z038 says), for this
+   turn only; "Dock" puts it back.  The next creature's turn comes docked.
+   WHEN THE TAB SHOWS ITSELF: the strip and the card come with a creature's turn on the Fight tab, as the card always did.  At
+   each NEW creature turn (a new creature or a new round - not a new target) the Monster tab comes forward, shutting the
+   Ledger, unless the Overseer is working in the Ledger (keyboard focus inside it - the chat, a pinned card): then the Ledger
+   stays and the Monster tab is marked (data-new) until it is opened.  Nothing here moves keyboard focus.
+   A phone (no right column) keeps the card at the foot of the screen, as its window (Z040).  Players get no card: unchanged. */
+var mtcPop = null, rtabs = null, rtWas = null, rtNew = null;
+function desk(){ try{ return !!(window.matchMedia && window.matchMedia("(min-width:701px)").matches); }catch(e){ return false; } }
+function ledgerOpen(){ var L = window.CINDER_LEDGER; try{ return !!(L && typeof L.open === "function" && L.open()); }catch(e){ return false; } }
+function turnOf(a){ return a ? a.id + "|" + (snap && snap.round) : ""; }
+function rtBuild(){
+  if(rtabs) return rtabs;
+  rtabs = el("div", "cl-rtabs"); rtabs.id = "cl-rtabs"; rtabs.hidden = true;
+  rtabs.setAttribute("role", "tablist"); rtabs.setAttribute("aria-label", "Ledger or monster card");
+  [["ledger", "Ledger"], ["monster", "Monster"]].forEach(function(t){
+    var b = el("button", "cl-rt"); b.type = "button"; b.textContent = t[1]; b.setAttribute("role", "tab"); b.setAttribute("data-rt", t[0]); b.setAttribute("aria-selected", "false");
+    rtabs.appendChild(b);
+  });
+  rtabs.addEventListener("click", function(e){
+    var b = e.target.closest("[data-rt]"), L = window.CINDER_LEDGER; if(!b || !L) return;
+    var want = b.getAttribute("data-rt") === "ledger";
+    if(want !== ledgerOpen()) L.toggle(want);
+    rtNew = null; paint(true);
+  });
+  return mount(rtabs, "right");
+}
+/* the tab form: key = this creature's turn, or null to take it down.  Answers whether the Monster tab is the one showing */
+function mtcTab(turn){
+  if(turn == null){
+    if(rtabs && !rtabs.hidden) rtabs.hidden = true;
+    if(mtc.hasAttribute("data-cl-dock")) mtc.removeAttribute("data-cl-dock");
+    return false;
+  }
+  rtBuild();
+  if(rtWas !== turn){
+    rtWas = turn;
+    var lg = document.getElementById("cl-ledger"), busy = !!(lg && document.activeElement && lg.contains(document.activeElement));
+    if(ledgerOpen()){ if(busy) rtNew = turn; else window.CINDER_LEDGER.toggle(false); }
+  }
+  var mon = !ledgerOpen(); if(mon) rtNew = null;
+  if(rtabs.hidden) rtabs.hidden = false;
+  Array.prototype.forEach.call(rtabs.querySelectorAll("[data-rt]"), function(b){
+    var on = String((b.getAttribute("data-rt") === "monster") === mon);
+    if(b.getAttribute("aria-selected") !== on) b.setAttribute("aria-selected", on);
+    var nw = b.getAttribute("data-rt") === "monster" && rtNew === turn;
+    if(b.hasAttribute("data-new") !== nw){ if(nw) b.setAttribute("data-new", ""); else b.removeAttribute("data-new"); }
+  });
+  if(mtc.getAttribute("data-cl-dock") !== "tab") mtc.setAttribute("data-cl-dock", "tab");
+  return mon;
+}
 function paintMtc(){
   var a = actRow(), key = a ? a.id + "|" + (snap && snap.round) + "|" + (sel || "") : "";
   var onFight = document.body.getAttribute("data-cl-tab") === "fight";   /* Z038: the card is the Fight tab's; no other tab shows it */
-  if(!a || a.kind !== "enemy" || !snap.gm || mtcShut === key || !onFight){ if(!mtc.hidden) mtc.hidden = true; mtcWin(false); return; }
-  if(mtc.hidden) mtc.hidden = false;
-  mtcWin(true, key);
+  if(!a || a.kind !== "enemy" || !snap.gm || mtcShut === key || !onFight){ if(!mtc.hidden) mtc.hidden = true; mtcWin(false); mtcTab(null); return; }
+  var dk = desk(), tabbed = dk && mtcPop !== turnOf(a);   /* CMD Z041: docked as a tab, unless popped out for this turn */
+  if(tabbed){
+    mtcWin(false);
+    var D2 = window.CINDER && window.CINDER.docks; if(D2 && D2.right && mtc.parentNode !== D2.right) mount(mtc, "right");
+    var mon = mtcTab(turnOf(a)); if(mtc.hidden !== !mon) mtc.hidden = !mon;
+  } else {
+    mtcTab(null);
+    var D3 = window.CINDER && window.CINDER.docks; if(D3 && D3.bottom && mtc.parentNode !== D3.bottom) mount(mtc, "bottom");
+    if(mtc.hidden) mtc.hidden = false;
+    mtcWin(true, key);
+  }
   var advice = "";
   try{ var adv = document.querySelector("#tool-turn .tv-advice, #tool-turn .mt-why, #tool-turn .mt-best"); advice = adv ? adv.textContent.trim() : ""; }catch(e){}
-  var h = '<div class="cl-mh"><b>' + esc(a.name) + "</b>" + (a.swarm ? ' <span class="cl-stamp in">×' + (a.swarm.standing != null ? a.swarm.standing : a.swarm.alive) + "</span>" : "") +
+  var h = (dk ? '<button type="button" class="cl-mpop" data-mpop="' + (tabbed ? "out" : "in") + '" title="' + (tabbed ? "Open the card as a window over the map" : "Put the card back in its tab") + '">' + (tabbed ? "Pop out" : "Dock") + "</button>" : "") +
+    '<div class="cl-mh"><b>' + esc(a.name) + "</b>" + (a.swarm ? ' <span class="cl-stamp in">×' + (a.swarm.standing != null ? a.swarm.standing : a.swarm.alive) + "</span>" : "") +
     (a.hp ? ' · HP <input class="cl-hpin" data-row="' + esc(a.id) + '" value="' + a.hp.now + '" size="4" aria-label="HP"> / ' + a.hp.total : "") +
     (a.conds && a.conds.length ? ' · <span class="cl-cond">' + esc(a.conds.join(", ")) + "</span>" : "") + "</div>";
   h += '<div class="cl-matk">' + (a.weapons || []).map(function(w, i){ return '<button type="button" data-wi="' + i + '">' + esc(w) + "</button>"; }).join("") + "</div>";
@@ -68019,6 +68460,8 @@ function paintMtc(){
   if(!hpFocus && mtcBody.innerHTML !== h) mtcBody.innerHTML = h;
 }
 function onMtcClick(e){
+  var p = e.target.closest("[data-mpop]");   /* CMD Z041: pop the card out for this turn, or dock it again */
+  if(p){ mtcPop = p.getAttribute("data-mpop") === "out" ? turnOf(actRow()) : null; paint(true); return; }
   var t = e.target.closest("button[data-wi]"), b = B(); if(t && b){ b.attack(+t.getAttribute("data-wi"), sel); paint(true); }
   var d = e.target.closest("details.cl-tac"); if(d) setTimeout(function(){ tactics = d.open; }, 0);
 }
@@ -68248,7 +68691,8 @@ function paint(force){
   });
   lastRows = {}; snap.rows.forEach(function(r){ if(!r.wiped) lastRows[r.id] = 1; });
   var s2 = JSON.stringify([snap, sel, burning.length, moved, tactics, placeFree, (S().chars || []).length]) + (S().pcAP) + (S().dmAP) +
-           "|" + document.body.getAttribute("data-cl-tab");   /* Z038: a tab change repaints (the monster card is the Fight tab's) */
+           "|" + document.body.getAttribute("data-cl-tab") +   /* Z038: a tab change repaints (the monster card is the Fight tab's) */
+           "|" + desk() + "|" + ledgerOpen() + "|" + mtcPop;      /* CMD Z041: a phone/desktop crossing, the Ledger shown or shut, a pop-out */
   var sv = svg();
   if(force || s2 !== sig){ sig = s2; paintRibbon(); paintParty(); paintBar(); paintMtc(); }
   var dragging = false; try{ dragging = !!(window.SUITE_TOKENS && window.SUITE_TOKENS.dragging && window.SUITE_TOKENS.dragging()); }catch(e){}
@@ -68257,7 +68701,7 @@ function paint(force){
 function soon(){ setTimeout(function(){ paint(false); }, 0); }
 function start(){
   if(window.SUITE_STATE && typeof window.SUITE_STATE.subscribe === "function") window.SUITE_STATE.subscribe(soon);
-  ["helena-turn-cur", "helena-enc-hp", "helena-tv-select", "suite:view"].forEach(function(n){ document.addEventListener(n, soon); });
+  ["helena-turn-cur", "helena-enc-hp", "helena-tv-select", "suite:view", "cinder-ledger"].forEach(function(n){ document.addEventListener(n, soon); });
   new MutationObserver(soon).observe(document.body, { attributes:true, attributeFilter:["class", "data-cl-tab"] });
   setInterval(function(){ paint(false); }, 900);
   paint(true);
@@ -68777,8 +69221,10 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
     if(!panel) build();
     var open = want == null ? panel.hidden : !!want;
     if(open && !on()) return;
+    if(panel.hidden === !open) return;   /* CMD Z041: shown already, or shut already - nothing to do, nobody told */
     panel.hidden = !open;
     if(open) show(tab); else { homeChat(); closeFrom(0); }
+    try{ D.dispatchEvent(new CustomEvent("cinder-ledger", { detail:{ open:open } })); }catch(e){}   /* CMD Z041: the right column's tabs follow */
   }
   D.addEventListener("keydown", function(e){
     if(e.key !== "l" && e.key !== "L") return;
@@ -68795,7 +69241,7 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
   }catch(e){}
   var Y = W.SUITE_SYNC;
   if(Y && typeof Y.onEvent === "function"){ try{ Y.onEvent(function(){ if(panel && !panel.hidden && tab === "log") setTimeout(paintLog, 0); }); }catch(e){} }
-  W.CINDER_LEDGER = { toggle:toggle, show:function(t){ toggle(true); if(panel && !panel.hidden) show(t); }, gloss:gloss, terms:G };
+  W.CINDER_LEDGER = { open:function(){ return !!panel && !panel.hidden; }, toggle:toggle, show:function(t){ toggle(true); if(panel && !panel.hidden) show(t); }, gloss:gloss, terms:G };
 })();
 </script>
 <script data-suite="cinder-4-sheet">/* Z032 (2026-10-23) Cinder Ledger - the Sheet (brief SC, amendment A1).
@@ -69713,6 +70159,43 @@ if(D.readyState === "loading") D.addEventListener("DOMContentLoaded", fit); else
 W.addEventListener("load", fit);
 paintZoom();
 W.CINDER_MAPFIT = { fit:fit, zoom:function(i){ if(i != null) zoomTo(+i); return ZOOM[zi]; } };
+})(window);
+
+/* CMD Z041 - THE ZONES KEY COMES OFF THE DRAWING.  At 1440 x 900 the Zones drawing (1424 wide: its key stood beside the map,
+   part of the drawing) was held by the stage's width, 934 x 512, while a Blocks map reached 640 tall.  In Cinder's Fight on a
+   desktop the generator now draws the map alone, 1080 wide (ZM_KEYDOCK.when, below), and "Key" - a button just left of the
+   zoom buttons, shown only over a Zones map - lays the key over the map's edge; its x on the key or a second press shuts it.
+   A zone clicked still shows its table over the edge (x to shut, a Table tab to open again).  Nothing here shrinks the map;
+   an exported or printed map is drawn whole with its key beside it, as before.  Classic, the Maps tab and a phone: untouched.
+   Every write is a change (the watcher rule): the generator rekeys in place only when where it is drawn changed. */
+(function(W){
+"use strict";
+var D = W.document, B = D.body, K = W.ZM_KEYDOCK, stage = D.getElementById("stage");
+if(!B || !K || !stage || typeof D.createElement !== "function") return;
+function fight(){ return B.classList.contains("view-cinder") && B.getAttribute("data-cl-tab") === "fight"; }
+K.when = function(){ return fight() && W.innerWidth > 700; };
+var b = D.createElement("button"); b.type = "button"; b.id = "cl-key"; b.className = "cl-key"; b.textContent = "Key";
+b.title = "Show or hide the map key"; b.setAttribute("aria-pressed", "false"); b.hidden = true;
+b.addEventListener("click", function(){ K.key(!K.key()); paint(); });
+B.appendChild(b);
+function put(k, v){ if(b.style.getPropertyValue(k) !== v) b.style.setProperty(k, v); }
+function paint(){
+  var on = !!K.keyed() && K.when(), open = on && !!K.key();
+  if(b.hidden !== !on) b.hidden = !on;
+  if(b.getAttribute("aria-pressed") !== String(open)) b.setAttribute("aria-pressed", String(open));
+  if(!on) return;
+  /* beside the zoom buttons (cinder-8-maps' fit() places them: this runs after it on the same events) */
+  var z = D.getElementById("cl-zoom"), r = z ? z.getBoundingClientRect() : null;
+  if(r && r.width > 0){ put("top", Math.round(r.top) + "px"); put("left", Math.round(r.left - 6) + "px"); }
+}
+function sync(){ K.sync(); paint(); }
+W.addEventListener("resize", sync);
+new W.MutationObserver(sync).observe(B, { attributes:true, attributeFilter:["class", "data-cl-tab"] });
+new W.MutationObserver(paint).observe(stage, { childList:true });   /* a new drawing (a Generate, the style switched) */
+stage.addEventListener("zm-select", paint);                         /* a zone clicked, the key's x */
+if(D.readyState === "loading") D.addEventListener("DOMContentLoaded", sync); else sync();
+W.addEventListener("load", sync);
+W.CINDER_MAPKEY = { open:function(v){ if(v != null){ K.key(!!v); paint(); } return !!K.key(); } };
 })(window);
 </script>
 <script data-suite="cinder-8-overseer">/* ============================================================================
