@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"42eab42d",at:"2026-10-28 19:05 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"96ed38e2",at:"2026-10-29 12:27 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -2048,6 +2048,46 @@
 #tool-char #cs-sheet .cs-head .cs-lvl-go.cw-go{display:inline-block;grid-row:3;grid-column:1 / -1;justify-self:start;margin-top:3px;max-width:none}
 }
 }
+#tool-char #cs-f-robot[hidden]{display:none !important}
+#tool-char #cs-rb-body .rb-top{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+#tool-char #cs-rb-body .rb-pic{flex:0 1 240px;min-width:0;max-width:100%}
+#tool-char #cs-rb-body .rb-diagram{display:block;width:100%;max-width:260px;height:auto;margin:0 auto}
+#tool-char #cs-rb-body .rb-diagram .zone, #tool-char .cx-rb .zone{fill:var(--plate);stroke:var(--edge);stroke-width:2}
+#tool-char #cs-rb-body .rb-diagram .zone.hurt{fill:#4a1d18;stroke:var(--red)}
+#tool-char #cs-rb-body .rb-diagram .zone.dmg{stroke:var(--amber);stroke-dasharray:6 4}
+#tool-char #cs-rb-body .rb-diagram .zone.gone{fill:none;stroke-dasharray:3 4;opacity:.6}
+#tool-char #cs-rb-body .rb-diagram text{font-family:var(--f-data);font-size:12.5px;fill:var(--ink)}
+#tool-char #cs-rb-body .rb-diagram text.rng{fill:var(--dim)}
+#tool-char #cs-rb-body .rb-slots{flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:4px}
+#tool-char #cs-rb-body .rb-slot{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:5px 0;border-bottom:1px solid var(--edge)}
+#tool-char #cs-rb-body .rb-sw{flex:0 0 52px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+#tool-char #cs-rb-body .rb-pn{flex:1 1 140px;min-width:0;overflow-wrap:anywhere}
+#tool-char #cs-rb-body .rb-ops{display:inline-flex;flex-wrap:wrap;gap:4px;margin-left:auto}
+#tool-char #cs-rb-body .rb-empty{color:var(--faint);font-style:italic}
+#tool-char #cs-rb-body .rb-tag{font-style:normal;font-size:13px;color:var(--amber);border:1px solid var(--amber);border-radius:2px;padding:0 4px}
+#tool-char #cs-rb-body .rb-dmg .rb-pn{color:var(--amber)}
+#tool-char #cs-rb-body .rb-bench{margin:10px 0;padding:10px;border:1px solid var(--amber);border-radius:3px;background:var(--plate);display:flex;flex-direction:column;gap:8px}
+#tool-char #cs-rb-body .rb-bh{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#tool-char #cs-rb-body .rb-step{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+#tool-char #cs-rb-body .rb-step > span{flex:0 0 auto;font-size:15px;color:var(--dim)}
+#tool-char #cs-rb-body .rb-step select{flex:1 1 200px;min-width:0;max-width:100%}
+#tool-char #cs-rb-body .rb-plan{display:flex;flex-direction:column;gap:3px;font-size:15px}
+#tool-char #cs-rb-body .rb-plan span{color:var(--dim)}
+#tool-char #cs-rb-body .rb-short{color:var(--red);font-size:15px}
+#tool-char #cs-rb-body .rb-why{color:var(--faint);font-size:15px;overflow-wrap:anywhere}
+#tool-char #cs-rb-body .rb-msg{font-size:15px}
+#tool-char #cs-rb-body .rb-row{display:flex;flex-wrap:wrap;gap:6px}
+#tool-char #cs-rb-body .rb-locs{width:100%;border-collapse:collapse;margin-top:10px;font-size:15px}
+#tool-char #cs-rb-body .rb-locs th, #tool-char #cs-rb-body .rb-locs td{text-align:left;padding:3px 6px 3px 0;border-bottom:1px solid var(--edge);vertical-align:top}
+#tool-char #cs-rb-body .rb-locs th{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:400}
+#tool-char #cs-rb-body .rb-locs td:first-child{white-space:nowrap;font-family:var(--f-data)}
+#tool-char #cs-rb-body .rb-locs tr.rb-hurt td{color:var(--red)}
+#tool-char #cs-rb-body .rb-stats{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px}
+#tool-char #cs-rb-body .rb-stat span{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-right:6px}
+#tool-char #cs-rb-body .rb-fx{margin-top:10px}
+#tool-char #cs-rb-body .rb-fxh{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+#tool-char #cs-rb-body .rb-fx ul{margin:4px 0 0;padding-left:18px;font-size:15px}
+#tool-char #cs-rb-body .rb-fx li{margin:2px 0}
 
 /* ===== turn ==================================================== */
 #tool-turn{
@@ -4722,6 +4762,28 @@ body:not(.view-cinder) #cl-ms{ display:none !important; }
   .cx-doll text{font-family:"Special Elite","Courier New",monospace;font-size:13px;fill:#1C1814}
 }
 @media print{ #cx-sheet3 .cx-doll,#cx-sheet3 .cx-pages,#cx-sheet3 .cx-portrait,#cx-sheet3 .cx-perks,#cx-sheet3 .cx-rep{display:none} }
+/* CMD Z042: the robot's chassis in the doll (HELENA_CHAR.robotView) and the Robot card on paper.  The card's own drawing
+   steps aside in this view: the doll above already draws it. */
+@media screen{
+  .cx-doll svg.cx-rb{max-width:280px}
+  .cx-doll .cx-rb .zone.dmg{stroke:#B7791F;stroke-dasharray:6 4}
+  .cx-doll .cx-rb .zone.gone{fill:none;stroke-dasharray:3 4;opacity:.6}
+  .cx-doll .cx-rb text{font-size:10.5px}
+  .cx-doll .cx-rb text.rng{fill:#5E5346}
+  .cx-loc.dmg{border-color:#B7791F}
+  .cx-loc .cx-part{font-size:13px;color:#5E5346;overflow-wrap:anywhere}
+  body.view-cinder #cx-sheet3 #cs-rb-body .rb-pic{display:none}
+  body.view-cinder #cx-sheet3 #cs-rb-body .rb-slot,body.view-cinder #cx-sheet3 #cs-rb-body .rb-locs th,
+  body.view-cinder #cx-sheet3 #cs-rb-body .rb-locs td{border-color:#B9A983}
+  body.view-cinder #cx-sheet3 #cs-rb-body .rb-sw,body.view-cinder #cx-sheet3 #cs-rb-body .rb-stat span,
+  body.view-cinder #cx-sheet3 #cs-rb-body .rb-fxh,body.view-cinder #cx-sheet3 #cs-rb-body .rb-locs th,
+  body.view-cinder #cx-sheet3 #cs-rb-body .rb-plan span,body.view-cinder #cx-sheet3 #cs-rb-body .rb-step > span{color:#5E5346}
+  body.view-cinder #cx-sheet3 #cs-rb-body .rb-bench{background:#FBF6EA;border-color:#8C8173}
+  body.view-cinder #cx-sheet3 #cs-rb-body .rb-tag{color:#8A5A00;border-color:#8A5A00}
+  body.view-cinder #cx-sheet3 #cs-rb-body .rb-short,body.view-cinder #cx-sheet3 #cs-rb-body .rb-locs tr.rb-hurt td{color:#A12A1E}
+  body.view-cinder #cx-sheet3 #cs-rb-body .rb-empty,body.view-cinder #cx-sheet3 #cs-rb-body .rb-why{color:#7A6E5E}
+  body.view-cinder #cx-sheet3 #cs-rb-body select{background:#FBF6EA;color:#1C1814;border-color:#8C8173}
+}
 </style>
 <style data-suite="cinder-5-clock">/* Z032 (2026-10-23) Cinder Ledger - the Clock menu (brief SI).  Only under body.view-cinder. */
 #cx-clock-fallback{display:none}
@@ -5090,6 +5152,12 @@ body.view-cinder #tool-craft .cf-chip.short{ border-color:var(--wb-miss); }
 #tool-craft .cf-chip{ font-size:15px; }
 #tool-craft .cf-r .ing{ display:flex; flex-direction:column; align-items:stretch; gap:4px; } #tool-craft .cf-r .ing .cf-chip{ display:block; padding:4px 8px; }
 @media (max-width:700px){ #tool-craft .cf-r{ padding-left:4px; padding-right:4px; } #tool-craft details.cf-cat, #tool-craft details.cf-band, #tool-craft .cf-rows{ padding-left:0 !important; padding-right:0 !important; margin-left:0; margin-right:0; } }
+/* CMD Z042: the Workbench's "Robot parts" line (cinder-7-workbench.js) - both views, it lives in #tool-craft */
+.wb-robot{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:8px 0;padding:6px 10px;border:1px dashed currentColor;border-radius:3px;font-size:13px}
+.wb-robot[hidden]{display:none}
+.wb-robot .wb-rlab{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:12px}
+.wb-robot .wb-rsel{max-width:100%}
+.wb-robot .wb-rhint{opacity:.75;flex:1 1 200px;min-width:0}
 </style>
 <style data-suite="cinder-8-journal">/* Z034 the Journal (brief §G): a two-page spread on the Journal tab - the quests on the left page, the session log
    and the fight chat on the right - all on Paper (they were dark panes inside the Paper view). */
@@ -5702,7 +5770,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-28 19:05 UTC">42eab42d</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-29 12:27 UTC">96ed38e2</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -6463,6 +6531,8 @@ end $$;
 
 
 
+<!-- CMD Z042: the robot parts, written from the robot-parts snapshot (never hand-edited) - HELENA_CHAR.ROBOT reads them -->
+
 
 <!-- PROJECT H, TRACK C: the origins and traits of the Guide's Part II, generated by build-origins.py (C-R6) — Make this character reads them -->
 
@@ -6708,6 +6778,8 @@ end $$;
             <label class="cs-lab">Complication from <input type="number" id="cs-comp" min="15" max="20" value="20"></label>
             <!-- CMD Z014 (G.10): another attribute than the skill's own needs the Overseer's word (Guide p.ccxcii); one roll per tick -->
             <label class="cs-okpair" title="A roll takes its skill's own attribute. Another needs the Overseer's OK, or Stacked Deck: 1 Luck point to roll LCK instead, before the roll (Guide p.ccxcii). One roll per tick."><input type="checkbox" id="cs-skill-ok"> Overseer OK'd another attribute</label>
+            <!-- CMD Z042 (NR-34): what the test is for, when a robot part gives a free d20 for it -->
+            <label class="cs-lab" id="cs-skill-kind-lab" hidden title="A robot part gives a free d20 on this kind of test">Test is <select id="cs-skill-kind" aria-label="what the test is for"><option value="">something else</option><option value="intimidate">to intimidate</option><option value="push-pull">a push or pull</option><option value="help">a help</option></select></label>
             <!-- CMD Z017 (G.4): the Overseer's Difficulty, and the faction a test is against (the party's reputation, Guide p.v) -->
             <label class="cs-lab" title="The Difficulty the Overseer sets. Leave it blank and the roll just names what it adds or takes off.">Difficulty <input type="number" id="cs-skill-diff" min="0" max="5" placeholder="?"></label>
             <label class="cs-lab" title="A test where standing decides it: your rank with the faction comes off the Difficulty, to 0. At Hostile it is +2 instead (Guide p.v).">Against <select id="cs-skill-rep" aria-label="faction the test is against"><option value="">no faction</option></select></label>
@@ -7089,6 +7161,12 @@ end $$;
         </div>
       </div>
     </div>
+
+    <!-- ================= CMD Z042: the robot's parts - only on a sheet with the Robot tick (ROBOTSHEET, rbRender) ================= -->
+    <details class="cs-card cs-fold" id="cs-f-robot" data-card="robot" hidden>
+      <summary><span class="cs-rib" style="--c:var(--c-int)">Robot</span><span class="cs-fold-n" id="cs-fn-robot"></span></summary>
+      <div id="cs-rb-body"></div>
+    </details>
 
     <!-- ================= weapons: the printed column order, SLOTS for WEIGHT ================= -->
     <details class="cs-card cs-fold" id="cs-f-wpn" data-card="wpn">
@@ -12166,6 +12244,1866 @@ window.PERKS_GUIDE = [
 
   window.HELENA_MODS = API;
 })();
+
+/* data/robot-parts.js - written by tools/robot-parts-from-csv.py from the robot-parts snapshot (CMD Z042).
+   Do not hand-edit: re-run the tool. The sheet's words as printed; the table's translations live in the engine. */
+window.HELENA_ROBOT_PARTS = {
+"source": "Robot Limbs & Upgrades (community Google Sheet; credit stays with its author)",
+"snapshot": "2026-10-28",
+"csvMd5": "ee87e63f3be7e0ae07ec35d4c0c34fcf",
+"complexity": [
+{
+"cx": "1",
+"materials": "Common Materials ×2"
+},
+{
+"cx": "2",
+"materials": "Common Materials ×3"
+},
+{
+"cx": "3",
+"materials": "Common Materials ×4, Uncommon Materials ×2"
+},
+{
+"cx": "4",
+"materials": "Common Materials ×5, Uncommon Materials ×3"
+},
+{
+"cx": "5",
+"materials": "Common Materials ×6, Uncommon Materials ×4, Rare Materials ×2"
+},
+{
+"cx": "6",
+"materials": "Common Materials ×7, Uncommon Materials ×5, Rare Materials ×3"
+},
+{
+"cx": "7+",
+"materials": "Common Materials ×8, Uncommon Materials ×6, Rare Materials ×4"
+}
+],
+"installing": "Using a Robot Workbench & using the same rules as Crafting, make a single INT + Science test with the difficulty of this test equal to the Complexity, minus your rank in the science skill. (to a minimum of 0) Failing the roll results in a damaged part that must be repaired (1/2 its complexity) and or cripples the location, GM decides.",
+"upgrading": "You retain all of the previous mk's benefits when upgrading a part of the same mk. You may only upgrade a part to its next mk. Upgrading a part instead of building it costs only 1/2 its complexity. The GM may even decide that some robots have these on them when Salvaging. (Spending luck & rolling a hit location to find one.)",
+"integrating": "Installed weapons retain their weight, ammunition use, can be modified as normal & require a Complexity 2 test to change after the first installation. Keep in mind that you are able to mix and match any and all viable parts!",
+"parts": [
+{
+"id": "mister-handy-torso-mk1",
+"name": "Mister Handy Torso mk1",
+"family": "torso",
+"chassis": "Mister Handy",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "Base 150 lbs",
+"cost": "55 ⍟",
+"caps": 55,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "A Mister Handy torso may install up to 3 mods & 3 arms. You cannot self destruct.",
+"restrictions": "A Mister Handy torso can only take Mr. Handy eye stalks as a head. You cannot self destruct. / Your hit locations change: 1–2 Optics, 3–8 Body, 9–11 Arm 1, 12–14 Arm 2, 15–17 Arm 3, 18–20 Thruster."
+},
+{
+"id": "mister-handy-torso-mk2",
+"name": "Mister Handy Torso mk2",
+"family": "torso",
+"chassis": "Mister Handy",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "5 lb+",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2"
+],
+"effect": "The effect of all mods increases +1 to non combat effects and +1▣ to combat effects.",
+"restrictions": "Mister Handy Torso mk1 installed."
+},
+{
+"id": "mister-handy-torso-mk3",
+"name": "Mister Handy Torso mk3",
+"family": "torso",
+"chassis": "Mister Handy",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "5 lb+",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3"
+],
+"effect": "You gain an additional mod slot. (4 total)",
+"restrictions": "Mister Handy Torso mk2 installed."
+},
+{
+"id": "protectron-torso-mk1",
+"name": "Protectron Torso mk1",
+"family": "torso",
+"chassis": "Protectron",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "Base 225 lbs",
+"cost": "55 ⍟",
+"caps": 55,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "A Protectron torso may install up to 2 mods and 2 arms. You can self destruct for 6 ▣.",
+"restrictions": "None"
+},
+{
+"id": "protectron-torso-mk2",
+"name": "Protectron Torso mk2",
+"family": "torso",
+"chassis": "Protectron",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "10 lb+",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2"
+],
+"effect": "Melee attack complications range on this location increase by 2.",
+"restrictions": "Protectron Torso mk1 installed"
+},
+{
+"id": "protectron-torso-mk3",
+"name": "Protectron Torso mk3",
+"family": "torso",
+"chassis": "Protectron",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "10 lb+",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3"
+],
+"effect": "When the torso is crippled, instead suffer only 1▣ damage every turn, ignoring all Damage Resistances as normal.",
+"restrictions": "Protectron Torso mk2 installed."
+},
+{
+"id": "assaultron-torso-mk1",
+"name": "Assaultron Torso mk1",
+"family": "torso",
+"chassis": "Assaultron",
+"mk": 1,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "Base 150 lbs",
+"cost": "85 ⍟",
+"caps": 85,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "An Assaultron torso may install 1 mod & 2 arms. You can self destruct for 6 ▣.",
+"restrictions": "None"
+},
+{
+"id": "assaultron-torso-mk2",
+"name": "Assaultron Torso mk2",
+"family": "torso",
+"chassis": "Assaultron",
+"mk": 2,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "5 lb+",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "You are able to hide 1 reasonably sized object (determined by the GM) in you chassi, giving it the Concealed property until removed. Some examples are: small weapons, bottles, explosives and or chems.",
+"restrictions": "Assaultron Torso mk1 installed."
+},
+{
+"id": "assaultron-torso-mk3",
+"name": "Assaultron Torso mk3",
+"family": "torso",
+"chassis": "Assaultron",
+"mk": 3,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "5 lb+",
+"cost": "+45 ⍟",
+"caps": 45,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "Gain one of these as a permanent, reusable part: Electronic Lockpicker, Robot Repair Kit or Stealth Boy. (all have a 3 hr recharge)",
+"restrictions": "Assaultron Torso mk2 installed, the desired item."
+},
+{
+"id": "robobrain-torso-mk1",
+"name": "Robobrain Torso mk1",
+"family": "torso",
+"chassis": "Robobrain",
+"mk": 1,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "Base 150 lbs",
+"cost": "85 ⍟",
+"caps": 85,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "A Robobrain Torso has 2 arms and may not install mods. You cannot self destruct.",
+"restrictions": "None"
+},
+{
+"id": "robobrain-torso-mk2",
+"name": "Robobrain Torso mk2",
+"family": "torso",
+"chassis": "Robobrain",
+"mk": 2,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "10 lb+",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "The torso gains 1 mod slot, its effect gains +2 to non combat effects and +2 ▣ to combat effects.",
+"restrictions": "Robobrain Torso mk1 installed."
+},
+{
+"id": "robobrain-torso-mk3",
+"name": "Robobrain Torso mk3",
+"family": "torso",
+"chassis": "Robobrain",
+"mk": 3,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "10 lb+",
+"cost": "+45 ⍟",
+"caps": 45,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "Your mod gains an additional +1 to non combat effects and you are able to re-roll 2 ▣ on combat related effects.",
+"restrictions": "Robobrain Torso mk2 installed."
+},
+{
+"id": "sentry-bot-torso-mk1",
+"name": "Sentry Bot Torso mk1",
+"family": "torso",
+"chassis": "Sentry Bot",
+"mk": 1,
+"complexity": 7.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "Base 150 lbs",
+"cost": "100 ⍟",
+"caps": 100,
+"capsPlus": false,
+"perks": [
+"Armorer 1",
+"Robotics Expert 3",
+"Science! 1"
+],
+"effect": "A Sentry Bot Torso has 2 arms & allows you to self destruct for 16 ▣.",
+"restrictions": "Repairs to fix a crippled torso require a Fusion Core charge, Your Defence is locked to 1."
+},
+{
+"id": "sentry-bot-torso-mk2",
+"name": "Sentry Bot Torso mk2",
+"family": "torso",
+"chassis": "Sentry Bot",
+"mk": 2,
+"complexity": 7.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "15 lb+",
+"cost": "+50 ⍟",
+"caps": 50,
+"capsPlus": true,
+"perks": [
+"Armorer 2",
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "You gain +14 hit points to the torso. (similar to power armor)",
+"restrictions": "Sentry Bot Torso mk1 installed."
+},
+{
+"id": "sentry-bot-torso-mk3",
+"name": "Sentry Bot Torso mk3",
+"family": "torso",
+"chassis": "Sentry Bot",
+"mk": 3,
+"complexity": 7.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "15 lbs+",
+"cost": "+75 ⍟",
+"caps": 75,
+"capsPlus": true,
+"perks": [
+"Armorer 3",
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "An explosives based weapon, \"grenade lobber\" or \"mine layer\" is installed on the back, (Chest) but has a complication range of 17-20 when engaged. This functions as an already equipped weapon & is self loading, you need the related explosive in your inventory for it to be used.",
+"restrictions": "Sentry Bot Torso mk2 & the desired weapon."
+},
+{
+"id": "securitron-torso-mk1",
+"name": "Securitron Torso mk1",
+"family": "torso",
+"chassis": "Securitron",
+"mk": 1,
+"complexity": 6.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "Base 150 lbs",
+"cost": "85 ⍟",
+"caps": 85,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "A Securitron torso has 2 arms & a printer that prints in black ink. You cannot self destruct.",
+"restrictions": "When installing, a missile launchers & a grenade launcher is needed. The torso can only take a Securitron head."
+},
+{
+"id": "securitron-torso-mk2",
+"name": "Securitron Torso mk2",
+"family": "torso",
+"chassis": "Securitron",
+"mk": 2,
+"complexity": 0.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "10 lb+",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [],
+"effect": "You gain access to your shoulder housed missile launchers and onboard repair systems, once per scene you recover HP equal to your Endurance score.",
+"restrictions": "Securitron Arm mk1 installed & access to mk2 updates."
+},
+{
+"id": "securitron-torso-mk3",
+"name": "Securitron Torso mk3",
+"family": "torso",
+"chassis": "Securitron",
+"mk": 3,
+"complexity": 6.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "10 lb+",
+"cost": "+54 ⍟",
+"caps": 54,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "Your printer can now print in color and send faxes.",
+"restrictions": "Securitron Torso mk2 installed."
+},
+{
+"id": "liberator-torso-mk1",
+"name": "Liberator Torso mk1",
+"family": "torso",
+"chassis": "Liberator",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "Base 75 lbs",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "A Liberator torso may install 1 mod and 4 legs. You can self destruct for 6 ▣. Your chassis can integrate 1 Weapon or pincer and can retract, giving it the Concealed quality when stowed.",
+"restrictions": "The integrated weapon cannot have the 2-Handed property. / Your hit locations change: 1-2 Optics, 3-8 Chassis (Torso), 9-11 Left Front Leg, 12-14 Right Front Leg, 15-17 Left Rear Leg, 18-20 Right Rear Leg"
+},
+{
+"id": "liberator-torso-mk2",
+"name": "Liberator Torso mk2",
+"family": "torso",
+"chassis": "Liberator",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "5 lb+",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "The difficulty of discovering your Concealed weapon is increased by 1.",
+"restrictions": "Liberator Torso mk1 installed."
+},
+{
+"id": "liberator-torso-mk3",
+"name": "Liberator Torso mk3",
+"family": "torso",
+"chassis": "Liberator",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "5 lb+",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "Your chassis gains an additional mod slot.",
+"restrictions": "Liberator Torso mk2 installed."
+},
+{
+"id": "eyebot-torso-mk1",
+"name": "Eyebot Torso mk1",
+"family": "torso",
+"chassis": "Eyebot",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "Base 75 lbs",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "An Eyebot torso may install 1 mod and 2 mounts. You have a built-in radio transmitter. Your defense is 2, this cannot be increased.",
+"restrictions": "Your hit locations change: 1–2 Head, 3–11 Torso, 12–14 Top Mount, 15–17 Bottom Mount, 18–20 Thruster."
+},
+{
+"id": "eyebot-torso-mk2",
+"name": "Eyebot Torso mk2",
+"family": "torso",
+"chassis": "Eyebot",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "5 lb+",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "None",
+"restrictions": "Eyebot Torso mk1 installed."
+},
+{
+"id": "eyebot-torso-mk3",
+"name": "Eyebot Torso mk3",
+"family": "torso",
+"chassis": "Eyebot",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "5 lb+",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "Your chassis gains an additional mod slot.",
+"restrictions": "Eyebot Torso mk2 installed."
+},
+{
+"id": "mister-handy-thruster-mk1",
+"name": "Mister Handy Thruster mk1",
+"family": "legs",
+"chassis": "Mister Handy",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "This robot hovers above the ground, unaffected by Difficult Terrain or obstacles, but has a reduced carry weight.",
+"restrictions": "None"
+},
+{
+"id": "mister-handy-thruster-mk2",
+"name": "Mister Handy Thruster mk2",
+"family": "legs",
+"chassis": "Mister Handy",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2"
+],
+"effect": "None",
+"restrictions": "Mister Handy Thruster mk1 installed."
+},
+{
+"id": "mister-handy-thruster-mk3",
+"name": "Mister Handy Thruster mk3",
+"family": "legs",
+"chassis": "Mister Handy",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3"
+],
+"effect": "It now acts as a Lantern (p.181 core) and you can spend a minor action to increase its range by 1 zone for 1 round.",
+"restrictions": "Mister Handy Thruster mk2 installed."
+},
+{
+"id": "protectron-legs-mk1",
+"name": "Protectron Legs mk1",
+"family": "legs",
+"chassis": "Protectron",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "None",
+"restrictions": "None"
+},
+{
+"id": "protectron-legs-mk2",
+"name": "Protectron Legs mk2",
+"family": "legs",
+"chassis": "Protectron",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expect 2"
+],
+"effect": "Melee attack complication range on this location increase by 2.",
+"restrictions": "Protectron Legs mk1 installed."
+},
+{
+"id": "protectron-legs-mk3",
+"name": "Protectron Legs mk3",
+"family": "legs",
+"chassis": "Protectron",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expect 3"
+],
+"effect": "When a leg is crippled you remain upright for 1 turn, you fall prone after your next turn as usual.",
+"restrictions": "Protectron Legs mk2 installed."
+},
+{
+"id": "assaultron-legs-mk1",
+"name": "Assaultron Legs mk1",
+"family": "legs",
+"chassis": "Assaultron",
+"mk": 1,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "70 ⍟",
+"caps": 70,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "None",
+"restrictions": "None"
+},
+{
+"id": "assaultron-legs-mk2",
+"name": "Assaultron Legs mk2",
+"family": "legs",
+"chassis": "Assaultron",
+"mk": 2,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "Ignore the first complication rolled on a Sneak test you attempt.",
+"restrictions": "Assaultron Legs mk1 installed."
+},
+{
+"id": "assaultron-legs-mk3",
+"name": "Assaultron Legs mk3",
+"family": "legs",
+"chassis": "Assaultron",
+"mk": 3,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+45 ⍟",
+"caps": 45,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "Once per scene you can use the Sprint action as a Minor action.",
+"restrictions": "Assaultron Legs mk2 installed."
+},
+{
+"id": "robobrain-treads-mk1",
+"name": "Robobrain Treads mk1",
+"family": "legs",
+"chassis": "Robobrain",
+"mk": 1,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "70 ⍟",
+"caps": 70,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "None",
+"restrictions": "None"
+},
+{
+"id": "robobrain-treads-mk2",
+"name": "Robobrain Treads mk2",
+"family": "legs",
+"chassis": "Robobrain",
+"mk": 2,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "Reduce the difficulty of skill tests to balance or remain upright by 1. (minimum of 0)",
+"restrictions": "Robobrain Treads mk1 installed."
+},
+{
+"id": "robobrain-treads-mk3",
+"name": "Robobrain Treads mk3",
+"family": "legs",
+"chassis": "Robobrain",
+"mk": 3,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+45 ⍟",
+"caps": 45,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "You can ignore the effects of Encumbrance until it is double your carry weight.",
+"restrictions": "Robobrain Treads mk2 installed."
+},
+{
+"id": "sentry-bot-legs-mk1",
+"name": "Sentry Bot Legs mk1",
+"family": "legs",
+"chassis": "Sentry Bot",
+"mk": 1,
+"complexity": 7.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "",
+"cost": "150 ⍟",
+"caps": 150,
+"capsPlus": false,
+"perks": [
+"Armorer 1",
+"Robotics Expert 3",
+"Science! 1"
+],
+"effect": "You cannot benefit from cover unless fully covered, you gain 1d20 on Athletics tests to push or pull and gain an additional 50 lbs of carry weight.",
+"restrictions": "None"
+},
+{
+"id": "sentry-bot-legs-mk2",
+"name": "Sentry Bot Legs mk2",
+"family": "legs",
+"chassis": "Sentry Bot",
+"mk": 2,
+"complexity": 7.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "",
+"cost": "+50 ⍟",
+"caps": 50,
+"capsPlus": true,
+"perks": [
+"Armorer 2",
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "You gain +7 hit points to the Legs. (similar to power armor)",
+"restrictions": "Sentry Bot Leg mk1 installed."
+},
+{
+"id": "sentry-bot-legs-mk3",
+"name": "Sentry Bot Legs mk3",
+"family": "legs",
+"chassis": "Sentry Bot",
+"mk": 3,
+"complexity": 7.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "",
+"cost": "+75 ⍟",
+"caps": 75,
+"capsPlus": true,
+"perks": [
+"Armorer 3",
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "When entering combat, immediately generate 1 Action Point.",
+"restrictions": "Sentry Bot Leg mk2 installed."
+},
+{
+"id": "securitron-wheel-mk1",
+"name": "Securitron Wheel mk1",
+"family": "legs",
+"chassis": "Securitron",
+"mk": 1,
+"complexity": 6.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "",
+"cost": "70 ⍟",
+"caps": 70,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "Increasing the difficulty of skill tests to balance or remain upright by 1.",
+"restrictions": "None"
+},
+{
+"id": "securitron-wheel-mk2",
+"name": "Securitron Wheel mk2",
+"family": "legs",
+"chassis": "Securitron",
+"mk": 2,
+"complexity": 6.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "Double your travel speed.",
+"restrictions": "Securitron Legs mk1 installed."
+},
+{
+"id": "securitron-wheel-mk3",
+"name": "Securitron Wheel mk3",
+"family": "legs",
+"chassis": "Securitron",
+"mk": 3,
+"complexity": 6.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "",
+"cost": "+54 ⍟",
+"caps": 54,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "Obstacles requiring you to jump no longer cost AP.",
+"restrictions": "Securitron wheel mk2 installed."
+},
+{
+"id": "liberator-legs-mk1",
+"name": "Liberator Legs mk1",
+"family": "legs",
+"chassis": "Liberator",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "At least 2 of your legs must be broken for you to suffer from their effects.",
+"restrictions": "These can only be installed on a Liberator chassis."
+},
+{
+"id": "liberator-legs-mk2",
+"name": "Liberator Legs mk2",
+"family": "legs",
+"chassis": "Liberator",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "Every 2 upgraded legs with this upgrade allows you to re-roll 1d20 on tests that would see you fall prone if failed.",
+"restrictions": "Liberator Legs mk1 installed."
+},
+{
+"id": "liberator-legs-mk3",
+"name": "Liberator Legs mk3",
+"family": "legs",
+"chassis": "Liberator",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "If you do not move on your turn you can Aim as a free action.",
+"restrictions": "Liberator Legs mk3"
+},
+{
+"id": "eyebot-thruster-mk1",
+"name": "Eyebot Thruster mk1",
+"family": "legs",
+"chassis": "Eyebot",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "You are unaffected by difficult terrain or obstacles. You can use the Sprint action to fly, moving 1 zone up or down.",
+"restrictions": "This must be installed on an Eyebot torso."
+},
+{
+"id": "eyebot-thruster-mk2",
+"name": "Eyebot Thruster mk2",
+"family": "legs",
+"chassis": "Eyebot",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "None",
+"restrictions": "Eyebot Thruster mk1 installed."
+},
+{
+"id": "eyebot-thruster-mk3",
+"name": "Eyebot Thruster mk3",
+"family": "legs",
+"chassis": "Eyebot",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "You gain an additional 50 carry weight.",
+"restrictions": "Eyebot Thruster mk2 installed."
+},
+{
+"id": "mister-handy-eye-stalk-mk1",
+"name": "Mister Handy Eye Stalk mk1",
+"family": "head",
+"chassis": "Mister Handy",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [],
+"effect": "This robot has 360° vision, giving it a line of sight in all directions, reducing the difficulty of PER tests to see things behind it.",
+"restrictions": "None"
+},
+{
+"id": "mister-handy-eye-stalk-mk2",
+"name": "Mister Handy Eye Stalk mk2",
+"family": "head",
+"chassis": "Mister Handy",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2"
+],
+"effect": "If you have used the Aim action on one target, you can use it again for free on another separate target.",
+"restrictions": "Mister Handy Eye Stalk mk1 installed."
+},
+{
+"id": "mister-handy-eye-stalk-mk3",
+"name": "Mister Handy Eye Stalk mk3",
+"family": "head",
+"chassis": "Mister Handy",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3"
+],
+"effect": "You gain the benefits of worn hats, but none of the damage reduction effects.",
+"restrictions": "Mister Handy Eye Stalk mk2 installed."
+},
+{
+"id": "protectron-head-mk1",
+"name": "Protectron Head mk1",
+"family": "head",
+"chassis": "Protectron",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [],
+"effect": "None",
+"restrictions": "None"
+},
+{
+"id": "protectron-head-mk2",
+"name": "Protectron Head mk2",
+"family": "head",
+"chassis": "Protectron",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expect 2"
+],
+"effect": "Melee attack complications range on this location increase by 2.",
+"restrictions": "Protectron Head mk1 installed."
+},
+{
+"id": "protectron-head-mk3",
+"name": "Protectron Head mk3",
+"family": "head",
+"chassis": "Protectron",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expect 3"
+],
+"effect": "When under the Stunned effect, the cost of buying a Major action is reduced by 1AP.",
+"restrictions": "Protectron Head mk2 installed."
+},
+{
+"id": "assaultron-head-mk1",
+"name": "Assaultron Head mk1",
+"family": "head",
+"chassis": "Assaultron",
+"mk": 1,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "70 ⍟",
+"caps": 70,
+"capsPlus": false,
+"perks": [],
+"effect": "Gain an Assaultron head laser. (p.92 Settler)",
+"restrictions": "None"
+},
+{
+"id": "assaultron-head-mk2",
+"name": "Assaultron Head mk2",
+"family": "head",
+"chassis": "Assaultron",
+"mk": 2,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "Reduce the difficulty of all PER based tests by 1 (to a minimum of 0).",
+"restrictions": "Assaultron Head mk1 installed."
+},
+{
+"id": "assaultron-head-mk3",
+"name": "Assaultron Head mk3",
+"family": "head",
+"chassis": "Assaultron",
+"mk": 3,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+45 ⍟",
+"caps": 45,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "Ignore the first complication rolled when using the Assaultron head laser & it gains the Concealed trait.",
+"restrictions": "Assaultron Head mk2 installed."
+},
+{
+"id": "robobrain-jar-mk1",
+"name": "Robobrain Jar mk1",
+"family": "head",
+"chassis": "Robobrain",
+"mk": 1,
+"complexity": 6.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "70 ⍟",
+"caps": 70,
+"capsPlus": false,
+"perks": [],
+"effect": "Ignoring any difficulty increase to Perception Tests in darkness & gain an integrated mesmetron. (p.93 Settler)",
+"restrictions": "A fresh brain, yours or one that can be used by your software."
+},
+{
+"id": "robobrain-head-mk2",
+"name": "Robobrain Head mk2",
+"family": "head",
+"chassis": "Robobrain",
+"mk": 2,
+"complexity": 6.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "You are able to use any form of the Mentat chem, your GM decides if you can or cannot become addicted.",
+"restrictions": "Robobrain Head mk1 installed"
+},
+{
+"id": "robobrain-head-mk3",
+"name": "Robobrain Head mk3",
+"family": "head",
+"chassis": "Robobrain",
+"mk": 3,
+"complexity": 6.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+45 ⍟",
+"caps": 45,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "If the mesmetron deals an injury to a target's head they go into a pained frenzy and treats all creatures and characters as enemies for a number of turns equal to the effects rolled on the attack, it does need a brain for this to occur.",
+"restrictions": "Robobrain Head mk2 installed"
+},
+{
+"id": "sentry-bot-head-mk1",
+"name": "Sentry Bot Head mk1",
+"family": "head",
+"chassis": "Sentry Bot",
+"mk": 1,
+"complexity": 7.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "",
+"cost": "150 ⍟",
+"caps": 150,
+"capsPlus": false,
+"perks": [],
+"effect": "Gain 1d20 on rolls meant to intimidate & your head acts as a Flashlight. (p.181 Core)",
+"restrictions": "None"
+},
+{
+"id": "sentry-bot-head-mk2",
+"name": "Sentry Bot Head mk2",
+"family": "head",
+"chassis": "Sentry Bot",
+"mk": 2,
+"complexity": 7.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "",
+"cost": "+50 ⍟",
+"caps": 50,
+"capsPlus": true,
+"perks": [
+"Armorer 2",
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "You gain +7 hit points to the Head. (similar to power armor)",
+"restrictions": "Sentry Bot Head mk1 installed."
+},
+{
+"id": "sentry-bot-head-mk3",
+"name": "Sentry Bot Head mk3",
+"family": "head",
+"chassis": "Sentry Bot",
+"mk": 3,
+"complexity": 7.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "",
+"cost": "+75 ⍟",
+"caps": 75,
+"capsPlus": true,
+"perks": [
+"Armorer 3",
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "After the first attack gain +1▣ on all following attacks if uninterrupted against the same target.",
+"restrictions": "Sentry Bot Head mk2 installed."
+},
+{
+"id": "securitron-head-mk1",
+"name": "Securitron Head mk1",
+"family": "head",
+"chassis": "Securitron",
+"mk": 1,
+"complexity": 6.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "",
+"cost": "70 ⍟",
+"caps": 70,
+"capsPlus": false,
+"perks": [],
+"effect": "The \"head\" is a screen that can receive broadcasts.",
+"restrictions": "This can only be installed on the Securitron torso.  / Your hit locations change: 1–2 Head, 3–11 Torso, 12–14 Left Arm, 15–17 Right Arm, 18–20 legs."
+},
+{
+"id": "securitron-head-mk2",
+"name": "Securitron Head mk2",
+"family": "head",
+"chassis": "Securitron",
+"mk": 2,
+"complexity": 6.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "Gain 1 re-roll on speech based checks per encounter.",
+"restrictions": "Securitron Head mk1 installed"
+},
+{
+"id": "securitron-head-mk3",
+"name": "Securitron Head mk3",
+"family": "head",
+"chassis": "Securitron",
+"mk": 3,
+"complexity": 6.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "",
+"cost": "+54 ⍟",
+"caps": 54,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "Your head acts as both a Radio & Holotape Player. It reduces Injury Recovery Difficulty by 1 (p.181 Core) for anyone around you, assuming they can watch your screen.",
+"restrictions": "Securitron Head mk2 installed"
+},
+{
+"id": "liberator-optics-mk1",
+"name": "Liberator Optics mk1",
+"family": "head",
+"chassis": "Liberator",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [],
+"effect": "Your optic can house an energy weapon, giving it the Concealed quality.",
+"restrictions": "This can only be installed on a liberator chassis & the integrated weapon cannot have the 2-Handed property."
+},
+{
+"id": "liberator-optics-mk2",
+"name": "Liberator Optics mk2",
+"family": "head",
+"chassis": "Liberator",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "You gain the cutting function of a Laser Emitter, allowing you to cut through materials up to 1 inch thick, 2 inches if you have a Laser Emitter equipped.",
+"restrictions": "Liberator Optics mk1 installed."
+},
+{
+"id": "liberator-optics-mk3",
+"name": "Liberator Optics mk3",
+"family": "head",
+"chassis": "Liberator",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "Your Optics now function as a flashlight.",
+"restrictions": "Liberator Optics mk2 installed."
+},
+{
+"id": "eyebot-optics-mk1",
+"name": "Eyebot Optics mk1",
+"family": "head",
+"chassis": "Eyebot",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [],
+"effect": "None",
+"restrictions": "This can only be installed on a Eyebot chassis."
+},
+{
+"id": "eyebot-optics-mk2",
+"name": "Eyebot Optics mk2",
+"family": "head",
+"chassis": "Eyebot",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "You are able to record and replay sounds you hear.",
+"restrictions": "Eyebot Optics mk1 installed."
+},
+{
+"id": "eyebot-optics-mk3",
+"name": "Eyebot Optics mk3",
+"family": "head",
+"chassis": "Eyebot",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "When making or helping with Navigation tests, reduce the difficulty by 1.",
+"restrictions": "Eyebot Optics mk2 installed."
+},
+{
+"id": "mister-handy-arm-mk1",
+"name": "Mister Handy Arm mk1",
+"family": "arm",
+"chassis": "Mister Handy",
+"mk": 1,
+"complexity": 5.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "These arms can accept any hand attachment.",
+"restrictions": "None"
+},
+{
+"id": "mister-handy-arm-mk2",
+"name": "Mister Handy Arm mk2",
+"family": "arm",
+"chassis": "Mister Handy",
+"mk": 2,
+"complexity": 3.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2"
+],
+"effect": "Gain 1 re-roll when doing a suburban activity if atleast 1 Mister Handy Arm mk2 is installed.",
+"restrictions": "Mister Handy Arm mk1 installed."
+},
+{
+"id": "mister-handy-arm-mk3",
+"name": "Mister Handy Arm mk3",
+"family": "arm",
+"chassis": "Mister Handy",
+"mk": 3,
+"complexity": 3.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3"
+],
+"effect": "You may re-roll 1 ▣ when attempting Butchery or Salvage per Mister Handy Arm mk3 installed.",
+"restrictions": "Assaultron Arm mk2 installed."
+},
+{
+"id": "protectron-arm-mk1",
+"name": "Protectron Arm mk1",
+"family": "arm",
+"chassis": "Protectron",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "These arms can accept any hand attachment.",
+"restrictions": "None"
+},
+{
+"id": "protectron-arm-mk2",
+"name": "Protectron Arm mk2",
+"family": "arm",
+"chassis": "Protectron",
+"mk": 2,
+"complexity": 2.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expect 2"
+],
+"effect": "Melee attack complications range on this location increase by 2.",
+"restrictions": "Protectron Arm mk1 installed."
+},
+{
+"id": "protectron-arm-mk3",
+"name": "Protectron Arm mk3",
+"family": "arm",
+"chassis": "Protectron",
+"mk": 3,
+"complexity": 2.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expect 3"
+],
+"effect": "The Crawl action is now a Minor action, (often when your legs are crippled) but you cannot overcome Obstacles via AP.",
+"restrictions": "Assaultron Arm mk2 installed."
+},
+{
+"id": "assaultron-arm-mk1",
+"name": "Assaultron Arm mk1",
+"family": "arm",
+"chassis": "Assaultron",
+"mk": 1,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "70 ⍟",
+"caps": 70,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "These arms can accept any hand attachment & add +1▣ to unarmed attacks in addition to any bonus ▣ on melee attacks you receive from your Strength attribute if you have at least 2 of these arms.",
+"restrictions": "None"
+},
+{
+"id": "assaultron-arm-mk2",
+"name": "Assaultron Arm mk2",
+"family": "arm",
+"chassis": "Assaultron",
+"mk": 2,
+"complexity": 3.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "One none Two-handed weapon, such as the Assaultron Blade or pistols can be incorporated into the arm & gain Concealed when not equipped. A Minor Action can be used to \"rotate\" a set of Claws back into place.",
+"restrictions": "Assaultron Arm mk1 installed, the desired one handed weapon ."
+},
+{
+"id": "assaultron-arm-mk3",
+"name": "Assaultron Arm mk3",
+"family": "arm",
+"chassis": "Assaultron",
+"mk": 3,
+"complexity": 3.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+45 ⍟",
+"caps": 45,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "Sneak attacks gain +1 ▣ per Assaultron Arm mk3 installed.",
+"restrictions": "Assaultron Arm mk2 installed."
+},
+{
+"id": "robobrain-arm-mk1",
+"name": "Robobrain Arm mk1",
+"family": "arm",
+"chassis": "Robobrain",
+"mk": 1,
+"complexity": 5.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "70 ⍟",
+"caps": 70,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "These arms can accept any arm attachment.",
+"restrictions": "None"
+},
+{
+"id": "robobrain-arm-mk2",
+"name": "Robobrain Arm mk2",
+"family": "arm",
+"chassis": "Robobrain",
+"mk": 2,
+"complexity": 3.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "The damage needed to cripple the arm increases by 1.",
+"restrictions": "Robobrain Arm mk1 installed"
+},
+{
+"id": "robobrain-arm-mk3",
+"name": "Robobrain Arm mk3",
+"family": "arm",
+"chassis": "Robobrain",
+"mk": 3,
+"complexity": 3.0,
+"rarity": "Uncommon (4)",
+"rarityN": 4,
+"carry": "",
+"cost": "+45 ⍟",
+"caps": 45,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "A crippled arm can fix itself once per scene.",
+"restrictions": "Robobrain Arm mk2 installed"
+},
+{
+"id": "sentry-bot-arm-mk1",
+"name": "Sentry Bot Arm mk1",
+"family": "arm",
+"chassis": "Sentry Bot",
+"mk": 1,
+"complexity": 6.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "",
+"cost": "150 ⍟",
+"caps": 150,
+"capsPlus": false,
+"perks": [
+"Armorer 1",
+"Robotics Expert 3",
+"Science! 1"
+],
+"effect": "You are able to integrate and use any hand attachment, Heavy Weapons or Melee weapon into this arm. The arm loses all other functions if a weapon is installed & ignores the Two-Handed property.",
+"restrictions": "The desired weapon must be installed into the arm."
+},
+{
+"id": "sentry-bot-arm-mk2",
+"name": "Sentry Bot Arm mk2",
+"family": "arm",
+"chassis": "Sentry Bot",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "",
+"cost": "+50 ⍟",
+"caps": 50,
+"capsPlus": true,
+"perks": [
+"Armorer 2",
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "You gain +7 hit points to this arm. (similar to power armor)",
+"restrictions": "Sentry Bot Arm mk1 installed."
+},
+{
+"id": "sentry-bot-arm-mk3",
+"name": "Sentry Bot Arm mk3",
+"family": "arm",
+"chassis": "Sentry Bot",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Rare (6)",
+"rarityN": 6,
+"carry": "",
+"cost": "+75 ⍟",
+"caps": 75,
+"capsPlus": true,
+"perks": [
+"Armorer 3",
+"Robotics Expert 3",
+"Science! 3"
+],
+"effect": "Ignore the first complication rolled when using an arm mounted weapon, gain +2 attack speed on ranged weapons if above 0 & +2 ▣ to melee weapons. Weapons with a 0 attack speed gain +2 ▣ instead.",
+"restrictions": "Sentry Bot Arm mk2 installed."
+},
+{
+"id": "securitron-arm-mk1",
+"name": "Securitron Arm mk1",
+"family": "arm",
+"chassis": "Securitron",
+"mk": 1,
+"complexity": 6.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "",
+"cost": "150 ⍟",
+"caps": 150,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "The palms of your claws are outfitted with integrated weapons and gain both functions.",
+"restrictions": "When installing & depending on the arm you need: An Automatic Laser gun, (left arm) sub machine gun (right arm) & 40mm Grenade Launcher. (left arm)"
+},
+{
+"id": "securitron-arm-mk2",
+"name": "Securitron Arm mk2",
+"family": "arm",
+"chassis": "Securitron",
+"mk": 2,
+"complexity": 0.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "",
+"cost": "+37 ⍟",
+"caps": 37,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "You gain access to the grenade launcher in the arm.",
+"restrictions": "Securitron Arm mk1 installed & access to mk2 updates."
+},
+{
+"id": "securitron-arm-mk3",
+"name": "Securitron Arm mk3",
+"family": "arm",
+"chassis": "Securitron",
+"mk": 3,
+"complexity": 6.0,
+"rarity": "Rare (5)",
+"rarityN": 5,
+"carry": "",
+"cost": "+54 ⍟",
+"caps": 54,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "You are able to integrated any one-handed Small Gun or Energy Weapon into your palm.",
+"restrictions": "Securitron Head mk2 installed, the desired weapon."
+},
+{
+"id": "eyebot-weapon-mount-mk1",
+"name": "Eyebot Weapon Mount mk1",
+"family": "arm",
+"chassis": "Eyebot",
+"mk": 1,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "50 ⍟",
+"caps": 50,
+"capsPlus": false,
+"perks": [
+"Robotics Expert 1"
+],
+"effect": "You are able to integrate and use any hand attachment, ranged weapon or melee weapon into this mount.",
+"restrictions": "The mount loses all other functions if a weapon is installed & weapons with the Two-Handed quality cannot be installed."
+},
+{
+"id": "eyebot-weapon-mount-mk2",
+"name": "Eyebot Weapon Mount mk2",
+"family": "arm",
+"chassis": "Eyebot",
+"mk": 2,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+25 ⍟",
+"caps": 25,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 2",
+"Science! 1"
+],
+"effect": "Each upgraded mount allows you to, when attempting the help action re-roll the results once for free.",
+"restrictions": "Eyebot Weapon Mount mk1 installed."
+},
+{
+"id": "eyebot-weapon-mount-mk3",
+"name": "Eyebot Weapon Mount mk3",
+"family": "arm",
+"chassis": "Eyebot",
+"mk": 3,
+"complexity": 4.0,
+"rarity": "Uncommon (2)",
+"rarityN": 2,
+"carry": "",
+"cost": "+35 ⍟",
+"caps": 35,
+"capsPlus": true,
+"perks": [
+"Robotics Expert 3",
+"Science! 2"
+],
+"effect": "Each upgraded mount allows you to, when attempting the help action gain an additional 1d20 on the roll for free & adds +2 ▣ to attacks you make when aided.",
+"restrictions": "Eyebot Weapon Mount mk2 installed."
+}
+]
+};
 
 /* data/legendary.js — Legendary Gear, the Guide's Part III (pp.cxcviii–ccii).  CMD Z018 (2026-10-22), G.8.
    Transcribed by hand from the Guide (extraction of 2026-10-21b, PAGES 200–204), in the Guide's own words, each table with
@@ -23536,10 +25474,15 @@ function injuryRoll(){
      handler, a script — and this is the one case where the answer is certain. */
   if(injuryNothingThrough()) return false;
   var roll = d20(), L = locationFor(roll);
-  injury = { loc:L.loc, roll:roll };
+  /* a robot player with a torso rolls its torso's table: the sheet behind Who, through the sheet's own door */
+  var tSel = $("eb-inj-target"), tSheet = null, C = window.HELENA_CHAR;
+  try{ tSheet = tSel && typeof injurySheet === "function" ? injurySheet(STATE.get(), tSel.value) : null; }catch(e){ tSheet = null; }
+  if(tSheet && C && typeof C.locationFor === "function"){ try{ L = C.locationFor(roll, tSheet) || L; }catch(e){} }
+  var word = L.label && L.label !== L.loc ? L.label : "";
+  injury = { loc:L.loc, roll:roll, label:word };
   var box = $("eb-inj-loc");
   box.setAttribute("data-hit", "1");
-  box.innerHTML = '<b>' + esc(L.loc) + ' <span class="d20">d20 = ' + roll + '</span></b>' + esc(L.pen) +
+  box.innerHTML = '<b>' + esc(word ? word + " (" + L.loc + ")" : L.loc) + ' <span class="d20">d20 = ' + roll + '</span></b>' + esc(L.pen) +
                   ' <span style="color:var(--faint)">Lasts until treated.</span>';
   $("eb-inj-record").disabled = false;
   return true;
@@ -23611,6 +25554,7 @@ function injuryRecord(){
            : (sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent : "");
   if(!name){ if(free) $("eb-inj-other").focus(); return; }
   var note = $("eb-inj-note").value.trim(), loc = injury.loc, total = 0, tok = null;
+  if(injury.label) note = injury.label + (note ? ": " + note : "");
   /* WAVE 8 — THIS PANEL NOW WRITES THROUGH THE WOUND DOOR.  It used to push straight into
      m.injuries[<the name off the dropdown>], against a store the rest of the suite reads
      through SUITE_STATE.woundKey, which resolves ID-FIRST (build-suite.js:876-884).  Once a
@@ -24183,12 +26127,17 @@ var CH = {
   stealthField: function(c){ return !!(c && typeof c === "object" && c.stealthOn === true && CH.stealthSuit(c)); },
   defenseOf: function(c){
     if(!c || typeof c !== "object") return null;
+    var lock = CH.ROBOT && CH.ROBOT.defenseLock(c);                 /* CMD Z042: an Eyebot / Sentry Bot torso sets it, and nothing raises it */
+    if(lock) return lock.value;
     return CH.defense((c.special || {}).A) + (CH.stealthField(c) ? CH.STEALTH_DEF : 0);
   },
   defenseLine: function(c, name){
     if(!c || typeof c !== "object") return null;
     var agi = +((c.special || {}).A) || 0, base = CH.defense(agi), on = CH.stealthField(c);
     var v = base + (on ? CH.STEALTH_DEF : 0), who = String(name == null ? (c.name || "") : name).trim();
+    var lock = CH.ROBOT && CH.ROBOT.defenseLock(c);
+    if(lock) return { value:lock.value, base:lock.value, agi:agi, stealth:false, locked:true,
+                      why:"Defense " + lock.value + " — " + (who ? who + "’s " : "") + lock.name.replace(/ mk\d+$/, "") + ": " + lock.text + "." };
     return { value:v, base:base, agi:agi, stealth:on,
              why:"Defense " + v + " — " + (who ? who + "’s " : "") + "Agility " + agi + " is Defense " + base + " (Book One p.48)" +
                  (on ? ", +2 while the stealth field is on (Guide p.cxxvii)" : "") + "." };
@@ -24371,10 +26320,455 @@ var CH = {
     { lo:18, hi:20, loc:"Right leg",
       pen:"You fall prone as the leg gives out. No Sprint action, and Move is now a major action for you." }
   ],
-  locationFor: function(roll){
+  /* CMD Z042 (2026-10-28): a robot PLAYER with a torso rolls its torso's table (NR-31) - pass the sheet as the second argument.
+     Without one, or for anyone else (a creature, a person, a robot with no torso), the default six-location table as ever. */
+  locationFor: function(roll, c){
+    if(c && CH.ROBOT.hasTorso(c)){ var e = CH.ROBOT.locationFor(c, roll); if(e) return e; }
     var L = CH.LOCATIONS;
     for(var i = 0; i < L.length; i++) if(roll >= L[i].lo && roll <= L[i].hi) return L[i];
     return L[1];
+  },
+  /* ============================================================ CMD Z042 (2026-10-28) — ROBOT PARTS, THE ENGINE
+     The rules: the vault's Reference, "Robot parts — adopted 2026-10-28" (NR-27 … NR-37).  The printed words: data/robot-parts.js
+     (window.HELENA_ROBOT_PARTS, written from the snapshot - never hand-edited).  The contract: zoe/Z042_CONTRACT.md.
+     State: c.robotParts = { torso, head, legs, arms:[...] }, each part { base, mk, damaged } or null.  A sheet with no robotParts,
+     a sheet that is not c.robot === true, or a build without the data file: every function answers as if no part were installed,
+     and every door that reads them (locationFor, defenseOf, capOf, armourMaxOf, the Robot Modules slot, the skill test's free dice)
+     behaves exactly as before.  Pure: no DOM, no store; the data is read off window when there is one.
+     WHAT IS READ OFF THE TEXT, AND WHAT IS NOT:
+       arms        the torso mk1's "N arms" / "N mounts" (a Liberator prints "4 legs" and no arms: 0)
+       mod slots   the torso mk1's "N mods" / "may not install mods" (0), +1 per active "additional mod slot" / "gains 1 mod slot".
+                   Sentry Bot and Securitron print no mod count: modCap is null for them and the old "up to three" stands.
+       locations   "Your hit locations change: …" on any mk1 row of the torso's chassis (Mister Handy, Liberator, Eyebot torsos; the
+                   Securitron HEAD row).  No such row: the default six (Protectron, Assaultron, Robobrain, Sentry Bot).
+       HP          "+N hit points to …", every installed part, every mk up to its own.
+       carry       "Base N lbs" on the torso mk1; "N lb+" on torso mk2/mk3; "additional N (lbs of) carry weight" on any part.
+       defense     "Your defense is N, this cannot be increased" / "Your Defence is locked to N".
+       free d20    "gain 1d20 on rolls meant to intimidate", "gain 1d20 on Athletics tests to push or pull", the Eyebot mount's help die.
+       head rule   "can only take <chassis> eye stalks / head"; part side "can only be / must be installed on a <chassis> torso/chassis".
+     HARD-CODED, because no row says it: which arm is Left and which Right (arm 1, 3, … Left; arm 2, 4, … Right), the default table's
+     labels for a torso with none printed, and the Mister Handy row's "Mr. Handy" spelling read as Mister Handy. */
+  ROBOT: {
+    data: function(){
+      var w = typeof window !== "undefined" && window ? window : null;
+      var D = w && w.HELENA_ROBOT_PARTS;
+      return D && Array.isArray(D.parts) ? D : null;
+    },
+    rows: function(){ var D = CH.ROBOT.data(); return D ? D.parts : []; },
+    /* the base of a row id: "mister-handy-arm-mk2" -> "mister-handy-arm" */
+    baseOf: function(id){ return String(id == null ? "" : id).replace(/-mk\d+$/i, ""); },
+    /* one row.  The row for mk N is base + "-mkN"; where the data names a later mk differently (the Robobrain's mk1 is a "Jar", its
+       mk2 and mk3 a "Head"), the row of the same chassis, family and mk stands in for it. */
+    row: function(base, mk){
+      var R = CH.ROBOT, rs = R.rows(), id = String(base == null ? "" : base) + "-mk" + Math.round(+mk || 0), i, one = null;
+      for(i = 0; i < rs.length; i++) if(rs[i] && rs[i].id === id) return rs[i];
+      for(i = 0; i < rs.length; i++) if(rs[i] && R.baseOf(rs[i].id) === String(base)){ one = rs[i]; break; }
+      if(!one) return null;
+      for(i = 0; i < rs.length; i++) if(rs[i] && rs[i].chassis === one.chassis && rs[i].family === one.family && +rs[i].mk === Math.round(+mk || 0)) return rs[i];
+      return null;
+    },
+    FAMILY: { torso:"torso", head:"head", legs:"legs" },
+    familyOf: function(slot){ slot = String(slot || ""); return /^arm\d+$/.test(slot) ? "arm" : (CH.ROBOT.FAMILY[slot] || ""); },
+    /* a part, hardened: { base, mk 1-3, damaged } or null */
+    part: function(p){
+      if(!p || typeof p !== "object" || typeof p.base !== "string" || !p.base.trim()) return null;
+      var mk = Math.max(1, Math.min(3, Math.round(+p.mk || 1)));
+      return { base:p.base.trim(), mk:mk, damaged:p.damaged === true };
+    },
+    /* the normalised frame - never throws.  Not a robot, or no robotParts: nothing installed. */
+    frame: function(c){
+      var R = CH.ROBOT, f = { torso:null, head:null, legs:null, arms:[] };
+      if(!c || typeof c !== "object" || c.robot !== true) return f;
+      var rp = c.robotParts;
+      if(!rp || typeof rp !== "object") return f;
+      f.torso = R.part(rp.torso); f.head = R.part(rp.head); f.legs = R.part(rp.legs);
+      var cap = R.armsCapOf(f.torso), arms = Array.isArray(rp.arms) ? rp.arms : [];
+      for(var i = 0; i < cap; i++) f.arms.push(R.part(arms[i]));
+      return f;
+    },
+    hasTorso: function(c){ var t = CH.ROBOT.frame(c).torso; return !!(t && CH.ROBOT.row(t.base, 1)); },
+    /* every row a part has active: mk1 … its own (an mk2 keeps mk1's effect, NR-27) */
+    chain: function(p){
+      var out = []; if(!p) return out;
+      for(var k = 1; k <= p.mk; k++){ var r = CH.ROBOT.row(p.base, k); if(r) out.push(r); }
+      return out;
+    },
+    /* [{ slot, part, rows }] over every installed part */
+    installed: function(c){
+      var R = CH.ROBOT, f = R.frame(c), out = [];
+      ["torso", "head", "legs"].forEach(function(s){ if(f[s]) out.push({ slot:s, part:f[s], rows:R.chain(f[s]) }); });
+      f.arms.forEach(function(p, i){ if(p) out.push({ slot:"arm" + i, part:p, rows:R.chain(p) }); });
+      return out;
+    },
+    armsCapOf: function(torso){
+      var r = torso ? CH.ROBOT.row(torso.base, 1) : null; if(!r) return 0;
+      var m = /(\d+)\s+(?:arms|mounts)\b/i.exec(String(r.effect || ""));
+      return m ? +m[1] : 0;
+    },
+    armsCap: function(c){ return CH.ROBOT.armsCapOf(CH.ROBOT.frame(c).torso); },
+    modCap: function(c){
+      var R = CH.ROBOT, t = R.frame(c).torso, r1 = t ? R.row(t.base, 1) : null; if(!r1) return null;
+      var tx = String(r1.effect || ""), m = /(\d+)\s+mods?\b/i.exec(tx), n;
+      if(m) n = +m[1]; else if(/may not install mods/i.test(tx)) n = 0; else return null;
+      R.chain(t).forEach(function(r){
+        if(+r.mk < 2) return;
+        if(/additional mod slot|gains?\s+(?:1|one|an?)\s+(?:additional\s+)?mod slot/i.test(String(r.effect || ""))) n++;
+      });
+      return n;
+    },
+    /* the arm / leg the injury penalty reads (NR-31): "any arm -> arm, any leg, thruster or wheel -> leg" */
+    side: function(label, k, what){
+      var l = String(label || "").toLowerCase();
+      if(/\bleft\b/.test(l)) return "Left " + what;
+      if(/\bright\b/.test(l)) return "Right " + what;
+      return (k % 2 ? "Right " : "Left ") + what;
+    },
+    tableText: function(chassis){
+      var rs = CH.ROBOT.rows(), fam = ["torso", "head", "legs", "arm"];
+      for(var f = 0; f < fam.length; f++)
+        for(var i = 0; i < rs.length; i++){
+          var r = rs[i];
+          if(!r || r.chassis !== chassis || r.family !== fam[f] || +r.mk !== 1) continue;
+          var m = /hit locations change:\s*([^./]*)/i.exec(String(r.restrictions || "")) || /hit locations change:\s*([^./]*)/i.exec(String(r.effect || ""));
+          if(m) return m[1];
+        }
+      return "";
+    },
+    penOf: function(loc){ var L = CH.LOCATIONS; for(var i = 0; i < L.length; i++) if(L[i].loc === loc) return L[i].pen; return ""; },
+    /* the d20 table: [{ lo, hi, label, loc, slot, pen, missing }] */
+    locations: function(c){
+      var R = CH.ROBOT, f = R.frame(c), t = f.torso, r1 = t ? R.row(t.base, 1) : null;
+      if(!r1) return CH.LOCATIONS.map(function(L, i){
+        return { lo:L.lo, hi:L.hi, label:L.loc, loc:L.loc, slot:["head", "torso", "arm0", "arm1", "legs", "legs"][i] || "torso", pen:L.pen, missing:false };
+      });
+      var out = [], tx = R.tableText(r1.chassis), arm = 0, leg = 0;
+      if(tx){
+        tx.split(",").forEach(function(bit){
+          var m = /(\d+)\s*[–—-]\s*(\d+)\s+(.+)/.exec(bit.trim()); if(!m) return;
+          var label = m[3].replace(/\s*\(.*?\)\s*/g, " ").replace(/[.\s]+$/, "").trim(), l = label.toLowerCase(), loc, slot;
+          if(/optic|head|eye/.test(l)){ loc = "Head"; slot = "head"; }
+          else if(/body|chassis|torso/.test(l)){ loc = "Torso"; slot = "torso"; }
+          else if(/\barm\b|mount/.test(l)){ loc = R.side(label, arm, "arm"); slot = "arm" + arm; arm++; }
+          else if(/leg|thruster|wheel|tread/.test(l)){ loc = R.side(label, leg, "leg"); slot = "legs"; leg++; }
+          else { loc = "Torso"; slot = "torso"; }
+          label = label.charAt(0).toUpperCase() + label.slice(1);
+          out.push({ lo:+m[1], hi:+m[2], label:label, loc:loc, slot:slot });
+        });
+      }
+      if(!out.length) out = [
+        { lo:1, hi:2, label:"Head", loc:"Head", slot:"head" }, { lo:3, hi:8, label:"Torso", loc:"Torso", slot:"torso" },
+        { lo:9, hi:11, label:"Left arm", loc:"Left arm", slot:"arm0" }, { lo:12, hi:14, label:"Right arm", loc:"Right arm", slot:"arm1" },
+        { lo:15, hi:17, label:"Left leg", loc:"Left leg", slot:"legs" }, { lo:18, hi:20, label:"Right leg", loc:"Right leg", slot:"legs" } ];
+      out.forEach(function(e){
+        var has = e.slot === "torso" ? true : /^arm\d+$/.test(e.slot) ? !!f.arms[+e.slot.slice(3)] : !!f[e.slot];
+        e.missing = !has;
+        if(!has) e.loc = "Torso";                     /* NR-31: a location whose part is missing counts as Torso */
+        e.pen = R.penOf(e.loc);
+      });
+      return out;
+    },
+    locationFor: function(c, roll){
+      var L = CH.ROBOT.locations(c), r = Math.max(1, Math.min(20, Math.round(+roll || 0)));
+      for(var i = 0; i < L.length; i++) if(r >= L[i].lo && r <= L[i].hi) return L[i];
+      for(i = 0; i < L.length; i++) if(L[i].loc === "Torso") return L[i];
+      return L[0] || null;
+    },
+    /* NR-32: "+N hit points to X" adds N to the one plate pool, uncapped.  A damaged part gives nothing until it is repaired. */
+    plateBonus: function(c){
+      var out = { total:0, rows:[] };
+      CH.ROBOT.installed(c).forEach(function(it){
+        if(it.part.damaged) return;
+        it.rows.forEach(function(r){
+          var m = /\+(\d+)\s+hit points?\b/i.exec(String(r.effect || ""));
+          if(m){ out.total += +m[1]; out.rows.push({ slot:it.slot, name:r.name, n:+m[1] }); }
+        });
+      });
+      return out;
+    },
+    LB_PER_2_SLOTS: 25,
+    slotsOfLb: function(lb){ return Math.floor(Math.max(0, +lb || 0) * 2 / CH.ROBOT.LB_PER_2_SLOTS); },
+    /* NR-33: 25 lb = 2 slots, rounded down - the pounds summed first, then turned to slots.  null: no torso (the old rule stands). */
+    carrySlots: function(c){
+      var R = CH.ROBOT, f = R.frame(c), t = f.torso, r1 = t ? R.row(t.base, 1) : null; if(!r1) return null;
+      var bm = /Base\s+(\d+)\s*lbs?/i.exec(String(r1.carry || "")); if(!bm) return null;
+      var baseLb = +bm[1], plusLb = 0, why = [];
+      R.installed(c).forEach(function(it){
+        if(it.part.damaged) return;                   /* a damaged part adds nothing until it is repaired; the frame's base stands */
+        it.rows.forEach(function(r){
+          var n = 0, pm = it.slot === "torso" && +r.mk > 1 ? /^\s*\+?\s*(\d+)\s*lbs?\s*\+?\s*$/i.exec(String(r.carry || "")) : null;
+          if(pm) n += +pm[1];
+          var em = /additional\s+(\d+)\s*(?:lbs?\s*)?(?:of\s+)?carry weight/i.exec(String(r.effect || ""));
+          if(em) n += +em[1];
+          if(n){ plusLb += n; why.push({ slot:it.slot, name:r.name, lb:n }); }
+        });
+      });
+      var base = R.slotsOfLb(baseLb), total = R.slotsOfLb(baseLb + plusLb);
+      return { base:base, plus:total - base, total:total, baseLb:baseLb, plusLb:plusLb, rows:why };
+    },
+    /* "Your defense is 2, this cannot be increased" (Eyebot) / "Your Defence is locked to 1" (Sentry Bot): { value, name, text } or null */
+    defenseLock: function(c){
+      var out = null;
+      CH.ROBOT.installed(c).forEach(function(it){
+        it.rows.forEach(function(r){
+          var tx = String(r.effect || "") + " " + String(r.restrictions || "");
+          var m = /defen[cs]e is (?:locked to )?(\d+)/i.exec(tx);
+          if(m && !out) out = { value:+m[1], name:r.name, text:/locked/i.test(m[0]) ? "locked to " + m[1] : m[1] + ", and it cannot be increased" };
+        });
+      });
+      return out;
+    },
+    /* NR-34: "gain 1d20" is a free die.  test = { skill, kind }, kind one of "intimidate", "push", "pull", "push-pull", "help".
+       -> { n, why:[row names] } */
+    freeDice: function(c, test){
+      test = test || {};
+      var kind = String(test.kind || "").toLowerCase(), skill = String(test.skill || ""), out = { n:0, why:[] };
+      if(!kind) return out;
+      CH.ROBOT.installed(c).forEach(function(it){
+        if(it.part.damaged) return;
+        it.rows.forEach(function(r){
+          var tx = String(r.effect || ""), hit = false;
+          if(/1d20 on rolls meant to intimidate/i.test(tx)) hit = kind === "intimidate";
+          else if(/1d20 on Athletics tests to push or pull/i.test(tx)) hit = /^(push|pull|push-pull)$/.test(kind) && (!skill || /^athletics$/i.test(skill));
+          else if(/help action gain an additional 1d20/i.test(tx)) hit = kind === "help";
+          if(hit){ out.n++; out.why.push(r.name); }
+        });
+      });
+      out.n = Math.min(3, out.n);
+      return out;
+    },
+    /* NR-34 / NR-35 translations, said beside the printed words */
+    note: function(tx){
+      var n = [];
+      tx = String(tx || "");
+      if(/\b3 hr recharge\b/i.test(tx)) n.push("a 3 hr recharge is once per scene");
+      if(/double (?:your )?travel speed/i.test(tx)) n.push("counts as a vehicle for travel legs: legs halved, rounded up; does not stack with Hurried (Guide p.ccvii)");
+      if(/attack speed/i.test(tx)) n.push("attack speed is Fire Rate");
+      if(/gain (?:an additional )?1d20/i.test(tx)) n.push("a free d20: it holds its price place and counts toward 5d20");
+      return n.join("; ");
+    },
+    kindOf: function(r){
+      var tx = String(r.effect || "") + " " + String(r.restrictions || "");
+      if(/\+\d+\s+hit points?/i.test(r.effect || "")) return "plate";
+      if(/defen[cs]e is/i.test(tx)) return "defense";
+      if(/mod slot|\d+\s+mods?\b|install mods/i.test(r.effect || "")) return "mods";
+      if(/carry weight/i.test(r.effect || "")) return "carry";
+      if(/gain (?:an additional )?1d20/i.test(r.effect || "")) return "dice";
+      return "words";
+    },
+    /* every active effect as words: { slot, name, mk, text, kind, note, off } - "None" rows are left out */
+    effects: function(c){
+      var R = CH.ROBOT, out = [];
+      R.installed(c).forEach(function(it){
+        it.rows.forEach(function(r){
+          var tx = String(r.effect || "").trim();
+          if(tx && !/^none\.?$/i.test(tx)) out.push({ slot:it.slot, name:r.name, mk:+r.mk, text:tx, kind:R.kindOf(r), note:R.note(tx), off:it.part.damaged });
+          var rx = String(r.restrictions || "");
+          if(/defen[cs]e is locked/i.test(rx)) out.push({ slot:it.slot, name:r.name, mk:+r.mk, text:(/Your Defen[cs]e is locked to \d+/i.exec(rx) || [""])[0] + ".", kind:"defense", note:"", off:false });
+        });
+      });
+      return out;
+    },
+    /* the chassis a row binds the head to ("can only take Mr. Handy eye stalks as a head"), or "" */
+    an: function(w){ return (/^[aeiou]/i.test(String(w || "")) ? "an " : "a ") + w; },
+    chassisName: function(s){
+      var t = String(s || "").trim().toLowerCase().replace(/^mr\.?\s*handy$/, "mister handy"), rs = CH.ROBOT.rows();
+      for(var i = 0; i < rs.length; i++) if(rs[i] && String(rs[i].chassis).toLowerCase() === t) return rs[i].chassis;
+      return "";
+    },
+    headRule: function(torsoRow){
+      var m = /only take (?:an? |the )?(Mr\.?\s*Handy|[A-Z][A-Za-z]*(?:\s+Bot)?)\s+(?:eye stalks?|heads?)/i.exec(String(torsoRow && torsoRow.restrictions || ""));
+      return m ? CH.ROBOT.chassisName(m[1]) : "";
+    },
+    partRule: function(row){
+      var m = /(?:only be|must be) installed on (?:an?|the)\s+([A-Za-z]+(?:\s+Bot)?)\s+(?:torso|chassis)/i.exec(String(row && row.restrictions || ""));
+      return m ? CH.ROBOT.chassisName(m[1]) : "";
+    },
+    /* may this base go in that family's slot, against the frame as it would stand?  -> "" or why not */
+    fits: function(f, family, base){
+      var R = CH.ROBOT, r = R.row(base, 1); if(!r) return "not in the parts table";
+      if(r.family !== family) return R.an(r.family) + " part, not " + R.an(family) + " part";
+      var tRow = family === "torso" ? r : (f.torso ? R.row(f.torso.base, 1) : null);
+      var need = R.partRule(r);
+      if(need && (!tRow || tRow.chassis !== need)) return "needs " + R.an(need) + " torso";
+      if(family === "head"){ var h = R.headRule(tRow); if(h && r.chassis !== h) return R.an(tRow.chassis) + " torso takes only " + R.an(h) + " head"; }
+      if(family === "torso"){
+        var hd = f.head ? R.row(f.head.base, 1) : null, hr = R.headRule(r);
+        if(hd && hr && hd.chassis !== hr) return "takes only " + R.an(hr) + " head; the " + hd.name.replace(/ mk\d+$/, "") + " comes off first";
+        var bad = "";
+        [f.head, f.legs].concat(f.arms).forEach(function(p){
+          var pr = p ? R.row(p.base, 1) : null, pn = pr ? R.partRule(pr) : "";
+          if(!bad && pn && pn !== r.chassis) bad = "the " + pr.name.replace(/ mk\d+$/, "") + " needs " + R.an(pn) + " torso; it comes off first";
+        });
+        if(bad) return bad;
+      }
+      return "";
+    },
+    bases: function(family, c){
+      var R = CH.ROBOT, f = R.frame(c), out = [], fam = family === "arms" ? "arm" : family;
+      R.rows().forEach(function(r){
+        if(!r || r.family !== fam || +r.mk !== 1) return;
+        var why = R.fits(f, fam, R.baseOf(r.id));
+        out.push({ base:R.baseOf(r.id), name:r.name.replace(/ mk\d+$/, ""), ok:!why, why:why });
+      });
+      return out;
+    },
+    /* the Complexity chart's row: { common, uncommon, rare } (7+ for 7 and up; 0 needs none) */
+    materials: function(cx){
+      var D = CH.ROBOT.data(), out = { common:0, uncommon:0, rare:0 }, n = Math.max(0, Math.round(+cx || 0));
+      if(!D || !n) return out;
+      var rows = D.complexity || [], hit = null;
+      rows.forEach(function(r){ var k = parseInt(r.cx, 10); if(k === n || (/\+/.test(String(r.cx)) && n >= k)) hit = r; });
+      if(!hit) return out;
+      String(hit.materials || "").replace(/(Common|Uncommon|Rare) Materials\s*×\s*(\d+)/gi, function(_, t, q){ out[t.toLowerCase()] += +q; return _; });
+      return out;
+    },
+    perkNeed: function(r){
+      return ((r && r.perks) || []).map(function(p){
+        var m = /^(.*?)\s*(\d+)$/.exec(String(p).trim().replace(/Robotics Expect/i, "Robotics Expert"));
+        return m ? { perk:m[1].trim(), rank:+m[2] } : null;
+      }).filter(Boolean);
+    },
+    rankOf: function(who, perk){
+      var k = CH.perkKey(perk), r = 0;
+      ((who && Array.isArray(who.perks)) ? who.perks : []).forEach(function(h){ if(h && CH.perkKey(h.name) === k) r = Math.max(r, Math.max(1, Math.round(+h.rank || 1))); });
+      return r;
+    },
+    item: function(r, p){ return { name:r.name, qty:1, robotPart:{ base:p.base, mk:p.mk, damaged:p.damaged === true } }; },
+    packHas: function(c, base, mk){
+      var inv = (c && Array.isArray(c.inventory)) ? c.inventory : [], r = CH.ROBOT.row(base, mk);
+      for(var i = 0; i < inv.length; i++){
+        var it = inv[i]; if(!it || !(Math.round(+(it.qty == null ? 1 : it.qty)) > 0)) continue;
+        if(it.robotPart && it.robotPart.base === base && +it.robotPart.mk === +mk) return i;
+        if(!it.robotPart && r && String(it.name || "").trim().toLowerCase() === r.name.toLowerCase()) return i;
+      }
+      return -1;
+    },
+    slotPart: function(f, slot){ return /^arm\d+$/.test(slot) ? (f.arms[+slot.slice(3)] || null) : (f[slot] || null); },
+    /* the bench check, changing nothing (NR-28).  op: install { slot, base, mk } · upgrade { slot } · swap { slot, base, mk } ·
+       remove { slot } · weapon { slot } (an integrated weapon changed after its first install: Complexity 2, NR-29).
+       installer: who does the work (the robot itself by default). */
+    plan: function(c, op, args, installer){
+      var R = CH.ROBOT, f = R.frame(c), a = args || {}, slot = String(a.slot || ""), fam = R.familyOf(slot);
+      var p = { ok:false, why:"", op:String(op || ""), slot:slot, complexity:0, difficulty:0, materials:{ common:0, uncommon:0, rare:0 },
+                caps:0, perksMissing:[], from:"new", returns:[], short:[], row:null, roll:"INT + Science" };
+      var who = installer && typeof installer === "object" ? installer : c;
+      if(!c || c.robot !== true){ p.why = "only a robot takes robot parts"; return p; }
+      if(!R.data()){ p.why = "the parts table is not on this build"; return p; }
+      if(!fam){ p.why = "no such slot"; return p; }
+      if(fam === "arm" && +slot.slice(3) >= R.armsCap(c)){ p.why = f.torso ? "the torso has no " + slot.replace("arm", "arm ") + " mount" : "arms need a torso first"; return p; }
+      var cur = R.slotPart(f, slot), target = null;
+      if(op === "remove"){
+        if(!cur){ p.why = "nothing to remove"; return p; }
+        p.returns = R.dropped(f, slot).map(function(x){ return R.item(R.row(x.base, x.mk) || { name:x.base }, x); });
+        p.ok = true; return p;
+      }
+      if(op === "install" || op === "swap"){
+        if(op === "install" && cur){ p.why = "the slot is taken - swap it"; return p; }
+        if(op === "swap" && !cur){ p.why = "the slot is empty - install"; return p; }
+        var base = String(a.base || ""), mk = Math.max(1, Math.min(3, Math.round(+a.mk || 1)));
+        var why = R.fits(f, fam, base);
+        if(why){ p.why = why; return p; }
+        target = { base:base, mk:mk };
+        p.from = R.packHas(c, base, mk) >= 0 ? "pack" : "new";
+        if(p.from === "new" && mk > 1){ p.why = "a new part starts at mk1; upgrade it after"; return p; }
+        p.row = R.row(base, mk); p.complexity = Math.max(0, Math.round(+p.row.complexity || 0));
+        p.caps = p.from === "pack" ? 0 : Math.max(0, Math.round(+p.row.caps || 0));
+        if(op === "swap") p.returns = [R.item(R.row(cur.base, cur.mk) || { name:cur.base }, cur)];
+        if(fam === "torso"){
+          var nf = { torso:{ base:base, mk:mk }, head:f.head, legs:f.legs, arms:f.arms };
+          var keep = R.armsCapOf(nf.torso);
+          f.arms.forEach(function(x, i){ if(x && i >= keep) p.returns.push(R.item(R.row(x.base, x.mk) || { name:x.base }, x)); });
+        }
+      } else if(op === "upgrade"){
+        if(!cur){ p.why = "nothing to upgrade"; return p; }
+        if(cur.mk >= 3){ p.why = "already mk3"; return p; }
+        if(cur.damaged){ p.why = "repair it first"; return p; }
+        target = { base:cur.base, mk:cur.mk + 1 };
+        p.row = R.row(cur.base, cur.mk + 1);
+        if(!p.row){ p.why = "no mk" + (cur.mk + 1) + " row"; return p; }
+        /* NR-27: half its Complexity.  Rounded UP - CC's reading, NEEDS-RULING */
+        p.complexity = Math.ceil(Math.max(0, +p.row.complexity || 0) / 2);
+        p.caps = Math.max(0, Math.round(+p.row.caps || 0));
+      } else if(op === "weapon"){
+        if(!cur){ p.why = "no part there"; return p; }
+        p.row = R.row(cur.base, cur.mk); p.complexity = 2;
+      } else { p.why = "unknown operation"; return p; }
+      p.difficulty = Math.max(0, Math.min(5, p.complexity - R.rankOf(who, "Robotics Expert")));
+      p.materials = R.materials(p.complexity);
+      if(op !== "weapon") R.perkNeed(p.row).forEach(function(n){ if(R.rankOf(who, n.perk) < n.rank) p.perksMissing.push(n.perk + " " + n.rank); });
+      CH.MATERIAL_TIERS.forEach(function(t){
+        var want = p.materials[t.toLowerCase()]; if(!want) return;
+        var i = CH.materialsIndex(c, t), have = i < 0 ? 0 : Math.max(0, Math.round(+c.inventory[i].qty || 0));
+        if(have < want) p.short.push(want + " " + t + " (the pack has " + have + ")");
+      });
+      if(p.perksMissing.length) p.why = "needs " + p.perksMissing.join(" and ");
+      else if(p.short.length) p.why = "short of materials: " + p.short.join(", ");
+      else p.ok = true;
+      return p;
+    },
+    /* what leaves the frame when a slot empties: the part, and - for the torso - every arm (no torso, no mounts) */
+    dropped: function(f, slot){
+      var cur = CH.ROBOT.slotPart(f, slot), out = cur ? [cur] : [];
+      if(slot === "torso") f.arms.forEach(function(x){ if(x) out.push(x); });
+      return out;
+    },
+    /* after the bench test passes: a NEW robotParts and the pack's changes.  Mutates nothing. */
+    apply: function(c, op, args, opts){
+      var R = CH.ROBOT, p = R.plan(c, op, args, (opts && opts.installer) || c), dmg = !!(opts && opts.damaged);
+      var res = { ok:false, why:p.why, robotParts:null, packAdd:[], packTake:[], plan:p };
+      if(!p.ok && !(opts && opts.force)) return res;
+      var f = R.frame(c), slot = p.slot, a = args || {};
+      var nf = { torso:f.torso, head:f.head, legs:f.legs, arms:f.arms.slice() };
+      var put = function(part){ if(/^arm\d+$/.test(slot)) nf.arms[+slot.slice(3)] = part; else nf[slot] = part; };
+      if(op === "remove"){
+        put(null);
+        if(slot === "torso") nf.arms = [];
+      } else if(op === "install" || op === "swap"){
+        var mk = Math.max(1, Math.min(3, Math.round(+a.mk || 1)));
+        put({ base:String(a.base), mk:mk, damaged:dmg });
+        if(slot === "torso") nf.arms = nf.arms.slice(0, R.armsCapOf(nf.torso));
+        if(p.from === "pack") res.packTake.push({ name:p.row.name, qty:1, robotPart:{ base:String(a.base), mk:mk } });
+      } else if(op === "upgrade"){
+        var cur = R.slotPart(f, slot); put({ base:cur.base, mk:cur.mk + 1, damaged:dmg });
+      } else if(op === "weapon"){
+        var cw = R.slotPart(f, slot); if(dmg) put({ base:cw.base, mk:cw.mk, damaged:true });
+      }
+      while(nf.arms.length && !nf.arms[nf.arms.length - 1]) nf.arms.pop();
+      var cap = R.armsCapOf(nf.torso);
+      while(nf.arms.length < cap) nf.arms.push(null);
+      res.packAdd = p.returns.slice();
+      CH.MATERIAL_TIERS.forEach(function(t){ var q = p.materials[t.toLowerCase()]; if(q) res.packTake.push({ name:t + " Materials", qty:q, material:t }); });
+      res.robotParts = { torso:nf.torso, head:nf.head, legs:nf.legs, arms:nf.arms };
+      res.ok = true; res.why = "";
+      return res;
+    },
+    /* NR-28's failure, chosen by the Overseer.  "damaged": the part goes in damaged - repaired at half its Complexity (rounded up).
+       "cripple": the part goes in, and the location takes an Injury - { injury:{ loc, label, slot } } for the sheet to record.
+       "both": the two together.  Materials are spent either way. */
+    fail: function(c, op, args, choice, opts){
+      var R = CH.ROBOT, ch = String(choice || "damaged");
+      var o = {}; for(var k in (opts || {})) if(Object.prototype.hasOwnProperty.call(opts, k)) o[k] = opts[k];
+      o.damaged = ch === "damaged" || ch === "both";
+      var res = R.apply(c, op, args, o);
+      if(!res.ok) return res;
+      res.choice = ch;
+      if(o.damaged){ var cx = res.plan.row ? Math.max(0, +res.plan.row.complexity || 0) : 0; res.repair = { complexity:Math.ceil(cx / 2) }; }
+      if(ch === "cripple" || ch === "both"){
+        var slot = res.plan.slot, after = { robot:true, robotParts:res.robotParts }, L = R.locations(after), hit = null;
+        L.forEach(function(e){ if(!hit && e.slot === slot) hit = e; });
+        res.injury = hit ? { loc:hit.loc, label:hit.label, slot:slot } : { loc:"Torso", label:"Torso", slot:slot };
+      }
+      return res;
+    },
+    /* the repair of a damaged part: half its Complexity, rounded up (NR-28) - a bench plan of its own */
+    repairPlan: function(c, slot, installer){
+      var R = CH.ROBOT, cur = R.slotPart(R.frame(c), String(slot || "")), p = { ok:false, why:"", complexity:0, difficulty:0, materials:{ common:0, uncommon:0, rare:0 } };
+      if(!cur || !cur.damaged){ p.why = "nothing damaged there"; return p; }
+      var r = R.row(cur.base, cur.mk); p.complexity = Math.ceil(Math.max(0, +(r && r.complexity) || 0) / 2);
+      p.difficulty = Math.max(0, Math.min(5, p.complexity - R.rankOf(installer || c, "Robotics Expert")));
+      p.materials = R.materials(p.complexity); p.ok = true;
+      return p;
+    }
   },
   /* CONTRACT 2, socket 2, read-only half.  critAt is a THRESHOLD, not a modifier: pass 7
      for BIG / JUGGERNAUT, 14 for MONSTROUS, 5 − X for Keen X.  Omitted it is 5, which is
@@ -25391,6 +27785,9 @@ var CH = {
      a capacity of 0 would make "twice your slots" true of an empty pack. */
   capOf: function(c){
     var base = (c && c.carryOverride != null) ? +c.carryOverride : CH.carryOf(c);   // PROJECT H, TRACK C: Small Frame's base (C-R4)
+    /* CMD Z042 (NR-33): a robot with a torso carries what its parts say - the torso's "Base N lbs" and every "+N lb", 25 lb = 2 slots */
+    var rs = CH.ROBOT ? CH.ROBOT.carrySlots(c) : null;
+    if(rs) base = rs.total;
     return Math.max(1, base + CH.slotMods(c));
   },
   encumbrance: function(c){
@@ -27391,8 +29788,10 @@ var CH = {
   /* the armour half of the night's heal, as the sheet's armMax computes it (outside this block) */
   armourMaxOf: function(c){
     var a = (c && c.armour) || {};
-    return a.hpMaxOverride != null && a.hpMaxOverride !== "" ? +a.hpMaxOverride : CH.armourHp(a.phys, a.en, a.rarity);
+    return (a.hpMaxOverride != null && a.hpMaxOverride !== "" ? +a.hpMaxOverride : CH.armourHp(a.phys, a.en, a.rarity)) + CH.robotPlate(c);
   },
+  /* CMD Z042 (NR-32): what a robot's parts add to the one plate pool, uncapped - 0 for everyone else and every old save */
+  robotPlate: function(c){ return CH.ROBOT ? CH.ROBOT.plateBonus(c).total : 0; },
   sceneBlank: function(){
     return { seq:0, n:0, open:false, openKind:null, openSeq:0, armed:false, heat:false, cold:false, events:[] };
   },
@@ -28258,7 +30657,7 @@ window.HELENA_CHAR = CH;
 function effMax(c){ return CH.effMax(c); }
 function armMax(c){
   var a = c.armour || {};
-  return a.hpMaxOverride != null ? +a.hpMaxOverride : CH.armourHp(a.phys, a.en, a.rarity);
+  return (a.hpMaxOverride != null ? +a.hpMaxOverride : CH.armourHp(a.phys, a.en, a.rarity)) + CH.robotPlate(c);   /* CMD Z042: + the robot's parts */
 }
 /* WAVE 7 ASK 4 (2026-09-23): both of these moved INTO the HELENA_CHAR block, which is the
    half other tracks can reach and the half the tests evaluate on its own.  They stay here
@@ -29213,7 +31612,7 @@ function heldChoose(id, how){
   CH.critHeldOf(c).forEach(function(r){ if(r.id === id) rec = r; });
   if(!rec){ HELD_SIG = ""; heldPaint(c); return null; }
   /* the location is rolled ONCE, before the write: a room's re-run of the closure records the same one */
-  var roll = d20(), L = CH.locationFor(roll), out = null;
+  var roll = d20(), L = CH.locationFor(roll, c), out = null;   /* CMD Z042: a robot with a torso rolls its torso's table */
   edit(function(x, m){
     var s = CH.critChoose(x, id, how);
     if(!s) return;
@@ -29225,7 +31624,7 @@ function heldChoose(id, how){
         if(!m.injuries || typeof m.injuries !== "object" || Array.isArray(m.injuries)) m.injuries = {};
         if(!Array.isArray(m.injuries[key])) m.injuries[key] = [];
         var wrec = { loc:L.loc, treated:false,
-          note:(s.injury ? "critical" : "down to 0 HP") + (rec.from ? " from " + rec.from : "") +
+          note:(L.label && L.label !== L.loc ? L.label + ": " : "") + (s.injury ? "critical" : "down to 0 HP") + (rec.from ? " from " + rec.from : "") +
                (s.injury ? " — the armour took it, and the Injury" : " — the first " + s.flesh + " in the flesh, no injury from the critical") };
         /* NR-26 (Zoe 2026-10-26, Guide p.lii): an Injury dealt by a Debilitating weapon says so on its record - optional, true or
            absent (never on an old save) - and every test made to treat it reads +1 Difficulty.  A 0-HP Injury from the flesh
@@ -29347,7 +31746,9 @@ function renderDerived(){
   // armour
   var a = c.armour, am = armMax(c);
   $("cs-arm-hpmax").placeholder = am;
-  $("cs-arm-hint").innerHTML = (a.hpMaxOverride != null ? "override; formula gives " + CH.armourHp(a.phys, a.en, a.rarity) : "formula: 2×(" + (+a.phys||0) + "+" + (+a.en||0) + ") + 2×" + (+a.rarity||0) + " = " + am);
+  var rpl = CH.robotPlate(c);   /* CMD Z042: the robot's parts, said apart so the formula's sum still adds up */
+  $("cs-arm-hint").innerHTML = (a.hpMaxOverride != null ? "override; formula gives " + CH.armourHp(a.phys, a.en, a.rarity) : "formula: 2×(" + (+a.phys||0) + "+" + (+a.en||0) + ") + 2×" + (+a.rarity||0) + " = " + (am - rpl)) +
+    (rpl ? "; +" + rpl + " from robot parts = " + am : "");
   // Armour HP only soaks for a named set (CH.armourWorn); an unnamed set with HP is
   // inert — every point lands on Health and no second band shows.  Say why.  Screen
   // only: .cs-badge does not print.
@@ -30946,7 +33347,9 @@ function modRecord(row){
    match"; "one head per chassis; arms to fill the torso's mounts") hold several DIFFERENT
    parts by their own wording and are left uncapped, said so on the card. */
 function modSlotCap(slot){
-  var s = String(slot || "");
+  var s = String(slot || ""), c = arguments.length > 1 ? arguments[1] : null;   /* CMD Z042: the sheet, read off arguments[1] - the signature kept */
+  /* CMD Z042 (NR-30): a robot's torso sets how many of the Guide's robot mods fit; no torso (or one printing no count), the old rule */
+  if(c && /^Robot Modules/i.test(s)){ var rc = CH.ROBOT.modCap(c); if(rc != null) return rc; }
   var m = /up to (one|two|three|four|five|six|\d+)/i.exec(s);
   if(m){ var w = m[1].toLowerCase(); return { one:1, two:2, three:3, four:4, five:5, six:6 }[w] || (+w || 1); }
   if(/Chassis Parts|Heads & Arms/i.test(s)) return Infinity;
@@ -30978,7 +33381,7 @@ function modCard(kind, idx, obj, c){
       if(have[r.id]) return;
       /* SKEPTIC PASS: a slot that already holds its printed number of parts offers nothing
          more — the full slots are named under the dropdown instead, with what fills them */
-      if((inSlot[r.slot] || []).length >= modSlotCap(r.slot)){ if(full.indexOf(r.slot) < 0) full.push(r.slot); return; }
+      if((inSlot[r.slot] || []).length >= modSlotCap(r.slot, c)){ if(full.indexOf(r.slot) < 0) full.push(r.slot); return; }
       (bySlot[r.slot] = bySlot[r.slot] || []).push(r);
     });
     opts = Object.keys(bySlot).map(function(sl){
@@ -31017,7 +33420,8 @@ function modCard(kind, idx, obj, c){
      one keystroke.  Now nothing is fitted until the button, or Enter in the box, says so. */
   var fullLine = full.length
     ? '<div class="cs-hint" style="margin:0">' + full.map(function(sl){
-        var cap = modSlotCap(sl);
+        var cap = modSlotCap(sl, c);
+        if(!cap) return "<b>" + esc(sl.replace(/\s*\(.*$/, "")) + "</b> — this torso takes none";   /* CMD Z042: a Robobrain mk1 */
         return "<b>" + esc(sl.replace(/\s*\(.*$/, "")) + "</b> holds " + esc((inSlot[sl] || []).join(", ")) +
                (cap === 1 ? " — one part per slot" : " — " + cap + " at most");
       }).join("; ") + " (Guide Ch. VII). Take one off to fit another.</div>"
@@ -31278,11 +33682,17 @@ function renderConditions(c){
      "Unlocated" is offered too, because that is the label wave 7's migration gives an injury
      off an older save and a hand-typed one sometimes genuinely has no location yet. */
   var locSel = $("cs-inj-loc");
-  if(locSel && !locSel.options.length)
-    locSel.innerHTML = CH.LOCATIONS.map(function(L){
-      return '<option value="' + esc(L.loc) + '" title="' + esc(L.pen) + '">' + esc(L.loc) +
+  /* CMD Z042 (NR-31): a robot with a torso picks from its torso's table - the sheet's word, and the location its penalty reads */
+  var rLocs = CH.ROBOT.hasTorso(c) ? CH.ROBOT.locations(c) : null;
+  var locSig = rLocs ? JSON.stringify(rLocs.map(function(L){ return [L.lo, L.label, L.loc]; })) : "";
+  if(locSel && (!locSel.options.length || locSel.getAttribute("data-locsig") !== locSig)){
+    locSel.setAttribute("data-locsig", locSig);
+    locSel.innerHTML = (rLocs || CH.LOCATIONS).map(function(L){
+      var word = rLocs ? L.label + (L.label !== L.loc ? " → " + L.loc : "") : L.loc;
+      return '<option value="' + esc(L.loc) + '" title="' + esc(L.pen) + '"' + (rLocs ? ' data-label="' + esc(L.label) + '"' : "") + ">" + esc(word) +
              " (" + L.lo + (L.hi > L.lo ? "–" + L.hi : "") + ")</option>";
     }).join("") + '<option value="Unlocated">Unlocated — no location yet</option>';
+  }
   // wave 6 close: through the wound door, so a second sheet of the same name reads its own
   // (empty) bucket instead of this one's — and so the id-keyed bucket is found once migrated
   var list = woundsOfChar(c);
@@ -31778,7 +34188,8 @@ function stimRowHtml(c, i){
    `have` can pay - the callers ask with no limit and pay the whole price or nothing, payParty). */
 function stimDice(want, gift, have){
   var R = typeof window !== "undefined" ? window.HELENA_ROLL : null, COST = R && Array.isArray(R.AP_DICE_COST) ? R.AP_DICE_COST : [0, 1, 3, 6];
-  var g = gift ? 1 : 0, k = Math.max(0, Math.min(3 - g, Math.round(+want || 0)));
+  /* CMD Z042 (NR-34): `gift` may be a COUNT of free dice (a robot part's "gain 1d20"), each holding its place; true is one */
+  var g = gift === true ? 1 : Math.max(0, Math.min(3, Math.round(+gift || 0))), k = Math.max(0, Math.min(3 - g, Math.round(+want || 0)));
   var price = function(n){ return R && typeof R.diceCost === "function" ? +R.diceCost(g, n) || 0 : (+COST[g + n] || 0) - (+COST[g] || 0); };
   while(k > 0 && price(k) > Math.max(0, +have || 0)) k--;
   return { gift:g, dice:k, cost:price(k) };
@@ -32682,6 +35093,7 @@ function render(){
   if(!c) lvPaint(false);                // PROJECT G, TRACK L: no sheet open, no walk (renderDerived never runs on this branch)
   if(!c && typeof cwPaint === "function"){ cwPaint(false); traitsPaint(null); }   // PROJECT H, TRACK C: …nor a creation walk, nor a traits line
   if(!c) renderJournal(null);           // PROJECT G, TRACK S: no sheet open, no journal shown (JOURNALUI)
+  if(typeof rbRender === "function") rbRender(c);   // CMD Z042: the Robot card (ROBOTSHEET) - hidden unless the Robot tick
   /* SKEPTIC (2026-09-28, project C): with no sheet open the Characters header must not keep
      the last sheet's HP.  renderDerived never runs on this branch, so the clear lives here. */
   if(!c && typeof cardsPaint === "function") cardsPaint();   // SKEPTIC (stage 3): the shut cards' headers empty with it
@@ -32927,7 +35339,12 @@ function perkPairFor(c, attr, skill){
   return "";
 }
 function skillRoll(name, attr){
-  var c = me(), s = skillOf(c, name);
+  var c = me(), s = skillOf(c, name), kind = arguments.length > 2 ? arguments[2] : null;   /* CMD Z042: the kind, read off arguments[2] - the signature kept */
+  /* CMD Z042 (NR-34): a test's kind, where the sheet knows it - the third argument, else the #cs-skill-kind box when the sheet has
+     one ("intimidate", "push", "pull", "push-pull", "help").  A robot part's "gain 1d20" on that kind is a FREE die: it holds its
+     price place (HELENA_ROLL.diceCost through stimDice) and counts toward 5d20.  No kind, or no such part: nothing changes. */
+  if(kind == null){ var kEl = $("cs-skill-kind"); kind = kEl && kEl.value ? String(kEl.value) : ""; }
+  var fd = kind && CH.ROBOT ? CH.ROBOT.freeDice(c, { skill:name, kind:kind }) : { n:0, why:[] };
   var okBox = $("cs-skill-ok"), deck = attr === "SD", how = "";
   if(deck) attr = "LCK";
   var def = typeof attrDefault === "function" ? attrDefault(name) : "";
@@ -32951,11 +35368,12 @@ function skillRoll(name, attr){
   var want = clamp(+$("cs-skill-buy").value || 0, 0, 3);
   /* RULE 1: bought d20s debit the party pool - Z039: at 1, 2, then 3 AP a die (buyD20s, the one price on this sheet).  Z040: paid
      whole or not at all; a pool short of the price rolls nothing */
-  var bd = want && typeof buyD20s === "function" ? buyD20s(want, false) : { want:want, gift:0, dice:0, cost:0 };
+  var bd = want && !fd.n && typeof buyD20s === "function" ? buyD20s(want, false) : { want:want, gift:0, dice:0, cost:0 };
+  if(fd.n && typeof buyD20s === "function") bd = buyD20s(want, fd.n);   /* CMD Z042: the free dice first, the bought ones after them */
   if(bd.refused){ $("cs-skill-out").innerHTML = '<div class="cs-qual cs-pool-short">' + esc(poolShortSay(bd.have, bd.cost)) + "</div>"; outInView("cs-skill-out"); return; }
   /* CMD Z041: the dice are rolled once the room has taken the payment (payThen) - at once in Solo */
   var go = function(){
-  var pool = 2 + bd.dice, comp = clamp(+$("cs-comp").value || 20, 15, 20);
+  var pool = Math.min(5, 2 + (+bd.gift || 0) + bd.dice), comp = clamp(+$("cs-comp").value || 20, 15, 20);
   var r = rollTest(tn, crit, comp, pool);
   /* Howl 10-24: THE ASSIST.  One d20 on the helper's own attribute + this skill (their tag sets their crit); it adds its
      successes only when the roller scores at least one (Book One p.19). */
@@ -32982,6 +35400,7 @@ function skillRoll(name, attr){
     (helper ? '<div class="cs-qual" id="cs-assist-line">' + pips(ar.dice) + " " + esc(aLine) + ".</div>" : "") +
     (D && D.line ? '<div class="cs-qual" id="cs-skill-diffline">' + esc(D.line + "." + verdict) + "</div>" : "") +
     (how ? '<div class="cs-qual">' + esc(attr + " in place of " + def + ": " + how) + ".</div>" : "") +
+    (fd.n && bd.gift ? '<div class="cs-qual" id="cs-free-d20">+' + bd.gift + " free d20 from " + esc(fd.why.join(", ")) + ".</div>" : "") +
     apNote(want, bd);
   /* Z037 (E): Luck can re-roll the roller's own dice (not the helper's) */
   var lkAdd = helper && ar ? (r.succ - (r.succ - (r.succ >= 1 ? ar.succ : 0))) : 0, lkBase = r.dice.map(function(d){ return d.v; });
@@ -33600,8 +36019,9 @@ function critVerdict(){
   else { v.className = "v safe"; v.innerHTML = "No crit: " + past + " past DR (needs " + at + "). Still an injury if it drops them to 0 HP." + cv; b.disabled = false; }
 }
 function critLocation(targetId){
-  var roll = d20(), L = CH.locationFor(roll), host = $(targetId || "cs-crit-loc"); if(!host) return;
-  host.innerHTML = '<div class="cs-loc"><b>' + esc(L.loc) + ' <span class="d20">d20 = ' + roll + '</span></b>' + esc(L.pen) +
+  /* CMD Z042: "Take damage" is THIS sheet's injury, so a robot with a torso rolls its torso's table; the attack card's crit is the target's */
+  var roll = d20(), L = CH.locationFor(roll, targetId === "cs-dmg-loc" ? me() : null), host = $(targetId || "cs-crit-loc"); if(!host) return;
+  host.innerHTML = '<div class="cs-loc"><b>' + esc(L.label && L.label !== L.loc ? L.label + " (" + L.loc + ")" : L.loc) + ' <span class="d20">d20 = ' + roll + '</span></b>' + esc(L.pen) +
     ' <span style="color:var(--faint)">Lasts until treated. Record it on the Injury card in Fight’s Encounter pane, or in Camp’s Party Medical pane.</span></div>';
 }
 /* Ruling 5: the Take damage control in the HEALTH box */
@@ -35947,7 +38367,7 @@ function fitMod(kind, mi, id){
   var c0 = me(); if(!c0) return false;
   var tgt0 = kind === "a" ? (c0.armour || {}) : (c0.weapons[mi] || {});
   var inSlot = modsOf(tgt0).filter(function(md){ return md.slot === row.slot; });
-  var cap = modSlotCap(row.slot);
+  var cap = modSlotCap(row.slot, kind === "a" ? c0 : null);
   if(inSlot.some(function(md){ return md.id === row.id; })){ invPrompt("<b>" + esc(row.name) + "</b> is already fitted."); return false; }
   if(inSlot.length >= cap){
     invPrompt("<b>" + esc(String(row.slot || "").replace(/\s*\(.*$/, "")) + "</b> already holds <b>" +
@@ -36024,7 +38444,7 @@ function buildMod(kind, mi, id){
   if(!tgt0){ invPrompt("That item is gone from the sheet."); return null; }
   var inSlot = modsOf(tgt0).filter(function(md){ return md.slot === row.slot; });
   if(inSlot.some(function(md){ return md.id === row.id; })){ invPrompt("<b>" + esc(row.name) + "</b> is already fitted."); return { ok:false }; }
-  if(inSlot.length >= modSlotCap(row.slot)){ invPrompt("<b>" + esc(String(row.slot || "").replace(/\s*\(.*$/, "")) + "</b> is full — take a part off first, then build <b>" + esc(row.name) + "</b>."); return { ok:false }; }
+  if(inSlot.length >= modSlotCap(row.slot, kind === "a" ? c0 : null)){ invPrompt("<b>" + esc(String(row.slot || "").replace(/\s*\(.*$/, "")) + "</b> is full — take a part off first, then build <b>" + esc(row.name) + "</b>."); return { ok:false }; }
   var plan = CH.modBuildPlan(c0, row);
   if(!plan.ok){ invPrompt("<b>Not built:</b> " + esc(row.name) + " " + esc(plan.why) + ". Nothing was rolled and nothing was spent."); return { ok:false, plan:plan }; }
   var before = modTotals(kind, tgt0), fee = 0;
@@ -37535,6 +39955,10 @@ $("cs-ps-add").onclick = function(){
 $("cs-inj-add").onclick = function(){
   var loc = $("cs-inj-loc").value || "Unlocated";
   var note = $("cs-inj-note").value.trim();
+  /* CMD Z042: a robot's pick carries its part's word in the note (Optics, Arm 3, Thruster) */
+  var lsel = $("cs-inj-loc"), lopt = lsel && lsel.selectedIndex >= 0 ? lsel.options[lsel.selectedIndex] : null;
+  var lword = lopt && lopt.getAttribute ? lopt.getAttribute("data-label") : null;
+  if(lword && lword !== loc) note = lword + (note ? ": " + note : "");
   var treated = !!$("cs-inj-treated").checked;
   var n = woundWrite(function(l){ l.push({ loc:loc, treated:treated, note:note || "added by hand" }); return l.length; });
   $("cs-inj-note").value = ""; $("cs-inj-treated").checked = false;
@@ -37858,10 +40282,15 @@ window.HELENA_CHAR.coverFor = function(tokenId, fromTokenId){
    Writing them again here would be a self-assignment pretending to be a publication.  What
    was genuinely missing is the ROLL: every caller had to bring its own d20 and its own
    clamp, which is the third copy this comment exists to prevent. */
+/* CMD Z042: rollLocation(rng, c) - c, a player's sheet: a robot with a torso rolls its torso's table, and the answer also carries
+   the sheet's word (label: Optics, Arm 3, Thruster…) and the part's slot.  Without c, the default table as ever. */
 window.HELENA_CHAR.rollLocation = function(rng){
+  var c = arguments.length > 1 ? arguments[1] : null;   /* CMD Z042: the sheet, read off arguments[1] - the signature kept */
   var roll = typeof rng === "function" ? Math.max(1, Math.min(20, Math.round(+rng() || 0))) : d20();
-  var L = CH.locationFor(roll);
-  return { roll:roll, loc:L.loc, pen:L.pen, lo:L.lo, hi:L.hi };
+  var L = CH.locationFor(roll, c || null);
+  var out = { roll:roll, loc:L.loc, pen:L.pen, lo:L.lo, hi:L.hi };
+  if(L.label != null){ out.label = L.label; out.slot = L.slot; }
+  return out;
 };
 /* RULE 5: every token in a zone, allies marked, all ticked — for the token layer's own menu */
 window.HELENA_CHAR.blastIn = function(zone, attackerTokenId){ return blastIn(zone, attackerTokenId || null); };
@@ -38557,7 +40986,7 @@ function cardNumbers(c, ctx){
   var a = c.armour || {};
   if(!String(a.name || "").trim()) n.armour = "none worn";
   else {
-    var am = a.hpMaxOverride != null ? +a.hpMaxOverride : CH.armourHp(a.phys, a.en, a.rarity), ah = Math.max(0, +a.hp || 0);
+    var am = (a.hpMaxOverride != null ? +a.hpMaxOverride : CH.armourHp(a.phys, a.en, a.rarity)) + (typeof CH.robotPlate === "function" ? CH.robotPlate(c) : 0), ah = Math.max(0, +a.hp || 0);
     n.armour = a.name + " " + (ah <= 0 ? "wrecked" : ah + "/" + am);
   }
   /* PROJECT C, STAGE 6 (2026-09-29): "n carried · m open", the medical board's own words.  A treated
@@ -38864,6 +41293,464 @@ $("cs-surv-camp-go").onclick = function(e){
   SH.showTool("camp");
   return false;
 };
+
+
+/* ROBOTSHEET:begin */
+/* CMD Z042 (Zoe 2026-10-28; the vault Reference, "Robot parts", NR-27 ... NR-37) - THE ROBOT CARD.
+   A sheet with the Robot tick gets one more card, #cs-f-robot: the chassis diagram, each slot's part, the d20 location table,
+   mods fitted / allowed, the plate the parts add, the carry slots and what the parts do, in plain words.  Every number comes
+   from the engine, HELENA_CHAR.ROBOT (zoe/Z042_CONTRACT.md) - this block draws and writes, it decides nothing.  With no engine
+   on the page it draws nothing robot-specific.  A sheet without the tick, and an old robot save without robotParts, show
+   what they always showed: the card stays hidden until a part is recorded; the Workbench's "Robot parts" line opens it
+   for such a robot on this device, with one way in - Install a torso.
+   THE BENCH (NR-28): Install / Upgrade / Swap on a slot is one short walk in the card itself - the part (only what
+   ROBOT.bases allows; the rest say why), who works the bench (the robot by default), then ROBOT.plan's Difficulty, materials,
+   caps and missing perks, refused when short - and the roll is INT + Science on the roll drawer (HELENA_ROLL.open, the
+   sickness check's and the salvage's door: its AP buying and the room's payment step are the drawer's own).  A pass applies
+   ROBOT.apply and takes the materials off the party's counter; a failure asks the Overseer: the part is damaged, or the
+   location is crippled (ROBOT.fail).  Remove needs no test: the part goes to the pack.  Each press keeps ONE Undo (the
+   session log's, SUITE_UNDO) that puts back the parts, the pack, the caps, the injury and the materials. */
+function rbApi(){
+  var H = window.HELENA_CHAR, R = H && H.ROBOT;
+  return R && typeof R.locations === "function" && typeof R.frame === "function" ? R : null;
+}
+var RB_WORD = { torso:"Torso", head:"Head", legs:"Legs" };
+function rbSlotWord(slot){ var m = /^arm(\d+)$/.exec(String(slot)); return m ? "Arm " + (+m[1] + 1) : (RB_WORD[slot] || String(slot)); }
+function rbFamily(slot){ return /^arm\d+$/.test(String(slot)) ? "arm" : String(slot); }
+function rbPartAt(fr, slot){
+  if(!fr) return null;
+  var m = /^arm(\d+)$/.exec(String(slot));
+  if(m) return (Array.isArray(fr.arms) ? fr.arms[+m[1]] : null) || null;
+  return fr[slot] || null;
+}
+function rbRowOf(R, p){ var r = null; try{ r = p && p.base ? R.row(p.base, +p.mk || 1) : null; }catch(e){ r = null; } return r; }
+function rbPartName(R, p){ var r = rbRowOf(R, p); return r && r.name ? r.name : (p && p.base ? p.base + " mk" + (+p.mk || 1) : ""); }
+/* the slots a frame shows: torso, head, legs, then as many arms as the torso allows (and any left over past that) */
+function rbSlots(R, c, fr){
+  var n = 0; try{ n = Math.max(0, Math.round(+R.armsCap(c) || 0)); }catch(e){ n = 0; }
+  var extra = fr && Array.isArray(fr.arms) ? fr.arms.length : 0, l = ["torso", "head", "legs"];
+  for(var i = 0; i < Math.max(n, extra); i++) l.push("arm" + i);
+  return l;
+}
+function rbCall(fn, dflt){ try{ var v = fn(); return v == null ? dflt : v; }catch(e){ return dflt; } }
+/* the wounds marked on the diagram: a wound that names its slot marks that slot; else its location word */
+function rbHurt(L, part, wounds){
+  return (wounds || []).some(function(w){ return w && (w.slot ? w.slot === L.slot : w.loc === L.loc); }) && !!part;
+}
+/* THE CHASSIS DIAGRAM: one shape per row of the location table - the head on top, the body in the middle, the arms down
+   both sides, the legs (thrusters, treads, wheels) along the foot; each labelled with the table's word and its d20 range.
+   Marks: hurt (an injury there, red), damaged (the part, amber, dashed), empty (no part: the hit counts as Torso, faint). */
+function rbDiagram(R, c, wounds, cls){
+  var locs = rbCall(function(){ return R.locations(c); }, []), fr = rbCall(function(){ return R.frame(c); }, {});
+  if(!Array.isArray(locs) || !locs.length) return "";
+  var heads = [], torsos = [], arms = [], legs = [];
+  locs.forEach(function(L){
+    var s = String(L.slot || ""), fam = rbFamily(s);
+    (fam === "head" ? heads : fam === "arm" ? arms : fam === "legs" ? legs : torsos).push(L);
+  });
+  function z(L){
+    var p = rbPartAt(fr, L.slot), k = "zone";
+    if(rbHurt(L, p, wounds)) k += " hurt";
+    if(p && p.damaged) k += " dmg";
+    if(!p && L.slot !== "torso") k += " gone";
+    return k;
+  }
+  function word(L){ return String(L.label || L.loc || "").toUpperCase(); }
+  function rng(L){ return L.lo === L.hi ? String(L.lo) : L.lo + "–" + L.hi; }
+  function two(x, y, L){ return '<text x="' + x + '" y="' + y + '" text-anchor="middle">' + esc(word(L)) + '</text><text x="' + x + '" y="' + (y + 13) + '" text-anchor="middle" class="rng">' + esc(rng(L)) + "</text>"; }
+  var out = [], title = locs.map(function(L){ return (L.label || L.loc) + " " + rng(L); }).join(", ");
+  heads.forEach(function(L, i){
+    var cx = 130 + (i - (heads.length - 1) / 2) * 60;
+    out.push('<circle class="' + z(L) + '" cx="' + cx + '" cy="34" r="27"/>' + two(cx, 32, L));
+  });
+  var th = Math.max(92, torsos.length * 34);
+  out.push('<rect class="zone' + (torsos.some(function(L){ return rbHurt(L, true, wounds); }) ? " hurt" : "") + (fr && fr.torso && fr.torso.damaged ? " dmg" : "") +
+           '" x="88" y="68" width="84" height="' + th + '" rx="10"/>');
+  torsos.forEach(function(L, i){ out.push(two(130, 68 + th / 2 - (torsos.length - 1) * 17 + i * 34 - 2, L)); });
+  arms.forEach(function(L, i){
+    var left = i % 2 === 0, row = Math.floor(i / 2), x = left ? 6 : 178, y = 70 + row * 42;
+    out.push('<rect class="' + z(L) + '" x="' + x + '" y="' + y + '" width="76" height="34" rx="8"/>' + two(x + 38, y + 15, L));
+  });
+  var ly = 68 + th + 10, lw = Math.min(84, Math.floor(232 / Math.max(1, legs.length)) - 6);
+  legs.forEach(function(L, i){
+    var x = 130 - (legs.length * (lw + 6) - 6) / 2 + i * (lw + 6);
+    out.push('<rect class="' + z(L) + '" x="' + x.toFixed(0) + '" y="' + ly + '" width="' + lw + '" height="40" rx="6"/>' + two(x + lw / 2, ly + 17, L));
+  });
+  var h = ly + (legs.length ? 50 : 0) + 4;
+  return '<svg class="' + (cls || "rb-diagram") + '" viewBox="0 0 260 ' + Math.max(h, 180) + '" role="img" aria-label="chassis diagram"><title>' + esc(title) + "</title>" + out.join("") + "</svg>";
+}
+/* the Cinder sheet's paper-doll asks here (cinder-4-sheet.js): the drawing and the table for a robot with a torso, else null
+   (no engine, no Robot tick, an old save, no torso: the doll it always drew) */
+function rbView(c, wounds){
+  var R = rbApi();
+  if(!R || !c || c.robot !== true || !c.robotParts || typeof c.robotParts !== "object") return null;
+  var fr = rbCall(function(){ return R.frame(c); }, null);
+  if(!fr || !fr.torso) return null;
+  var locs = rbCall(function(){ return R.locations(c); }, []);
+  return { svg:rbDiagram(R, c, wounds, "rb-diagram cx-rb"), locs:locs.map(function(L){
+    var p = rbPartAt(fr, L.slot);
+    return { lo:L.lo, hi:L.hi, label:L.label || L.loc, loc:L.loc, slot:L.slot, part:p ? rbPartName(R, p) : "", hurt:rbHurt(L, p, wounds), damaged:!!(p && p.damaged) };
+  }) };
+}
+window.HELENA_CHAR.robotView = rbView;
+
+/* ---- THE BENCH: what is being worked on (this device's walk; nothing stored) ---- */
+var RB_BENCH = null;     /* { id, op, slot, base, who, stage:"pick"|"wait"|"failed"|"done", msg, undo, decl } */
+var RB_DECL = {};        /* the roll drawer's declarations still waiting for their answer, by id */
+var RB_OPEN = {};        /* robots whose card the Workbench opened on this device before any part was recorded (an old save) */
+function rbChar(id){ var l = chars(); for(var i = 0; i < l.length; i++) if(l[i] && String(l[i].id) === String(id)) return l[i]; return null; }
+function rbMats(){
+  var LG = ledgerApi(), env = sheetLedgerEnv();
+  if(!LG || !env || typeof LG.materialsOf !== "function") return null;
+  try{ return LG.materialsOf(env.getLedger()); }catch(e){ return null; }
+}
+function rbMatsWords(m){
+  var l = [];
+  ["common", "uncommon", "rare"].forEach(function(k){ var n = Math.max(0, Math.round(+(m && m[k]) || 0)); if(n) l.push(n + " " + k.charAt(0).toUpperCase() + k.slice(1)); });
+  return l.length ? l.join(", ") : "none";
+}
+/* THE CHECK before the roll: ROBOT.plan, then what only the page can see - the party's materials, the robot's caps.
+   -> { plan, short:[words], ok } ; nothing is changed */
+function rbCheck(R, c, op, args, who){
+  var plan = rbCall(function(){ return R.plan(c, op, args, who || c); }, null);
+  var short = [];
+  if(!plan) return { plan:null, short:["the bench could not price this"], ok:false };
+  /* the engine counts materials in the robot's own pack; the bench (like the Workbench's crafting) takes the PARTY's, checked below */
+  if(plan.ok === false && plan.why && !((plan.short || []).length && !(plan.perksMissing || []).length)) short.push(String(plan.why));
+  var pm = plan.perksMissing || [];
+  if(pm.length) short.push(((who && who.name) || "The installer") + " needs " + pm.join(", "));
+  var have = rbMats(), need = plan.materials || {};
+  ["common", "uncommon", "rare"].forEach(function(k){
+    var n = Math.max(0, Math.round(+need[k] || 0)), h = have ? Math.max(0, Math.round(+have[k] || 0)) : 0;
+    if(n > h) short.push("the party has " + h + " " + k.charAt(0).toUpperCase() + k.slice(1) + " of " + n);
+  });
+  if(plan.from === "new" && +plan.caps > 0 && (+c.caps || 0) < +plan.caps) short.push((c.name || "The robot") + " has " + (+c.caps || 0) + " caps of " + (+plan.caps));
+  return { plan:plan, short:short, ok:!short.length };
+}
+/* the pack: a part in a pack is the row's name with { robotPart:{ base, mk } } (the contract's Pack items) */
+function rbPackRow(R, x){
+  var base = x && (x.robotPart ? x.robotPart.base : x.base), mk = Math.max(1, Math.round(+(x && (x.robotPart ? x.robotPart.mk : x.mk)) || 1));
+  var name = (x && x.name) || rbPartName(R, { base:base, mk:mk });
+  return { name:String(name), qty:1, stack:false, notes:"", key:"", proposed:false, robotPart:{ base:String(base || ""), mk:mk } };
+}
+function rbPackFind(inv, x){
+  var base = x && (x.robotPart ? x.robotPart.base : x.base), mk = Math.round(+(x && (x.robotPart ? x.robotPart.mk : x.mk)) || 0), name = String((x && x.name) || "").trim().toLowerCase();
+  for(var i = 0; i < inv.length; i++){
+    var r = inv[i]; if(!r) continue;
+    if(r.robotPart && base && r.robotPart.base === base && (!mk || +r.robotPart.mk === mk)) return i;
+  }
+  if(name) for(var j = 0; j < inv.length; j++) if(inv[j] && String(inv[j].name || "").trim().toLowerCase() === name) return j;
+  return -1;
+}
+/* THE ONE WRITE of a bench result (or a Remove).  res = ROBOT.apply's or ROBOT.fail's answer; extra = { mats, caps, injury }.
+   The materials go first (the party counter can refuse: then nothing at all is written); then the robot's sheet in one
+   store update - robotParts, the pack, the caps, the injury.  The Undo puts back exactly those.  -> { ok, note, undo } */
+function rbCommit(R, charId, res, extra, text){
+  var c0 = rbChar(charId);
+  if(!c0) return { ok:false, note:"That sheet is gone - nothing was changed." };
+  if(locked(c0)) return { ok:false, note:lockedWhy(c0) };
+  extra = extra || {};
+  var mats = extra.mats || {}, take = {}, anyMat = false;
+  ["common", "uncommon", "rare"].forEach(function(k){ var n = Math.max(0, Math.round(+mats[k] || 0)); if(n){ take[k] = -n; anyMat = true; } });
+  var LG = ledgerApi(), env = sheetLedgerEnv(), OPS = null;
+  if(anyMat){
+    try{ OPS = LG && env && typeof LG.ops === "function" ? LG.ops(env) : null; }catch(e){ OPS = null; }
+    if(!OPS || typeof OPS.materials !== "function") return { ok:false, note:"The party's materials are not on this page - nothing was changed." };
+    var mr = OPS.materials(take);
+    if(!mr || !mr.ok) return { ok:false, note:"The materials could not be taken (" + ((mr && mr.note) || "refused") + ") - nothing was changed." };
+  }
+  var before = JSON.parse(JSON.stringify({ robotParts:c0.robotParts === undefined ? null : c0.robotParts, inventory:c0.inventory || [], caps:c0.caps })), hadParts = c0.robotParts !== undefined;
+  var injBefore = null, injKey = null, done = false, caps = Math.max(0, Math.round(+extra.caps || 0));
+  quiet = true;
+  try{
+    S.update(function(m){
+      var x = null; (m.chars || []).forEach(function(ch){ if(ch && String(ch.id) === String(charId)) x = ch; });
+      if(!x || locked(x)) return;
+      x.robotParts = JSON.parse(JSON.stringify(res.robotParts));
+      if(!Array.isArray(x.inventory)) x.inventory = [];
+      (res.packTake || []).forEach(function(t){ var i = rbPackFind(x.inventory, t); if(i >= 0) invTake(x.inventory, i, 1); });
+      (res.packAdd || []).forEach(function(a){ x.inventory.push(rbPackRow(R, a)); });
+      if(caps) x.caps = Math.max(0, (+x.caps || 0) - caps);
+      if(extra.injury){
+        var key = woundKeyIn(m, x);
+        if(key != null){
+          if(!m.injuries || typeof m.injuries !== "object" || Array.isArray(m.injuries)) m.injuries = {};
+          injKey = key; injBefore = Array.isArray(m.injuries[key]) ? JSON.parse(JSON.stringify(m.injuries[key])) : null;
+          if(!Array.isArray(m.injuries[key])) m.injuries[key] = [];
+          m.injuries[key].push(JSON.parse(JSON.stringify(extra.injury)));
+        }
+      }
+      done = true;
+    });
+  }finally{ quiet = false; }
+  if(!done){
+    if(anyMat && OPS){ var back = {}; Object.keys(take).forEach(function(k){ back[k] = -take[k]; }); try{ OPS.materials(back); }catch(e){} }
+    return { ok:false, note:"The sheet would not take it - nothing was changed." };
+  }
+  var key2 = null, U = window.SUITE_UNDO;
+  if(U && typeof U.keep === "function"){
+    try{
+      key2 = U.keep("robot-bench", { text:String(text || "Robot parts changed"), rev:{ id:String(charId) }, chars:[String(charId)], revert:function(){
+        if(anyMat){
+          var put = {}; Object.keys(take).forEach(function(k){ put[k] = -take[k]; });
+          var O2 = null; try{ O2 = LG.ops(sheetLedgerEnv()); }catch(e){ O2 = null; }
+          var pr = O2 && typeof O2.materials === "function" ? O2.materials(put) : null;
+          if(!pr || !pr.ok) return { ok:false, note:"The materials could not go back (" + ((pr && pr.note) || "no counter") + ") - nothing was undone." };
+        }
+        var hit = false;
+        S.update(function(m){
+          (m.chars || []).forEach(function(ch){
+            if(!ch || String(ch.id) !== String(charId)) return;
+            if(hadParts) ch.robotParts = JSON.parse(JSON.stringify(before.robotParts)); else delete ch.robotParts;
+            ch.inventory = JSON.parse(JSON.stringify(before.inventory));
+            if(before.caps === undefined) delete ch.caps; else ch.caps = before.caps;
+            hit = true;
+          });
+          if(injKey != null && m.injuries){ if(injBefore) m.injuries[injKey] = JSON.parse(JSON.stringify(injBefore)); else delete m.injuries[injKey]; }
+        });
+        if(RB_BENCH && String(RB_BENCH.id) === String(charId)) RB_BENCH = null;
+        try{ render(); }catch(e){}
+        return hit ? { ok:true } : { ok:false, note:"That sheet is gone." };
+      } });
+    }catch(e){ key2 = null; }
+  }
+  return { ok:true, note:"", undo:key2 };
+}
+function rbOpWord(op){ return op === "install" ? "Install" : op === "upgrade" ? "Upgrade" : op === "swap" ? "Swap" : "Remove"; }
+/* a press of Install / Upgrade / Swap opens the bench walk; Remove is done at once (no test) */
+function rbStart(c, op, slot){
+  var R = rbApi(); if(!R || !c) return;
+  if(op === "remove"){
+    var fr = rbCall(function(){ return R.frame(c); }, {}), p = rbPartAt(fr, slot), nm = rbPartName(R, p);
+    var res = rbCall(function(){ return R.apply(c, "remove", { slot:slot }); }, null);
+    if(!res || !res.robotParts){ RB_BENCH = { id:c.id, op:op, slot:slot, stage:"done", msg:"Nothing to remove there." }; render(); return; }
+    var w = rbCommit(R, c.id, res, {}, (c.name || "The robot") + ": " + (nm || "a part") + " taken off " + rbSlotWord(slot) + " and put in the pack");
+    RB_BENCH = { id:c.id, op:op, slot:slot, stage:"done", undo:w.undo, msg:w.ok ? (nm || "The part") + " is in the pack now." : w.note };
+    render(); return;
+  }
+  RB_BENCH = { id:c.id, op:op, slot:slot, base:"", who:String(c.id), stage:"pick", msg:"" };
+  if(op === "install" || op === "swap"){
+    var l = rbCall(function(){ return R.bases(rbFamily(slot), c); }, []), cur0 = rbPartAt(rbCall(function(){ return R.frame(c); }, {}), slot);
+    var first = (l || []).filter(function(b){ return b && b.ok && !(op === "swap" && cur0 && b.base === cur0.base); })[0];
+    RB_BENCH.base = first ? first.base : "";
+  }
+  render();
+}
+function rbArgs(B){ return B.op === "upgrade" ? { slot:B.slot } : { slot:B.slot, base:B.base }; }
+/* "Roll" - INT + Science on the roll drawer, at the plan's Difficulty, worked by the chosen installer */
+function rbRoll(){
+  var B = RB_BENCH, R = rbApi(); if(!B || !R) return;
+  var c = rbChar(B.id), who = rbChar(B.who) || c; if(!c) return;
+  var ck = rbCheck(R, c, B.op, rbArgs(B), who);
+  if(!ck.ok){ B.msg = "Not yet: " + ck.short.join("; ") + "."; render(); return; }
+  var RL = window.HELENA_ROLL;
+  if(!RL || typeof RL.open !== "function"){ B.msg = "The roll drawer is not on this page."; render(); return; }
+  var id = "robot-" + c.id + "-" + Date.now().toString(36), wid = String(who.id);
+  var what = B.op === "upgrade" ? "upgrade " + rbSlotWord(B.slot) : rbOpWord(B.op).toLowerCase() + " " + rbPartName(R, { base:B.base, mk:1 }) + " (" + rbSlotWord(B.slot) + ")";
+  RB_DECL[id] = { id:c.id, op:B.op, args:rbArgs(B), who:wid, what:what };
+  var r = RL.open({ kind:"test", source:"Robot Workbench", id:id, charId:wid,
+                    attacker:{ id:wid, kind:"char", ref:wid, name:who.name || "unnamed" },
+                    attr:"INT", skill:"Science", difficulty:ck.plan.difficulty,
+                    note:"Robot Workbench - " + what + " on " + (c.name || "the robot") + ". Complexity " + ck.plan.complexity + ".",
+                    onResult:function(rep){ rbAnswer(id, rep); } });
+  if(r && r.ok === false){ delete RB_DECL[id]; B.msg = r.note || "The roll drawer would not take it."; render(); return; }
+  B.stage = "wait"; B.decl = id;
+  B.msg = "Roll INT + Science at Difficulty " + ck.plan.difficulty + " on the dice drawer. The answer lands here.";
+  render();
+}
+/* the drawer's answer: a pass installs; a failure waits for the Overseer's choice; a dropped roll changes nothing */
+function rbAnswer(id, rep){
+  var d = RB_DECL[id]; if(!d) return;
+  var B = RB_BENCH && RB_BENCH.decl === id ? RB_BENCH : (RB_BENCH = { id:d.id, op:d.op, slot:d.args.slot, base:d.args.base || "", who:d.who, decl:id });
+  if(!rep || rep.cancelled){ delete RB_DECL[id]; B.stage = "pick"; B.msg = "The roll was dropped - nothing was changed. Roll again when ready."; render(); return; }
+  if(!rep.passed){ B.stage = "failed"; B.msg = "The test failed" + (rep.successes != null ? " (" + rep.successes + " of " + rep.difficulty + ")" : "") + ". Overseer, choose:"; render(); return; }
+  delete RB_DECL[id];
+  rbFinish(d, "pass");
+}
+/* pass, or the Overseer's failure choice ("damaged" | "cripple"): the engine's answer, then the one write */
+function rbFinish(d, how){
+  var R = rbApi(), c = rbChar(d.id), B = RB_BENCH; if(!R || !c || !B) return;
+  var who = rbChar(d.who) || c, ck = rbCheck(R, c, d.op, d.args, who), plan = ck.plan || {};
+  if(!ck.ok){ B.stage = "pick"; B.msg = "Not now: " + ck.short.join("; ") + " - nothing was changed."; render(); return; }
+  var o = { installer:who, force:true };
+  var res = how === "pass" ? rbCall(function(){ return R.apply(c, d.op, d.args, o); }, null) : rbCall(function(){ return R.fail(c, d.op, d.args, how, o); }, null);
+  if(res && Array.isArray(res.packTake)) res.packTake = res.packTake.filter(function(t){ return !(t && t.material); });
+  if(!res || !res.robotParts){ B.stage = "pick"; B.msg = "The bench could not apply that - nothing was changed."; render(); return; }
+  var injury = null;
+  if(how === "cripple"){
+    injury = res.injury && typeof res.injury === "object" ? { loc:res.injury.loc || "Torso", treated:false, note:"crippled at the robot bench" } : null;
+    if(!injury){
+      var loc = "Torso"; (rbCall(function(){ return R.locations(c); }, []) || []).forEach(function(L){ if(L.slot === d.args.slot) loc = L.loc || loc; });
+      injury = { loc:loc, treated:false, note:"crippled at the robot bench" };
+    }
+    if(!injury.slot) injury.slot = d.args.slot;
+  }
+  var caps = plan.from === "new" ? Math.max(0, Math.round(+plan.caps || 0)) : 0;
+  var text = (c.name || "The robot") + ": " + d.what + (how === "pass" ? " - done" : how === "damaged" ? " - failed, the part is damaged" : " - failed, " + (injury ? injury.loc : "the location") + " crippled") +
+             (plan.materials ? " (" + rbMatsWords(plan.materials) + " materials" + (caps ? ", " + caps + " caps" : "") + ")" : "");
+  var w = rbCommit(R, c.id, res, { mats:plan.materials, caps:caps, injury:injury }, text);
+  delete RB_DECL[B.decl];
+  B.stage = w.ok ? "done" : "failed"; B.undo = w.undo;
+  B.msg = w.ok ? (how === "pass" ? "Done. " : how === "damaged" ? "The part went in damaged (repair: half its Complexity). " : "The Overseer crippled " + (injury ? injury.loc : "the location") + ". ") +
+                 "Used " + rbMatsWords(plan.materials) + (caps ? " and " + caps + " caps" : "") + "." : w.note;
+  render();
+}
+/* who may make the failure's choice: the Overseer at a table with one; anyone in Solo or with no Overseer present */
+function rbOverseer(){
+  if(!roomOn()) return true;
+  try{ if(SY.isGM()) return true; }catch(e){}
+  var T = window.SUITE_TOOLS; try{ return !(T && typeof T.gmPresent === "function" && T.gmPresent()); }catch(e){ return true; }
+}
+
+/* ---- THE CARD ---- */
+var rbLast = "";
+function rbBenchHtml(R, c){
+  var B = RB_BENCH;
+  if(!B || String(B.id) !== String(c.id)) return "";
+  var h = '<div class="rb-bench" role="group" aria-label="robot bench">';
+  h += '<div class="rb-bh"><b>' + esc(rbOpWord(B.op) + " — " + rbSlotWord(B.slot)) + '</b><button type="button" class="cs-mini rb-x" data-rb="close">Close</button></div>';
+  if(B.stage === "done"){
+    h += '<div class="rb-msg">' + esc(B.msg || "") + "</div>";
+    if(B.undo && window.SUITE_UNDO) h += '<button type="button" class="cs-mini rb-undo" data-rb="undo">Undo</button>';
+    return h + "</div>";
+  }
+  var who = rbChar(B.who) || c;
+  if(B.op === "install" || B.op === "swap"){
+    var l = rbCall(function(){ return R.bases(rbFamily(B.slot), c); }, []), cur0 = rbPartAt(rbCall(function(){ return R.frame(c); }, {}), B.slot);
+    h += '<label class="rb-step"><span>1. Part</span><select class="rb-pick" data-rb="pick"' + (B.stage === "pick" ? "" : " disabled") + ">";
+    if(!B.base) h += '<option value="">— pick a part —</option>';
+    (l || []).forEach(function(b){
+      if(!b || (B.op === "swap" && cur0 && b.base === cur0.base)) return;
+      var nm = b.name || rbPartName(R, { base:b.base, mk:1 });
+      h += '<option value="' + esc(b.base) + '"' + (b.base === B.base ? " selected" : "") + (b.ok ? "" : " disabled") + ">" + esc(nm + (b.ok ? "" : " — " + (b.why || "not allowed"))) + "</option>";
+    });
+    h += "</select></label>";
+    var no = (l || []).filter(function(b){ return b && !b.ok; });
+    if(no.length) h += '<div class="rb-why">Not allowed here: ' + no.map(function(b){ return esc((b.name || b.base) + " (" + (b.why || "not allowed") + ")"); }).join("; ") + "</div>";
+  }else{
+    var p0 = rbPartAt(rbCall(function(){ return R.frame(c); }, {}), B.slot);
+    h += '<div class="rb-step"><span>1. Part</span><b>' + esc(rbPartName(R, p0)) + " → mk" + ((p0 && +p0.mk || 1) + 1) + "</b></div>";
+  }
+  h += '<label class="rb-step"><span>2. Who works the bench</span><select class="rb-who" data-rb="who"' + (B.stage === "pick" ? "" : " disabled") + ">" +
+       chars().map(function(x){ return '<option value="' + esc(x.id) + '"' + (String(x.id) === String(who.id) ? " selected" : "") + ">" + esc((x.name || "unnamed") + (String(x.id) === String(c.id) ? " (the robot)" : "")) + "</option>"; }).join("") +
+       "</select></label>";
+  var ready = B.op === "upgrade" || !!B.base, ck = ready ? rbCheck(R, c, B.op, rbArgs(B), who) : null, P = ck && ck.plan;
+  if(P){
+    h += '<div class="rb-plan">' +
+         "<div><span>Complexity</span> <b>" + esc(P.complexity) + "</b> → <span>Difficulty</span> <b>" + esc(P.difficulty) + "</b> <small>(INT + Science)</small></div>" +
+         "<div><span>Materials</span> <b>" + esc(rbMatsWords(P.materials)) + "</b> <small>the party has " + esc(rbMatsWords(rbMats() || {})) + "</small></div>" +
+         "<div><span>The part</span> " + (P.from === "pack" ? "<b>from the pack</b>" : "<b>bought new: " + esc(+P.caps || 0) + " caps</b> <small>" + esc(c.name || "the robot") + " has " + esc(+c.caps || 0) + "</small>") + "</div>" +
+         ((P.perksMissing || []).length ? '<div class="rb-short"><span>Missing perks</span> ' + esc(P.perksMissing.join(", ")) + "</div>" : "") +
+         ((P.returns || []).length ? "<div><span>To the pack</span> " + esc(P.returns.map(function(x){ return (x && x.name) || rbPartName(R, x && x.robotPart ? x.robotPart : x); }).join(", ")) + "</div>" : "") +
+         "</div>";
+    if(!ck.ok) h += '<div class="rb-short">Can’t yet: ' + esc(ck.short.join("; ")) + ".</div>";
+  }
+  if(B.stage === "failed"){
+    var gm = rbOverseer();
+    h += '<div class="rb-msg">' + esc(B.msg || "") + "</div>" +
+         '<div class="rb-row"><button type="button" class="cs-mini" data-rb="damaged"' + (gm ? "" : " disabled") + ">Part damaged</button>" +
+         '<button type="button" class="cs-mini" data-rb="cripple"' + (gm ? "" : " disabled") + ">Cripple the location</button></div>" +
+         (gm ? "" : '<div class="rb-why">The Overseer makes this choice.</div>');
+  }else{
+    h += '<div class="rb-row"><button type="button" class="cs-mini cs-pri" data-rb="roll"' + (ck && ck.ok && B.stage === "pick" ? "" : " disabled") + ">" +
+         "3. Roll INT + Science" + (P ? ", Difficulty " + esc(P.difficulty) : "") + "</button></div>";
+    if(B.msg) h += '<div class="rb-msg">' + esc(B.msg) + "</div>";
+  }
+  return h + "</div>";
+}
+function rbHtml(R, c){
+  var fr = rbCall(function(){ return R.frame(c); }, {}) || {}, wounds = woundsOfChar(c), h = "";
+  var fresh = !c.robotParts || typeof c.robotParts !== "object";
+  if(fresh){
+    h += '<p class="cs-hint rb-none">No parts recorded yet. Start with the torso: it sets the hit locations, the arms and the mod slots.</p>' +
+         '<div class="rb-slots"><div class="rb-slot"><span class="rb-sw">Torso</span><span class="rb-pn">empty</span><span class="rb-ops">' +
+         '<button type="button" class="cs-mini" data-rb-op="install" data-rb-slot="torso">Install</button></span></div></div>';
+    return h + rbBenchHtml(R, c);
+  }
+  var diag = rbDiagram(R, c, wounds, "rb-diagram");
+  h += '<div class="rb-top"><div class="rb-pic">' + diag + "</div>";
+  h += '<div class="rb-slots">';
+  rbSlots(R, c, fr).forEach(function(slot){
+    var p = rbPartAt(fr, slot), mk = p ? Math.max(1, Math.round(+p.mk || 1)) : 0, nm = p ? rbPartName(R, p) : "";
+    var canUp = p && mk < 3 && !!rbRowOf(R, { base:p.base, mk:mk + 1 });
+    h += '<div class="rb-slot' + (p && p.damaged ? " rb-dmg" : "") + '"><span class="rb-sw">' + esc(rbSlotWord(slot)) + "</span>" +
+         '<span class="rb-pn">' + (p ? esc(nm) + (p.damaged ? ' <em class="rb-tag">damaged</em>' : "") : '<span class="rb-empty">empty</span>') + "</span>" +
+         '<span class="rb-ops">' + (p ? (canUp ? '<button type="button" class="cs-mini" data-rb-op="upgrade" data-rb-slot="' + slot + '">Upgrade</button>' : "") +
+           '<button type="button" class="cs-mini" data-rb-op="swap" data-rb-slot="' + slot + '">Swap</button>' +
+           '<button type="button" class="cs-mini" data-rb-op="remove" data-rb-slot="' + slot + '">Remove</button>'
+         : '<button type="button" class="cs-mini" data-rb-op="install" data-rb-slot="' + slot + '">Install</button>') + "</span></div>";
+  });
+  h += "</div></div>";
+  h += rbBenchHtml(R, c);
+  var locs = rbCall(function(){ return R.locations(c); }, []);
+  h += '<table class="rb-locs"><thead><tr><th>d20</th><th>Location</th><th>Part</th></tr></thead><tbody>' + (locs || []).map(function(L){
+    var p = rbPartAt(fr, L.slot);
+    return "<tr" + (rbHurt(L, p, wounds) ? ' class="rb-hurt"' : "") + "><td>" + esc(L.lo === L.hi ? L.lo : L.lo + "–" + L.hi) + "</td><td>" + esc(L.label || L.loc) +
+           "</td><td>" + (p ? esc(rbPartName(R, p)) : '<span class="rb-empty">none — a hit counts as Torso</span>') + "</td></tr>";
+  }).join("") + "</tbody></table>";
+  var cap = rbCall(function(){ return R.modCap(c); }, null), used = (c.armour && Array.isArray(c.armour.mods)) ? c.armour.mods.length : 0;
+  var pb = rbCall(function(){ return R.plateBonus(c); }, { total:0, rows:[] }), cs = rbCall(function(){ return R.carrySlots(c); }, null);
+  h += '<div class="rb-stats">' +
+       '<div class="rb-stat"><span>Mod slots</span><b class="rb-mods">' + (cap == null ? "—" : used + " of " + cap) + "</b>" + (cap != null && used > cap ? ' <em class="rb-tag">too many</em>' : "") + "</div>" +
+       '<div class="rb-stat"><span>Plate from parts</span><b class="rb-plate">+' + esc(+pb.total || 0) + "</b></div>" +
+       '<div class="rb-stat"><span>Carry</span><b class="rb-carry">' + (cs ? esc(cs.total) + " slots" : "—") + "</b>" + (cs && +cs.plus ? " <small>(" + esc(cs.base) + " + " + esc(cs.plus) + ")</small>" : "") + "</div></div>";
+  var fx = rbCall(function(){ return R.effects(c); }, []) || [];
+  h += '<div class="rb-fx"><div class="rb-fxh">What the parts do</div>' + (fx.length ? "<ul>" + fx.map(function(e){
+    var nm = String(e.name || rbSlotWord(e.slot));
+    return "<li><b>" + esc(nm + (e.mk && !/ mk\d$/.test(nm) ? " mk" + e.mk : "")) + ":</b> " + esc(e.text || "") + "</li>";
+  }).join("") + "</ul>" : '<p class="cs-hint">Nothing yet.</p>') + "</div>";
+  return h;
+}
+function rbRender(c){
+  var card = $("cs-f-robot"), body = $("cs-rb-body"); if(!card || !body) return;
+  var R = rbApi(), on = !!(R && c && c.robot === true);   /* every robot sheet has the section; an old save shows it empty, nothing written until a part goes in */
+  if(card.hidden !== !on) card.hidden = !on;
+  if(!on){ var kl0 = $("cs-skill-kind-lab"); if(kl0 && !kl0.hidden) kl0.hidden = true; if(rbLast !== ""){ body.innerHTML = ""; rbLast = ""; } var fn0 = $("cs-fn-robot"); if(fn0 && fn0.textContent !== "") fn0.textContent = ""; return; }
+  if(RB_BENCH && String(RB_BENCH.id) !== String(c.id) && RB_BENCH.stage !== "wait" && RB_BENCH.stage !== "failed") RB_BENCH = null;
+  var h = "";
+  try{ h = rbHtml(R, c); }catch(e){ h = '<p class="cs-hint">The robot parts could not be read.</p>'; }
+  if(h !== rbLast){ body.innerHTML = h; rbLast = h; }
+  var kl = $("cs-skill-kind-lab"), kOn = rbCall(function(){ return (R.effects(c) || []).some(function(e){ return e && e.kind === "dice" && !e.off; }); }, false);
+  if(kl && kl.hidden !== !kOn) kl.hidden = !kOn;
+  var fr = rbCall(function(){ return R.frame(c); }, null), n = 0;
+  if(fr) ["torso", "head", "legs"].forEach(function(k){ if(fr[k]) n++; });
+  if(fr && Array.isArray(fr.arms)) fr.arms.forEach(function(a){ if(a) n++; });
+  var t = !c.robotParts ? "no parts recorded" : (fr && fr.torso ? rbPartName(R, fr.torso) + " · " : "") + n + (n === 1 ? " part" : " parts");
+  var fn = $("cs-fn-robot"); if(fn && fn.textContent !== t) fn.textContent = t;
+}
+(function(){
+  var card = $("cs-f-robot"); if(!card) return;
+  card.addEventListener("click", function(e){
+    var t = e.target && e.target.closest ? e.target.closest("[data-rb-op],[data-rb]") : null; if(!t || t.disabled) return;
+    var c = me(); if(!c || c.robot !== true) return;
+    var op = t.getAttribute("data-rb-op");
+    if(op){ rbStart(c, op, t.getAttribute("data-rb-slot")); return; }
+    var a = t.getAttribute("data-rb"), B = RB_BENCH;
+    if(a === "close"){ if(B && B.decl) delete RB_DECL[B.decl]; RB_BENCH = null; render(); return; }
+    if(a === "roll"){ rbRoll(); return; }
+    if((a === "damaged" || a === "cripple") && B && B.stage === "failed" && RB_DECL[B.decl] && rbOverseer()){ var d = RB_DECL[B.decl]; rbFinish(d, a); return; }
+    if(a === "undo" && B && B.undo && window.SUITE_UNDO){ var u = window.SUITE_UNDO.undo(B.undo); B.undo = null; B.msg = u && u.ok ? "Undone." : ((u && u.note) || "That can no longer be undone."); RB_BENCH = u && u.ok ? null : B; render(); }
+  });
+  card.addEventListener("change", function(e){
+    var t = e.target, B = RB_BENCH; if(!t || !B || !t.getAttribute) return;
+    var a = t.getAttribute("data-rb");
+    if(a === "pick"){ B.base = t.value; B.msg = ""; render(); }
+    if(a === "who"){ B.who = t.value; B.msg = ""; render(); }
+  });
+})();
+/* the Workbench room's "Robot parts" entry (cinder-7-workbench.js): open this robot's sheet at its Robot card */
+window.HELENA_CHAR.robotBench = function(id){
+  var c = rbChar(id); if(!c || c.robot !== true) return false;
+  RB_OPEN[String(c.id)] = true;
+  select(c.id);
+  try{ var SH = window.SUITE_SHELL; if(SH && typeof SH.showTool === "function") SH.showTool("char"); }catch(e){}
+  if(typeof cardsLand === "function") cardsLand("robot");
+  return true;
+};
+/* the test file's door into the walk (tests/zoe-z042-sheet.js) - read-only state and the same functions the buttons call */
+window.HELENA_CHAR.robotSheet = { start:function(op, slot){ rbStart(me(), op, slot); }, roll:rbRoll, answer:rbAnswer, finish:rbFinish,
+  bench:function(){ return RB_BENCH; }, set:function(k, v){ if(RB_BENCH) RB_BENCH[k] = v; render(); }, decl:function(){ return RB_DECL; }, diagram:rbDiagram, check:rbCheck };
+/* ROBOTSHEET:end */
 
 })();
 
@@ -45980,10 +48867,13 @@ var CB_DICE = function(){ return [1 + Math.floor(Math.random() * 6), 1 + Math.fl
 var CB_D20 = function(){ return 1 + Math.floor(Math.random() * 20); };
 function charBleedInjury(ref, W){
   var CHi = window.HELENA_CHAR, roll = CB_D20(), loc = null;
+  /* a robot player with a torso rolls its torso's table (the sheet passed as the second argument) */
   try{ loc = CHi && typeof CHi.locationFor === "function" ? CHi.locationFor(roll) : null; }catch(e){ loc = null; }
+  try{ var bSheet = typeof charOf === "function" ? charOf(ref) : null; if(loc && bSheet && bSheet.robot === true) loc = CHi.locationFor(roll, bSheet) || loc; }catch(e){}
   if(!loc || typeof recordInjury !== "function") return "; down to 0 HP is an injury — roll its location on the sheet";
-  var n = recordInjury(W.key, loc.loc, "from bleeding out (Bleeding heavily)");
-  return "; down to 0 HP is an injury — location d20 " + roll + ": " + loc.loc +
+  var lw = loc.label && loc.label !== loc.loc ? loc.label + ": " : "";
+  var n = recordInjury(W.key, loc.loc, lw + "from bleeding out (Bleeding heavily)");
+  return "; down to 0 HP is an injury — location d20 " + roll + ": " + (lw ? loc.label + " (" + loc.loc + ")" : loc.loc) +
          (n ? ", recorded (" + n + (n === 1 ? " injury" : " injuries") + " carried)" : "");
 }
 function woundsOf(ref){
@@ -46636,13 +49526,15 @@ function applyResult(rep){
         (plan.critAtFrom ? " — " + esc(plan.critAtFrom) : "") + ")" : "");
   if(res.crit && CH && typeof CH.locationFor === "function"){
     var roll = 1 + Math.floor(Math.random() * 20), loc = null;
-    try{ loc = CH.locationFor(roll); }catch(err){ loc = null; }
+    /* a robot player with a torso rolls its torso's table (the target's sheet passed as the second argument) */
+    try{ loc = CH.locationFor(roll, typeof charOf === "function" ? charOf(tgt.ref) : null); }catch(err){ loc = null; }
     if(loc){
+      var lw8 = loc.label && loc.label !== loc.loc ? loc.label + ": " : "";
       var n = recordInjury(woundKeyFor(tgt.ref, tgt.name), loc.loc,
                            "from " + ((rep.weapon && rep.weapon.name) || "an attack"), (typeof TT !== "undefined" && typeof TT.hasQuality === "function" && TT.hasQuality(rep.weapon, "Debilitating")));
       cls = "warn";
       lines.push("<b>Critical hit</b> — " + critWhy + ". Location d20 <b>" + roll +
-                 "</b>: <b>" + esc(loc.loc) + "</b>. " + esc(loc.pen) +
+                 "</b>: <b>" + esc(lw8 ? loc.label + " (" + loc.loc + ")" : loc.loc) + "</b>. " + esc(loc.pen) +
                  " <em>Recorded — " + n + (n === 1 ? " injury" : " injuries") + " carried.</em>");
     }
   }else if(res.crit){
@@ -63440,8 +66332,14 @@ var document = new Proxy(__rdoc, {
   };
   var TREATED_RULE = "Treated — patched, no penalty. Any damage to this location: roll 1 CD; an Effect re-opens the wound and the injury is back.";
   var LOCS = [[1,2,"Head"],[3,8,"Torso"],[9,11,"Left arm"],[12,14,"Right arm"],[15,17,"Left leg"],[18,20,"Right leg"]];
-  function rollLocation(){
+  /* p: the board's row.  A robot player with a torso rolls its torso's table, through the sheet's own door; the note then
+     carries the part's word (Optics, Arm 3, Thruster).  Everyone else: this table, as ever. */
+  function rollLocation(p){
     var r = 1 + Math.floor(Math.random()*20);
+    var CH = (typeof window !== "undefined") ? window.HELENA_CHAR : null, c = p ? sheetOf(p) : null;
+    if (c && CH && CH.ROBOT && typeof CH.ROBOT.hasTorso === "function" && CH.ROBOT.hasTorso(c)){
+      try{ var L = CH.locationFor(r, c); if (L) return { roll:r, loc:L.loc, label:(L.label && L.label !== L.loc ? L.label : "") }; }catch(e){}
+    }
     for (var i=0;i<LOCS.length;i++) if (r >= LOCS[i][0] && r <= LOCS[i][1]) return { roll:r, loc:LOCS[i][2] };
     return { roll:r, loc:"Torso" };
   }
@@ -64257,7 +67155,7 @@ var document = new Proxy(__rdoc, {
           b.setAttribute("aria-label", w ? ("Injury " + (s+1) + " on " + p.name + ": " + w.loc + (w.treated ? ", treated" : ", open")) : ("Add an injury to " + p.name));
           b.onclick = function(){
             if (w) editInjuries(p, function(l){ if (l[s]) l[s].treated = !l[s].treated; });
-            else { var r = rollLocation(); editInjuries(p, function(l){ l.push({ loc:r.loc, treated:false, note:"d20 " + r.roll }); }); }
+            else { var r = rollLocation(p); editInjuries(p, function(l){ l.push({ loc:r.loc, treated:false, note:"d20 " + r.roll + (r.label ? ": " + r.label : "") }); }); }
           };
           lad.appendChild(b);
         })(s);
@@ -64278,8 +67176,8 @@ var document = new Proxy(__rdoc, {
       plus.title = "Add an injury — rolls 1d20 for the location";
       plus.setAttribute("aria-label", "One more injury for " + p.name + ", location rolled");
       plus.onclick = function(){
-        var r = rollLocation();
-        editInjuries(p, function(l){ l.push({ loc:r.loc, treated:false, note:"d20 " + r.roll }); });
+        var r = rollLocation(p);
+        editInjuries(p, function(l){ l.push({ loc:r.loc, treated:false, note:"d20 " + r.roll + (r.label ? ": " + r.label : "") }); });
       };
       lad0.appendChild(plus);
 
@@ -68199,6 +71097,9 @@ function ringOf(ref){ var cs = (S().chars || []).filter(function(c){ return c &&
 function plateOf(c){
   var a = c && c.armour; if(!a || typeof a !== "object") return null;
   var now = Math.max(0, Math.round(+a.hp || 0)), max = Math.max(now, Math.round(+a.hpMaxOverride || +a.hpMax || +a.max || now));
+  /* CMD Z042: a robot's parts add to its one plate pool - the sheet's own door; 0 for everyone else */
+  var CHp = window.HELENA_CHAR;
+  try{ if(CHp && typeof CHp.robotPlate === "function" && +CHp.robotPlate(c) > 0 && typeof CHp.armourMaxOf === "function") max = Math.max(now, Math.round(+CHp.armourMaxOf(c) || 0)); }catch(e){}
   return max > 0 ? { now:now, max:max, phys:a.phys, en:a.en, rad:a.rad } : null;
 }
 function inspired(){ return (S().chars || []).some(function(c){ return c && (c.perks || []).some(function(p){ return p && /inspirational/i.test(p.name || ""); }); }); }
@@ -69268,7 +72169,7 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
     { key:"notes",  label:"Notes",      ids:["cs-notes-card", "cs-f-journal", "cs-companion"] }
   ];
   var LEFT = ["cx-portrait", "@.cs-head", "cs-xp-stale", "cs-special", "cs-f-cond"];
-  var CENTRE = ["cx-doll", "cs-f-health"];
+  var CENTRE = ["cx-doll", "cs-f-health", "cs-f-robot"];   /* CMD Z042: the Robot card (shown only with the Robot tick) under Health */
   var FULL = ["cs-f-wpn"];                          /* Z037: the weapons table needs the sheet's whole width, under the columns */
   var moved = [], wrap = null, page = "skills", paintQ = false;
   try{ page = localStorage.getItem("cinder-sheet-page") || "skills"; }catch(e){}
@@ -69358,10 +72259,12 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
     if(!Array.isArray(l)) l = inj[c.name] || inj[c.id];
     return Array.isArray(l) ? l : [];
   }
-  function plateMax(a){
-    if(a.hpMaxOverride != null) return +a.hpMaxOverride || 0;
-    var CH = window.HELENA_CHAR;
-    try{ return CH && typeof CH.armourHp === "function" ? +CH.armourHp(a.phys, a.en, a.rarity) || 0 : 0; }catch(e){ return 0; }
+  /* c: the sheet - a robot's parts add to the one plate pool (CMD Z042), through the sheet's own door */
+  function plateMax(a, c){
+    var CH = window.HELENA_CHAR, plus = 0;
+    try{ plus = c && CH && typeof CH.robotPlate === "function" ? +CH.robotPlate(c) || 0 : 0; }catch(e){ plus = 0; }
+    if(a.hpMaxOverride != null) return (+a.hpMaxOverride || 0) + plus;
+    try{ return (CH && typeof CH.armourHp === "function" ? +CH.armourHp(a.phys, a.en, a.rarity) || 0 : 0) + plus; }catch(e){ return plus; }
   }
   function dollSvg(robot, hurt){
     function z(loc){ return "zone" + (hurt[loc] ? " hurt" : ""); }
@@ -69383,15 +72286,28 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
   function paintDoll(c, m){
     var d = $("cx-doll"); if(!d) return;
     if(!c){ d.innerHTML = '<p class="cs-hint">No character on this sheet yet.</p>'; return; }
-    var a = c.armour || {}, mx = plateMax(a), hp = +a.hp || 0, robot = !!c.robot;
+    var a = c.armour || {}, mx = plateMax(a, c), hp = +a.hp || 0, robot = !!c.robot;
     var ws = wounds(c, m), hurt = {};
     ws.forEach(function(w){ if(w && w.loc) (hurt[w.loc] = hurt[w.loc] || []).push(w); });
     var pct = mx > 0 ? Math.max(0, Math.min(100, hp / mx * 100)) : 0;
+    /* CMD Z042: a robot with a torso fitted draws its own chassis and table (HELENA_CHAR.robotView, the engine's
+       locations); anyone else - and an old robot save with no parts recorded - gets the doll it always had */
+    var RV = null;
+    try{ RV = robot && window.HELENA_CHAR && typeof window.HELENA_CHAR.robotView === "function" ? window.HELENA_CHAR.robotView(c, ws) : null; }catch(e){ RV = null; }
     var html = '<div class="cx-set"><div class="cx-armname">' + esc(a.name || "No armour worn") + "</div>" +
       '<div class="cx-bar" title="Armour HP: one pool for the whole set (Guide p.lv)"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
       "<div>Plate HP <b>" + hp + "</b> / " + mx + "</div>" +
       '<div class="cx-dr"><div><span>PHYS</span> <b>' + esc(a.phys == null ? 0 : a.phys) + '</b></div><div><span>EN</span> <b>' + esc(a.en == null ? 0 : a.en) +
-      '</b></div><div><span>RAD</span> <b>' + esc(a.rad == null ? 0 : a.rad) + "</b></div></div></div>" + dollSvg(robot, hurt) + '<div class="cx-locs">';
+      '</b></div><div><span>RAD</span> <b>' + esc(a.rad == null ? 0 : a.rad) + "</b></div></div></div>" + (RV ? RV.svg : dollSvg(robot, hurt)) + '<div class="cx-locs">';
+    if(RV){
+      RV.locs.forEach(function(L){
+        html += '<div class="cx-loc' + (L.hurt ? " hurt" : "") + (L.damaged ? " dmg" : "") + '"><b>' + esc(L.label) + '</b><span class="cx-rng">' + L.lo + (L.hi !== L.lo ? "&ndash;" + L.hi : "") + "</span>" +
+          '<div class="cx-part">' + (L.part ? esc(L.part) + (L.damaged ? " &middot; damaged" : "") : "no part &mdash; counts as Torso") + "</div>" +
+          (hurt[L.loc] && L.hurt ? hurt[L.loc] : []).map(function(w){ return '<div><span class="cx-stamp">' + (w.treated ? "treated" : "injured") + "</span>" + (w.note ? " " + esc(w.note) : "") + "</div>"; }).join("") + "</div>";
+      });
+      d.innerHTML = html + "</div>";
+      return;
+    }
     LOCS.forEach(function(L){
       var h = hurt[L.loc] || [];
       html += '<div class="cx-loc' + (h.length ? " hurt" : "") + '"><b>' + esc(robot ? L.bot + (L.bot === "Arms" ? (L.loc.charAt(0) === "L" ? " (L)" : " (R)") : L.bot === "Thrusters" ? (L.loc.charAt(0) === "L" ? " (L)" : " (R)") : "") : L.loc) + '</b><span class="cx-rng">' + L.lo + "&ndash;" + L.hi + "</span>" +
@@ -70032,6 +72948,32 @@ try{ new W.MutationObserver(function(){ setTimeout(apply, 0); }).observe(cats, {
 try{ if(W.SUITE_STATE && W.SUITE_STATE.subscribe) W.SUITE_STATE.subscribe(function(){ var m = shared(); if(m !== mode){ mode = m; if(mode !== "all") openAll(0); apply(); } }); }catch(e){}
 if(mode !== "all") openAll(0);
 apply();
+/* CMD Z042: "Robot parts" - one short line for the party's robots: pick one, and its sheet opens at the Robot card, where the
+   bench test is worked (HELENA_CHAR.robotBench).  No robot at the table, or no sheet on the page: the line is not there. */
+var rbx = el("div", "wb-robot"); rbx.setAttribute("role", "group"); rbx.setAttribute("aria-label", "Robot parts"); rbx.hidden = true;
+if(bar.parentNode) bar.parentNode.insertBefore(rbx, bar.nextSibling);
+var rbSig = null;
+function robots(){
+  var S = W.SUITE_STATE, m = null; try{ m = S && S.get ? S.get() : null; }catch(e){ m = null; }
+  return (m && Array.isArray(m.chars) ? m.chars : []).filter(function(c){ return c && c.robot === true; });
+}
+function paintRobots(){
+  var H = W.HELENA_CHAR, l = H && typeof H.robotBench === "function" ? robots() : [];
+  var sig = l.map(function(c){ return c.id + ":" + (c.name || ""); }).join("|");
+  if(sig === rbSig) return; rbSig = sig;
+  rbx.hidden = !l.length; rbx.textContent = "";
+  if(!l.length) return;
+  rbx.appendChild(el("span", "wb-rlab", "Robot parts"));
+  var sel = el("select", "wb-rsel"); sel.setAttribute("aria-label", "which robot");
+  l.forEach(function(c){ var o = el("option", "", c.name || "unnamed"); o.value = String(c.id); sel.appendChild(o); });
+  if(l.length > 1) rbx.appendChild(sel);
+  var go = el("button", "wb-f wb-rgo", l.length > 1 ? "Open its parts" : "Open " + (l[0].name || "the robot") + "'s parts"); go.type = "button";
+  go.addEventListener("click", function(){ var H2 = W.HELENA_CHAR; if(H2 && typeof H2.robotBench === "function") H2.robotBench(l.length > 1 ? sel.value : String(l[0].id)); });
+  rbx.appendChild(go);
+  rbx.appendChild(el("span", "wb-rhint", "Install, upgrade or swap a part at the bench (INT + Science)."));
+}
+try{ if(W.SUITE_STATE && W.SUITE_STATE.subscribe) W.SUITE_STATE.subscribe(paintRobots); }catch(e){}
+paintRobots();
 })(window);
 </script>
 <script data-suite="cinder-8-maps">/* Z034 map scale presets (Maps tab; Classic's Map tab too).  Each preset only SETS the generator's own Map Scale
