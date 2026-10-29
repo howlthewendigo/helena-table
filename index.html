@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"96ed38e2",at:"2026-10-29 12:27 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"6c743383",at:"2026-10-29 17:34 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -1474,6 +1474,7 @@
 #tool-char .cs-tick + small{color:var(--faint);font-size:13px;flex:1;text-align:right}
 #tool-char .cs-stealth{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;margin:0 0 8px}
 #tool-char .cs-stealth[hidden]{display:none}
+#tool-char .cs-stealth .cs-tick[hidden], #tool-char .cs-stealth button[hidden]{display:none}
 #tool-char .cs-stealth .cs-tick + small{text-align:left;color:var(--dim)}
 #tool-char .cs-held{border:1px solid var(--red);border-left:3px solid var(--red);background:#1b1210;border-radius:2px;padding:8px 10px;margin:6px 0}
 #tool-char .cs-held[hidden]{display:none}
@@ -5770,7 +5771,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-29 12:27 UTC">96ed38e2</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-29 17:34 UTC">6c743383</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -6884,7 +6885,8 @@ end $$;
                (CH.stealthSuit), stored on the sheet as stealthOn, and read by every attack through CH.defenseOf.  cs-hint: a moment
                in a fight, not the printed sheet's — the print stylesheet already drops every hint, so the three pages stand -->
           <div class="cs-hint cs-stealth" id="cs-stealth-row" hidden>
-            <label class="cs-tick" title="The Stealth suit (Guide p.cxxvii): while the field runs, attacks and searches against you suffer +2 Difficulty. It holds only while you stand still and take no action: any action on your turn (an attack, an action box) clears the tick, and you tick it again on a turn you do nothing. Ticked, this sheet&rsquo;s Defense is 2 higher and every attack against it reads that. A search against you &mdash; a Sneak-opposed PER test &mdash; is the Overseer&rsquo;s to apply by hand."><input type="checkbox" id="cs-stealth" data-f="stealthOn"><span>Stealth field on</span></label>
+            <label class="cs-tick" id="cs-stealth-low" title="The Stealth suit (Guide p.cxxvii): while the field runs, attacks and searches against you suffer +2 Difficulty. Outside combat it runs in low power: tick it on and it holds as long as you like. In a fight this tick does not count &mdash; switch combat mode on instead (a minor action, 2 charges a fight, 3 rounds each). While the field runs, this sheet&rsquo;s Defense is 2 higher and every attack against it reads that. A search against you &mdash; a Sneak-opposed PER test &mdash; is the Overseer&rsquo;s to apply by hand."><input type="checkbox" id="cs-stealth" data-f="stealthOn"><span>Stealth field on</span></label>
+            <button type="button" class="cs-lvl-go quiet" id="cs-stealth-boy" hidden title="A minor action on her turn: spends one of the fight&rsquo;s 2 charges, and the field holds 3 rounds whether she acts or not">Combat mode: use a charge</button>
             <small id="cs-stealth-say"></small>
           </div>
           <!-- the Initiative arithmetic, printed the way the turn tracker prints it, so a
@@ -27838,7 +27840,45 @@ var CH = {
     if(String(a.key == null ? "" : a.key).trim().toLowerCase() === "stealth") return true;
     return /^stealth/i.test(String(a.name == null ? "" : a.name).trim());
   },
-  stealthField: function(c){ return !!(c && typeof c === "object" && c.stealthOn === true && CH.stealthSuit(c)); },
+  /* THE TWO MODES (Howl 2026-10-29, after CMD Z043; vault Reference "Zoe's Stealth field is a tick").  OUTSIDE COMBAT the suit
+     runs in low power: the tick above (c.stealthOn), no charge spent, held as long as she likes — the rule as it stood.  IN A
+     FIGHT the tick does not count: the field runs like a Stealth Boy.  The suit comes into every fight with STEALTH_CHARGES;
+     switching combat mode on spends one as a minor action (on her turn — the sheet's press marks it on the turn order), and the
+     field then holds STEALTH_ROUNDS rounds whether she acts or not: lit in round r, it counts through round r+2 and is off when
+     round r+3 begins (the opening turn is round 0).  Acting no longer clears anything (the 10-21 stand-still reading is retired).
+     Stored on the sheet as c.stealthBoy = { fight, used, until } — fight is the turn order's shared name for the fight (st.fid),
+     so a new fight finds a stale record and has both charges again, with nothing written at Start or End combat, and the
+     low-power tick she left on is still on when the fight ends.  The fight is read from the turn order's door
+     (HELENA_TURN.fightNow -> { id, round } or null); stealthField(c, fight) takes it as a second argument for a caller that has it. */
+  STEALTH_CHARGES: 2,
+  STEALTH_ROUNDS: 3,
+  fightNow: function(){
+    try{ var T = typeof window !== "undefined" ? window.HELENA_TURN : null; return T && typeof T.fightNow === "function" ? T.fightNow() || null : null; }
+    catch(e){ return null; }
+  },
+  stealthBoy: function(c, fight){
+    var sb = c && typeof c === "object" && c.stealthBoy && typeof c.stealthBoy === "object" ? c.stealthBoy : null;
+    var mine = !!(sb && fight && fight.id && sb.fight === String(fight.id));
+    var used = mine ? Math.max(0, Math.min(CH.STEALTH_CHARGES, Math.round(+sb.used || 0))) : 0;
+    var until = mine && isFinite(+sb.until) ? Math.round(+sb.until) : null;
+    return { left:CH.STEALTH_CHARGES - used, used:used, until:until, on:until != null && (+fight.round || 0) <= until };
+  },
+  stealthField: function(c, fight){
+    if(!(c && typeof c === "object" && CH.stealthSuit(c))) return false;
+    var f = arguments.length > 1 ? fight : CH.fightNow();
+    if(!f) return c.stealthOn === true;
+    return CH.stealthBoy(c, f).on;
+  },
+  /* combat mode's press, on a sheet (the caller writes it through edit()): -> { ok, until, left } or { ok:false, why } */
+  stealthCharge: function(c, fight){
+    if(!c || typeof c !== "object" || !CH.stealthSuit(c)) return { ok:false, why:"No Stealth suit on this sheet." };
+    if(!fight || !fight.id) return { ok:false, why:"No fight is running. Outside combat the suit runs in low power: tick the field on." };
+    var b = CH.stealthBoy(c, fight);
+    if(b.on) return { ok:false, why:"Combat mode is already on, through Round " + b.until + "." };
+    if(b.left < 1) return { ok:false, why:"No charges left this combat." };
+    c.stealthBoy = { fight:String(fight.id), used:b.used + 1, until:(+fight.round || 0) + CH.STEALTH_ROUNDS - 1 };
+    return { ok:true, until:c.stealthBoy.until, left:b.left - 1 };
+  },
   defenseOf: function(c){
     if(!c || typeof c !== "object") return null;
     var lock = CH.ROBOT && CH.ROBOT.defenseLock(c);                 /* CMD Z042: an Eyebot / Sentry Bot torso sets it, and nothing raises it */
@@ -32608,6 +32648,13 @@ function normalise(c){
   /* PROJECT H, FIGHT (R1): the stealth field's tick, hardened when PRESENT and never added when absent (the same rule) — a
      boolean or nothing; anything else off a file or the wire reads as off */
   if(c.stealthOn != null) c.stealthOn = c.stealthOn === true;
+  /* combat mode's record (Howl 2026-10-29, beside CH.stealthField): the same rule — kept whole or dropped, never added */
+  if(c.stealthBoy != null){
+    var sbz = c.stealthBoy;
+    if(!sbz || typeof sbz !== "object" || typeof sbz.fight !== "string" || !sbz.fight) delete c.stealthBoy;
+    else c.stealthBoy = { fight:sbz.fight.slice(0, 40), used:Math.max(0, Math.min(CH.STEALTH_CHARGES, Math.round(+sbz.used || 0))),
+                          until:Math.max(0, Math.round(+sbz.until || 0)) };
+  }
   /* PROJECT H, FIGHT (R11): a critical held for its choice, hardened when PRESENT and never added when absent (the same rule);
      an empty or broken list goes, so a sheet with nothing held boots byte for byte as it did */
   if(c.critHeld != null){
@@ -32965,24 +33012,8 @@ window.HELENA_CHAR.defenseFor = function(id){
   for(i = 0; i < l.length; i++) if(l[i] && String(l[i].id) === String(id)) return CH.defenseLine(l[i]);
   return null;
 };
-/* Z002 (Zoe 2026-10-21, ruled on Howl's word; Guide p.cxxvii) — THE STEALTH FIELD DROPS WHEN ITS WEARER ACTS.  The suit's +2
-   Defense holds only while she stands still and takes no action, so any action on her turn clears c.stealthOn: the sheet's own
-   Attack (doAttack), an attack the turn order declares for her, an action box it marks on her row (src/turn-tracker.html,
-   stealthActed).  Written through the store under the sheet's lock, like applyDamage: a sheet this device may not write is left
-   alone, and a tick already off writes nothing.  She re-ticks it on a turn she does nothing.  -> true when a tick was cleared. */
-window.HELENA_CHAR.stealthAct = function(charId){
-  if(charId == null || charId === "") return false;
-  var on = chars().some(function(x){ return x && String(x.id) === String(charId) && x.stealthOn === true; });
-  if(!on) return false;
-  var done = false;
-  S.update(function(m){
-    var c = null; (m.chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)) c = x; });
-    if(!c || c.stealthOn !== true) return;
-    if(typeof locked === "function" && locked(c)) return;
-    c.stealthOn = false; done = true;
-  });
-  return done;
-};
+/* Z002's HELENA_CHAR.stealthAct (an action cleared the tick) is retired: since 2026-10-29 the field holds through whatever she
+   does — low power outside combat, a Stealth Boy charge in one (CH.stealthField). */
 /* Z011 (G.1, Guide p.xiii): a companion beaten at 0 HP recovers with 1 HP shortly after the fight — End combat calls this for
    each keeper's sheet.  Under the sheet's lock; a companion above 0, or none, writes nothing.  -> true when one stood up. */
 window.HELENA_CHAR.companionRecover = function(charId){
@@ -33252,18 +33283,56 @@ function setVal(id, v){
    (CH.stealthSuit); its box is bound to c.stealthOn by data-f, so a press goes through edit() — the sheet's own write door, which
    refuses a sheet this device may not write — and rides the room to every device.  The line says what it does to Defense. */
 function stealthPaint(c){
-  var dl = CH.defenseLine(c), def = $("cs-def");
+  var f = CH.fightNow(), dl = CH.defenseLine(c), def = $("cs-def");
   if(def && dl) def.title = dl.why;
   var row = $("cs-stealth-row"); if(!row) return false;
   var suit = CH.stealthSuit(c);
   row.hidden = !suit;
   if(!suit) return false;
+  /* Howl 2026-10-29 (beside CH.stealthField): the low-power tick outside a fight, combat mode's button in one */
+  var low = $("cs-stealth-low"), btn = $("cs-stealth-boy"), say = $("cs-stealth-say");
+  if(low && low.hidden !== !!f) low.hidden = !!f;
+  if(btn && btn.hidden !== !f) btn.hidden = !f;
   setVal("cs-stealth", c.stealthOn === true);
-  var say = $("cs-stealth-say");
-  if(say) say.textContent = dl.stealth
-    ? "Defense " + dl.value + ": " + dl.base + " for Agility " + dl.agi + ", +2 for the field. Every attack on " + (String(c.name || "").trim() || "this sheet") + " reads it until any action on her turn clears it."
-    : "Off: Defense " + dl.value + ". Ticked on a turn she does nothing, Defense " + (dl.value + CH.STEALTH_DEF) + " (Guide p.cxxvii).";
+  var who = String(c.name || "").trim() || "this sheet", b = f ? CH.stealthBoy(c, f) : null;
+  var left = b ? (b.left === 1 ? "1 charge" : b.left + " charges") + " left this fight." : "";
+  var line = !f
+    ? (dl.stealth
+      ? "Low power: Defense " + dl.value + " (" + dl.base + " for Agility " + dl.agi + ", +2 for the field), as long as " + who + " likes outside combat. In a fight, combat mode takes over."
+      : "Off: Defense " + dl.value + ". Outside combat the field runs in low power (Defense " + (dl.value + CH.STEALTH_DEF) + "); in a fight, combat mode has 2 charges of 3 rounds.")
+    : (b.on
+      ? "Combat mode: Defense " + dl.value + " (" + dl.base + " for Agility " + dl.agi + ", +2 for the field) through Round " + b.until + ", whatever " + who + " does. " + left
+      : "Combat mode off: Defense " + dl.value + ". " + (b.left > 0 ? left + " One holds the field 3 rounds (Defense " + (dl.value + CH.STEALTH_DEF) + ")." : "No charges left this fight."));
+  var said = typeof stealthSaid !== "undefined" && stealthSaid && typeof stealthKey === "function" && stealthSaid.key === stealthKey(c, f) ? " " + stealthSaid.t : "";   /* a press's answer lasts its sheet's turn */
+  if(say && say.textContent !== line + said) say.textContent = line + said;
   return true;
+}
+/* combat mode's press: one of the fight's charges and her minor action (fireStim's path through the turn order's door: on her
+   turn, marked there when this device may write the order, else said to be the Overseer's to mark), then one edit() */
+var stealthSaid = null;
+function stealthKey(c, f){ return String(c && c.id) + "|" + (f ? f.id + ":" + f.round : "-"); }
+function stealthBoyPress(){
+  var c = me(); if(!c) return false;
+  var say = function(t){ stealthSaid = { t:t, key:stealthKey(me() || c, CH.fightNow()) }; renderDerived(); return false; };
+  if(locked(c)) return say("Not your sheet - nothing was switched on.");
+  var f = CH.fightNow(), dry = CH.stealthCharge(JSON.parse(JSON.stringify(c)), f);
+  if(!dry.ok) return say(dry.why);
+  var T = window.HELENA_TURN, bt = T && T.cinder, note = "";
+  try{
+    var sn = bt && bt.snap ? bt.snap() : null;
+    if(sn && sn.phase !== "idle"){
+      var rid = bt.rowOf ? bt.rowOf("c:" + c.id) : null;
+      if(!rid || rid !== sn.cur) return say("A minor action - it is not " + (c.name || "her") + "’s turn. Nothing was spent.");
+      var ar = bt.act(rid, "minor");
+      if(ar && ar.ok === false){
+        if(/GM/.test(ar.note || "")) note = " The minor action is the Overseer’s to mark.";
+        else return say("No minor action: " + (ar.note || "refused") + " Nothing was spent.");
+      }
+    }
+  }catch(e){}
+  var res = null;
+  edit(function(x){ res = CH.stealthCharge(x, CH.fightNow()); });
+  return say(res && res.ok ? "Switched on through Round " + res.until + "." + note : res ? res.why : "Nothing was changed.") || !!(res && res.ok);
 }
 /* HELDCRIT:begin */
 /* PROJECT H, FIGHT (house rule, Howl 2026-10-13, final; R11) — CRIT OR FLESH, ON THE STRUCK SHEET.  A critical held by the damage
@@ -37444,7 +37513,6 @@ function doAttack(i, roundsSpent){
   if(pre){ pre(); c = me(); w = c && c.weapons[i]; if(!w) return; }
   var used = unitsSpend(c, i);                     // WAVE 19, S1: one unit off before the roll, or refused by name
   if(used && !used.ok) return;
-  if(c.stealthOn === true){ window.HELENA_CHAR.stealthAct(c.id); renderDerived(); }   // Z002: an attack is an action (p.cxxvii)
   if(used){ c = me(); w = c && c.weapons[i]; if(!w) return; }
   var mode = CH.attackMode(w);
   var s = skillOf(c, w.skill), tn = attrVal(c, w.attr) + s.rank, crit = CH.critRange(s.rank, s.tag);
@@ -40430,6 +40498,7 @@ root.addEventListener("click", function(e){
 });
 
 $("cs-filled").onclick = function(){ edit(function(c){ c.unfilled = false; }); renderDerived(); };
+$("cs-stealth-boy").onclick = function(){ stealthBoyPress(); };
 /* wave 16 skeptic: holds() — a re-run of the closure (a room's lost or refused push) adds the sheet once, not twice */
 $("cs-add").onclick = function(){ var c = blankChar(); c.name = "New character"; S.update(function(m){ if(!holds(m, c.id)) m.chars.push(CH.sceneStamp(c, m)); }); select(c.id); $("cs-name").focus(); };
 $("cs-dup").onclick = function(){ var c = me(); if(!c) return; var d = clone(c); d.id = uid(); d.name = c.name + " copy"; S.update(function(m){ if(!holds(m, d.id)) m.chars.push(CH.sceneStamp(d, m)); }); select(d.id); };
@@ -48854,14 +48923,6 @@ function sprintGate(e){
   render();
 }
 
-/* Z002 (Zoe 2026-10-21, ruled on Howl's word): THE STEALTH FIELD NARROWS TO PRINT.  Guide p.cxxvii gives the Stealth suit's +2
-   Defense only while the wearer stands still and takes no action, so any action a character takes on her turn - an action box
-   marked here, an attack declared from this pane or from her sheet - clears her tick through the sheet's door
-   (HELENA_CHAR.stealthAct, which leaves a sheet this device may not write alone).  She ticks it again on a turn she does
-   nothing.  A sheet with the tick off is not written. */
-function stealthActed(e){
-  try{ var C = window.HELENA_CHAR; if(C && typeof C.stealthAct === "function" && e && e.ref != null) C.stealthAct(e.ref); }catch(err){}
-}
 function takeAction(e, kind){
   if(st.phase === "idle"){
     msg = { cls:"warn", hd:(kind === "major" ? "Major" : "Minor") + " action",
@@ -48888,7 +48949,6 @@ function takeAction(e, kind){
     render();
     return { ok:false, note:poolShortLine(e, apay.have) + " The action was not taken." };
   }
-  if(e.kind === "char") stealthActed(e);
   mutate(function(){
     st = r.state;
     msg = { cls:r.difficulty ? "warn" : "good",
@@ -52015,8 +52075,6 @@ function wirePanel(){
                          weapon:x ? x.i : null, name:x ? x.name : "", stamp:stampId };
     dropNote = "";                     /* anything the door drops on the way in lands here */
     var r = TT.handoff(window.HELENA_ROLL, spec);
-    /* Z002 (Zoe 2026-10-21, ruled): a character who attacks has acted, so her stealth field drops (Guide p.cxxvii) */
-    if(!r.refused && e.kind === "char") stealthActed(e);
     /* WAVE 10 — and the row's actions stop being undoable here, on the two branches where a
        roll really has been called for: the Dice tab took the declaration, or the GM is being
        sent to declare it by hand.  NOT ON A REFUSAL.  SKEPTIC PASS 2026-09-24, measured in
@@ -52749,6 +52807,12 @@ document.addEventListener("helena-enc-hp", function(ev){ bleedHeard(ev && ev.det
    presses the order's OWN actions through this door — nothing here decides a rule.  snap() is a read; act/next/attack/hp/
    loot/spend/undoMinor are the existing takeAction, the Next turn button, openAttack/rollHere (as tvAttack), tvHpCommit,
    tvLoot, spendAP/refundAP and TT.undoAction. */
+/* Howl 2026-10-29: THE FIGHT, FOR THE STEALTH SUIT'S COMBAT MODE (HELENA_CHAR.stealthField) — null when no fight runs, else the
+   fight's shared name (st.fid, written at Start combat and riding the room) and its round, the opening turn as round 0.  A read. */
+window.HELENA_TURN.fightNow = function(){
+  if(st.phase === "idle") return null;
+  return { id:String(st.fid || "s" + (Math.max(0, Math.round(+st.sceneAt || 0)))), round:st.phase === "opening" ? 0 : Math.max(1, Math.round(+st.round || 1)) };
+};
 window.HELENA_TURN.stranger = { arm:function(id){ return msArm(id); }, disarm:function(){ return msDisarm(); }, ticks:function(){ return strangerTicks(); } };
 window.HELENA_TURN.cinder = {
   snap: function(){
