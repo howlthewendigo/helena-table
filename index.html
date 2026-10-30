@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"6c743383",at:"2026-10-29 17:34 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"a88d0f2a",at:"2026-10-30 15:21 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -1475,6 +1475,10 @@
 #tool-char .cs-stealth{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;margin:0 0 8px}
 #tool-char .cs-stealth[hidden]{display:none}
 #tool-char .cs-stealth .cs-tick[hidden], #tool-char .cs-stealth button[hidden]{display:none}
+#tool-char .cs-war button[hidden]{display:none}
+#tool-char .cs-war{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#tool-char .cs-war select{max-width:100%}
+#tool-char .cs-war small{flex-basis:100%}
 #tool-char .cs-stealth .cs-tick + small{text-align:left;color:var(--dim)}
 #tool-char .cs-held{border:1px solid var(--red);border-left:3px solid var(--red);background:#1b1210;border-radius:2px;padding:8px 10px;margin:6px 0}
 #tool-char .cs-held[hidden]{display:none}
@@ -5771,7 +5775,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-29 17:34 UTC">6c743383</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-30 15:21 UTC">a88d0f2a</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -6888,6 +6892,14 @@ end $$;
             <label class="cs-tick" id="cs-stealth-low" title="The Stealth suit (Guide p.cxxvii): while the field runs, attacks and searches against you suffer +2 Difficulty. Outside combat it runs in low power: tick it on and it holds as long as you like. In a fight this tick does not count &mdash; switch combat mode on instead (a minor action, 2 charges a fight, 3 rounds each). While the field runs, this sheet&rsquo;s Defense is 2 higher and every attack against it reads that. A search against you &mdash; a Sneak-opposed PER test &mdash; is the Overseer&rsquo;s to apply by hand."><input type="checkbox" id="cs-stealth" data-f="stealthOn"><span>Stealth field on</span></label>
             <button type="button" class="cs-lvl-go quiet" id="cs-stealth-boy" hidden title="A minor action on her turn: spends one of the fight&rsquo;s 2 charges, and the field holds 3 rounds whether she acts or not">Combat mode: use a charge</button>
             <small id="cs-stealth-say"></small>
+          </div>
+          <!-- Howl 2026-10-30 (CH.warSet): the Warlord's called target and the Tenderizer's mark - shown in a fight on a sheet holding
+               either perk; every attack the turn order declares on that enemy gets the dice or the CD without being ticked by hand -->
+          <div class="cs-hint cs-war" id="cs-war-row" hidden>
+            <select id="cs-war-target" aria-label="The enemy to call or mark"></select>
+            <button type="button" class="cs-lvl-go quiet" id="cs-war-call" hidden title="Her Command, a minor action on her turn: every other character&rsquo;s attack on this enemy rolls the Warlord&rsquo;s free d20s, through the next round">Command: call this target</button>
+            <button type="button" class="cs-lvl-go quiet" id="cs-war-mark" hidden title="Tenderizer, after she hits it: 1 AP from the party pool, and every attack on this enemy deals +1 CD a rank, through the next round">Tenderizer: mark it (1 AP)</button>
+            <small id="cs-war-say"></small>
           </div>
           <!-- the Initiative arithmetic, printed the way the turn tracker prints it, so a
                player can see where an encumbered number went (CRB p.48). -->
@@ -27879,6 +27891,55 @@ var CH = {
     c.stealthBoy = { fight:String(fight.id), used:b.used + 1, until:(+fight.round || 0) + CH.STEALTH_ROUNDS - 1 };
     return { ok:true, until:c.stealthBoy.until, left:b.left - 1 };
   },
+  /* Howl 2026-10-30 (the Warlord build): THE CALLED TARGET AND THE MARK, SO NOBODY FORGETS.  On her turn the holder of Wasteland
+     Warlord names an enemy (her Command, a minor action): every other character's attack on it rolls +1 free d20 per rank of the
+     perk, ticked for them.  The holder of Tenderizer marks an enemy she has hit (1 AP): every attack on it deals +1CD per rank.
+     Each lasts through the next round (named in round r, it counts through round r+1 and is gone when r+2 begins; the opening
+     turn is round 0), and a new call or mark moves it: one of each at a time.  Stored on her sheet, because her device may write
+     her sheet and not the turn order: c.warCall / c.warMark = { fight, round, id, name } (fight = the turn order's st.fid, so a
+     new fight finds the old record stale and nothing is written at Start or End combat).  Every attack the turn order declares
+     reads them off the room's sheets (warOn).  PURE. */
+  WAR_ROUNDS: 2,
+  warRanks: function(c){
+    var out = { cmd:0, mark:0 };
+    ((c && c.perks) || []).forEach(function(p){
+      var n = String(p && p.name || "").trim().toLowerCase(), r = Math.max(1, Math.round(+(p && p.rank) || 1));
+      if(!out.cmd && /^wasteland\s+warlord\b/.test(n)) out.cmd = Math.min(2, r);
+      if(!out.mark && /^tenderi[sz]er\b/.test(n)) out.mark = Math.min(3, r);
+    });
+    return out;
+  },
+  warLive: function(rec, fight){
+    if(!rec || typeof rec !== "object" || !fight || !fight.id || rec.fight !== String(fight.id) || !rec.id) return null;
+    var r = Math.round(+rec.round || 0), now = Math.round(+fight.round || 0);
+    return now >= r && now <= r + CH.WAR_ROUNDS - 1 ? { id:String(rec.id), name:String(rec.name || ""), round:r, until:r + CH.WAR_ROUNDS - 1 } : null;
+  },
+  /* the press, on her sheet (the caller writes it through edit()): kind "call" | "mark" -> { ok, until } or { ok:false, why } */
+  warSet: function(c, fight, kind, target){
+    var rk = CH.warRanks(c), call = kind === "call";
+    if(call ? !rk.cmd : !rk.mark) return { ok:false, why:"This sheet has no " + (call ? "Wasteland Warlord" : "Tenderizer") + " perk." };
+    if(!fight || !fight.id) return { ok:false, why:"No fight is running." };
+    if(!target || !target.id) return { ok:false, why:"Pick the enemy first." };
+    var rec = { fight:String(fight.id), round:Math.max(0, Math.round(+fight.round || 0)), id:String(target.id).slice(0, 80), name:String(target.name || "").slice(0, 80) };
+    if(call) c.warCall = rec; else c.warMark = rec;
+    return { ok:true, until:rec.round + CH.WAR_ROUNDS - 1 };
+  },
+  /* what an attack on targetId gets from the room's sheets: { cmd:{ by, charId, dice } | null, mark:{ by, cd, why } | null }.
+     The Command reaches a CHARACTER's attack by anyone but its holder; the mark, every attack (a companion's and a creature's too). */
+  warOn: function(chars, fight, targetId, attackerCharId){
+    var out = { cmd:null, mark:null }, t = String(targetId == null ? "" : targetId);
+    if(!t || !fight || !Array.isArray(chars)) return out;
+    chars.forEach(function(c){
+      if(!c || typeof c !== "object") return;
+      var rk = CH.warRanks(c), who = String(c.name || "").trim() || "the holder";
+      var cl = rk.cmd ? CH.warLive(c.warCall, fight) : null, ml = rk.mark ? CH.warLive(c.warMark, fight) : null;
+      if(!out.cmd && cl && cl.id === t && attackerCharId != null && String(attackerCharId) !== String(c.id))
+        out.cmd = { by:who, charId:String(c.id), dice:rk.cmd };
+      if(!out.mark && ml && ml.id === t)
+        out.mark = { by:who, cd:rk.mark, why:"Tenderizer: " + who + "’s mark on " + (ml.name || "the target") + " (+" + rk.mark + " CD)" };
+    });
+    return out;
+  },
   defenseOf: function(c){
     if(!c || typeof c !== "object") return null;
     var lock = CH.ROBOT && CH.ROBOT.defenseLock(c);                 /* CMD Z042: an Eyebot / Sentry Bot torso sets it, and nothing raises it */
@@ -32655,6 +32716,13 @@ function normalise(c){
     else c.stealthBoy = { fight:sbz.fight.slice(0, 40), used:Math.max(0, Math.min(CH.STEALTH_CHARGES, Math.round(+sbz.used || 0))),
                           until:Math.max(0, Math.round(+sbz.until || 0)) };
   }
+  /* the Warlord's call and mark (Howl 2026-10-30, beside CH.warSet): kept whole or dropped, never added */
+  ["warCall", "warMark"].forEach(function(k){
+    if(c[k] == null) return;
+    var w = c[k];
+    if(!w || typeof w !== "object" || typeof w.fight !== "string" || !w.fight || w.id == null || w.id === "") delete c[k];
+    else c[k] = { fight:w.fight.slice(0, 40), round:Math.max(0, Math.round(+w.round || 0)), id:String(w.id).slice(0, 80), name:String(w.name || "").slice(0, 80) };
+  });
   /* PROJECT H, FIGHT (R11): a critical held for its choice, hardened when PRESENT and never added when absent (the same rule);
      an empty or broken list goes, so a sheet with nothing held boots byte for byte as it did */
   if(c.critHeld != null){
@@ -33334,6 +33402,71 @@ function stealthBoyPress(){
   edit(function(x){ res = CH.stealthCharge(x, CH.fightNow()); });
   return say(res && res.ok ? "Switched on through Round " + res.until + "." + note : res ? res.why : "Nothing was changed.") || !!(res && res.ok);
 }
+/* Howl 2026-10-30 (beside CH.warSet): THE CALL AND THE MARK, ON HER SHEET.  The row shows in a fight on a sheet holding Wasteland
+   Warlord or Tenderizer: the fight's enemies still standing (the turn order's own rows), the press for each perk she holds, and a
+   line saying what is called and marked and through which round.  The select is rebuilt only when the enemies change. */
+var warSaid = null, WAR_OPTS = "";
+/* a press's answer lasts the turn it was pressed on (the round and whose turn it is) */
+function warKey(c, f){ var cur = ""; try{ var T = window.HELENA_TURN, sn = T && T.cinder && T.cinder.snap ? T.cinder.snap() : null; cur = sn && sn.cur ? String(sn.cur) : ""; }catch(e){} return stealthKey(c, f) + "|" + cur; }
+function warEnemies(){
+  try{
+    var T = window.HELENA_TURN, sn = T && T.cinder && T.cinder.snap ? T.cinder.snap() : null;
+    return sn && sn.phase !== "idle" ? (sn.rows || []).filter(function(r){ return r && r.kind === "enemy" && !r.wiped; }) : [];
+  }catch(e){ return []; }
+}
+function warPaint(c){
+  var row = $("cs-war-row"); if(!row) return false;
+  var f = CH.fightNow(), rk = CH.warRanks(c), show = !!f && !!(rk.cmd || rk.mark);
+  if(row.hidden !== !show) row.hidden = !show;
+  if(!show) return false;
+  var sel = $("cs-war-target"), list = warEnemies(), sig = list.map(function(r){ return r.id + "=" + r.name; }).join("|");
+  if(sel && sig !== WAR_OPTS){
+    var keep = sel.value;
+    sel.innerHTML = list.length ? list.map(function(r){ return '<option value="' + esc(r.id) + '">' + esc(r.name || r.id) + "</option>"; }).join("")
+                                : '<option value="">No enemies in the turn order</option>';
+    if(keep && list.some(function(r){ return r.id === keep; })) sel.value = keep;
+    WAR_OPTS = sig;
+  }
+  var bc = $("cs-war-call"), bm = $("cs-war-mark");
+  if(bc && bc.hidden !== !rk.cmd) bc.hidden = !rk.cmd;
+  if(bm && bm.hidden !== !rk.mark) bm.hidden = !rk.mark;
+  var cl = rk.cmd ? CH.warLive(c.warCall, f) : null, ml = rk.mark ? CH.warLive(c.warMark, f) : null, bits = [];
+  if(rk.cmd) bits.push(cl ? "Called: " + (cl.name || "the target") + " - every other character's attack on it rolls +" + rk.cmd + " free d20" + (rk.cmd === 1 ? "" : "s") + ", through Round " + cl.until + "."
+                          : "No target called.");
+  if(rk.mark) bits.push(ml ? "Marked: " + (ml.name || "the target") + " - every attack on it deals +" + rk.mark + " CD, through Round " + ml.until + "."
+                           : "Nothing marked.");
+  var said = warSaid && warSaid.key === warKey(c, f) ? " " + warSaid.t : "";
+  var say = $("cs-war-say"), line = bits.join(" ") + said;
+  if(say && say.textContent !== line) say.textContent = line;
+  return true;
+}
+/* a press: on her turn (the turn order's current row), the Command marking her minor action there and the mark paying 1 AP from
+   the party pool, then one edit().  Refused, with nothing marked or spent: not her sheet, no fight, no enemy, not her turn. */
+function warPress(kind){
+  var c = me(); if(!c) return false;
+  var f = CH.fightNow(), call = kind === "call";
+  var say = function(t){ warSaid = { t:t, key:warKey(me() || c, CH.fightNow()) }; renderDerived(); return false; };
+  if(locked(c)) return say("Not your sheet - nothing was " + (call ? "called." : "marked."));
+  var sel = $("cs-war-target"), id = sel ? sel.value : "", hit = null;
+  warEnemies().forEach(function(r){ if(r.id === id) hit = r; });
+  var dry = CH.warSet(JSON.parse(JSON.stringify(c)), f, kind, hit ? { id:hit.id, name:hit.name } : null);
+  if(!dry.ok) return say(dry.why);
+  var T = window.HELENA_TURN, bt = T && T.cinder, note = "";
+  try{
+    var sn = bt && bt.snap ? bt.snap() : null, rid = bt && bt.rowOf ? bt.rowOf("c:" + c.id) : null;
+    if(!sn || !rid || rid !== sn.cur) return say("It is not " + (c.name || "her") + "’s turn. Nothing was " + (call ? "called." : "marked."));
+    if(call){
+      var ar = bt.act(rid, "minor");
+      if(ar && ar.ok === false){
+        if(/GM/.test(ar.note || "")) note = " The minor action is the Overseer’s to mark.";
+        else return say("No minor action: " + (ar.note || "refused") + " Nothing was called.");
+      }
+    } else if(!(typeof CH.spendParty === "function" && CH.spendParty(1) >= 1)) return say("The party pool has no AP. Nothing was marked.");
+  }catch(e){ return say("The turn order could not be read. Nothing was " + (call ? "called." : "marked.")); }
+  var res = null;
+  edit(function(x){ res = CH.warSet(x, CH.fightNow(), kind, { id:hit.id, name:hit.name }); });
+  return say(res && res.ok ? (call ? "Called " : "Marked ") + (hit.name || "it") + " through Round " + res.until + "." + (call ? note : " 1 AP spent.") : (res ? res.why : "Nothing was changed.")) || !!(res && res.ok);
+}
 /* HELDCRIT:begin */
 /* PROJECT H, FIGHT (house rule, Howl 2026-10-13, final; R11) — CRIT OR FLESH, ON THE STRUCK SHEET.  A critical held by the damage
    door (CH.critHold: the turn order's hit, a Blast from a sheet, this sheet's own Take damage) shows here, in the Health card, with
@@ -33466,6 +33599,7 @@ function renderDerived(){
   }
   $("cs-def").textContent  = CH.defenseOf(c);
   stealthPaint(c);                 // PROJECT H, FIGHT (R1): the tick beside Defense, and what it does to it
+  if(typeof warPaint === "function") warPaint(c);   // Howl 10-30: the Warlord's call and the Tenderizer's mark
   if(typeof heldPaint === "function") heldPaint(c);   // PROJECT H, FIGHT (R11): a critical held for its choice
   /* PROJECT H, TRACK C (C-R4): the gear is still the STR lane, plus Heavy Handed's +1 CD on a sheet that holds it; the Luck
      maximum is CH.luckMax, one fewer for Gifted — the figure the Luck door fills to (both unchanged on a sheet with no traits) */
@@ -40499,6 +40633,8 @@ root.addEventListener("click", function(e){
 
 $("cs-filled").onclick = function(){ edit(function(c){ c.unfilled = false; }); renderDerived(); };
 $("cs-stealth-boy").onclick = function(){ stealthBoyPress(); };
+$("cs-war-call").onclick = function(){ warPress("call"); };
+$("cs-war-mark").onclick = function(){ warPress("mark"); };
 /* wave 16 skeptic: holds() — a re-run of the closure (a room's lost or refused push) adds the sheet once, not twice */
 $("cs-add").onclick = function(){ var c = blankChar(); c.name = "New character"; S.update(function(m){ if(!holds(m, c.id)) m.chars.push(CH.sceneStamp(c, m)); }); select(c.id); $("cs-name").focus(); };
 $("cs-dup").onclick = function(){ var c = me(); if(!c) return; var d = clone(c); d.id = uid(); d.name = c.name + " copy"; S.update(function(m){ if(!holds(m, d.id)) m.chars.push(CH.sceneStamp(d, m)); }); select(d.id); };
@@ -46458,6 +46594,14 @@ var TT = {
       spec.weaponRange = extra.weaponRange == null ? "" : String(extra.weaponRange).slice(0, 200);
     }
     if(extra.noBuy) spec.noBuy = String(extra.noBuy).slice(0, 240);
+    /* Howl 2026-10-30 (HELENA_CHAR.warOn): the Warlord's called target and the Tenderizer's mark, read off the room's sheets */
+    if(extra.commanded && typeof extra.commanded === "object" && Math.round(+extra.commanded.dice || 0) > 0)
+      spec.commanded = { by:String(extra.commanded.by || "").slice(0, 80), charId:extra.commanded.charId == null ? null : String(extra.commanded.charId),
+                         dice:Math.max(1, Math.min(2, Math.round(+extra.commanded.dice))) };
+    if(Math.round(+extra.damageMark || 0) > 0){
+      spec.damageMark = Math.max(1, Math.min(3, Math.round(+extra.damageMark)));
+      spec.damageMarkWhy = String(extra.damageMarkWhy || "").slice(0, 200);
+    }
     return spec;
   },
 
@@ -46696,6 +46840,21 @@ TT.condList = function(id){ return TT.condListIn(st, condKey(id)); };
    this wave has already found twice.  Read off the TARGET's record — "every attack
    against it", by anyone, including an ally's — and own-property guarded all the way
    down by TT.condsIn, which is what RL.rangeKey's leak cost when it was not. */
+/* Howl 2026-10-30: what the room's sheets give an attack by e on target — the Warlord's called target (a character's attack by
+   anyone but the holder: her free d20s) and the Tenderizer's mark (every attack: +CD).  HELENA_CHAR.warOn decides; absent, nothing. */
+function warFor(e, target){
+  var out = { commanded:null, damageMark:0, damageMarkWhy:"" }, CH = window.HELENA_CHAR;
+  try{
+    if(!target || !target.id || !CH || typeof CH.warOn !== "function") return out;
+    var f = window.HELENA_TURN && typeof window.HELENA_TURN.fightNow === "function" ? window.HELENA_TURN.fightNow() : null;
+    var w = CH.warOn((S.get() || {}).chars || [], f, target.id, e && e.kind === "char" ? e.ref : null);
+    if(w.cmd) out.commanded = w.cmd;
+    if(w.mark){ out.damageMark = w.mark.cd; out.damageMarkWhy = w.mark.why; }
+  }catch(err){}
+  return out;
+}
+/* the call sites' door: a lifted panel with no warFor beside it declares exactly as before */
+function warGet(e, target){ var w = typeof warFor === "function" ? warFor(e, target) : null; return w && typeof w === "object" ? w : { commanded:null, damageMark:0, damageMarkWhy:"" }; }
 function markStep(entry){
   if(!entry || !entry.id) return 0;
   var c = null;
@@ -49299,6 +49458,7 @@ function hereSpec(e, x, target){
     sneak:sa.on,
     difficultyEase:sa.on ? 1 : 0,
     difficultyMark:markStep(target),
+    commanded:(typeof warGet === "function" && warGet(e, target) || {}).commanded, damageMark:(typeof warGet === "function" && warGet(e, target) || {}).damageMark, damageMarkWhy:(typeof warGet === "function" && warGet(e, target) || {}).damageMarkWhy,
     targetGen:(target && target.kind !== "char") ? genOf(target.ref) : null,
     sneakCd:(sa.on && sa.hadVicious) ? 2 : 0,
     attr:(pp && pp.attr) ? pp.attr : "", skill:(pp && pp.skill) ? pp.skill : "",
@@ -52022,6 +52182,8 @@ function wirePanel(){
          previewed with, so the number on the card and the number in the declaration
          are the same number by construction rather than by coincidence. */
       difficultyMark:markStep(target),
+      /* Howl 2026-10-30: the Warlord's called target and the Tenderizer's mark, off the room's sheets (warFor) */
+      commanded:(typeof warGet === "function" && warGet(e, target) || {}).commanded, damageMark:(typeof warGet === "function" && warGet(e, target) || {}).damageMark, damageMarkWhy:(typeof warGet === "function" && warGet(e, target) || {}).damageMarkWhy,
       /* WAVE 8 SKEPTIC — the roster generation this declaration is made against, read
          off Contract 1's own read() at the moment the target is chosen.  A character
          target has no roster row and no generation, and gets none. */
@@ -57763,6 +57925,13 @@ var API = {
       /* Q9 — a dual damage type is the attacker's choice, declared before DR is read,
          and the card records which. */
       typePick: String(spec.typePick || ""),
+      /* Howl 2026-10-30: the Warlord's called target (her free d20s, ticked for the attacker) and the Tenderizer's mark (+CD on the
+         damage), read off the room's sheets by the caller (the turn order's warFor).  Absent on every older caller. */
+      commanded: (spec.commanded && typeof spec.commanded === "object" && int(spec.commanded.dice, 0) > 0)
+        ? { by:String(spec.commanded.by || "").slice(0, 80), charId:spec.commanded.charId == null ? null : String(spec.commanded.charId),
+            dice:clampInt(spec.commanded.dice, 1, 2) } : null,
+      damageMark: clampInt(spec.damageMark, 0, 3),
+      damageMarkWhy: String(spec.damageMarkWhy || ""),
       /* PROJECT G, T1 (2026-10-01, G_BRIEF §4.2A): TWO SEAMS FOR THE ROAD.  noBuy — the declaring tool
          forbids buying d20s with Action Points on this test, and its string is the reason the buy
          control shows (T2's navigation test: "No buying dice with AP on the road", Guide Part IV).
@@ -57935,8 +58104,11 @@ var API = {
     if(sneak) parts.push({ what:"sneak attack against an unaware target", cd:sneak });
     if(extra) parts.push({ what:"Action Points spent after the hit", cd:extra });
     if(mom) parts.push({ what:"Momentum: moved a zone before the attack", cd:mom });
-    return { cd:base + lane + ammo + extra + sneak + mom, base:base, lane:lane, ammo:ammo,
-             extra:extra, sneak:sneak, momentum:mom, parts:parts, known:full > 0, degr:dg };
+    /* Howl 2026-10-30: the Tenderizer's mark on the target - +1 CD a rank on every attack on it (the declaration carries it) */
+    var tmk = clampInt(d.damageMark, 0, 3);
+    if(tmk) parts.push({ what:d.damageMarkWhy || "Tenderizer: the target is marked", cd:tmk });
+    return { cd:base + lane + ammo + extra + sneak + mom + tmk, base:base, lane:lane, ammo:ammo,
+             extra:extra, sneak:sneak, momentum:mom, mark:tmk, parts:parts, known:full > 0, degr:dg };
   },
 
   /* WAVE 17, Z4 (Zoe 2026-10-07, ruled) — A MISSED BLAST STILL LANDS, AS PRINTED.  Guide L1645-1647 (the 2026-10-06
@@ -60504,6 +60676,7 @@ RL.open = function(sp){
   majorSel = d.majorIndex || 1;
   sneakOn = d.kind === "attack" && d.targetDefense != null && (!!d.sneak || d.difficultyEase > 0);
   rangeSel = d.rangeSent ? (d.rangeBand || "") : "";   /* the range step: the band the turn order read off the map */
+  cmdOn = !!(d.kind === "attack" && d.commanded);     /* Howl 10-30: an attack on the Warlord's called target comes ticked */
 
   /* WHOSE POOL.  A character spends the party's Action Points, a creature the
      Overseer's — the same rule step 7 has always used for the extra damage dice, and
