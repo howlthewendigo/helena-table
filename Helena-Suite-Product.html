@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"a88d0f2a",at:"2026-10-30 15:21 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"32f3042b",at:"2026-10-30 19:18 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -1476,7 +1476,9 @@
 #tool-char .cs-stealth[hidden]{display:none}
 #tool-char .cs-stealth .cs-tick[hidden], #tool-char .cs-stealth button[hidden]{display:none}
 #tool-char .cs-war button[hidden]{display:none}
+#tool-char .cs-demo-chip{display:inline-block;margin-top:3px;padding:1px 7px;border-radius:9px;background:#e8742a;color:#fff;font:700 10px/1.5 var(--mono, monospace);letter-spacing:.06em;white-space:nowrap}
 #tool-char .cs-war{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#tool-char .cs-war[hidden]{display:none}
 #tool-char .cs-war select{max-width:100%}
 #tool-char .cs-war small{flex-basis:100%}
 #tool-char .cs-stealth .cs-tick + small{text-align:left;color:var(--dim)}
@@ -2362,6 +2364,8 @@
 #tool-turn .tv-ci.tv-persist{background:#c86fd4}
 #tool-turn .tv-ci.tv-prone{background:#5aa9e6}
 #tool-turn .tv-ci.tv-marked{background:#d4b483}
+#tool-turn .tt-cover{display:inline-block;padding:1px 7px;border-radius:9px;background:#5a6470;color:#fff;font-size:13px}
+#tool-turn .tt-cover.on{background:#2f7a55}
 #tool-turn .tv-dying{font-size:var(--t-cap);letter-spacing:.1em;text-transform:uppercase;color:var(--red);border:1px solid #5d2626;border-radius:2px;padding:1px 6px;font-weight:700}
 #tool-turn .tv-fallen{margin-top:8px;border:1px solid var(--edge);border-radius:3px;background:var(--panel)}
 #tool-turn .tv-fallen[hidden]{display:none}
@@ -2713,6 +2717,7 @@
     margin-bottom:10px;
   }
 #tool-dice .gp-step.locked{border-left-color:var(--edge);opacity:.42;pointer-events:none}
+#tool-dice .gp-demo-chip{display:inline-block;padding:1px 7px;border-radius:9px;background:#e8742a;color:#fff;font:700 10px/1.5 monospace;letter-spacing:.06em;white-space:nowrap}
 #tool-dice .gp-step.done{border-left-color:var(--verdigris)}
 #tool-dice .gp-step h3{
     margin:0 0 9px;
@@ -4574,6 +4579,43 @@ body:not(.view-cinder) #cl-ms{ display:none !important; }
     background:#D9CAA8; border:1px solid #5E5346; border-radius:3px; }
   body.view-cinder[data-cl-tab="fight"] #cl-mtc.cl-win .cl-mpop{ margin-right:6px; }
 }
+/* Howl 10-30: the named actions - a list that opens above the bar, and the turn's stance (Aim, Defend) */
+#cl-bar .cl-acts { font:700 11px "Special Elite", monospace; padding:4px 8px; border:1.5px solid #1C1814; border-radius:6px; background:#F2E6C9; cursor:pointer; }
+#cl-bar .cl-acts.on { background:#E8692C; color:#fff; }
+#cl-bar .cl-stance { display:flex; flex-direction:column; gap:3px; }
+#cl-bar .cl-stance span { font:700 10px "Special Elite", monospace; background:#3C78D8; color:#fff; padding:2px 7px; border-radius:9px; }
+#cl-actlist[hidden] { display:none; }
+#cl-actlist { position:fixed; bottom:130px; left:50%; transform:translateX(-50%); width:min(960px, calc(100vw - 16px)); display:flex; flex-wrap:wrap; gap:10px; padding:10px 12px; background:#F2E6C9; border:2px solid #1C1814; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.35); z-index:5; }
+#cl-actlist > div { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+#cl-actlist small { font:700 10px "Special Elite", monospace; width:52px; }
+#cl-actlist button { font:600 12px/1.2 sans-serif; padding:6px 10px; border:1.5px solid #1C1814; border-radius:6px; background:#fff; cursor:pointer; }
+#cl-actlist button:hover { background:#FCE2C9; }
+#cl-actlist .cl-actsay { flex-basis:100%; margin:0; font:12px sans-serif; }
+
+/* Howl 10-30: the autoplayer's window (the turn order's AUTOPLAY block), over either view - global, because it lives on the page body itself */
+#tt-auto{position:fixed;z-index:9000;top:50%;left:50%;transform:translate(-50%,-50%);width:min(760px,calc(100vw - 16px));max-height:calc(100vh - 24px);overflow:auto;
+  background:#F4EDDC;color:#1C1814;border:2px solid #1C1814;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.5);padding:12px 14px;font:13px/1.45 sans-serif}
+#tt-auto[hidden]{display:none}
+#tt-auto .ta-head{display:flex;justify-content:space-between;align-items:center;font-size:16px}
+#tt-auto .ta-head button{font-size:20px;border:none;background:none;cursor:pointer}
+#tt-auto .ta-note{color:#5E5346;font-size:12px;margin:6px 0}
+#tt-auto .ta-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media (max-width:600px){ #tt-auto .ta-cols{grid-template-columns:1fr} }
+#tt-auto small{font-weight:700;letter-spacing:.08em;color:#8A3B12}
+#tt-auto .ta-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid #DCCBB0}
+#tt-auto .ta-row span{flex:1 1 140px} #tt-auto .ta-row i{color:#5E5346;font-style:normal;font-size:12px}
+#tt-auto .ta-row em{flex-basis:100%;font-size:11px;color:#5E5346}
+#tt-auto .ta-acts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+#tt-auto .ta-acts button{padding:7px 12px;border:1.5px solid #1C1814;border-radius:6px;background:#fff;cursor:pointer;font-weight:600}
+#tt-auto .ta-acts button[disabled]{opacity:.5;cursor:not-allowed}
+#tt-auto table{width:100%;border-collapse:collapse;margin:6px 0} #tt-auto td,#tt-auto th{padding:4px 6px;border-bottom:1px solid #DCCBB0;text-align:left}
+#tt-auto .ta-verdict{font-size:18px;font-weight:700} #tt-auto .ta-verdict.pc{color:#2f7a55} #tt-auto .ta-verdict.foe{color:#b0282f}
+#tt-auto .ta-story{background:#fff;border-left:4px solid #8A3B12;padding:8px 12px;margin-top:8px;font-family:Georgia,serif;font-size:14px}
+#tt-auto button, #tt-auto select { color:#1C1814; }
+#cl-actlist button, #cl-actlist small { color:#1C1814; }
+#cl-bar .cl-tools { display:flex; flex-direction:column; gap:2px; }
+#cl-bar .cl-tools .cl-dice { font-size:18px; line-height:1; padding:2px 6px; }
+#tt-auto select { background:#fff; border:1px solid #5E5346; border-radius:4px; padding:2px 4px; }
 </style>
 <style data-suite="cinder-2-loot">/* Z032 — Cinder Ledger, part 2: the Loot Window.  A3 rarity edges: 0 grey · 1 bone · 2 green · 3–4 blue ·
    5–6 blue with a brass double edge · Legendary brass star + gold edge.  No purple on items. */
@@ -5775,7 +5817,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-30 15:21 UTC">a88d0f2a</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-30 19:18 UTC">32f3042b</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -6901,6 +6943,12 @@ end $$;
             <button type="button" class="cs-lvl-go quiet" id="cs-war-mark" hidden title="Tenderizer, after she hits it: 1 AP from the party pool, and every attack on this enemy deals +1 CD a rank, through the next round">Tenderizer: mark it (1 AP)</button>
             <small id="cs-war-say"></small>
           </div>
+          <!-- Howl 2026-10-30 (CH.modeShift): the Mode Selector Core's switch, on a sheet that carries its loadouts -->
+          <div class="cs-hint cs-war" id="cs-mode-row" hidden>
+            <b id="cs-mode-now"></b>
+            <button type="button" class="cs-lvl-go quiet" id="cs-mode-go" title="Outside a fight: a minute, no test. In a fight: a major action on his turn, or a minor action once a fight (the dramatic entrance)">Shift</button>
+            <small id="cs-mode-say"></small>
+          </div>
           <!-- the Initiative arithmetic, printed the way the turn tracker prints it, so a
                player can see where an encumbered number went (CRB p.48). -->
           <div class="cs-enc" id="cs-init-line"></div>
@@ -7336,6 +7384,7 @@ end $$;
   <button id="tt-begin" class="pri idle-only">Start combat</button>
   <button id="tt-next" class="run-only">Next turn</button>
   <button id="tt-end" class="run-only">End combat</button>
+  <button id="tt-auto-open" class="mini" title="Auto-fight: work out the odds, or play the fight out for the XP">Auto-fight</button>
   <span class="spacer"></span>
   <button id="tt-clear" class="mini">Clear the GM&rsquo;s order</button>
   <button id="tt-restore" class="mini">Restore dropped rows</button>
@@ -7689,6 +7738,8 @@ end $$;
       <div class="tray" id="gp-tray"></div>
       <div class="gp-acts">
         <button type="button" class="gp-b" id="gp-luck-ok">Re-roll the picked dice</button>
+        <!-- Howl 10-30: the Aim minor action's free re-roll of one d20 on this attack (Book One p.26) - shown only when the turn order sent it -->
+        <button type="button" class="gp-b" id="gp-aim-ok" hidden title="Aim (a minor action this turn): re-roll one d20 of this attack, free. Pick the die first.">Aim: re-roll 1 picked d20, free</button>
         <button type="button" class="gp-b go" id="gp-luck-skip">Resolve the test</button>
       </div>
     </section>
@@ -28398,6 +28449,47 @@ var CH = {
     var want = CH.perkKey(name);
     return ((c && c.perks) || []).some(function(p){ return CH.perkKey(p && p.name) === want; });
   },
+  /* Howl 2026-10-30: THE MODE SELECTOR CORE'S SWITCH (Manny's Two Modes; a house item).  c.modeSets names each mode's own kit -
+     { cur, modes:[{ key, label, en, weapons:[names], mods:[mod ids], pack:[row names] }, ...], stash:{ <key>:{ weapons, mods, pack } } } -
+     and keeps the folded mode's kit, whole, in the stash.  A shift moves the outgoing mode's weapons, armour mods and pack rows into
+     the stash, brings the incoming mode's out of it, and sets the armour's Energy DR to the incoming mode's.  Everything else on the
+     sheet (the plating, the Sensor Array, the Core itself) stays.  PURE.  modeOf(c) -> { cur, next, modes } or null. */
+  modeOf: function(c){
+    var m = c && c.modeSets;
+    if(!m || typeof m !== "object" || !Array.isArray(m.modes) || m.modes.length < 2) return null;
+    var keys = m.modes.map(function(x){ return x && x.key; });
+    var i = keys.indexOf(m.cur); if(i < 0) i = 0;
+    return { cur:m.modes[i], next:m.modes[(i + 1) % m.modes.length], modes:m.modes };
+  },
+  modeShift: function(c){
+    var mo = CH.modeOf(c); if(!mo) return { ok:false, why:"This sheet has no Mode Selector Core loadouts." };
+    var from = mo.cur, to = mo.next, m = c.modeSets, has = function(list, v){ return (list || []).indexOf(v) >= 0; };
+    if(!m.stash || typeof m.stash !== "object") m.stash = {};
+    var out = { weapons:[], mods:[], pack:[] };
+    c.weapons = (c.weapons || []).filter(function(w){ if(w && has(from.weapons, w.name)){ out.weapons.push(w); return false; } return true; });
+    if(c.armour && Array.isArray(c.armour.mods))
+      c.armour.mods = c.armour.mods.filter(function(md){ if(md && has(from.mods, md.id)){ out.mods.push(md); return false; } return true; });
+    c.inventory = (c.inventory || []).filter(function(r){ if(r && has(from.pack, r.name)){ out.pack.push(r); return false; } return true; });
+    var back = m.stash[to.key] || { weapons:[], mods:[], pack:[] };
+    c.weapons = c.weapons.concat(back.weapons || []);
+    if(c.armour) c.armour.mods = (c.armour.mods || []).concat(back.mods || []);
+    c.inventory = c.inventory.concat(back.pack || []);
+    m.stash[from.key] = out; delete m.stash[to.key];
+    if(c.armour && to.en != null && isFinite(+to.en)) c.armour.en = Math.max(0, Math.round(+to.en));
+    m.cur = to.key;
+    return { ok:true, from:from.label || from.key, to:to.label || to.key };
+  },
+  /* Howl 2026-10-30: DEMOLITIONS EXPERT, APPLIED.  Book One prints "attacks with a Blast weapon gain Vicious"; Howl's table rule adds
+     the other half the sneak attack has (Guide L181): a Blast weapon that is ALREADY Vicious deals +2 CD instead.  The card is spelled
+     both ways at this table ("Demolitions Expert" on Tania's sheet, "Demolition Expert" in the catalogue).  fx = the weapon's
+     effects and qualities as the attack reads them.  -> { gain, cd, why } — gain: the attack gains Vicious; cd: the +2 CD; or null. */
+  demoOf: function(c, fx){
+    var held = ((c && c.perks) || []).some(function(p){ return /^demolitions?\s+expert\b/i.test(String(p && p.name || "").trim()); });
+    var t = String(fx || "");
+    if(!held || !/\bBlast\b/i.test(t)) return null;
+    return /\bVicious\b/i.test(t) ? { gain:false, cd:2, why:"Demolitions Expert: a Blast weapon already Vicious (+2 CD)" }
+                                   : { gain:true, cd:0, why:"Demolitions Expert: a Blast weapon gains Vicious" };
+  },
   /* DROMEDARY - "When you drink, raise Thirst one extra level - purified water raises
      three."  SLOW METABOLIZER - "When you eat, raise Hunger one extra level - a cooked
      dish raises three."  Both 1 rank, END 7, not a robot (Guide L6297-6301). */
@@ -31002,6 +31094,20 @@ function normalise(c){
     else c.stealthBoy = { fight:sbz.fight.slice(0, 40), used:Math.max(0, Math.min(CH.STEALTH_CHARGES, Math.round(+sbz.used || 0))),
                           until:Math.max(0, Math.round(+sbz.until || 0)) };
   }
+  /* the Mode Selector Core's loadouts (Howl 2026-10-30, beside CH.modeShift): kept when they name two modes or more, else dropped */
+  if(c.modeSets != null){
+    var ms = c.modeSets, okm = ms && typeof ms === "object" && Array.isArray(ms.modes) && ms.modes.length >= 2 &&
+      ms.modes.every(function(x){ return x && typeof x.key === "string" && x.key; });
+    if(!okm) delete c.modeSets;
+    else{
+      ms.modes = ms.modes.map(function(x){ var L = function(v){ return Array.isArray(v) ? v.filter(function(s){ return typeof s === "string"; }) : []; };
+        return { key:x.key.slice(0, 20), label:String(x.label || x.key).slice(0, 30), en:x.en == null || !isFinite(+x.en) ? null : Math.max(0, Math.round(+x.en)),
+                 weapons:L(x.weapons), mods:L(x.mods), pack:L(x.pack) }; });
+      if(typeof ms.cur !== "string" || !ms.modes.some(function(x){ return x.key === ms.cur; })) ms.cur = ms.modes[0].key;
+      if(!ms.stash || typeof ms.stash !== "object" || Array.isArray(ms.stash)) ms.stash = {};
+      if(ms.entrance != null && typeof ms.entrance !== "string") delete ms.entrance;
+    }
+  }
   /* the Warlord's call and mark (Howl 2026-10-30, beside CH.warSet): kept whole or dropped, never added */
   ["warCall", "warMark"].forEach(function(k){
     if(c[k] == null) return;
@@ -31726,6 +31832,50 @@ function warPaint(c){
   if(say && say.textContent !== line) say.textContent = line;
   return true;
 }
+/* Howl 10-30: the Mode Selector Core's row - which mode is on, what is folded, and the Shift */
+var modeSaid = null;
+function modePaint(c){
+  var row = $("cs-mode-row"); if(!row) return false;
+  var mo = CH.modeOf(c);
+  if(row.hidden !== !mo) row.hidden = !mo;
+  if(!mo) return false;
+  var now = $("cs-mode-now"), go = $("cs-mode-go"), say = $("cs-mode-say"), f = CH.fightNow();
+  var t1 = (mo.cur.label || mo.cur.key) + " mode", t2 = "Shift to " + (mo.next.label || mo.next.key);
+  if(now && now.textContent !== t1) now.textContent = t1;
+  if(go && go.textContent !== t2) go.textContent = t2;
+  var st = (c.modeSets.stash || {})[mo.next.key] || {}, folded = [].concat((st.weapons || []).map(function(w){ return w.name; }), (st.mods || []).map(function(m){ return m.name; }), (st.pack || []).map(function(r){ return r.name; }));
+  var ent = !!(f && c.modeSets.entrance === String(f.id));
+  var line = "Folded in the Core: " + (folded.length ? folded.join(", ") : "nothing") + "." +
+    (f ? (ent ? " In this fight a shift is his major action (the dramatic entrance is spent)." : " In this fight the first shift is a minor action (the dramatic entrance), then a major.") : " Outside a fight a shift takes a minute, no test.");
+  var said = modeSaid && modeSaid.key === warKey(c, f) ? " " + modeSaid.t : "";
+  if(say && say.textContent !== line + said) say.textContent = line + said;
+  return true;
+}
+function modePress(){
+  var c = me(); if(!c) return false;
+  var f = CH.fightNow();
+  var say = function(t){ modeSaid = { t:t, key:warKey(me() || c, CH.fightNow()) }; renderDerived(); return false; };
+  if(locked(c)) return say("Not your sheet - nothing shifted.");
+  var dry = CH.modeShift(JSON.parse(JSON.stringify(c)));
+  if(!dry.ok) return say(dry.why);
+  var note = "", entrance = false;
+  if(f){
+    var T = window.HELENA_TURN, bt = T && T.cinder;
+    try{
+      var sn = bt && bt.snap ? bt.snap() : null, rid = bt && bt.rowOf ? bt.rowOf("c:" + c.id) : null;
+      if(!sn || !rid || rid !== sn.cur) return say("It is not " + (c.name || "his") + "’s turn. Nothing shifted.");
+      entrance = c.modeSets.entrance !== String(f.id);
+      var ar = bt.act(rid, entrance ? "minor" : "major");
+      if(ar && ar.ok === false){
+        if(/GM/.test(ar.note || "")) note = " The " + (entrance ? "minor" : "major") + " action is the Overseer’s to mark.";
+        else return say("No " + (entrance ? "minor" : "major") + " action left: " + (ar.note || "refused") + " Nothing shifted.");
+      }
+    }catch(e){ return say("The turn order could not be read. Nothing shifted."); }
+  }
+  var res = null;
+  edit(function(x){ res = CH.modeShift(x); if(res.ok && f && entrance) x.modeSets.entrance = String(f.id); });
+  return say(res && res.ok ? "Shifted to " + res.to + " mode" + (f ? (entrance ? " (the dramatic entrance, a minor action)." : " (a major action).") : " (a minute).") + note : (res ? res.why : "Nothing changed.")) || !!(res && res.ok);
+}
 /* a press: on her turn (the turn order's current row), the Command marking her minor action there and the mark paying 1 AP from
    the party pool, then one edit().  Refused, with nothing marked or spent: not her sheet, no fight, no enemy, not her turn. */
 function warPress(kind){
@@ -31886,6 +32036,7 @@ function renderDerived(){
   $("cs-def").textContent  = CH.defenseOf(c);
   stealthPaint(c);                 // PROJECT H, FIGHT (R1): the tick beside Defense, and what it does to it
   if(typeof warPaint === "function") warPaint(c);   // Howl 10-30: the Warlord's call and the Tenderizer's mark
+  if(typeof modePaint === "function") modePaint(c); // Howl 10-30: the Mode Selector Core's switch
   if(typeof heldPaint === "function") heldPaint(c);   // PROJECT H, FIGHT (R11): a critical held for its choice
   /* PROJECT H, TRACK C (C-R4): the gear is still the STR lane, plus Heavy Handed's +1 CD on a sheet that holds it; the Luck
      maximum is CH.luckMax, one fewer for Gifted — the figure the Luck door fills to (both unchanged on a sheet with no traits) */
@@ -33779,7 +33930,7 @@ function renderWeapons(c){
       '<td class="c" data-l="Tag"><input type="checkbox" data-wtag="1"' + (s.tag ? " checked" : "") + ' aria-label="tag ' + esc(w.skill) + '" title="the skill this weapon uses is tagged — tick to tag it"></td>' +
       '<td class="c" data-l="Damage"><input type="number" data-wf="cd" min="0" max="30" value="' + (+w.cd || 0) + '" aria-label="damage dice" title="CD"></td>' +
       /* WAVE 17, Y6: Effects and Qualities are one-row text boxes that WRAP (WTX below) — an input cut "Piercing 1, Conc…" */
-      '<td class="wfx" data-l="Effects"><textarea class="wtx" data-wf="effects" rows="1" maxlength="120" placeholder="Vicious, Persistent (Fire), Piercing 1…">' + esc(w.effects) + '</textarea></td>' +
+      '<td class="wfx" data-l="Effects"><textarea class="wtx" data-wf="effects" rows="1" maxlength="120" placeholder="Vicious, Persistent (Fire), Piercing 1…">' + esc(w.effects) + '</textarea>' + (typeof demoChip === "function" && demoChip(c, w) || "") + '</td>' +
       '<td class="c" data-l="Type"><input type="text" data-wf="type" value="' + esc(w.type) + '" maxlength="8" style="width:56px" aria-label="damage type"></td>' +
       '<td class="c" data-l="Rate"><input type="number" data-wf="fire" min="0" max="9" value="' + (+w.fire || 0) + '" aria-label="fire rate"></td>' +
       '<td class="c" data-l="Range"><input type="text" data-wf="range" value="' + esc(w.range) + '" maxlength="6" style="width:52px" placeholder="C/M/L" aria-label="range"></td>' +
@@ -35485,6 +35636,11 @@ function poolShortSay(have, n){
   have = Math.max(0, Math.floor(+have || 0));
   return "The party pool has only " + have + " AP now" + (n ? " (this needs " + n + ")" : "") + " \u2014 nothing was rolled or spent.";
 }
+/* Howl 10-30: Demolitions Expert's tag on a Blast weapon's row, in its own colour — VICIOUS (gained) or +2 CD (already Vicious) */
+function demoChip(c, w){
+  var d = c && w && typeof CH.demoOf === "function" ? CH.demoOf(c, wfx(w)) : null;
+  return d ? ' <span class="cs-demo-chip" title="' + esc(d.why) + '">' + (d.gain ? "VICIOUS" : "+2 CD") + " &middot; Demolitions</span>" : "";
+}
 function wfx(w){
   var t = ((w.effects || "") + " " + (w.qualities || "")).trim();
   /* CMD Z018 (G.8): a legendary property's qualities are the weapon's in every attack read (CH.legFx) */
@@ -36033,11 +36189,14 @@ function damageRoll(i, again){
   var lgc = typeof CH.legCd === "function" ? CH.legCd(w, c) : { cd:0, why:"" };    /* CMD Z018 (G.8): a legendary property's CD */
   /* NR-25 (Zoe 2026-10-26): Momentum's +1 CD after a move this turn (a Luck re-roll keeps the first roll's answer) */
   var mom = again ? Math.max(0, +again.ctx.mom || 0) : (typeof momentumCd === "function" ? momentumCd(c, w) : 0);
+  var demo = typeof CH.demoOf === "function" && typeof wfx === "function" ? CH.demoOf(c, wfx(w)) : null;   /* Howl 10-30: Demolitions Expert */
   var n = wcd + lane + extra + apDice + buy + lgc.cd;
   n += mom;
+  if(demo && demo.cd) n += demo.cd;                /* Howl 10-30: Demolitions Expert's +2 CD on a Blast weapon already Vicious */
   var r = again ? facesToCD(again.faces) : rollCD(n), E = r.eff, fx = wfx(w), notes = [];
   var total = r.dmg;
-  if(/Vicious/i.test(fx) && E){ total += E; notes.push("Vicious: +" + E + " damage (added)"); }
+  if(demo && demo.cd) notes.push(demo.why + ", in the dice rolled");
+  if((/Vicious/i.test(fx) || (demo && demo.gain)) && E){ total += E; notes.push((demo && demo.gain ? "Vicious (Demolitions Expert)" : "Vicious") + ": +" + E + " damage (added)"); }
   /* CMD Z017 (G.3): Fever Claw, "ranged attacks deal −2 damage (min 1)" (Guide p.ccxc) */
   if(mode === "ranged" && typeof CH.diseaseRangedDmg === "function"){
     var fv = CH.diseaseRangedDmg(c, total);
@@ -38921,6 +39080,7 @@ $("cs-filled").onclick = function(){ edit(function(c){ c.unfilled = false; }); r
 $("cs-stealth-boy").onclick = function(){ stealthBoyPress(); };
 $("cs-war-call").onclick = function(){ warPress("call"); };
 $("cs-war-mark").onclick = function(){ warPress("mark"); };
+$("cs-mode-go").onclick = function(){ modePress(); };
 /* wave 16 skeptic: holds() — a re-run of the closure (a room's lost or refused push) adds the sheet once, not twice */
 $("cs-add").onclick = function(){ var c = blankChar(); c.name = "New character"; S.update(function(m){ if(!holds(m, c.id)) m.chars.push(CH.sceneStamp(c, m)); }); select(c.id); $("cs-name").focus(); };
 $("cs-dup").onclick = function(){ var c = me(); if(!c) return; var d = clone(c); d.id = uid(); d.name = c.name + " copy"; S.update(function(m){ if(!holds(m, d.id)) m.chars.push(CH.sceneStamp(d, m)); }); select(d.id); };
@@ -40402,6 +40562,25 @@ function hpTypedDone(c){
   return pcHitUndo({ id:t.id, name:t.name, hp0:t.hp0, hp1:hp1, pl0:null, pl1:null, keys:{ hp:t.hp0 } }, "",
                    { kind:"pc-hp", text:(t.name || "A character") + "\u2019s HP set to " + hp1 + " (was " + t.hp0 + ")" });
 }
+/* Howl 2026-10-30: THE AUTOPLAYER'S SETTLEMENT.  A fight played out by the turn order's autoplayer has already counted DR, so what it
+   hands over is what came off the plate and what came off Health — written as such, once per id, refused by name on a sheet this
+   device may not write.  -> { ok, plate, health } or { ok:false, why } */
+window.HELENA_CHAR.settleFight = function(charId, spec){
+  spec = spec || {};
+  var sid = typeof spec.id === "string" && spec.id ? spec.id.slice(0, CH.DOOR_ID_MAX) : "", out = { ok:false, why:"No such sheet." };
+  S.update(function(m){
+    var c = null; (m.chars || []).forEach(function(x){ if(x && x.id === String(charId)) c = x; });
+    if(!c) return;
+    if(typeof locked === "function" && locked(c)){ out = { ok:false, why:"Another player's sheet - this device may not write it." }; return; }
+    if(sid && CH.seenRing && CH.seenRing(c, "hitSeen").indexOf(sid) >= 0){ out = { ok:true, already:true, plate:0, health:0 }; return; }
+    var pl = Math.max(0, Math.round(+spec.plate || 0)), he = Math.max(0, Math.round(+spec.health || 0));
+    if(pl && c.armour && typeof c.armour === "object") c.armour.hp = Math.max(0, (+c.armour.hp || 0) - pl);
+    if(he) c.hp = Math.max(0, (+c.hp || 0) - he);
+    if(sid && CH.ringPush) CH.ringPush(c, "hitSeen", sid, window.HELENA_CHAR.HIT_SEEN_KEEP);
+    out = { ok:true, plate:pl, health:he };
+  });
+  return out;
+};
 window.HELENA_CHAR.applyDamage = function(charId, spec){
   spec = spec || {};
   var res = null, held = null, seen = null, undoRec = null;
@@ -40469,9 +40648,12 @@ window.HELENA_CHAR.coverFor = function(tokenId, fromTokenId){
   var from = null;
   /* Howl 10-24: the shooter may arrive as a sheet id ("cmurn…") rather than its token id ("c:cmurn…") - both find the token,
      or a same-zone shot fell back to the zone's best side (3) */
-  if(fromTokenId != null){ var ft = tokenById(fromTokenId) || tokenById("c:" + fromTokenId) || tokenById("e:" + fromTokenId); if(ft && ft.zone != null) from = ft.zone; }
+  var ft = null;
+  if(fromTokenId != null){ ft = tokenById(fromTokenId) || tokenById("c:" + fromTokenId) || tokenById("e:" + fromTokenId); if(ft && ft.zone != null) from = ft.zone; }
   var i = zoneCoverInfoOf(tk.zone, from);
-  return { cover:i.cover, zone:zoneLabelOf(tk), name:i.name || "", face:i.face || null };
+  /* Howl 10-30: the attack panel says WHY — so the answer also names the shooter's zone and whether the two share one */
+  return { cover:i.cover, zone:zoneLabelOf(tk), name:i.name || "", face:i.face || null,
+           fromZone:ft ? zoneLabelOf(ft) : "", same:from != null && String(from) === String(tk.zone), onMap:true, shooterOnMap:from != null };
 };
 /* ---- Howl's ruling 3 (WAVE8_ANSWERS): CREATURES TAKE INJURIES, same table, same d20 ----
    The table is Reference L158-160 and it already lives in CH.LOCATIONS / CH.locationFor.
@@ -42758,6 +42940,8 @@ var TT = {
     /* WAVE 19, F5: the fight's shared name (Start combat's), its end-of-turn count, each character's last ended turn, and
        the device that ended it — carried only when present, so an older slice normalises exactly as before */
     if(typeof d.fid === "string" && /^[0-9a-z]{1,24}$/.test(d.fid)) b.fid = d.fid;
+    var stn = TT.normStance(d.stance);                 /* Howl 10-30: Aim and Defend, carried only when present */
+    if(Object.keys(stn).length) b.stance = stn;
     var es = Math.round(+d.endSeq);
     if(isFinite(es) && es > 0) b.endSeq = Math.min(999999, es);
     if(d.cend && typeof d.cend === "object" && !Array.isArray(d.cend)){
@@ -43083,6 +43267,67 @@ var TT = {
      for 1 AP, a major for 2 AP AND +1 difficulty on any skill test you must attempt.
      Two of each is the ceiling; there is no third at any price. */
   ACTIONS: { minor:{ max:2, second:1, difficulty:0 }, major:{ max:2, second:2, difficulty:1 } },
+  /* Howl 2026-10-30: THE NAMED ACTIONS, TRACKED FOR THEM.  The Fight tab lists what a turn can be spent on (Book One pp.26-27, as
+     CC reads them - Zoe to check the words against the book); a press ticks the action it costs and does what can be done for the
+     player: Aim gives the turn's first attack a free d20 re-roll, Defend adds +1 to Defense until the start of their next turn,
+     Rally opens END + Survival at Difficulty 0 (its successes become AP), Stand or Drop Prone sets the Prone mark, Pass ends the turn.
+     The rest tick the action and say what to do by hand.  A Move on the map and an attack already tick their own actions. */
+  NAMED: [
+    { key:"aim",      kind:"minor", name:"Aim",              says:"Re-roll one d20 on your first attack this turn, free (the drawer offers it)." },
+    { key:"draw",     kind:"minor", name:"Draw Item",        says:"Ready a weapon or item from your pack." },
+    { key:"interact", kind:"minor", name:"Interact",         says:"Open a door, flip a switch, grab something in reach." },
+    { key:"move",     kind:"minor", name:"Move",             says:"One zone. Dragging your token on the map ticks this for you." },
+    { key:"chem",     kind:"minor", name:"Take Chem",        says:"Use the chem from your sheet; this marks the action." },
+    { key:"prone",    kind:"minor", name:"Stand / Drop Prone", says:"Toggles Prone on your row." },
+    { key:"defend",   kind:"major", name:"Defend",           says:"+1 Defense until the start of your next turn." },
+    { key:"rally",    kind:"major", name:"Rally",            says:"END + Survival at Difficulty 0; every success becomes AP for the party pool." },
+    { key:"sprint",   kind:"major", name:"Sprint",           says:"Two zones this turn. On the map, the gate's Use the Major to Sprint does the same." },
+    { key:"firstaid", kind:"major", name:"First Aid",        says:"Opens the Medical board." },
+    { key:"test",     kind:"major", name:"Skill Test",       says:"Any other test: opens the dice drawer." },
+    { key:"ready",    kind:"major", name:"Ready",            says:"Hold an action for a trigger you name." },
+    { key:"pass",     kind:"major", name:"Pass",             says:"End your turn now." }
+  ],
+  namedOf: function(key){ for(var i = 0; i < TT.NAMED.length; i++) if(TT.NAMED[i].key === key) return TT.NAMED[i]; return null; },
+  /* the stance record: st.stance[id] = { fid, aim:round|null, aimUsed, defend:round|null }.  PURE. */
+  normStance: function(src){
+    var out = {}, k;
+    if(!src || typeof src !== "object" || Array.isArray(src)) return out;
+    for(k in src){
+      if(!Object.prototype.hasOwnProperty.call(src, k) || typeof k !== "string" || k.length > 90) continue;
+      var v = src[k]; if(!v || typeof v !== "object") continue;
+      var r = { fid:typeof v.fid === "string" ? v.fid.slice(0, 24) : "" }, n;
+      n = Math.round(+v.aim); if(v.aim != null && isFinite(n)) r.aim = Math.max(0, n);
+      if(v.aimUsed) r.aimUsed = true;
+      n = Math.round(+v.defend); if(v.defend != null && isFinite(n)) r.defend = Math.max(0, n);
+      if(r.aim != null || r.defend != null) out[k] = r;
+    }
+    return out;
+  },
+  stanceOf: function(s, id){ var b = s && s.stance && typeof s.stance === "object" ? s.stance : null; return b && Object.prototype.hasOwnProperty.call(b, String(id)) ? b[String(id)] : null; },
+  /* Aim holds for the turn it was taken in: the same fight, the same round, still their turn, the free re-roll not yet used */
+  aiming: function(s, id, ord){
+    var r = TT.stanceOf(s, id);
+    return !!(r && r.aim != null && !r.aimUsed && r.fid === String(s.fid || "") && r.aim === Math.round(+s.round || 0) && TT.currentOf(s, ord) === String(id));
+  },
+  /* Defend holds from the round it was taken until their own next turn begins (and never past the round after) */
+  defending: function(s, id, ord){
+    var r = TT.stanceOf(s, id), now = Math.round(+s.round || 0);
+    if(!r || r.defend == null || r.fid !== String(s.fid || "")) return false;
+    if(now === r.defend) return true;
+    return now === r.defend + 1 && TT.currentOf(s, ord) !== String(id) && !((s.acted || {})[String(id)]);
+  },
+  /* one write, pure: a NEW state with the stance set */
+  stanceSet: function(s, id, what){
+    var n = TT.clone(s || {}), k = String(id), b = n.stance && typeof n.stance === "object" ? n.stance : {};
+    var r = b[k] && typeof b[k] === "object" ? JSON.parse(JSON.stringify(b[k])) : {};
+    if(r.fid !== String(n.fid || "")) r = {};
+    r.fid = String(n.fid || "");
+    if(what === "aim"){ r.aim = Math.round(+n.round || 0); delete r.aimUsed; }
+    if(what === "aimUsed") r.aimUsed = true;
+    if(what === "defend") r.defend = Math.round(+n.round || 0);
+    b[k] = r; n.stance = b;
+    return n;
+  },
   TOT: { minor:"tminor", major:"tmajor" },
   /* PROJECT H, FIGHT (Zoe 2026-10-13, ruled): A SWARM BUYS ONE EXTRA MAJOR ACTION PER MEMBER STILL STANDING BEYOND THE FIRST.
      Each extra major action costs 2 AP and is +1 Difficulty, so the n-th major action in one turn is at +(n-1) (Book One p.18:
@@ -43737,7 +43982,17 @@ var TT = {
      RL.difficultyWith clamps at 5 and REPORTS the loss rather than hiding it, which
      is the right behaviour when Defense 2 stacks on encumbrance and a second major
      action — and it will be reached. */
+  /* Howl 10-30: Defend's +1, read through ctx.defending(id) (the page's reader of the stance) - every other answer unchanged */
   defenseOf: function(entry, ctx){
+    var d = TT.defenseBase(entry, ctx);
+    var dfn = ctx && typeof ctx.defending === "function" ? ctx.defending : (typeof TT.defendingHook === "function" ? TT.defendingHook : null);
+    if(!d || d.value == null || !entry || !dfn || !dfn(entry.id)) return d;
+    var o = {}, k; for(k in d) if(Object.prototype.hasOwnProperty.call(d, k)) o[k] = d[k];
+    o.value = d.value + 1; o.defending = true;
+    o.why = String(d.why || "") + " +1 while Defending (until the start of " + (entry.name || "their") + "'s next turn).";
+    return o;
+  },
+  defenseBase: function(entry, ctx){
     var none = { value:null, from:"", why:"No target is named, so there is no Defense to start from." };
     if(!entry) return none;
     if(entry.kind === "char"){
@@ -44871,6 +45126,233 @@ var TT = {
     else wr = (w && w.range != null) ? String(w.range) : "";
     return { rangeBand:(look && look.mapped) ? look.band : null, weaponRange:wr };
   },
+  /* ============================== Howl 2026-10-30: THE AUTOPLAYER — A FIGHT PLAYED OUT, OR WORKED OUT, FOR THE XP.
+     "Sometimes we just want to grind out combat for the purposes of EXP."  The fight in the turn order is handed to this engine
+     as plain records (autoFighters, on the page, reads the sheets, the stat blocks and the HP that are there now); it plays it
+     with the table's own dice — a d20 at or under the TN is a success, a 1 or a tag skill's crit range is two, the target's
+     Defense is the Difficulty, excess successes are AP; a combat die is 1/2/0/0/1+Effect/1+Effect, Vicious +1 an Effect,
+     Piercing 1 DR off an Effect — and each character plays by its own AI:
+       warlord  names the weakest enemy (every other character's attack on it rolls her Warlord dice) and marks what she hits
+       medic    patches the worst-hurt living character (a stimpak's 4 HP) before attacking
+       gambler  rolls on Luck when Luck is the better attribute, and throws Blast at a crowd
+       gunner   the attack with the most damage past DR
+       bruiser  the same, and closes on the biggest threat
+       beast    a creature: the character it is likeliest to hit
+     RUDIMENTARY, AND IT SAYS SO: no map (no range, cover, zones or movement), no Overseer AP spends, no chems but stimpaks,
+     no Injuries' effects, ammo not counted.  It is advice and a story, not a ruling.  PURE: the dice come from rng(). */
+  autoRng: function(seed){
+    var a = (Math.round(+seed || 0) >>> 0) || 0x9e3779b9;
+    return function(){ a = (a + 0x6D2B79F5) >>> 0; var t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  },
+  autoD20: function(rng){ return 1 + Math.floor(rng() * 20); },
+  autoCD: function(n, rng){
+    var dmg = 0, eff = 0, faces = [];
+    for(var i = 0; i < n; i++){ var f = 1 + Math.floor(rng() * 6); faces.push(f); if(f === 1) dmg += 1; else if(f === 2) dmg += 2; else if(f >= 5){ dmg += 1; eff += 1; } }
+    return { dmg:dmg, eff:eff, faces:faces };
+  },
+  /* one test: n d20 against tn, crits at or under crit -> { succ, comp } */
+  autoTest: function(n, tn, crit, rng){
+    var succ = 0, comp = 0;
+    for(var i = 0; i < n; i++){ var f = TT.autoD20(rng); if(f === 20) comp++; if(f <= tn) succ += (f === 1 || f <= crit) ? 2 : 1; }
+    return { succ:succ, comp:comp };
+  },
+  autoDr: function(f, type){
+    var d = f.dr || {}, one = function(k){ var v = d[k]; return v === Infinity || v === "Immune" ? Infinity : Math.max(0, +v || 0); };
+    var t = String(type || "Ph");
+    if(/\+/.test(t)) return Math.min(one("Ph"), one("En"));
+    return one(/^En/.test(t) ? "En" : /^Rad/.test(t) ? "Rad" : "Ph");
+  },
+  /* the expected damage past DR of attack a on f, one hit (TT.cdAverage's arithmetic) */
+  autoExpect: function(a, f){
+    var dr = TT.autoDr(f, a.type);
+    if(dr === Infinity) return 0;
+    return TT.cdAverage(a.cd, { dr:dr, cover:0, pierce:a.pierce || 0, vicious:!!a.vicious });
+  },
+  autoPick: function(me, foes, called, rng){
+    var alive = foes.filter(function(f){ return f.hp > 0; });
+    if(!alive.length) return null;
+    if(called){ for(var i = 0; i < alive.length; i++) if(alive[i].id === called) return alive[i]; }
+    if(me.side === "foe"){
+      /* a creature: the character it is likeliest to hit, ties to the lower HP (with a little noise, so not everyone piles in) */
+      var best = null, bs = -1;
+      alive.forEach(function(f){ var a = me.attacks[0] || { tn:8 }; var s = TT.hitChance(2, a.tn, f.def) * 10 - (f.hp + (f.plate || 0)) / 50 + rng() * 2; if(s > bs){ bs = s; best = f; } });
+      return best;
+    }
+    /* a character: the enemy closest to falling, weighed by what it can do back */
+    return alive.slice().sort(function(x, y){ return (x.hp + (x.plate || 0)) - (y.hp + (y.plate || 0)); })[0];
+  },
+  autoAttackFor: function(me, tgt, crowd){
+    var best = null, bv = -1;
+    me.attacks.forEach(function(a){
+      var tn = a.tn;
+      if(me.ai === "gambler" && me.luck > 0 && me.lck > a.attrV) tn = me.lck + a.rank;
+      var v = TT.hitChance(2, tn, tgt.def) * TT.autoExpect(a, tgt) * (a.blast && crowd > 1 ? 1 + Math.min(2, crowd - 1) * 0.5 : 1);
+      if(v > bv){ bv = v; best = a; }
+    });
+    return best;
+  },
+  autoFight: function(fighters, opts, rng){
+    opts = opts || {}; rng = rng || Math.random;
+    var all = fighters.map(function(f){ var o = JSON.parse(JSON.stringify(f)); o.hp0 = o.hp; o.plate0 = o.plate || 0; o.down = false; o.dealt = 0; o.kills = []; o.heals = 0; o.stims = Math.max(0, +o.stims || 0); o.stims0 = o.stims; o.luck0 = o.luck; return o; });
+    var pcs = all.filter(function(f){ return f.side === "pc"; }), foes = all.filter(function(f){ return f.side === "foe"; });
+    var ap = { pc:Math.max(0, +opts.ap || 0), foe:0 }, cap = Math.max(6, +opts.apCap || 6);
+    var log = [], call = null, mark = null, maxR = Math.max(1, Math.min(30, +opts.rounds || 15)), round = 0;
+    var order = all.slice().sort(function(a, b){ return (b.init || 0) - (a.init || 0) || (a.side === "pc" ? -1 : 1); });
+    var standing = function(list){ return list.filter(function(f){ return f.hp > 0; }); };
+    var hurt = function(t, n){
+      var left = n;
+      if(t.plate > 0){ var p = Math.min(t.plate, left); t.plate -= p; left -= p; }
+      t.hp = Math.max(0, t.hp - left);
+      return n;
+    };
+    for(round = 1; round <= maxR; round++){
+      if(!standing(pcs).length || !standing(foes).length) break;
+      for(var oi = 0; oi < order.length; oi++){
+        var me = order[oi];
+        if(me.hp <= 0) continue;
+        var mine = me.side === "pc" ? pcs : foes, theirs = me.side === "pc" ? foes : pcs;
+        if(!standing(theirs).length) break;
+        /* the medic first patches the worst-hurt living character, while stimpaks last */
+        if(me.side === "pc" && me.stims > 0){
+          var low = standing(mine).filter(function(f){ return !f.robot && f.hp < f.max * (me.ai === "medic" ? 0.5 : 0.3) && (me.ai === "medic" || f === me); })
+                                  .sort(function(a, b){ return a.hp / a.max - b.hp / b.max; })[0];
+          if(low){ var hb = low.hp; low.hp = Math.min(low.max, low.hp + 4); me.stims--; me.heals++; log.push({ r:round, k:"heal", who:me.id, to:low.id, hp:low.hp - hb }); continue; }
+        }
+        /* the warlord names a target at the top of her turn and keeps it through the next round */
+        if(me.ai === "warlord" && me.cmd && (!call || call.until < round || !standing(theirs).some(function(f){ return f.id === call.id; }))){
+          var ct = TT.autoPick(me, theirs, null, rng);
+          if(ct){ call = { id:ct.id, by:me.id, until:round + 1, dice:me.cmd }; log.push({ r:round, k:"call", who:me.id, to:ct.id }); }
+        }
+        var tgt = TT.autoPick(me, theirs, me.side === "pc" && call && call.until >= round ? call.id : null, rng);
+        if(!tgt) continue;
+        var a = TT.autoAttackFor(me, tgt, standing(theirs).length);
+        if(!a) continue;
+        var tn = a.tn, crit = a.crit || 1, how = "";
+        if(me.ai === "gambler" && me.luck > 0 && me.lck > a.attrV){ tn = me.lck + a.rank; me.luck--; how = "luck"; }
+        var n = 2 + (a.dice || 0);
+        if(me.side === "pc" && call && call.until >= round && call.id === tgt.id && call.by !== me.id) n += call.dice;
+        if(me.side === "pc" && ap.pc >= 3 && n < 5){ ap.pc -= 1; n += 1; }
+        n = Math.min(5, n);
+        var t = TT.autoTest(n, tn, crit, rng), diff = Math.max(0, tgt.def + (me.side === "foe" && tgt.defend ? 1 : 0));
+        var hit = t.succ >= diff;
+        if(hit && t.succ > diff){ var side = me.side === "pc" ? "pc" : "foe"; ap[side] = Math.min(side === "pc" ? cap : 99, ap[side] + (t.succ - diff)); }
+        var ev = { r:round, k:"attack", who:me.id, to:tgt.id, with:a.name, n:n, hit:hit, succ:t.succ, diff:diff, how:how };
+        if(hit){
+          var cd = a.cd + (mark && mark.id === tgt.id && mark.until >= round ? mark.cd : 0) + (me.demo && a.blast && a.vicious ? 2 : 0);
+          var roll = TT.autoCD(cd, rng), vic = a.vicious || (me.demo && a.blast);
+          var raw = roll.dmg + (vic ? roll.eff : 0), dr = TT.autoDr(tgt, a.type);
+          var past = dr === Infinity ? 0 : Math.max(0, raw - Math.max(0, dr - (a.pierce || 0) * roll.eff));
+          var was = tgt.hp; hurt(tgt, past); me.dealt += past;
+          ev.dmg = past; ev.eff = roll.eff; ev.big = past >= 8;
+          if(tgt.hp <= 0 && was > 0){ ev.kill = true; me.kills.push(tgt.id); }
+          /* the marker marks what she hit (1 AP), when the pool has it */
+          if(me.mark && ap.pc >= 1 && tgt.hp > 0 && (!mark || mark.until < round)){ ap.pc -= 1; mark = { id:tgt.id, until:round + 1, cd:me.mark }; ev.marked = true; }
+          /* a companion bites on its keeper's hit (the Attack Dog) */
+          if(me.bite && tgt.hp > 0){
+            var br = TT.autoCD(me.bite, rng), bp = Math.max(0, br.dmg + br.eff - (TT.autoDr(tgt, "Ph") === Infinity ? 99 : TT.autoDr(tgt, "Ph")));
+            var bw = tgt.hp; hurt(tgt, bp); log.push(ev); ev = { r:round, k:"bite", who:me.id, to:tgt.id, dmg:bp, by:me.biteName };
+            if(tgt.hp <= 0 && bw > 0){ ev.kill = true; me.kills.push(tgt.id); }
+          }
+          /* Blast: the rest of the crowd may be standing in the same zone (no map here: each other enemy, a coin flip) */
+          if(a.blast){
+            standing(theirs).filter(function(f){ return f !== tgt; }).forEach(function(o){
+              if(rng() < 0.5){ var br2 = TT.autoCD(a.cd, rng), d2 = TT.autoDr(o, a.type), p2 = d2 === Infinity ? 0 : Math.max(0, br2.dmg + (vic ? br2.eff : 0) - d2);
+                var w2 = o.hp; hurt(o, p2); me.dealt += p2; log.push({ r:round, k:"blast", who:me.id, to:o.id, dmg:p2, kill:o.hp <= 0 && w2 > 0 }); if(o.hp <= 0 && w2 > 0) me.kills.push(o.id); }
+            });
+          }
+          if(tgt.side === "pc" && tgt.hp <= 0){ tgt.down = true; ev.down = true; }
+        }
+        log.push(ev);
+      }
+    }
+    var winner = !standing(foes).length ? "pc" : !standing(pcs).length ? "foe" : "draw";
+    return { winner:winner, rounds:Math.min(round, maxR), log:log, ap:ap,
+             pcs:pcs.map(function(f){ return { id:f.id, ref:f.ref, name:f.name, ai:f.ai, hp0:f.hp0, hp:f.hp, plate0:f.plate0, plate:f.plate || 0, max:f.max, down:f.hp <= 0, dealt:f.dealt, kills:f.kills.length, heals:f.heals, stimsUsed:Math.max(0, (+f.stims0 || 0) - f.stims), luck0:f.luck0, luck:f.luck }; }),
+             foes:foes.map(function(f){ return { id:f.id, ref:f.ref, name:f.name, hp0:f.hp0, hp:f.hp, max:f.max, dead:f.hp <= 0, xp:f.xp || 0 }; }) };
+  },
+  /* N fights, the same records -> the odds */
+  autoOdds: function(fighters, opts, n, seed){
+    var rng = TT.autoRng(seed), N = Math.max(1, Math.min(2000, Math.round(+n || 400))), wins = 0, rounds = [], per = {}, downs = {};
+    fighters.filter(function(f){ return f.side === "pc"; }).forEach(function(f){ per[f.id] = 0; downs[f.id] = 0; });
+    for(var i = 0; i < N; i++){
+      var r = TT.autoFight(fighters, opts, rng);
+      if(r.winner === "pc") wins++;
+      rounds.push(r.rounds);
+      r.pcs.forEach(function(p){ per[p.id] += (p.hp0 + p.plate0) - (p.hp + p.plate); if(p.down) downs[p.id]++; });
+    }
+    rounds.sort(function(a, b){ return a - b; });
+    var out = { n:N, win:wins / N, rounds:rounds[Math.floor(N / 2)], lost:{}, down:{} };
+    Object.keys(per).forEach(function(k){ out.lost[k] = Math.round(per[k] / N * 10) / 10; out.down[k] = downs[k] / N; });
+    return out;
+  },
+  /* the "what happened": a short story told from the fight's own log, in the order it happened.  PURE (its choices come from rng). */
+  autoStory: function(res, fighters, rng){
+    rng = rng || Math.random;
+    var by = {}; fighters.forEach(function(f){ by[f.id] = f; });
+    var nm = function(id){ return (by[id] && by[id].name) || "someone"; };
+    /* "Joel's Sharp Rifle" stays itself; "Rifle" becomes "Joel's Rifle" */
+    var gun = function(e){ var w = String(e.with || "attack"), n = nm(e.who); return w.indexOf(n + "'s") === 0 || w.indexOf(n + "’s") === 0 ? w : n + "'s " + w; };
+    /* a line is never told twice in one story: each pick takes one the story has not used, while there is one */
+    var told = {};
+    var pick = function(a, cat){
+      var ix = a.map(function(x, i){ return i; }), fresh = ix.filter(function(i){ return !told[(cat || "") + i]; }), from = fresh.length ? fresh : ix;
+      var i = from[Math.floor(rng() * from.length)]; told[(cat || "") + i] = 1; return a[i];
+    };
+    var pcs = fighters.filter(function(f){ return f.side === "pc"; }), foes = fighters.filter(function(f){ return f.side === "foe"; });
+    var foeWords = foes.length === 1 ? nm(foes[0].id) : foes.slice(0, -1).map(function(f){ return nm(f.id); }).join(", ") + " and " + nm(foes[foes.length - 1].id);
+    var p = [];
+    p.push(pick(["The wasteland went quiet the way it does right before somebody dies.", "Nobody planned this fight. It found them anyway.", "It started the way these things always start: a shape where no shape should be, and then everyone moving at once."]) +
+           " " + foeWords + " came out of the ruins, and " + pcs.map(function(f){ return nm(f.id); }).join(", ").replace(/, ([^,]*)$/, " and $1") + " met them.");
+    var flavour = {
+      warlord: function(e){ return pick([nm(e.who) + " pointed, and the whole company understood: " + nm(e.to) + " first.", nm(e.who) + " barked one word and every gun in the party swung to " + nm(e.to) + "."], "warlord"); },
+      heal:    function(e){ return pick([nm(e.who) + " slid into the dirt beside " + nm(e.to) + " and jammed a stimpak home. " + e.hp + " HP back, and a scowl for free.", "\"Hold still,\" " + nm(e.who) + " said, and " + nm(e.to) + " got back up."], "heal"); },
+      kill:    function(e){ return pick([gun(e) + " ended " + nm(e.to) + " for good.", nm(e.to) + " dropped, and " + nm(e.who) + " was already looking for the next one.", "One clean hit from " + nm(e.who) + ", and " + nm(e.to) + " stopped being a problem."], "kill"); },
+      big:     function(e){ return pick([gun(e) + " landed like a thrown car: " + e.dmg + " damage, straight through.", nm(e.who) + " found the gap in " + nm(e.to) + "'s armour, and " + e.dmg + " damage poured through it."], "big"); },
+      luck:    function(e){ return pick([nm(e.who) + " didn't aim so much as trust the dice, and the dice loved " + nm(e.who) + " back.", "Pure luck, " + nm(e.who) + " would say later. Nobody believed that."], "luck"); },
+      down:    function(e){ return pick([nm(e.to) + " went down hard, and for one long second nobody breathed.", nm(e.who) + " caught " + nm(e.to) + " cold, and " + nm(e.to) + " hit the ground."], "down"); },
+      bite:    function(e){ return pick([e.by + " was already there, teeth first.", "Something small and furious that answered to " + e.by + " hit " + nm(e.to) + " at knee height."], "bite"); },
+      blast:   function(e){ return pick(["The blast didn't care who it was aimed at. " + nm(e.to) + " got some too.", "Shrapnel found " + nm(e.to) + " as well; there is no such thing as a clean explosion."], "blast"); }
+    };
+    var lines = [], used = 0, lastR = 0, said = {};
+    res.log.forEach(function(e){
+      if(used >= 9) return;
+      var line = "";
+      if(e.k === "call" && !said.call){ line = flavour.warlord(e); said.call = 1; }
+      else if(e.k === "heal" && (said.heal || 0) < 2){ line = flavour.heal(e); said.heal = (said.heal || 0) + 1; }
+      else if(e.down){ line = flavour.down(e); }
+      else if(e.kill && e.k !== "blast"){ line = (e.how === "luck" && !said.luck ? (said.luck = 1, flavour.luck(e) + " ") : "") + flavour.kill(e); }
+      else if(e.k === "attack" && e.hit && e.big && (said.big || 0) < 2){ line = flavour.big(e); said.big = (said.big || 0) + 1; }
+      else if(e.k === "bite" && !said.bite && e.dmg > 0){ line = flavour.bite(e); said.bite = 1; }
+      else if(e.k === "blast" && e.kill && !said.blast){ line = flavour.blast(e); said.blast = 1; }
+      if(!line) return;
+      if(e.r !== lastR && lines.length){ p.push(lines.join(" ")); lines = []; }
+      lastR = e.r; lines.push(line); used++;
+    });
+    if(lines.length) p.push(lines.join(" "));
+    var mvp = res.pcs.slice().sort(function(a, b){ return (b.kills * 10 + b.dealt) - (a.kills * 10 + a.dealt); })[0];
+    if(res.winner === "pc")
+      p.push("It took " + res.rounds + (res.rounds === 1 ? " round" : " rounds") + ". When the dust settled the company was still standing" +
+             (res.pcs.some(function(x){ return x.down; }) ? ", mostly. " + res.pcs.filter(function(x){ return x.down; }).map(function(x){ return x.name; }).join(" and ") + " would need a minute, and a stimpak, and a drink." : ".") +
+             (mvp ? " Ask anyone who carried the day and they'd point at " + mvp.name + "." : "") + " Then came the part everyone actually likes: picking through what was left.");
+    else if(res.winner === "foe") p.push("It went wrong fast. By round " + res.rounds + " the company was down in the dirt, and whatever they had come for would have to wait. This is a story the Overseer can still change.");
+    else p.push("After " + res.rounds + " rounds both sides pulled back, bloodied and unfinished. Some fights don't end. They just stop.");
+    return p.join("\n\n");
+  },
+  /* Howl 2026-10-30: THE TARGET'S COVER, SAID WHEN IT IS PICKED.  cv is HELENA_CHAR.coverFor(target, shooter) — { cover, name, zone,
+     face, fromZone, same, onMap, shooterOnMap } — and the words say how much DR it adds to the damage and why: the side the shot comes
+     from, the zone, or that the two share a zone (no cover within one zone, NR-21).  PURE. */
+  COVER_SIDE: { N:"north", E:"east", S:"south", W:"west" },
+  coverWords: function(cv, shooter, target){
+    var who = target || "The target", from = shooter || "the attacker";
+    if(!cv || !cv.onMap) return { cover:0, line:"No cover: " + who + " is not on the map, so nothing is added. The Overseer may type cover in by hand." };
+    var n = Math.max(0, Math.round(+cv.cover || 0));
+    if(cv.same) return { cover:0, line:"No cover: " + from + " and " + who + " share " + (cv.zone || "a zone") + ", and there is no cover within one zone." };
+    var side = cv.face && TT.COVER_SIDE[cv.face] ? TT.COVER_SIDE[cv.face] + " side" : "side the shot comes from";
+    var where = (cv.zone ? " in " + cv.zone : "") + (cv.fromZone ? ", shot at from " + cv.fromZone : "");
+    if(!n) return { cover:0, line:"No cover: nothing stands on the " + side + " of " + who + where + "." };
+    return { cover:n, line:(cv.name || "Cover") + ": +" + n + " DR on the damage. " + who + " has it on the " + side + where +
+                          (cv.shooterOnMap ? "" : " (the attacker is not on the map, so the best side counts)") + ". It comes off the damage automatically; Breaking strips it first." };
+  },
   /* attackSpec's optional fields, added only when a caller sends them, so every older declaration is the object it always was */
   mapFields: function(spec, extra){
     extra = extra || {};
@@ -44884,6 +45366,8 @@ var TT = {
     if(extra.commanded && typeof extra.commanded === "object" && Math.round(+extra.commanded.dice || 0) > 0)
       spec.commanded = { by:String(extra.commanded.by || "").slice(0, 80), charId:extra.commanded.charId == null ? null : String(extra.commanded.charId),
                          dice:Math.max(1, Math.min(2, Math.round(+extra.commanded.dice))) };
+    if(extra.demolition) spec.demolition = true;
+    if(extra.aimReroll) spec.aimReroll = true;       /* Howl 10-30: Aim's free d20 re-roll on the turn's first attack */     /* Howl 10-30: the attacker's sheet holds Demolitions Expert (the drawer reads Blast) */
     if(Math.round(+extra.damageMark || 0) > 0){
       spec.damageMark = Math.max(1, Math.min(3, Math.round(+extra.damageMark)));
       spec.damageMarkWhy = String(extra.damageMarkWhy || "").slice(0, 200);
@@ -45138,6 +45622,13 @@ function warFor(e, target){
     if(w.mark){ out.damageMark = w.mark.cd; out.damageMarkWhy = w.mark.why; }
   }catch(err){}
   return out;
+}
+/* Howl 10-30: does the attacking character's sheet hold Demolitions Expert?  (HELENA_CHAR.demoOf decides; the weapon is the drawer's) */
+function demoGet(e){
+  try{
+    var CH = window.HELENA_CHAR, c = e && e.kind === "char" && typeof charOf === "function" ? charOf(e.ref) : null;
+    return !!(c && CH && typeof CH.demoOf === "function" && CH.demoOf(c, "Blast"));
+  }catch(err){ return false; }
 }
 /* the call sites' door: a lifted panel with no warFor beside it declares exactly as before */
 function warGet(e, target){ var w = typeof warFor === "function" ? warFor(e, target) : null; return w && typeof w === "object" ? w : { commanded:null, damageMark:0, damageMarkWhy:"" }; }
@@ -46037,6 +46528,15 @@ function render(){
           (und.ok ? "" : " disabled") + ' title="' + esc(undTitle) + '">undo' +
           (und.ok && und.ap ? " (+" + undLands + (undLands < und.ap ? " of " + und.ap : "") + " AP)" : "") + "</button>" : "") +
         '<button class="mini" data-act="attack">Attack</button>' +
+        /* Howl 10-30: the named actions, on the row whose turn it is */
+        (st.phase !== "idle" && TT.currentOf(st, ord) === id
+          ? '<select class="mini tt-named" aria-label="Actions for ' + esc(e.name) + '" title="Spend the turn: each one ticks its own action">' +
+              '<option value="">Actions…</option>' +
+              ["minor", "major"].map(function(k){
+                return '<optgroup label="' + (k === "minor" ? "Minor" : "Major") + '">' + TT.NAMED.filter(function(a){ return a.kind === k; }).map(function(a){
+                  return '<option value="' + a.key + '" title="' + esc(a.says) + '">' + esc(a.name) + "</option>"; }).join("") + "</optgroup>";
+              }).join("") + "</select>"
+          : "") +
         '<button class="mini more-b" data-more="1" aria-expanded="' + (mOpen ? "true" : "false") + '" aria-label="More for ' +
           esc(e.name) + '" title="More for ' + esc(e.name) + ': the + box and the override, sneaking and unaware, ' +
           (e.kind !== "char" ? "the stat block here, " : "") + 'Hide, Spot, Sprint, Lucky Timing, and drop">&#8943;</button>' +
@@ -46823,6 +47323,153 @@ function tvCond(id, key, on){
   return ok;
 }
 /* LOOT: one press of the Encounter pane's own "Fight finished — pay the Spoils" (its guards, its record, its note) */
+/* AUTOPLAY:begin */
+/* Howl 2026-10-30: THE AUTOPLAYER, ON THE PAGE.  autoFighters reads the fight that is in the turn order now — every character's sheet
+   (HP, armour plate and DR, Defense through the door, weapons with their TN and crit range, Luck, stimpaks, the Warlord perks,
+   Demolitions Expert, a companion's Attack Dog) and every creature's stat block (its HP as the Encounter pane holds it, DR,
+   Defense, attacks, a swarm's bonus) — into TT.autoFight's plain records.  One creature record per roster entry.  The window
+   works out the odds or plays one fight out, tells it as a story, and — on the Overseer's device, on a win — applies it:
+   the creatures' HP, each character's damage (one write a sheet, DR already counted), and the Spoils (XP and scavenging
+   tokens, through the Encounter pane's own press).  Nothing is written by the odds, or by a fight that is only played. */
+var AUTO_ATTR = { STR:"S", PER:"P", END:"E", CHA:"C", INT:"I", AGI:"A", LCK:"L" };
+var autoAiOver = {}, autoLast = null;
+function autoAiOf(c, attacks){
+  var CH = window.HELENA_CHAR, rk = CH && typeof CH.warRanks === "function" ? CH.warRanks(c) : { cmd:0, mark:0 };
+  if(autoAiOver[c.id]) return autoAiOver[c.id];
+  if(rk.cmd || rk.mark) return "warlord";
+  var perks = ((c.perks || []).map(function(p){ return String(p && p.name || "").toLowerCase(); })).join("|");
+  var med = c.skills && c.skills.Medicine ? +c.skills.Medicine.rank || 0 : 0;
+  if(/\b(medic|healer|field medic)\b/.test(perks) || med >= 5) return "medic";
+  if(c.special && +c.special.L >= 9) return "gambler";
+  var melee = attacks.length && attacks.slice().sort(function(a, b){ return b.cd - a.cd; })[0].melee;
+  return melee ? "bruiser" : "gunner";
+}
+function autoFighters(){
+  var CH = window.HELENA_CHAR, list = combatants(), out = [], seenRef = {};
+  list.forEach(function(e){
+    if(e.kind === "char"){
+      var c = charOf(e.ref); if(!c) return;
+      var sp = c.special || {}, a0 = c.armour || {};
+      var atks = weaponsFor(e).map(function(x){
+        var w = x.w || {}, k = AUTO_ATTR[String(w.attr || "").toUpperCase()] || "", av = +sp[k] || 0, sk = (c.skills || {})[w.skill] || {};
+        var rank = +sk.rank || 0, fx = String((w.effects || "") + " " + (w.qualities || "")), pm = /Piercing\s*(\d+)/i.exec(fx);
+        var cd = (+w.cd || 0) + (CH && typeof CH.damageLane === "function" ? CH.damageLane(av) : 0);
+        return { name:x.name, tn:av + rank, crit:sk.tag ? Math.max(1, rank) : 1, cd:cd, type:String(w.type || "Ph"), attrV:av, rank:rank,
+                 vicious:/\bVicious\b/i.test(fx), blast:/\bBlast\b/i.test(fx), pierce:pm ? +pm[1] : (/\bPiercing\b/i.test(fx) ? 1 : 0),
+                 melee:/melee|unarmed/i.test(String(w.skill || "")) };
+      }).filter(function(a){ return a.cd > 0 && a.tn > 0; });
+      var rk = CH && typeof CH.warRanks === "function" ? CH.warRanks(c) : { cmd:0, mark:0 };
+      var stims = 0; (c.inventory || []).forEach(function(r){ if(r && /stimpak/i.test(String(r.name || "")) && !/diluted/i.test(String(r.name || ""))) stims += Math.max(0, Math.round(+r.qty || 0)); });
+      var cp = c.companion, bm = cp && cp.name ? /Attack Dog[^.]*?(\d+)\s*CD/i.exec(String(cp.abilities || "")) : null;
+      var rad = String(a0.rad || ""), dv = TT.defenseOf(e, ctx());
+      out.push({ id:e.id, ref:String(c.id), side:"pc", name:c.name || e.name, hp:Math.max(0, +c.hp || 0), max:CH && CH.effMax ? CH.effMax(c) : Math.max(1, +c.hp || 1),
+                 plate:CH && CH.armourWorn && CH.armourWorn(c) ? Math.max(0, +a0.hp || 0) : 0,
+                 dr:{ Ph:+a0.phys || 0, En:+a0.en || 0, Rad:/immune/i.test(rad) ? Infinity : (+rad || 0) },
+                 def:dv && dv.value != null ? dv.value : 1, init:(+sp.P || 0) + (+sp.A || 0), attacks:atks, ai:autoAiOf(c, atks),
+                 cmd:rk.cmd, mark:rk.mark, demo:!!(CH && CH.demoOf && CH.demoOf(c, "Blast")), luck:Math.max(0, +c.luck || 0), lck:+sp.L || 0,
+                 stims:stims, robot:c.robot === true, bite:bm ? +bm[1] : 0, biteName:cp && cp.name ? cp.name : "" });
+      return;
+    }
+    if(seenRef[e.ref]) return;                        /* one creature record per roster entry (its HP is the entry's pool) */
+    if(typeof tvWiped === "function" && tvWiped(e)) return;
+    var cr = statOf(e.ref), h = typeof tvHp === "function" ? tvHp(e) : null;
+    if(!cr || !h || !(h.now > 0)) return;
+    seenRef[e.ref] = 1;
+    var sw = typeof swarmOf === "function" ? swarmOf(e) : null, bon = sw ? Math.max(0, Math.round(+sw.bonus || 0)) : 0;
+    var atk = weaponsFor(e).map(function(x){
+      var p = x.parsed || {}, fx = String(p.rest || ""), pm = /Piercing\s*(\d+)/i.exec(fx);
+      return { name:x.name, tn:+p.tn || 0, crit:1, cd:(+p.cd || 0) + bon, dice:bon, type:String(p.type || "Ph"), attrV:0, rank:0,
+               vicious:/\bVicious\b/i.test(fx), blast:/\bBlast\b/i.test(fx), pierce:pm ? +pm[1] : (/\bPiercing\b/i.test(fx) ? 1 : 0) };
+    }).filter(function(a){ return a.cd > 0 && a.tn > 0; });
+    if(!atk.length) return;
+    var dr = cr.dr || {}, dv2 = TT.defenseOf(e, ctx());
+    out.push({ id:e.id, ref:String(e.ref), side:"foe", name:e.name || cr.name, hp:h.now, max:h.total || h.now,
+               plate:0, dr:{ Ph:+dr.p || 0, En:+dr.e || 0, Rad:dr.r === "Immune" ? Infinity : (+dr.r || 0) },
+               def:dv2 && dv2.value != null ? dv2.value : (+cr.def || 1), init:+cr.init || 0, attacks:atk, ai:"beast", xp:+cr.xp || 0 });
+  });
+  return out;
+}
+var AUTO_AI_WORDS = { warlord:"Warlord: calls the weakest enemy, marks what she hits", medic:"Medic: patches the worst-hurt first",
+                      gambler:"Gambler: rolls on Luck, throws Blast at crowds", gunner:"Gunner: the most damage past DR",
+                      bruiser:"Bruiser: the most damage, up close", beast:"a creature" };
+function autoEl(){
+  var w = $("tt-auto");
+  if(w) return w;
+  w = document.createElement("div"); w.id = "tt-auto"; w.hidden = true; w.setAttribute("role", "dialog"); w.setAttribute("aria-label", "Auto-fight");
+  window.document.body.appendChild(w);            /* the real <body>: this tool's own `document.body` is its pane, hidden in Cinder */
+  w.addEventListener("click", function(ev){
+    var b = ev.target.closest ? ev.target.closest("button") : null; if(!b) return;
+    var act = b.getAttribute("data-auto");
+    if(act === "close"){ w.hidden = true; return; }
+    if(act === "odds") autoOdds();
+    if(act === "play") autoPlay();
+    if(act === "apply") autoApply();
+    if(act === "copy"){ try{ navigator.clipboard.writeText(autoLast ? autoLast.story : ""); b.textContent = "Copied"; }catch(err){} }
+  });
+  w.addEventListener("change", function(ev){
+    var s = ev.target; if(!s || !s.getAttribute) return;
+    var id = s.getAttribute("data-ai"); if(id){ autoAiOver[id] = s.value; autoPaint(null); }
+  });
+  return w;
+}
+function autoPaint(body, only){
+  var w = autoEl(), fs = autoFighters(), pcs = fs.filter(function(f){ return f.side === "pc"; }), foes = fs.filter(function(f){ return f.side === "foe"; });
+  var h = '<div class="ta-head"><b>Auto-fight</b><button type="button" data-auto="close" aria-label="Close">&times;</button></div>' +
+          '<p class="ta-note">Rudimentary: no map (range, cover, zones and movement are left out), no Overseer AP spends, stimpaks the only chem. The odds and a played fight write nothing; Apply does.</p>';
+  if(only){ w.innerHTML = h + body; w.hidden = false; return; }
+  if(!pcs.length || !foes.length){ h += '<p class="ta-note"><b>Nothing to fight.</b> Put an encounter in the Encounter pane and the party in the turn order first.</p>'; w.innerHTML = h; w.hidden = false; return; }
+  h += '<div class="ta-cols"><div><small>THE PARTY</small>' + pcs.map(function(f){
+         return '<div class="ta-row"><span>' + esc(f.name) + ' <i>' + f.hp + (f.plate ? " +" + f.plate : "") + ' HP</i></span><select data-ai="' + esc(f.ref) + '">' +
+           ["warlord", "medic", "gambler", "gunner", "bruiser"].map(function(k){ return '<option value="' + k + '"' + (f.ai === k ? " selected" : "") + ">" + k + "</option>"; }).join("") +
+           '</select><em>' + esc(AUTO_AI_WORDS[f.ai] || "") + "</em></div>"; }).join("") + "</div>" +
+       '<div><small>THE ENEMY</small>' + foes.map(function(f){ return '<div class="ta-row"><span>' + esc(f.name) + ' <i>' + f.hp + " HP · Def " + f.def + "</i></span></div>"; }).join("") + "</div></div>" +
+       '<div class="ta-acts"><button type="button" data-auto="odds">Work out the odds</button><button type="button" data-auto="play">Play it out</button></div>' +
+       (body || "");
+  w.innerHTML = h; w.hidden = false;
+}
+function autoOdds(){
+  var fs = autoFighters(), o = TT.autoOdds(fs, { ap:Math.round(+(S.get() || {}).pcAP || 0) }, 400, Date.now() & 0xffff);
+  var pcs = fs.filter(function(f){ return f.side === "pc"; });
+  autoPaint('<div class="ta-out"><p><b>' + Math.round(o.win * 100) + "%</b> of 400 fights won, usually in <b>" + o.rounds + "</b> rounds.</p>" +
+    '<table><tr><th>Who</th><th>HP lost, average</th><th>Goes down</th></tr>' + pcs.map(function(f){
+      return "<tr><td>" + esc(f.name) + "</td><td>" + (o.lost[f.id] || 0) + "</td><td>" + Math.round((o.down[f.id] || 0) * 100) + "%</td></tr>"; }).join("") + "</table></div>");
+}
+function autoPlay(){
+  var fs = autoFighters(), seed = Date.now() & 0x7fffffff, rng = TT.autoRng(seed);
+  var res = TT.autoFight(fs, { ap:Math.round(+(S.get() || {}).pcAP || 0) }, rng);
+  var story = TT.autoStory(res, fs, rng);
+  autoLast = { res:res, fighters:fs, story:story, seed:seed, fid:String(st.fid || "f"), applied:false };
+  var xp = res.foes.reduce(function(n, f){ return n + (f.dead ? f.xp : 0); }, 0);
+  autoPaint('<div class="ta-out"><p class="ta-verdict ' + res.winner + '">' + (res.winner === "pc" ? "Won" : res.winner === "foe" ? "Lost" : "Unfinished") + " in " + res.rounds + (res.rounds === 1 ? " round" : " rounds") + "</p>" +
+    '<table><tr><th>Who</th><th>HP</th><th>Dealt</th><th>Kills</th></tr>' + res.pcs.map(function(p){
+      return "<tr><td>" + esc(p.name) + (p.down ? " <b>(down)</b>" : "") + "</td><td>" + (p.hp0 + p.plate0) + " → " + (p.hp + p.plate) + "</td><td>" + p.dealt + "</td><td>" + p.kills +
+             (p.stimsUsed ? " · " + p.stimsUsed + " stimpak" + (p.stimsUsed === 1 ? "" : "s") : "") + (p.luck0 !== p.luck ? " · " + (p.luck0 - p.luck) + " Luck" : "") + "</td></tr>"; }).join("") + "</table>" +
+    '<p class="ta-note">Creatures killed: ' + res.foes.filter(function(f){ return f.dead; }).length + " of " + res.foes.length + (xp ? " (" + xp + " XP on their stat blocks; the Spoils decide what is paid)" : "") + ".</p>" +
+    '<div class="ta-story">' + esc(story).replace(/\n\n/g, "</p><p>").replace(/^/, "<p>") + "</p></div>" +
+    '<div class="ta-acts"><button type="button" data-auto="copy">Copy the story</button>' +
+    (res.winner === "pc" ? '<button type="button" data-auto="apply"' + (writable() ? "" : ' disabled title="Only the device holding the turn order applies a fight"') + ">Apply: HP, the Spoils (XP and tokens)</button>" : "") + "</div>" +
+    (res.pcs.some(function(p){ return p.stimsUsed; }) ? '<p class="ta-note">Stimpaks used are not taken off the sheets; take them off by hand.</p>' : "") + "</div>");
+}
+function autoApply(){
+  var L = autoLast; if(!L || L.applied || L.res.winner !== "pc" || !writable()) return;
+  var E = encApi(), CH = window.HELENA_CHAR, done = [];
+  L.res.foes.forEach(function(f){ if(E && typeof E.setHp === "function"){ try{ E.setHp(f.ref, Math.max(0, Math.round(f.hp))); }catch(err){} } });
+  L.res.pcs.forEach(function(p){
+    var pl = Math.max(0, p.plate0 - p.plate), he = Math.max(0, p.hp0 - p.hp);
+    if((pl || he) && CH && typeof CH.settleFight === "function"){
+      var sr = null; try{ sr = CH.settleFight(p.ref, { plate:pl, health:he, id:"auto-" + L.fid + "-" + L.seed + "-" + p.ref }); }catch(err){ sr = null; }
+      if(sr && sr.ok) done.push(p.name + " " + (pl ? "−" + pl + " plate" : "") + (pl && he ? ", " : "") + (he ? "−" + he + " HP" : ""));
+    }
+  });
+  L.applied = true;
+  tick("turn", "— Auto-fight: won in " + L.res.rounds + " rounds" + (done.length ? "; " + done.join(", ") : "; nobody hurt"));
+  var paid = typeof tvLoot === "function" ? tvLoot() : false;
+  autoPaint('<div class="ta-out"><p><b>Applied.</b> The creatures\' HP are in the Encounter pane' + (done.length ? ", the damage is on " + done.join(", ") : "") +
+    ", and the Spoils " + (paid ? "are paid (XP and scavenging tokens)." : "could not be paid from here; the Encounter pane says why.") + "</p>" +
+    '<div class="ta-story">' + esc(L.story).replace(/\n\n/g, "</p><p>").replace(/^/, "<p>") + "</p></div>" +
+    '<div class="ta-acts"><button type="button" data-auto="copy">Copy the story</button></div></div>', true);
+}
+/* AUTOPLAY:end */
 function tvLoot(){
   var b = $("eb-sp-pay");
   if(!b){ msg = { cls:"warn", hd:"No Spoils here", body:"The Encounter pane is not on this build, so there are no Spoils to pay from here." }; render(); return false; }
@@ -47019,6 +47666,12 @@ listEl.addEventListener("change", function(ev){
   var row = el.closest ? el.closest(".row") : null;
   if(!row) return;
   var id = row.getAttribute("data-id");
+  if(el.classList.contains("tt-named")){                     /* Howl 10-30: a named action from the row's menu */
+    var key = el.value; el.value = "";
+    var ent = entryOf(combatants(), id);
+    if(key && ent){ var nr = namedAction(ent, key); if(nr && nr.ok === false){ msg = { cls:"warn", hd:"Not taken", body:esc(nr.note) }; } else if(nr){ msg = { cls:"good", hd:"Action", body:esc(nr.note) }; } render(); }
+    return;
+  }
   if(el.classList.contains("bn")){
     var v = Math.max(-20, Math.min(20, Math.round(+el.value || 0)));
     mutate(function(){ if(v) st.bonus[id] = v; else delete st.bonus[id]; });
@@ -47408,6 +48061,66 @@ function takeAction(e, kind){
   if(r.ap) tick("turn", "— " + e.name + " bought a" + (r.nth > 2 ? " " + TT.nth(r.nth) : " second") + " " + kind + " action (" + r.ap + " AP)");
   return r;
 }
+/* Howl 10-30: A NAMED ACTION, PRESSED FROM THE FIGHT TAB.  On the combatant's own turn: the action it costs is taken through
+   takeAction (its AP, its refusals, the GM's ownership of the order all as before), then what can be automated is done.
+   -> { ok, note } */
+function namedAction(e, key){
+  var A = TT.namedOf(key);
+  if(!e || !A) return { ok:false, note:"No such action." };
+  if(st.phase === "idle") return { ok:false, note:"No fight is running." };
+  var ord = orderOf(combatants());
+  if(TT.currentOf(st, ord) !== e.id) return { ok:false, note:"It is not " + (e.name || "their") + "'s turn." };
+  if(key === "pass"){
+    var nb = $("tt-next");
+    if(!(nb && !nb.disabled)) return { ok:false, note:"Only the device holding the turn order can end the turn." };
+    nb.click(); return { ok:true, note:(e.name || "They") + " passed." };
+  }
+  /* Rally opens its test first: a drawer that will not take it (a test already on the table) costs nothing */
+  var rallyOpened = null;
+  if(key === "rally"){
+    var rc = e.kind === "char" && typeof charOf === "function" ? charOf(e.ref) : null, R0 = window.HELENA_ROLL;
+    if(rc && R0 && typeof R0.open === "function"){
+      rallyOpened = R0.open({ kind:"test", source:"Rally", id:"rally-" + e.id + "-" + st.round, charId:String(rc.id),
+                              attacker:{ id:String(rc.id), kind:"char", ref:String(rc.id), name:rc.name || "" },
+                              attr:"END", skill:"Survival", difficulty:0, note:"Rally: every success is AP for the party pool (bank them on the drawer)." });
+      if(rallyOpened && rallyOpened.ok === false) return { ok:false, note:"The drawer would not take the Rally test: " + (rallyOpened.note || "") + " Nothing was spent." };
+    }
+  }
+  var r = takeAction(e, A.kind);
+  if(!r || r.ok === false) return { ok:false, note:(r && r.note) || "The action was not taken." };
+  var say = (e.name || "They") + " - " + A.name + ". ";
+  if(key === "aim"){ mutate(function(){ st = TT.stanceSet(st, e.id, "aim"); }); say += "The first attack this turn may re-roll one d20, free."; }
+  else if(key === "defend"){ mutate(function(){ st = TT.stanceSet(st, e.id, "defend"); }); say += "+1 Defense until the start of their next turn."; }
+  else if(key === "prone"){
+    var cn = TT.condsFor(e.id), was = !!(cn && cn.prone);
+    mutate(function(){ st = was ? TT.condClear(st, e.id, "prone") : TT.condApply(st, e.id, [{ key:"prone" }], st.round); });
+    say += was ? "Standing." : "Prone.";
+  }
+  else if(key === "rally") say += rallyOpened ? "END + Survival at Difficulty 0 is on the drawer; bank the successes as AP." : "Roll END + Survival at Difficulty 0 by hand; the successes are AP.";
+  else if(key === "firstaid"){ try{ var SH = window.SUITE_SHELL; if(SH && typeof SH.show === "function") SH.show("medical"); }catch(err){} say += "The Medical board is open."; }
+  else if(key === "test"){ try{ var SH2 = window.SUITE_SHELL; if(SH2 && typeof SH2.showRoll === "function") SH2.showRoll(); }catch(err){} say += "Roll it on the dice drawer."; }
+  else say += A.says;
+  tick("turn", "— " + say);
+  return { ok:true, note:say };
+}
+/* Howl 10-30: is this combatant Defending right now (TT.defending, on the live order)?  TT.defenseOf reads it through
+   TT.defendingHook - set here, on the page, so a lifted TT (and ctx(), unchanged) answer exactly as before */
+function defendingNow(id){ try{ return TT.defending(st, id, orderOf(combatants())); }catch(e){ return false; } }
+TT.defendingHook = defendingNow;
+(function(){ var ab = document.getElementById("tt-auto-open"); if(ab) ab.addEventListener("click", function(){ autoPaint(null); }); })();
+/* Howl 10-30: the attacker took Aim this turn and has not used its re-roll (the declaration carries it; the Declare spends it) */
+function aimGet(e){ try{ return !!(e && TT.aiming(st, e.id, orderOf(combatants()))); }catch(err){ return false; } }
+/* Howl 10-30: the first major action of the attacker's own turn, ticked when its attack is declared — nothing when it is not their
+   turn, when a major is already marked, or when this device may not write the order (takeAction says so) */
+function autoMajor(e){
+  try{
+    if(!e || st.phase === "idle") return null;
+    var ord = orderOf(combatants());
+    if(TT.currentOf(st, ord) !== e.id) return null;
+    if((TT.usedOf(st, e.id).major || 0) > 0) return null;
+    return takeAction(e, "major");
+  }catch(err){ return null; }
+}
 /* PROJECT H, FIGHT (Zoe 2026-10-13, ruled: R2) — THE ENCOUNTER PANE'S "+2 AP" IS THE SWARM'S NEXT MAJOR ACTION.  Its stat block
    sells a swarm "another attack" for 2 AP; that is an extra major action, so it is bought here, through the row's own boxes —
    the swarm's ceiling (one per member still standing beyond the first), the 2 AP off the Overseer's pool, the +1 difficulty —
@@ -47744,7 +48457,7 @@ function hereSpec(e, x, target){
     sneak:sa.on,
     difficultyEase:sa.on ? 1 : 0,
     difficultyMark:markStep(target),
-    commanded:(typeof warGet === "function" && warGet(e, target) || {}).commanded, damageMark:(typeof warGet === "function" && warGet(e, target) || {}).damageMark, damageMarkWhy:(typeof warGet === "function" && warGet(e, target) || {}).damageMarkWhy,
+    demolition:typeof demoGet === "function" && demoGet(e), aimReroll:typeof aimGet === "function" && aimGet(e), commanded:(typeof warGet === "function" && warGet(e, target) || {}).commanded, damageMark:(typeof warGet === "function" && warGet(e, target) || {}).damageMark, damageMarkWhy:(typeof warGet === "function" && warGet(e, target) || {}).damageMarkWhy,
     targetGen:(target && target.kind !== "char") ? genOf(target.ref) : null,
     sneakCd:(sa.on && sa.hadVicious) ? 2 : 0,
     attr:(pp && pp.attr) ? pp.attr : "", skill:(pp && pp.skill) ? pp.skill : "",
@@ -47879,6 +48592,7 @@ function rollHere(e, wi, tid){
   body += apLine;
   r.over.forEach(function(o){ body += '<span class="sb-over">' + o + "</span>"; });
   sbOut[key] = '<div class="sb-out ' + (r.hit ? "hit" : "miss") + '">' + body + "</div>";
+  if(typeof autoMajor === "function") autoMajor(e);   /* Howl 10-30: the attack takes its major action */
   lockRow(e.id);                       /* wave 10: a roll happened off this row — see TT.undoAction */
   /* the room's ticker gets a line for EVERY roll, hit or miss, as the Dice tab posts one for
      every resolve — applyResult's own line below is for a hit that was applied, and a miss
@@ -49912,6 +50626,7 @@ function openAttack(e, list, ord, pick, tgtId){
        difficulty of any attacks made against you."  Every creature record carries a
        `def` and the suite has never read one. */
     '<div id="tt-atk-def" style="margin-top:7px"></div>' +
+    '<div id="tt-atk-cover" style="margin-top:5px"></div>' +
     /* MAP_LOS: the map's line — the sight on a Blocks map, the band and the moves, and the roll step's range step (rangeLine) */
     '<div id="tt-atk-rng"></div>' +
     /* Q10 — the raw string, printed where it cannot be missed, whenever the grammar
@@ -50139,6 +50854,16 @@ function wirePanel(){
   function paintWave8(){
     var x = chosen(), tgt = entryOf(list, tsel ? tsel.value : "");
     var d = $("tt-atk-def"), raw = $("tt-atk-raw"), tl = $("tt-atk-type-l"), ts = $("tt-atk-type");
+    /* Howl 10-30: the target's cover, with why, the moment it is picked (the damage already takes it off: applyResult's coverFor) */
+    var cvEl = $("tt-atk-cover");
+    if(cvEl){
+      var cvw = null, CHc = typeof window !== "undefined" ? window.HELENA_CHAR : null;
+      if(tgt && CHc && typeof CHc.coverFor === "function" && typeof TT.coverWords === "function"){
+        try{ cvw = TT.coverWords(CHc.coverFor(tgt.id, e.id), e.name, tgt.name); }catch(err){ cvw = null; }
+      }
+      var cvh = cvw ? '<span class="tt-cover' + (cvw.cover ? " on" : "") + '"><b>' + (cvw.cover ? "Cover +" + cvw.cover + " DR" : "No cover") + "</b></span> " + esc(cvw.line) : "";
+      if(cvEl.innerHTML !== cvh) cvEl.innerHTML = cvh;
+    }
 
     /* DEFENSE — the base difficulty the declaration will carry.  It is shown as an
        arithmetic line, not a number on its own, so the Overseer can see what will
@@ -50469,7 +51194,7 @@ function wirePanel(){
          are the same number by construction rather than by coincidence. */
       difficultyMark:markStep(target),
       /* Howl 2026-10-30: the Warlord's called target and the Tenderizer's mark, off the room's sheets (warFor) */
-      commanded:(typeof warGet === "function" && warGet(e, target) || {}).commanded, damageMark:(typeof warGet === "function" && warGet(e, target) || {}).damageMark, damageMarkWhy:(typeof warGet === "function" && warGet(e, target) || {}).damageMarkWhy,
+      demolition:typeof demoGet === "function" && demoGet(e), aimReroll:typeof aimGet === "function" && aimGet(e), commanded:(typeof warGet === "function" && warGet(e, target) || {}).commanded, damageMark:(typeof warGet === "function" && warGet(e, target) || {}).damageMark, damageMarkWhy:(typeof warGet === "function" && warGet(e, target) || {}).damageMarkWhy,
       /* WAVE 8 SKEPTIC — the roster generation this declaration is made against, read
          off Contract 1's own read() at the moment the target is chosen.  A character
          target has no roster row and no generation, and gets none. */
@@ -50532,6 +51257,10 @@ function wirePanel(){
        three-way line for ammunition (taken / refused / absent-or-threw: a refusal is the
        door provably doing nothing, so the rounds go back), and the lock follows it: the
        click behind a refused declaration is still a click with nothing behind it. */
+    /* Howl 2026-10-30: AN ATTACK TAKES THE MAJOR ACTION, TICKED FOR THEM.  On the attacker's own turn, a declaration the drawer took
+       marks the first major action (a second one is still bought on purpose, through the row's own button: it costs AP and +1). */
+    if(!r.refused && typeof autoMajor === "function") autoMajor(e);
+    if(!r.refused && typeof spec !== "undefined" && spec && spec.aimReroll && writable()) mutate(function(){ st = TT.stanceSet(st, e.id, "aimUsed"); });   /* Aim: the first attack used it */
     if(!r.refused) lockRow(e.id);
     /* the rule is TT.refundAmmo, so it can be tested without a browser; this is only
        the writing of it (close-pass skeptic, 2026-09-22) */
@@ -51299,6 +52028,12 @@ window.HELENA_TURN.cinder = {
   purse: function(id){ var e = entryOf(combatants(), id); return e ? purseFor(e) : 0; },
   log: function(text){ tick("turn", text); },
   next: function(){ var b = $("tt-next"); if(b && !b.disabled) b.click(); },
+  /* Howl 10-30: the autoplayer's window (AUTOPLAY block); Classic's bar button opens it too */
+  auto: function(){ autoPaint(null); return true; },
+  /* Howl 10-30: the Fight tab's named actions - the list, and a press for the row whose turn it is */
+  named: function(id, key){ var e = entryOf(combatants(), id); var r = e ? namedAction(e, key) : { ok:false, note:"No such row." }; render(); return r; },
+  namedList: function(){ return TT.NAMED.map(function(a){ return { key:a.key, kind:a.kind, name:a.name, says:a.says }; }); },
+  stance: function(id){ return { aim:aimGet(entryOf(combatants(), id)), defend:defendingNow(id) }; },
   select: function(id){ if(tvSel !== id) tvSelect(id); return tvSel; },
   attack: function(wi, tid){
     var list = combatants(), ord = orderOf(list), cur = TT.currentOf(st, ord), a = cur != null ? entryOf(list, cur) : null;
@@ -55509,8 +56244,10 @@ var API = {
     var n = Math.max(0, int(effects, 0));
     var had = API.hasQuality(weapon, "Vicious");
     if(!(had || gained) || !n) return null;
-    return { add:n, had:had, gained: !had && !!gained,
-             line: (had ? "Vicious" : "Vicious (gained on the sneak attack)") + ": +" + n +
+    /* Howl 10-30: `gained` may name where it came from ("Demolitions Expert"); true is the sneak attack, as before */
+    var from = typeof gained === "string" && gained ? gained : "the sneak attack";
+    return { add:n, had:had, gained: !had && !!gained, from: !had && gained ? from : "",
+             line: (had ? "Vicious" : "Vicious (gained on " + from + ")") + ": +" + n +
                    " damage, one per Effect rolled" };
   },
   /* PROJECT H, FIGHT (Zoe 2026-10-13, on Howl's word; R7) — "+N Vicious", the words the roll step shows beside the damage it
@@ -56217,6 +56954,8 @@ var API = {
         ? { by:String(spec.commanded.by || "").slice(0, 80), charId:spec.commanded.charId == null ? null : String(spec.commanded.charId),
             dice:clampInt(spec.commanded.dice, 1, 2) } : null,
       damageMark: clampInt(spec.damageMark, 0, 3),
+      demolition: !!spec.demolition,
+      aimReroll: !!spec.aimReroll,                   /* Howl 10-30: the attacker took Aim this turn - one free d20 re-roll */                 /* Howl 10-30: the attacker holds Demolitions Expert (damagePool reads Blast) */
       damageMarkWhy: String(spec.damageMarkWhy || ""),
       /* PROJECT G, T1 (2026-10-01, G_BRIEF §4.2A): TWO SEAMS FOR THE ROAD.  noBuy — the declaring tool
          forbids buying d20s with Action Points on this test, and its string is the reason the buy
@@ -56359,6 +57098,8 @@ var API = {
        viciousFrom.  `parts` is already printed to the table, so the arithmetic stays
        honest either way. */
     var sneak = (opts.sneak && API.hasQuality(w, "Vicious")) ? 2 : 0;
+    /* Howl 2026-10-30: Demolitions Expert's other half - a Blast weapon ALREADY Vicious deals +2 CD (the gained Vicious is viciousFrom's) */
+    var demo = (d.demolition && API.hasQuality(w, "Blast") && API.hasQuality(w, "Vicious")) ? 2 : 0;
     /* WAVE 8, HOUSE §K — THE ATTRIBUTE DAMAGE LANE, MISSING FROM THIS PIPELINE SINCE
        IT WAS BUILT.  7-8 gives +1 CD, 9-10 +2, 11+ +3, on whatever attribute the
        attack used (README:79-82, test-suite.js:326-328).  The character sheet's own
@@ -56393,8 +57134,9 @@ var API = {
     /* Howl 2026-10-30: the Tenderizer's mark on the target - +1 CD a rank on every attack on it (the declaration carries it) */
     var tmk = clampInt(d.damageMark, 0, 3);
     if(tmk) parts.push({ what:d.damageMarkWhy || "Tenderizer: the target is marked", cd:tmk });
-    return { cd:base + lane + ammo + extra + sneak + mom + tmk, base:base, lane:lane, ammo:ammo,
-             extra:extra, sneak:sneak, momentum:mom, mark:tmk, parts:parts, known:full > 0, degr:dg };
+    if(demo) parts.push({ what:"Demolitions Expert: a Blast weapon already Vicious", cd:demo });
+    return { cd:base + lane + ammo + extra + sneak + mom + tmk + demo, base:base, lane:lane, ammo:ammo,
+             extra:extra, sneak:sneak, momentum:mom, mark:tmk, demo:demo, parts:parts, known:full > 0, degr:dg };
   },
 
   /* WAVE 17, Z4 (Zoe 2026-10-07, ruled) — A MISSED BLAST STILL LANDS, AS PRINTED.  Guide L1645-1647 (the 2026-10-06
@@ -57834,6 +58576,8 @@ function applyDisables(){
   for(i = 0; i < n.length; i++) n[i].disabled = true;
   var lk = $("gp-luck-ok");
   if(lk) lk.disabled = !(T && T.stage === "luck" && pick.length && billOk() && RL.canLuck(T, anyLuck()));
+  var am = $("gp-aim-ok"), aimMay = !!(decl && decl.aimReroll && T && T.stage === "luck" && !T.aimUsed);
+  if(am){ if(am.hidden !== !aimMay) am.hidden = !aimMay; am.disabled = !(aimMay && pick.length === 1 && pick[0].pool === "primary"); }
   var bk = $("gp-bank"); if(bk && banked) bk.disabled = true;
 }
 function ln(label, text, cls){
@@ -58076,8 +58820,11 @@ function paintDamage(){
     /* PROJECT H, FIGHT (R7): the Vicious the roll step added, said as "+N Vicious" beside the dice it was added to */
     h += ln("Damage", "<b>" + dmg.damage + "</b> " + esc(dmg.type) + (dmg.effects ? " &middot; " + plural(dmg.effects, "Effect", "Effects") : " &middot; no Effects") +
             (dmg.vicious ? " &middot; " + dmg.raw + " off the dice, <b>" + esc(RL.viciousWords(dmg.vicious)) + "</b>" : ""));
-    if(dmg.vicious) h += ln("Vicious", esc(dmg.vicious.line) + " (Guide p.liv, Vicious)" +
-      (dmg.vicious.gained ? " &mdash; the sneak attack gave it the quality (Guide)." : ""));
+    if(dmg.vicious) h += ln("Vicious", (dmg.vicious.from === "Demolitions Expert" ? '<span class="gp-demo-chip">VICIOUS &middot; Demolitions</span> ' : "") +
+      esc(dmg.vicious.line) + " (Guide p.liv, Vicious)" +
+      (dmg.vicious.gained ? (dmg.vicious.from === "Demolitions Expert" ? " &mdash; Demolitions Expert gave the Blast weapon the quality." : " &mdash; the sneak attack gave it the quality (Guide).") : ""));
+    var dpool = RL.damagePool(decl, {});
+    if(dpool && dpool.demo) h += ln("Demolitions", '<span class="gp-demo-chip">+2 CD &middot; Demolitions</span> a Blast weapon already Vicious: two more combat dice were rolled.');
     /* R8: each extra hit Spread scores, listed — the apply step lands each one through the target's DR */
     if(dmg.spread) h += ln("Spread", esc(dmg.spread.line) + ": " + dmg.spread.hits.map(function(x){
       return "extra hit " + x.i + " &mdash; <b>" + x.damage + "</b>"; }).join(" &middot; ") +
@@ -58667,6 +59414,16 @@ panel.addEventListener("click", function(e){
     }
     pick = []; thrownPut(); paint(); return;              /* …and so does what Luck made of it */
   }
+  /* Howl 10-30: Aim's free re-roll - one picked d20 of the attacker's own pool, once, no Luck spent */
+  if(b.id === "gp-aim-ok"){
+    if(!(decl && decl.aimReroll && T && T.stage === "luck" && !T.aimUsed) || pick.length !== 1 || pick[0].pool !== "primary") return;
+    var ar = RL.reroll(T.dice, [pick[0].i], { sides:20 });
+    if(!ar.rerolled.length) return;
+    var nt = {}; for(var k in T) if(Object.prototype.hasOwnProperty.call(T, k)) nt[k] = T[k];
+    nt.dice = ar.dice; nt.aimUsed = true;
+    nt.rerolled = (T.rerolled || []).concat(ar.rerolled.map(function(x){ return { pool:"primary", index:x.index, was:x.was, now:x.now, worse:x.worse, aim:true }; }));
+    T = nt; pick = []; thrownPut(); paint(); return;
+  }
   if(b.id === "gp-luck-skip"){
     var done0 = RL.resolve(T);
     /* resolving twice is refused by the API; if the view ever lets the button
@@ -58763,7 +59520,8 @@ panel.addEventListener("click", function(e){
          sheet's own Damage button added it correctly.  Two answers for one weapon is
          worse than either.  `raw` keeps the faces' own total so the read-out can show
          the arithmetic instead of a number that does not match the dice on screen. */
-      var vic = RL.viciousFrom(decl.weapon, cdr.effects, sneakNow());
+      var vic = RL.viciousFrom(decl.weapon, cdr.effects, sneakNow() ||
+        (decl.demolition && RL.hasQuality(decl.weapon, "Blast") ? "Demolitions Expert" : false));
       /* Q9 (WAVE8_ANSWERS): a dual damage type — seven instances, all plasma — is the
          ATTACKER'S CHOICE, declared before the DR is read, and the card records which.
          `typePick` is that choice, made in the Turn Order tab's panel; with no choice to
@@ -71351,7 +72109,7 @@ var burning = [];             /* rows burning right now: { row, until } */
 var lastRows = {};
 var snap = null;
 
-var ribbon = null, party = null, bar = null, mtc = null, mtcBody = null, tip = null, chip = null, tactics = false;
+var ribbon = null, party = null, bar = null, mtc = null, mtcBody = null, tip = null, chip = null, tactics = false, actList = null;
 function build(){
   if(ribbon) return;
   ribbon = mount(el("div", "cl-ribbon"), "top"); ribbon.id = "cl-ribbon";
@@ -71367,6 +72125,9 @@ function build(){
   party.addEventListener("click", function(e){ var f = e.target.closest("[data-row]"); if(f) pick(f.getAttribute("data-row")); });
   party.addEventListener("dblclick", function(e){ var f = e.target.closest("[data-row]"); var b = B(); if(f && b) b.open(f.getAttribute("data-row")); });
   bar.addEventListener("click", onBarClick);
+  /* Howl 10-30: the Actions list sits above the bar in its own element (the bar scrolls sideways and would clip it) */
+  actList = mount(el("div", "cl-actlist"), "bottom"); actList.id = "cl-actlist"; actList.hidden = true;
+  actList.addEventListener("click", onBarClick);
   mtc.addEventListener("click", onMtcClick);
 }
 /* Z038: the monster card is paintMtc's alone to show - showAll used to unhide it on every paint, so a card the Overseer shut
@@ -71455,15 +72216,20 @@ function paintParty(){
 
 /* ------------------------------------------------------------------ 3. the Action Bar */
 function actRow(){ return snap && snap.cur ? rowById(snap.cur) : null; }
+var actsOpen = false, actSay = "";                 /* Howl 10-30: the Actions list's state on this device */
 function paintBar(){
-  var a = actRow(), m = S(), h = "";
+  var a = actRow(), m = S(), h = "", b0 = B();
   if(!a){ h = '<div class="cl-med"><span class="cl-disc">—</span><div><b>No turn</b><small>' + (snap.phase === "idle" ? "Start combat in the turn order" : "") + "</small></div></div>"; }
   else{
     var u = a.used || { major:0, minor:0 }, mk = (snap.round || 0) + "|" + a.id;
     h += '<div class="cl-med" style="--ring:' + (a.kind === "char" ? ringOf(a.ref) : "#C0392B") + '"><span class="cl-disc">' + esc(initials(a.name)) + "</span><div><b>" + esc(a.name) + "</b><big>" + (a.hp ? a.hp.now : "?") + "</big></div></div>";
     h += '<div class="cl-eco"><button type="button" class="cl-pip maj' + (u.major ? " used" : "") + '" data-act="major" title="Major action (' + u.major + " of " + (a.cap || 1) + ' this turn)">' + (u.major ? "◇" : "◆") + '<small>MAJOR' + (u.major ? " " + u.major + "/" + (a.cap || 1) : "") + '</small></button>' +
          '<button type="button" class="cl-pip min' + (u.minor ? " used" : "") + '" data-act="minor" title="Minor action">' + (u.minor ? "○" : "●") + '<small>MINOR</small></button>' +
-         '<span class="cl-zm">Zones moved: ' + (moved[mk] || 0) + "</span></div>";
+         '<span class="cl-zm">Zones moved: ' + (moved[mk] || 0) + "</span>" +
+         /* Howl 10-30: the named actions - each press ticks its own action and does what can be done for them */
+         '<button type="button" class="cl-acts' + (actsOpen ? " on" : "") + '" data-acts="1" title="Aim, Defend, Rally, Prone, Pass and the rest">ACTIONS</button></div>';
+    var stc = b0 && typeof b0.stance === "function" ? b0.stance(a.id) : null;
+    if(stc && (stc.aim || stc.defend)) h += '<div class="cl-stance">' + (stc.aim ? '<span>AIMING</span>' : "") + (stc.defend ? '<span>DEFENDING +1</span>' : "") + "</div>";
   }
   var pc = Math.max(0, Math.round(+snap.pcAP || 0)), cap = 6, insp = inspired(), hx = "";
   for(var i = 0; i < cap + (insp ? 1 : 0); i++) hx += '<i class="' + (i < pc ? "full" : "") + (i >= cap ? " dash" : "") + '"></i>';
@@ -71476,8 +72242,22 @@ function paintBar(){
     h += '<div class="cl-slots">' + sl + "</div>";
   }
   h += '<button type="button" class="cl-end" data-end="1"' + (snap.phase === "idle" || !snap.gm ? " disabled" : "") + ">END TURN<small>Space</small></button>";
-  h += '<button type="button" class="cl-dice" data-dice="1" title="Dice (R)">🎲<small>R</small></button>';
+  /* Howl 10-30: Dice and Auto-fight share one column, so the bar keeps its width */
+  h += '<div class="cl-tools"><button type="button" class="cl-dice" data-dice="1" title="Dice (R)">🎲<small>R</small></button>' +
+       '<button type="button" class="cl-dice cl-auto" data-autofight="1" title="Auto-fight: work out the odds, or play the fight out for the XP">⚙<small>AUTO</small></button></div>';
   if(bar.innerHTML !== h) bar.innerHTML = h;
+  if(actList){
+    var show = !!(a && actsOpen), ah = "";
+    if(show){
+      var nl = b0 && typeof b0.namedList === "function" ? b0.namedList() : [];
+      ah = ["minor", "major"].map(function(k){
+        return '<div><small>' + k.toUpperCase() + "</small>" + nl.filter(function(x){ return x.kind === k; }).map(function(x){
+          return '<button type="button" data-named="' + esc(x.key) + '" title="' + esc(x.says) + '">' + esc(x.name) + "</button>"; }).join("") + "</div>";
+      }).join("") + (actSay ? '<p class="cl-actsay">' + esc(actSay) + "</p>" : "");
+    }
+    if(actList.hidden !== !show) actList.hidden = !show;
+    if(actList.innerHTML !== ah) actList.innerHTML = ah;
+  }
 }
 function dice(){
   /* merge fix: on Fight in Cinder the Dice pane is a toggle above the bar */
@@ -71489,10 +72269,13 @@ function onBarClick(e){
   var t = e.target.closest("button"); if(!t) return;
   var a = actRow();
   if(t.getAttribute("data-act") && a){ b.act(a.id, t.getAttribute("data-act")); paint(true); return; }
+  if(t.hasAttribute("data-acts")){ actsOpen = !actsOpen; actSay = ""; paint(true); return; }
+  if(t.hasAttribute("data-named") && a && typeof b.named === "function"){ var nr = b.named(a.id, t.getAttribute("data-named")); actSay = nr ? nr.note : ""; if(nr && nr.ok) actsOpen = false; paint(true); return; }
   if(t.hasAttribute("data-wi")){ b.attack(+t.getAttribute("data-wi"), sel); paint(true); return; }
   if(t.hasAttribute("data-end")){ b.next(); paint(true); return; }
   if(t.hasAttribute("data-place")){ window.CINDER_MOVE.place(); return; }
   if(t.hasAttribute("data-dice")) dice();
+  if(t.hasAttribute("data-autofight") && typeof b.auto === "function") b.auto();
 }
 document.addEventListener("keydown", function(e){
   if(!on() || e.ctrlKey || e.metaKey || e.altKey) return;
