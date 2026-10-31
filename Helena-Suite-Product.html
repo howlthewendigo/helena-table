@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"7c23a112",at:"2026-10-30 23:24 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"078cacff",at:"2026-10-31 01:34 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5828,7 +5828,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-30 23:24 UTC">7c23a112</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-31 01:34 UTC">078cacff</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -28351,6 +28351,7 @@ var CH = {
       else if(E && E.step) parts.push({ n:E.step, what:"carrying too much" });
     }
     if(o.faction) parts.push(CH.repStep(o.faction));
+    if(o.gear && Array.isArray(o.gear.parts)) o.gear.parts.forEach(function(p){ parts.push(p); });   /* Howl 10-31: a robot's gear */
     var sum = 0; parts.forEach(function(p){ sum += p.n; });
     var said = parts.map(function(p){ return (p.n < 0 ? "\u2212" + (-p.n) : "+" + p.n) + " " + p.what; });
     var want = base + sum, applied = Math.min(CH.DIFF_CAP, Math.max(0, want));
@@ -28361,6 +28362,64 @@ var CH = {
     if(immobile) line = (line ? line + ". " : "") + "At twice your slots this " + o.attr + " test fails automatically";
     return { known:known, base:base, parts:parts, want:want, applied:applied, capped:want > CH.DIFF_CAP, floored:want < 0,
              immobile:immobile, line:line };
+  },
+  /* Howl 2026-10-31: A ROBOT'S GEAR ON ITS OWN TESTS, APPLIED.  "For Manny's special robot mods and how they modify rolls, make
+     sure to auto include those when he makes those special checks."  Read off each piece's printed line (data/mods.js for a
+     robot module, data/items.js for a tool): a fitted Robot Module, and each tool the Mode Selector Core has out in the mode
+     he is in (a tool folded away in the Core does nothing).
+       "-N Difficulty to <skill or attribute> tests"  -> -N on the test's Difficulty, its own named part (testDifficulty)
+       "re-roll 1d20 on <...> tests"                  -> a free d20 re-roll offered after the roll
+       "ignore the first complication"                -> the roll's first complication struck
+     "hack computers" is a Science test.  A line naming neither a skill nor an attribute (Hazard Sensor's traps) is left to the
+     table and still printed.  PURE: gearOnTest(c, skill, attr, items) -> { parts:[{ n, what }], reroll:[{ n, name }], comp:[names] } */
+  GEAR_ATTR: { perception:"PER", strength:"STR", endurance:"END", charisma:"CHA", intelligence:"INT", agility:"AGI", luck:"LCK" },
+  GEAR_SKILL: { hack:"Science" },
+  gearRead: function(text){
+    var t = String(text || ""), o = { ease:0, reroll:0, target:"", comp:false };
+    var m = /[-\u2212]\s*(\d)\s*Diff(?:iculty)?\.?\s*(?:to|on|for)?\s*([^;.,]*)/i.exec(t);
+    if(m){ o.ease = +m[1]; o.target = m[2].trim(); }
+    var r = /re-?roll\s*(\d)\s*d20\s*on\s*([^;.,]*)/i.exec(t);
+    if(r){ o.reroll = +r[1]; if(!o.target) o.target = r[2].trim(); }
+    if(/first complication/i.test(t) && /ignor/i.test(t)) o.comp = true;
+    return o;
+  },
+  gearHits: function(target, skill, attr){
+    var t = String(target || "").toLowerCase(), k;
+    if(!t) return false;
+    if(skill && t.indexOf(String(skill).toLowerCase()) >= 0) return true;
+    for(k in CH.GEAR_SKILL) if(t.indexOf(k) >= 0 && CH.GEAR_SKILL[k] === skill) return true;
+    for(k in CH.GEAR_ATTR) if(t.indexOf(k) >= 0 && CH.GEAR_ATTR[k] === attr) return true;
+    return false;
+  },
+  /* names a skill or an attribute at all (the line is the software's to apply, not only to print) */
+  gearKnown: function(target){
+    var t = String(target || "").toLowerCase(), k;
+    if(!t) return false;
+    for(k in CH.GEAR_SKILL) if(t.indexOf(k) >= 0) return true;
+    for(k in CH.GEAR_ATTR) if(t.indexOf(k) >= 0) return true;
+    return /\b(athletics|barter|big guns|energy weapons|explosives|lockpick|medicine|melee weapons|pilot|repair|science|small guns|sneak|speech|survival|throwing|unarmed)\b/.test(t);
+  },
+  gearOnTest: function(c, skill, attr, items){
+    var out = { parts:[], reroll:[], comp:[] }, src = [];
+    if(!c) return out;
+    if(c.robot && c.armour && Array.isArray(c.armour.mods))
+      c.armour.mods.forEach(function(m){ if(m && /^Robot Modules/i.test(String(m.slot || ""))) src.push({ name:String(m.name || ""), text:m.effect, where:"module" }); });
+    var ms = c.modeSets, mode = null;
+    if(ms && Array.isArray(ms.modes)) ms.modes.forEach(function(m){ if(m && m.key === ms.cur) mode = m; });
+    var pack = mode && Array.isArray(mode.pack) ? mode.pack.map(String) : [];
+    if(pack.length) (c.inventory || []).forEach(function(row){
+      if(!row || pack.indexOf(String(row.name)) < 0) return;
+      var it = items && row.key && Object.prototype.hasOwnProperty.call(items, row.key) ? items[row.key] : null;
+      if(it && it.effect) src.push({ name:String(row.name), text:it.effect, where:(mode.label || "mode") + " tool" });
+    });
+    src.forEach(function(g){
+      var r = CH.gearRead(g.text);
+      if(!CH.gearHits(r.target, skill, attr)) return;
+      if(r.ease) out.parts.push({ n:-r.ease, what:g.name + " (" + g.where + ")" });
+      if(r.reroll) out.reroll.push({ n:r.reroll, name:g.name });
+      if(r.comp) out.comp.push(g.name);
+    });
+    return out;
   },
   rollDisease: function(roll){
     var r = roll == null ? 1 + Math.floor(Math.random() * 20) : Math.max(1, Math.min(20, Math.round(+roll)));
@@ -33899,6 +33958,9 @@ function rollModLine(c, w, kind){
       if(!md.roll) return;
       var ls = String(md.roll).split(",");
       if(!ls.some(function(l){ return re.test(l); })) return;
+      /* Howl 10-31: a robot module whose line names a skill or an attribute is applied on the skill roll (gearOnTest), not printed */
+      if(kind === "skill" && c.robot && /^Robot Modules/i.test(String(md.slot || "")) && typeof CH.gearRead === "function" &&
+         CH.gearKnown(CH.gearRead(md.effect).target)) return;
       hits.push({ name:md.name || md.id || "mod", where:where === "weapon" ? (md.slot || "weapon") : "armour",
                   effect:md.effect || "no printed effect" });
     });
@@ -35558,11 +35620,15 @@ function luckBarHtml(){
   var c = null; (S.get().chars || []).forEach(function(x){ if(x && String(x.id) === L.c) c = x; });
   var have = c ? Math.max(0, Math.round(+c.luck || 0)) : 0, n = Object.keys(L.picked).length, cost = luckCost(L.kind, n), open = L.rr.some(function(x){ return !x; });
   if(!open) return "";
-  return '<div class="cs-row" id="cs-luck-bar" style="margin-top:6px;align-items:center;gap:6px;flex-wrap:wrap"><span class="cs-hint" style="margin:0">Luck re-roll (' +
-    (L.kind === "cd" ? "1 Luck per 3 CD" : "1 Luck a d20") + '):</span>' +
+  /* Howl 10-31: a free re-roll a piece of gear gives (the Sensor Array's d20) is offered first, for up to its own count of dice -
+     the same bar, its words and its button's price changed */
+  var fr = !!L.free;
+  return '<div class="cs-row" id="cs-luck-bar" style="margin-top:6px;align-items:center;gap:6px;flex-wrap:wrap"><span class="cs-hint" style="margin:0">' +
+    (fr ? esc(L.freeBy || "Gear") + ": re-roll " + L.free + " d20, free" : "Luck re-roll (" + (L.kind === "cd" ? "1 Luck per 3 CD" : "1 Luck a d20") + ")") + ':</span>' +
     L.faces.map(function(v, k){ return L.rr[k] ? '<span class="cs-pip" title="already re-rolled">' + v + "</span>"
       : '<button class="cs-mini" data-lk="' + k + '"' + (L.picked[k] ? ' style="outline:2px solid var(--amber)"' : "") + ' title="pick this die">' + v + "</button>"; }).join("") +
-    '<button class="cs-mini" id="cs-luck-go"' + (n && have >= cost ? "" : " disabled") + ">Re-roll with " + (cost || 1) + " Luck</button>" +
+    '<button class="cs-mini" id="cs-luck-go"' + ((fr ? n && n <= L.free : n && have >= cost) ? "" : " disabled") + ">" + (fr ? "Re-roll free" : "Re-roll with " + (cost || 1) + " Luck") + "</button>" +
+    (fr ? '<button class="cs-mini" id="cs-luck-skipfree">Keep these</button>' : "") +
     '<span class="cs-hint" style="margin:0">' + esc((c && c.name) || "") + " has " + have + " Luck</span></div>";
 }
 function luckPaint(){ var old = $("cs-luck-bar"); if(old && old.parentNode) old.parentNode.removeChild(old); if(!luckCur) return; var box = $(luckCur.box); if(box) box.insertAdjacentHTML("beforeend", luckBarHtml()); }
@@ -35571,9 +35637,11 @@ document.addEventListener("click", function(e){
   var t = e.target; if(!t || !t.closest || !luckCur) return;
   var pk = t.closest("[data-lk]");
   if(pk && pk.closest("#cs-luck-bar")){ var k = +pk.getAttribute("data-lk"); if(luckCur.picked[k]) delete luckCur.picked[k]; else luckCur.picked[k] = true; luckPaint(); return; }
+  if(t.closest("#cs-luck-skipfree")){ luckCur.free = 0; luckPaint(); return; }
   if(!t.closest("#cs-luck-go")) return;
-  var L = luckCur, idx = Object.keys(L.picked).map(Number), cost = luckCost(L.kind, idx.length), H = window.HELENA_CHAR, got = 0;
-  try{ got = H && typeof H.spendLuck === "function" ? H.spendLuck(L.c, cost) : 0; }catch(err){ got = 0; }
+  var L = luckCur, idx = Object.keys(L.picked).map(Number), cost = L.free ? 0 : luckCost(L.kind, idx.length), H = window.HELENA_CHAR, got = 0;
+  if(L.free && idx.length > L.free){ luckPaint(); return; }
+  try{ got = cost ? (H && typeof H.spendLuck === "function" ? H.spendLuck(L.c, cost) : 0) : 0; }catch(err){ got = 0; }
   if(got < cost){ luckPaint(); return; }
   var was = idx.map(function(k){ return L.faces[k]; });
   idx.forEach(function(k){ L.faces[k] = L.kind === "cd" ? cd() : d20(); L.rr[k] = true; });
@@ -35762,6 +35830,10 @@ function skillRoll(name, attr){
   /* CMD Z017 (G.3, G.4): the Difficulty, every part named — a carried disease's +1, the load, the faction's rank (Guide p.v) */
   var dEl = $("cs-skill-diff"), fac = typeof repPicked === "function" ? repPicked() : null;
   var D = typeof CH.testDifficulty === "function" ? CH.testDifficulty(c, { typed:dEl ? dEl.value : "", attr:attr, faction:fac }) : null;
+  /* Howl 10-31: the robot's own gear on this test - its Difficulty parts, a free re-roll, a struck complication */
+  var G = typeof CH.gearOnTest === "function" ? CH.gearOnTest(c, name, attr, window.ITEMS || null) : null;
+  if(!G || !Array.isArray(G.parts)) G = { parts:[], reroll:[], comp:[] };
+  if(D && G.parts.length) D = CH.testDifficulty(c, { typed:dEl ? dEl.value : "", attr:attr, faction:fac, gear:G });
   var want = clamp(+$("cs-skill-buy").value || 0, 0, 3);
   /* RULE 1: bought d20s debit the party pool - Z039: at 1, 2, then 3 AP a die (buyD20s, the one price on this sheet).  Z040: paid
      whole or not at all; a pool short of the price rolls nothing */
@@ -35791,6 +35863,10 @@ function skillRoll(name, attr){
             (ar.succ === 1 ? " success" : " successes") + (r.succ >= 1 ? (adds ? ", added" : "") : " - not added, the roller scored none");
     r = { dice:r.dice, succ:r.succ + adds, comps:r.comps + ar.comps };
   }
+  var gComp = "";
+  if(G.comp.length && r.comps > 0){ r = { dice:r.dice, succ:r.succ, comps:r.comps - 1 }; gComp = G.comp.join(", ") + ": the first complication is ignored."; }
+  var gLine = (G.parts.length ? G.parts.map(function(p){ return p.what + " \u2212" + (-p.n) + " Difficulty"; }).join(", ") + " (in the Difficulty below). " : "") +
+              (G.reroll.length ? G.reroll.map(function(x){ return x.name; }).join(", ") + ": one d20 re-roll, free (pick it below). " : "") + gComp;
   var verdict = D && D.known && !D.immobile ? (r.succ >= D.applied ? " Passes." : " Fails.") : "";
   tableRoll(c, name + " (" + attr + (how ? ", " + how : "") + "), TN " + tn + ": " + successes(r) + (helper ? " (with " + aLine + ")" : "") + (D && D.known ? ", Difficulty " + D.applied + "." + verdict : ""));
   $("cs-skill-out").innerHTML = rollModLine(c, null, "skill") + testLine(name + " (" + attr + " " + attrVal(c, attr) + " + " + s.rank + (s.tag ? ", tagged: crit ≤ " + crit : "") + ")", tn, r) +
@@ -35798,12 +35874,13 @@ function skillRoll(name, attr){
     (D && D.line ? '<div class="cs-qual" id="cs-skill-diffline">' + esc(D.line + "." + verdict) + "</div>" : "") +
     (how ? '<div class="cs-qual">' + esc(attr + " in place of " + def + ": " + how) + ".</div>" : "") +
     (fd.n && bd.gift ? '<div class="cs-qual" id="cs-free-d20">+' + bd.gift + " free d20 from " + esc(fd.why.join(", ")) + ".</div>" : "") +
+    (gLine ? '<div class="cs-qual" id="cs-gear-line">\u2699 ' + esc(gLine.trim()) + "</div>" : "") +
     apNote(want, bd);
   /* Z037 (E): Luck can re-roll the roller's own dice (not the helper's) */
   var lkAdd = helper && ar ? (r.succ - (r.succ - (r.succ >= 1 ? ar.succ : 0))) : 0, lkBase = r.dice.map(function(d){ return d.v; });
-  if(typeof luckOffer === "function") luckOffer("cs-skill-out", { kind:"d20", c:String(c.id), faces:lkBase, redo:function(faces, rr, cost, was, now){
+  if(typeof luckOffer === "function") luckOffer("cs-skill-out", { kind:"d20", c:String(c.id), faces:lkBase, free:G.reroll.length ? G.reroll[0].n : 0, freeBy:G.reroll.length ? G.reroll[0].name : "", redo:function(faces, rr, cost, was, now){
     var r2 = facesToTest(faces, tn, crit, comp), add = helper && ar && r2.succ >= 1 ? ar.succ : 0, tot = r2.succ + add;
-    var line = "After " + cost + " Luck (" + was.join(", ") + " \u2192 " + now.join(", ") + "): " + pips(r2.dice) + " \u2192 <b>" + tot + " success" + (tot === 1 ? "" : "es") + "</b>" +
+    var line = (cost ? "After " + cost + " Luck (" : "After the free re-roll (") + was.join(", ") + " \u2192 " + now.join(", ") + "): " + pips(r2.dice) + " \u2192 <b>" + tot + " success" + (tot === 1 ? "" : "es") + "</b>" +
                (add ? " (" + add + " from the assist)" : "") + (D && D.known && !D.immobile ? (tot >= D.applied ? " — passes." : " — fails.") : "");
     var old = $("cs-luck-bar"); if(old && old.parentNode) old.parentNode.removeChild(old);
     $("cs-skill-out").insertAdjacentHTML("beforeend", '<div class="cs-qual">' + line + "</div>");
@@ -36159,7 +36236,7 @@ function doAttack(i, roundsSpent){
   if(typeof luckOffer === "function") luckOffer("cs-wpn-out", { kind:"d20", c:String(c.id), faces:r.dice.map(function(d){ return d.v; }), redo:function(faces, rr, cost, was, now){
     var r2 = facesToTest(faces, tn, crit, comp), before = r.succ;
     var old = $("cs-luck-bar"); if(old && old.parentNode) old.parentNode.removeChild(old);
-    var line = "After " + cost + " Luck (" + was.join(", ") + " \u2192 " + now.join(", ") + "): " + pips(r2.dice) + " \u2192 <b>" + r2.succ + " success" + (r2.succ === 1 ? "" : "es") + "</b>";
+    var line = (cost ? "After " + cost + " Luck (" : "After the free re-roll (") + was.join(", ") + " \u2192 " + now.join(", ") + "): " + pips(r2.dice) + " \u2192 <b>" + r2.succ + " success" + (r2.succ === 1 ? "" : "es") + "</b>";
     $("cs-wpn-out").insertAdjacentHTML("beforeend", '<div class="cs-qual">' + line + "</div>" +
       (mode === "melee" && before < 1 && r2.succ >= 1 && !$("cs-ap-ask") ? apAskHtml(i, CH.isBlast(w)) : ""));
     tableRoll(c, (w.name || "weapon") + " attack — re-rolled with " + cost + " Luck: " + successes(r2));
@@ -43336,6 +43413,7 @@ var TT = {
       var r = { fid:typeof v.fid === "string" ? v.fid.slice(0, 24) : "" }, n;
       n = Math.round(+v.aim); if(v.aim != null && isFinite(n)) r.aim = Math.max(0, n);
       if(v.aimUsed) r.aimUsed = true;
+      if(v.hudUsed) r.hudUsed = true;
       n = Math.round(+v.defend); if(v.defend != null && isFinite(n)) r.defend = Math.max(0, n);
       if(r.aim != null || r.defend != null) out[k] = r;
     }
@@ -43362,6 +43440,7 @@ var TT = {
     r.fid = String(n.fid || "");
     if(what === "aim"){ r.aim = Math.round(+n.round || 0); delete r.aimUsed; }
     if(what === "aimUsed") r.aimUsed = true;
+    if(what === "hudUsed") r.hudUsed = true;
     if(what === "defend") r.defend = Math.round(+n.round || 0);
     b[k] = r; n.stance = b;
     return n;
@@ -45838,8 +45917,10 @@ function mutate(fn){
 }
 
 /* ------------------------------------------------------------------ the pools */
+var HUD_FREE = null;   /* Howl 10-31: the Targeting HUD's free minor - the purse is not asked for the row taking it */
 function purseFor(e){
   var CH = window.HELENA_CHAR, m = S.get();
+  if(HUD_FREE != null && e && e.id === HUD_FREE) return null;
   if(e && e.kind === "char")
     return (CH && typeof CH.partyAP === "function") ? CH.partyAP() : Math.max(0, Math.round(+m.pcAP || 0));
   return Math.max(0, Math.round(+m.dmAP || 0));
@@ -48070,7 +48151,17 @@ function takeAction(e, kind){
   /* PROJECT H, FIGHT (Zoe 2026-10-13, ruled): a swarm's row buys one extra major per member still standing beyond the first
      (TT.majorCap, read off the Encounter pane's door) — anyone else, the book's one */
   var cap = kind === "major" && typeof majorCapOf === "function" ? majorCapOf(e) : null;
+  /* Howl 10-31: the Targeting HUD (a robot module): "a second minor action for 0 AP when you Aim" - once a turn, after Aim */
+  var hud = kind === "minor" && typeof hudReady === "function" && hudReady(e);
+  HUD_FREE = hud ? e.id : null;                     /* purseFor answers "no purse to check" for this one call */
   var r = TT.takeAction(st, e.id, kind, purseFor(e), cap ? cap.max : null);
+  HUD_FREE = null;
+  if(hud && r && r.ok && r.ap){
+    var hl = r.state.alog && r.state.alog[e.id], last = hl && hl[hl.length - 1];
+    if(last) last.ap = 0;
+    r.ap = 0; r.note = "Targeting HUD: a second minor action after Aim, 0 AP.";
+    r.state = TT.stanceSet(r.state, e.id, "hudUsed");
+  }
   if(!r.ok){
     msg = { cls:"warn", hd:kind === "major" ? "Major action" : "Minor action", body:esc(r.note) };
     render();
@@ -48147,6 +48238,16 @@ function defendingNow(id){ try{ return TT.defending(st, id, orderOf(combatants()
 TT.defendingHook = defendingNow;
 (function(){ var ab = document.getElementById("tt-auto-open"); if(ab) ab.addEventListener("click", function(){ autoPaint(null); }); })();
 /* Howl 10-30: the attacker took Aim this turn and has not used its re-roll (the declaration carries it; the Declare spends it) */
+/* Howl 10-31: this combatant's sheet has a Targeting HUD fitted, it took Aim this turn, and the HUD's free minor is not yet used */
+function hudReady(e){
+  try{
+    if(!e || e.kind !== "char" || typeof charOf !== "function") return false;
+    var c = charOf(e.ref), ms = c && c.armour && Array.isArray(c.armour.mods) ? c.armour.mods : [];
+    if(!ms.some(function(m){ return m && /targeting hud/i.test(String(m.name || "")); })) return false;
+    var r = TT.stanceOf(st, e.id);
+    return !!(r && r.aim === Math.round(+st.round || 0) && r.fid === String(st.fid || "") && !r.hudUsed && TT.currentOf(st, orderOf(combatants())) === e.id);
+  }catch(err){ return false; }
+}
 function aimGet(e){ try{ return !!(e && TT.aiming(st, e.id, orderOf(combatants()))); }catch(err){ return false; } }
 /* Howl 10-30: the first major action of the attacker's own turn, ticked when its attack is declared — nothing when it is not their
    turn, when a major is already marked, or when this device may not write the order (takeAction says so) */
@@ -73827,7 +73928,7 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
     { key:"scene", label:"New scene", prev:function(){ return "Scene " + (sceneN() + 1) + ": opens the rail's New scene form — running frames pay their charge" + (sceneOpen() ? "; scene " + sceneN() + " has not been ended, so it closes first (its drain, if the gate is armed)." : "."); } },
     { key:"endscene", label:"End scene", prev:function(){ return sceneOpen() ? "Ends scene " + sceneN() + " now: Fatigue recovery, the drain if the gate is armed, the sickness count; Fatigue's HP lands when the next scene begins. Clears the widened ranges." : "No scene is in progress — nothing to end."; } },
     { key:"leg", label:"Travel leg", prev:function(){ return "Opens Travel with the journey, to throw the next leg."; } },
-    { key:"night", label:"Nightfall (new day)", prev:function(){ return "A night's rest for the whole party and a new day — drains, the heal, heal ticks and the day's repairs; press again on the sheet to confirm."; } },
+    { key:"nightask", label:"Nightfall (new day)", prev:function(){ return "A night's rest for the whole party and a new day — everyone healed to full, armour restored, the daily ticks cleared, the drains; asks once, here."; } },
     { key:"end", label:"End session", prev:function(){ var s = summary(); return "Logs " + s.text + "; keeps the party AP (" + (+st().pcAP || 0) + "); " + (connected() ? "files one dated snapshot of the room." : "not in a room — no snapshot."); } }
   ];
 
@@ -73908,6 +74009,37 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
     menu.querySelector(".cx-ck-pane").innerHTML = '<div class="cx-ck-say">' + esc(note) + "</div>";
   }
 
+  /* ---- Nightfall (Howl, game night 2026-10-30: "when going to the next day, it doesn't heal us + fix our armor") ----
+     The item used to press the sheet's Nightfall ONCE, which only ARMS it, and close the menu: the confirming second press
+     sat on the sheet for 8 seconds where nobody was looking, so the night was never written - no heal, no armour - and the
+     table pressed New scene instead (the room's ring that night: three scenes, no night).  Now the item asks here, once:
+     the Days box, then Nightfall, which arms the sheet's button and confirms it in the same press, and says what the night
+     did (the sheet's own walk line).  A player's device is told the night is the Overseer's. */
+  function nightPane(){
+    var C = window.HELENA_CAMP, t = "", b = $("cs-nightfall"), mine = !!(b && !b.disabled);
+    try{ t = C && typeof C.nightAsk === "function" ? String(C.nightAsk() || "") : ""; }catch(e){ t = ""; }
+    menu.innerHTML = '<h3><span>Nightfall · a new day</span><button type="button" data-ck="x" aria-label="Close">&times;</button></h3>' +
+      '<div class="cx-ck-pane"><div>A night\u2019s rest for the whole party: everyone heals to full, armour is restored to its maximum, Persistent damage and the day\u2019s Healed and Repaired ticks clear, and the survival tracks drain.' + (t ? " " + esc(t) : "") + "</div>" +
+      (mine ? '<div><label>Days passed <input type="number" id="cx-ck-days" min="1" max="14" value="1" style="width:56px"></label></div>' +
+              '<div class="cx-ck-btns"><button type="button" class="pri" data-ck="night">Nightfall</button><button type="button" data-ck="back">Back</button></div>'
+            : "<div>Nightfall is the Overseer\u2019s to press in a room \u2014 ask them.</div>" +
+              '<div class="cx-ck-btns"><button type="button" data-ck="back">Back</button></div>') +
+      '<div class="cx-ck-say"></div></div>';
+    /* the Days box writes the sheet's own Days box as it is typed: the arming press reads it (one night or a walk of several) */
+    var sd = $("cs-night-days"), dd = $("cx-ck-days");
+    if(sd && dd){ sd.value = "1"; dd.addEventListener("input", function(){ sd.value = String(Math.max(1, Math.min(14, Math.round(+dd.value || 1)))); }); }
+  }
+  function nightConfirm(){
+    var b = $("cs-nightfall"), walk = $("cs-night-walk");
+    if(!b){ say("The sheet's Nightfall is not on this page.", true); return false; }
+    if(b.disabled){ say("Nightfall is the Overseer\u2019s to press in a room \u2014 ask them.", true); return false; }
+    if(b.getAttribute("data-armed") === "1") b.click();   /* the confirming press: the night is written now */
+    var said = walk && !walk.hidden ? String(walk.textContent || "").trim() : "";
+    say(said || "Nightfall was pressed.", !!(said && /already|not written|refus/i.test(said) && !/^Night/.test(said)));
+    paintPill();
+    return true;
+  }
+
   /* ---- End session ---- */
   function endPane(){
     var s = summary();
@@ -73946,7 +74078,8 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
     if(k === "scene"){ try{ if(window.SUITE_RAIL) window.SUITE_RAIL.open(); }catch(err){} ok = press("rail-sc-open"); if(ok) close(); else say("The rail's New scene box is not on this page.", true); }
     else if(k === "endscene"){ var er = endScene(); paintPill(); if(er.ok) say(er.note || er.line || "The scene ended."); else say(er.note || "The scene was not ended.", true); }
     else if(k === "leg"){ ok = shell("travel"); close(); }
-    else if(k === "night"){ ok = press("cs-nightfall", "char"); if(ok) close(); else say("The sheet's Nightfall is not on this page.", true); }
+    else if(k === "nightask"){ nightPane(); }
+    else if(k === "night"){ ok = press("cs-nightfall", "char"); if(ok) nightConfirm(); else say("The sheet's Nightfall is not on this page.", true); }
   }
 
   function ensurePill(){
