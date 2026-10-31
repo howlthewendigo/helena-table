@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"32f3042b",at:"2026-10-30 19:18 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"7c23a112",at:"2026-10-30 23:24 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -2473,6 +2473,13 @@
 #tool-map .bkbar{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;padding:8px 16px;
          background:#171a13;border-bottom:1px solid var(--edge);font-size:var(--t-body)}
 #tool-map .bkbar[hidden]{display:none}
+#tool-map .cvbar{border-top:1px solid var(--edge)}
+#tool-map .cvbar [hidden]{display:none !important}
+#tool-map .cvbar .cv-say{flex-basis:100%;margin:2px 0 0;color:var(--ink)}
+#tool-map .cvbar .cv-log{flex-basis:100%;margin:0;padding-left:22px;color:var(--dim)}
+#tool-map .cvbar .cv-log li.cv-pc{color:#3f8fd8}
+#tool-map .cvbar .cv-log li.cv-gm{color:#d9623a}
+#tool-map .cvbar .cv-log li.cv-refused{text-decoration:line-through;opacity:.7}
 #tool-map .bkbar label{display:flex;gap:5px;align-items:center;cursor:pointer;color:var(--dim)}
 #tool-map .bkbar input{width:auto}
 #tool-map .bkbar .bk-lab{color:var(--amber);font-size:var(--t-cap);letter-spacing:.12em;text-transform:uppercase}
@@ -5286,6 +5293,10 @@ body.view-cinder[data-cl-tab="fight"] #cl-zoom{ display:flex; position:fixed; z-
 @media (max-width:700px){
   body.view-cinder[data-cl-tab="fight"] #cl-mtc.cl-win{ top:auto !important; bottom:64px; left:8px; right:8px; transform:none !important; width:auto; max-height:calc(100vh - 46vh - 124px); }
 }
+
+/* the cover deploy phase (Howl 2026-10-30): in Cinder's Fight its bar stands over the map only while a phase runs; the
+   Overseer starts one from the Maps tab (or Classic's Map) */
+body.view-cinder[data-cl-tab="fight"] #tool-map > #cv_bar:not(.cv-on){ display:none; }
 </style>
 <style data-suite="cinder-8-overseer">/* Z034 the Overseer desk (cinder-8-overseer.js), both views; violet edge = GM only */
 #od-desk{ margin:0 0 16px; color:var(--ink); border-left:4px solid var(--od-gm, #8A5CD6); padding-left:12px; }
@@ -5817,7 +5828,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-30 19:18 UTC">32f3042b</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-10-30 23:24 UTC">7c23a112</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -7515,6 +7526,32 @@ end $$;
   </span>
 </div>
 <p class="hint" id="bk_hint" role="status" aria-live="polite"></p>
+<div class="bkbar cvbar" id="cv_bar" hidden>
+  <span class="bk-lab" id="cv_lab">Cover phase</span>
+  <span class="bk-set" id="cv_setup">
+    <label for="cv_pts">Points a side</label><select id="cv_pts">
+      <option value="6">6</option><option value="8" selected>8</option><option value="10">10</option><option value="12">12</option>
+    </select>
+    <label for="cv_first">First</label><select id="cv_first"><option value="pc">Players</option><option value="gm">Overseer</option></select>
+    <button type="button" id="cv_start">Start cover phase</button>
+  </span>
+  <span class="bk-set" id="cv_play" role="radiogroup" aria-labelledby="cv_lab">
+    <label><input type="radio" name="cv_kind" id="cv_k_off" value="" checked> Off</label>
+    <label><input type="radio" name="cv_kind" id="cv_k_l" value="1"> Light &middot; 1</label>
+    <label><input type="radio" name="cv_kind" id="cv_k_m" value="2"> Medium &middot; 2</label>
+    <label><input type="radio" name="cv_kind" id="cv_k_h" value="3"> Heavy &middot; 3</label>
+    <button type="button" id="cv_pass">Pass</button>
+    <button type="button" id="cv_end">End phase</button>
+  </span>
+  <span class="bk-set" id="cv_kbd">
+    <label for="cv_from">From</label><select id="cv_from"></select>
+    <select id="cv_dir" aria-label="Direction"><option value="r">across</option><option value="d">down</option></select>
+    <select id="cv_len" aria-label="Length"><option value="1">1 block</option><option value="2">2 blocks</option><option value="3" selected>3 blocks</option></select>
+    <button type="button" id="cv_go">Place</button>
+  </span>
+  <p class="cv-say" id="cv_say" role="status" aria-live="polite"></p>
+  <ol class="cv-log" id="cv_log"></ol>
+</div>
 
 <main>
   <div id="stage"></div>
@@ -19196,6 +19233,7 @@ function setPool(which, v){
      its own copy is stamped on delivery, so the next unrelated state change skips it. */
   /* PROJECT G, P0 (2026-10-01): the four G slices join the ledger here — see KEYS above */
   var MULTI = { ledger:1, scene:1, travel:1, quests:1, session:1 };
+  MULTI.cover = 1;          /* the cover deploy phase (Howl 2026-10-30): open to every seat, compare-and-set; its own line so the pinned shapes stand */
   /* CMD Z017 (G.4, 2026-10-22): THE PARTY'S REPUTATION — tools.reputation, { factions:[{ id, name, rank }] } (HELENA_CHAR.repOf).
      Party state like the quests: it rides the table slice inside tools, the Overseer's while one is at the table (a player's
      write is refused with its note), anyone's with no Overseer, a compare-and-set on a re-run.  Added here rather than in
@@ -54665,11 +54703,12 @@ function strokeMark(i){
 }
 function strokeAdd(i){ if(!STROKE||i<0||STROKE.seen[i]) return; STROKE.seen[i]=1; STROKE.list.push(i); strokeMark(i); }
 function strokeDown(e,svg){
-  if(!brushOn()||(e.button!=null&&e.button!==0)) return;
-  const why=paintGate(); if(why){ setBrush('off'); blockHint(why); syncBar(); return; }
+  const cv=cvArmed();                               /* the cover phase's line: its own gate, never the paint brush's */
+  if((!brushOn()&&!cv)||(e.button!=null&&e.button!==0)) return;
+  if(!cv){ const why=paintGate(); if(why){ setBrush('off'); blockHint(why); syncBar(); return; } }
   e.preventDefault(); e.stopPropagation();          /* the press is the brush's: no token drag starts under it, no page pan */
   try{ svg.setPointerCapture(e.pointerId); }catch(x){}
-  STROKE={seen:{}, list:[], svg};
+  STROKE={seen:{}, list:[], svg, cv};
   strokeAdd(blockAtPoint(svg,e.clientX,e.clientY));
 }
 function strokeMove(e,svg){ if(!STROKE) return; e.preventDefault(); strokeAdd(blockAtPoint(svg,e.clientX,e.clientY)); }
@@ -54678,8 +54717,112 @@ function strokeUp(e,svg){
   if(e.type==='pointerup') strokeAdd(blockAtPoint(svg,e.clientX,e.clientY));
   const s=STROKE; STROKE=null;
   try{ svg.releasePointerCapture(e.pointerId); }catch(x){}
-  if(s.list.length) applyStroke(s.list,BRUSH);
+  if(s.list.length){ if(s.cv) cvStroke(s.list,s.cv); else applyStroke(s.list,BRUSH); }
 }
+
+/* COVER-PHASE:begin - THE COVER DEPLOY PHASE (Howl 2026-10-30: "a pre-combat deploy cover phase ... where both sides take
+   turns putting little lines of cover").  On a Blocks map, before the fight, the Players and the Overseer take turns
+   laying ONE straight line of cover each: 1 to 3 open blocks in one row or one column, all Light, Medium or Heavy,
+   costing 1, 2 or 3 points a block from that side's points.  A line never stands on a deployment edge (the first and
+   last columns stay open, as the generator keeps them), never on a block someone stands in, and never cuts the map in
+   two (every open block stays walkable from every other).  On a rooms-and-halls map (every map Generate draws now) a
+   line is pieces on bare floor: each raises its zone's cover, and walls and movement are untouched.  A side that passes, or cannot pay for one Light block, is
+   done; when both are, the phase is over.  The rules here are pure (the state in, a new state out) so the suite's
+   room slice and the tests run the same ones; the generator's own page has no room and never shows the phase. */
+const CV_WORD={'1':'Light','2':'Medium','3':'Heavy'};
+const CV_SIDE={pc:'Players', gm:'Overseer'};
+const CV_TURN={pc:'Players\u2019', gm:'Overseer\u2019s'}, CV_HAS={pc:'have', gm:'has'};
+const CV_MAX=3;
+/* the stage's hooks, rebound by the suite (build-suite.js, COVER-PHASE glue): the kind armed ('' = none), the line laid */
+function cvArmed(){ return ''; }
+/* the phase bar's list and block picker, written only when they change (true when written) */
+function cvHtml(el,h){ if(!el||el.innerHTML===h) return false; el.innerHTML=h; return true; }
+function cvStroke(list,ch){}
+/* a line on map M: { ok, cells (indexes, in order), codes, why } */
+function cvLine(M,list){
+  if(!M||M.kind!=='blocks') return {ok:false, why:'The cover phase needs a Blocks map.'};
+  const w=M.w, N=w*M.h, u=[];
+  (list||[]).forEach(i=>{ i=+i; if(Number.isInteger(i)&&i>=0&&i<N&&u.indexOf(i)<0) u.push(i); });
+  if(!u.length) return {ok:false, why:'No block chosen.'};
+  if(u.length>CV_MAX) return {ok:false, why:'A line is 1 to 3 blocks long.'};
+  u.sort((a,b)=>a-b);
+  const row=u.every(i=>((i/w)|0)===((u[0]/w)|0)), col=u.every(i=>i%w===u[0]%w);
+  if(!row&&!col) return {ok:false, why:'A line runs straight: one row or one column.'};
+  for(let k=1;k<u.length;k++) if(u[k]-u[k-1]!==(row?1:w)) return {ok:false, why:'A line has no gaps in it.'};
+  const codes=u.map(i=>blockCode(i%w,(i/w)|0));
+  /* rooms and halls: a piece stands on a floor block of a zone (walkable - a token there stands beside it) and gives that
+     zone its cover from every side, so it only asks for bare floor: no wall, no piece already there */
+  if(M.v2){
+    for(let k=0;k<u.length;k++){ const i=u[k]; if(M.tiles[i]!=='.'||!(M.rooms[i]>=0)) return {ok:false, why:codes[k]+(M.tiles[i]==='#'?' is a wall.':' already holds cover.')}; }
+    return {ok:true, cells:u, codes};
+  }
+  for(let k=0;k<u.length;k++){
+    const i=u[k], x=i%w;
+    if(M.tiles[i]!=='.') return {ok:false, why:codes[k]+' is not open ground.'};
+    if(x===0||x===w-1) return {ok:false, why:codes[k]+' is on a deployment edge - both edges stay open.'};
+    const who=blockOccupants(blockId(x,(i/w)|0))||[];
+    if(who.length) return {ok:false, why:who.join(' and ')+(who.length>1?' stand in ':' stands in ')+codes[k]+'.'};
+  }
+  const t=M.tiles.split(''); u.forEach(i=>{ t[i]='1'; });
+  let s=-1; for(let i=0;i<N;i++) if(t[i]==='.'){ s=i; break; }
+  if(s>=0){
+    const d=blockWalk(t,w,M.h,s%w,(s/w)|0);
+    for(let i=0;i<N;i++) if(t[i]==='.'&&d[i]<0) return {ok:false, why:'That line would cut the map in two - every open block must stay walkable.'};
+  }
+  return {ok:true, cells:u, codes};
+}
+function cvOther(side){ return side==='pc'?'gm':'pc'; }
+function cvCan(S,side){ return !!S&&!S.passed[side]&&(+S.pts[side]||0)>=1; }
+/* a new phase: both sides hold pts points; first is 'pc' or 'gm' */
+function cvNew(seed,pts,first){
+  pts=Math.max(1,Math.min(20,Math.round(+pts||0)));
+  return {on:true, seed:String(seed), budget:pts, pts:{pc:pts, gm:pts}, turn:first==='gm'?'gm':'pc', passed:{pc:false, gm:false}, lines:[], n:0};
+}
+/* after a line or a pass: the other side's turn if it can still place, else this side's again, else the phase is over */
+function cvAdvance(S){
+  const o=cvOther(S.turn);
+  if(cvCan(S,o)) S.turn=o;
+  else if(!cvCan(S,S.turn)){ S.on=false; S.done=true; }
+  return S;
+}
+function cvCopy(S){ return JSON.parse(JSON.stringify(S)); }
+/* side lays cells (a checked line) as ch: { ok, why, S } - S is a new state, the old one untouched */
+function cvPlace(S0,side,cells,codes,ch){
+  if(!S0||!S0.on) return {ok:false, why:'No cover phase is running.'};
+  if(side!==S0.turn) return {ok:false, why:'It is the '+CV_TURN[S0.turn]+' turn to place.'};
+  if(!CV_WORD[ch]) return {ok:false, why:'Pick Light, Medium or Heavy first.'};
+  const cost=cells.length*(+ch);
+  if(cost>(+S0.pts[side]||0)) return {ok:false, why:CV_WORD[ch]+' over '+cells.length+(cells.length>1?' blocks':' block')+' costs '+cost+' - the '+CV_SIDE[side]+' '+CV_HAS[side]+' '+S0.pts[side]+' left.'};
+  const S=cvCopy(S0);
+  S.n=(+S.n||0)+1;
+  S.lines.push({n:S.n, side, cells:cells.slice(), codes:codes.slice(), ch:String(ch), cost, state:'new'});
+  S.pts[side]-=cost;
+  cvAdvance(S);
+  return {ok:true, S};
+}
+function cvPass(S0,side){
+  if(!S0||!S0.on) return {ok:false, why:'No cover phase is running.'};
+  if(side!==S0.turn) return {ok:false, why:'It is the '+CV_TURN[S0.turn]+' turn.'};
+  const S=cvCopy(S0); S.passed[side]=true; cvAdvance(S);
+  return {ok:true, S};
+}
+function cvEnd(S0){ const S=cvCopy(S0||{}); S.on=false; S.done=true; return S; }
+/* the map's device marks a line down (laid on the map) or refused (why; its points go back, and a phase that had ended
+   for want of points opens again on that side's turn) */
+function cvMark(S0,n,ok,why){
+  const S=cvCopy(S0), L=(S.lines||[]).find(l=>l.n===n);
+  if(!L||L.state!=='new') return null;
+  if(ok){ L.state='down'; return S; }
+  L.state='refused'; L.why=String(why||'');
+  S.pts[L.side]=(+S.pts[L.side]||0)+L.cost;
+  if(!S.on&&S.done&&!S.ended){ S.on=true; S.done=false; S.passed[L.side]=false; S.turn=L.side; }
+  return S;
+}
+function cvLineWords(L){
+  const span=L.codes.length>1?L.codes[0]+'-'+L.codes[L.codes.length-1]:L.codes[0];
+  return CV_SIDE[L.side]+': '+CV_WORD[L.ch]+' cover '+span+' ('+L.cost+(L.cost===1?' point':' points')+')';
+}
+/* COVER-PHASE:end */
 
 /* CMD Z039: the header's subtitle in one line, or two split at a word boundary (at a " · " where one fits, else a space).  The
    width is the measured one for its 11.5px capitals and .06em spacing (8.75 px a character; 8.97 kept as the margin) */
@@ -54941,7 +55084,7 @@ function paintBlocks(){
   const lg=bkEl('bk_legend'); if(lg){ lg.innerHTML=blocksLegend(MAP); lg.hidden=false; }
   document.querySelectorAll('#stage .zone').forEach(g=>{
     g.addEventListener('click',()=>{
-      if(brushOn()) return;                       /* with a brush chosen the press painted; it did not select */
+      if(brushOn()||cvArmed()) return;            /* with a brush chosen the press painted; it did not select */
       const z=+g.getAttribute('data-z');
       SELECTED = SELECTED===z?-1:z;
       PANEL_SHUT=false;                           /* CMD Z038: a zone clicked opens its table again */
@@ -55371,7 +55514,7 @@ function putSvg(g,html){ if(SVG_OF.get(g)===html) return; g.innerHTML=html; SVG_
     var A = zoneOf(a), B = zoneOf(b);
     return (A && B) ? blockView(MAP, A, B) : null;
   };
-  window.HELENA_MAP.painting = function(){ return brushOn(); };
+  window.HELENA_MAP.painting = function(){ return brushOn() || !!cvArmed(); };
   /* CMD Z037 G: spots(zone, n) -> [{ x, y }], where n tokens stand in that zone, in the drawing's own units (the SVG root's
      user space, under its header band): each disc, HP meter and condition chip inside the zone and off its words
      (the generator's zoneSpots, which also places the words).  null for an unknown zone. */
@@ -55647,6 +55790,230 @@ function putSvg(g,html){ if(SVG_OF.get(g)===html) return; g.innerHTML=html; SVG_
     return true;
   }
   /* SOLO-KEEPS:end */
+  /* COVER-PHASE glue (Howl 2026-10-30) - the cover deploy phase in a room.  Its state is the "cover" slice, open to
+     every seat (a player lays the Players' lines from their own device) and written as a compare-and-set
+     (SUITE_TOOLS.change), so two presses at once never both spend.  The MAP stays the Overseer's: a line is written
+     into the cover slice as new, and the device that may write the map (the Overseer's; anyone's when no Overseer is
+     at the table; always in Solo) lays it on the map - checked again against the map as it stands then - and marks
+     it down, or refused with why (its points go back).  Who places: in Solo, or with no Overseer present, whoever's
+     turn it is; the Overseer for either side (players without a device); a player for the Players only.
+     (No backticks here: this rides in a template literal.) */
+  var CKEY = "cover", CV_ARM = "", cvBusy = false;
+  function cvSlice(){ try{ return T.get(CKEY); }catch(e){ return null; } }
+  function cvRoomish(){ try{ var Y = window.SUITE_SYNC; return !!(Y && typeof Y.status === "function" && Y.status().connected && T.gmPresent()); }catch(e){ return false; } }
+  function cvSideNow(S){
+    if(!S || !S.on) return null;
+    if(!cvRoomish() || swGM()) return S.turn;
+    return S.turn === "pc" ? "pc" : null;
+  }
+  function cvLayer(){ try{ return T.canWrite(TKEY) && (!cvRoomish() || swGM()); }catch(e){ return false; } }
+  var cvMsgKey = null;
+  function cvShow(t){ var el = g("cv_say"); if(el && el.textContent !== (t || "")) el.textContent = t || ""; }
+  /* an answer to a press stays until the phase moves on (a line, a pass, the end) */
+  function cvSay(t){ var S = cvSlice(); cvMsgKey = S ? [S.on, S.turn, S.n, S.done].join("|") : ""; cvShow(t); }
+  function cvUsable(){ return !!(MAP && MAP.kind === "blocks"); }
+  cvArmed = function(){
+    var S = cvSlice();
+    if(!CV_ARM || !S || !S.on || !cvSideNow(S) || !cvUsable()) return "";
+    return CV_ARM;
+  };
+  function cvArm(ch){
+    CV_ARM = CV_WORD[ch] ? ch : "";
+    if(CV_ARM && BRUSH !== "off") setBrush("off");
+    var id = { "":"cv_k_off", "1":"cv_k_l", "2":"cv_k_m", "3":"cv_k_h" }[CV_ARM], r = g(id);
+    if(r && !r.checked) r.checked = true;
+    var svg = document.querySelector("#stage svg.zm-blocks");
+    if(svg && svg.classList) svg.classList.toggle("bk-painting", !!CV_ARM);
+  }
+  function cvWrite(fn){
+    var r = T.change(CKEY, function(cur){ var nx = fn(cur); return nx == null ? undefined : nx; });
+    return !!(r && r.ok && r.wrote);
+  }
+  function cvStart(){
+    if(!cvUsable()){ cvSay("The cover phase needs a Blocks map: set Style to Blocks and Generate."); return false; }
+    if(!cvLayer()){ cvSay("Only the Overseer starts the cover phase."); return false; }
+    var pts = g("cv_pts"), first = g("cv_first");
+    var S = cvNew(MAP.seed, pts ? +pts.value : 8, first ? first.value : "pc");
+    if(!cvWrite(function(){ return S; })){ cvSay("The cover phase did not start - try again."); return false; }
+    swSay("started the cover phase: " + S.budget + " points a side, the " + CV_SIDE[S.turn] + " place first");
+    cvPaint();
+    return true;
+  }
+  function cvPlaceHere(list, ch){
+    var S = cvSlice(), side = cvSideNow(S);
+    if(!S || !S.on){ cvSay("No cover phase is running."); return false; }
+    if(!side){ cvSay("The Overseer is placing - your turn comes next."); return false; }
+    if(S.seed !== String(MAP && MAP.seed)){ cvSay("The map changed since the phase began - the Overseer ends it and starts again."); return false; }
+    var L = cvLine(MAP, list);
+    if(!L.ok){ cvSay(L.why); return false; }
+    var tryIt = cvPlace(S, side, L.cells, L.codes, ch);
+    if(!tryIt.ok){ cvSay(tryIt.why); return false; }
+    var placed = null;
+    var ok = cvWrite(function(cur){
+      if(!cur || !cur.on || cur.seed !== S.seed) return null;
+      var r = cvPlace(cur, side, L.cells, L.codes, ch);
+      if(!r.ok) return null;
+      placed = r.S.lines[r.S.lines.length - 1];
+      return r.S;
+    });
+    if(!ok || !placed){ cvSay("Someone placed first - look again and lay your line."); cvPaint(); return false; }
+    swSay("cover phase - " + cvLineWords(placed));
+    cvSay("Placed: " + cvLineWords(placed) + ".");
+    cvArm("");
+    cvBake();
+    cvPaint();
+    return true;
+  }
+  cvStroke = function(list, ch){ return cvPlaceHere(list, ch); };
+  function cvKey(){
+    if(!MAP || MAP.kind !== "blocks") return false;
+    var f = g("cv_from"), d = g("cv_dir"), n = g("cv_len");
+    var i = f ? +f.value : NaN, len = n ? +n.value : 1, down = d && d.value === "d", list = [];
+    if(!(i >= 0)) return false;
+    for(var k = 0; k < len; k++){
+      var x = i % MAP.w + (down ? 0 : k), y = Math.floor(i / MAP.w) + (down ? k : 0);
+      if(x >= MAP.w || y >= MAP.h){ cvSay("That line runs off the map."); return false; }
+      list.push(y * MAP.w + x);
+    }
+    var ch = CV_ARM || "1";
+    return cvPlaceHere(list, ch);
+  }
+  function cvPassHere(){
+    var S = cvSlice(), side = cvSideNow(S);
+    if(!side){ cvSay(S && S.on ? "It is not your side's turn." : "No cover phase is running."); return false; }
+    var ok = cvWrite(function(cur){ var r = cvPass(cur, side); return r.ok ? r.S : null; });
+    if(ok){ swSay("cover phase - the " + CV_SIDE[side] + " pass"); cvArm(""); }
+    cvPaint();
+    return ok;
+  }
+  function cvEndHere(){
+    if(!cvLayer()){ cvSay("Only the Overseer ends the cover phase."); return false; }
+    var S = cvSlice(); if(!S || !S.on) return false;
+    var ok = cvWrite(function(cur){ if(!cur || !cur.on) return null; var e = cvEnd(cur); e.ended = true; return e; });
+    if(ok) swSay("ended the cover phase");
+    cvArm(""); cvPaint();
+    return ok;
+  }
+  /* the map's device lays every new line: checked against the map now (a token may have stepped into it since) */
+  function cvBake(){
+    if(cvBusy || !cvLayer() || !MAP || MAP.kind !== "blocks") return 0;
+    var S = cvSlice(); if(!S || !S.lines) return 0;
+    var done = 0;
+    cvBusy = true;
+    try{
+      S.lines.filter(function(l){ return l.state === "new"; }).forEach(function(l){
+        var ok = true, why = "";
+        if(S.seed !== String(MAP.seed)){ ok = false; why = "the map changed"; }
+        var already = ok && l.cells.every(function(i){ return MAP.tiles[i] === l.ch; });
+        if(ok && !already){
+          var c = cvLine(MAP, l.cells);
+          if(!c.ok){ ok = false; why = c.why; }
+          else{
+            var t = MAP.tiles.split(""); l.cells.forEach(function(i){ t[i] = l.ch; });
+            var sel = SELECTED;
+            var ex = MAP.v2 ? { rooms:MAP.rooms.slice(), zl:MAP.zl, links:MAP.links } : undefined;
+            MAP = blockModel(MAP.envKey, MAP.seed, MAP.sizeKey, MAP.dens, MAP.w, MAP.h, t.join(""), ex);
+            SELECTED = MAP.byId[sel] ? sel : -1;
+            forgetUndo(); syncBar(); paint(); writeNotes(MAP);
+            reportZones(); commit();            /* not strokeDone: a stroke drops the switch's Undo, a line of cover keeps it */
+          }
+        }
+        cvWrite(function(cur){ return cur ? cvMark(cur, l.n, ok, why) : null; });
+        if(!ok) swSay("cover phase - a line was refused (" + why + "); its points went back");
+        done++;
+      });
+    } finally { cvBusy = false; }
+    return done;
+  }
+  /* Cinder's Fight fits the map between the bar and the foot: when the cover bar comes or goes, it fits again */
+  var cvTall = -1;
+  function cvFit(bar){
+    var h = bar.offsetHeight || 0;
+    if(h === cvTall) return;
+    cvTall = h;
+    try{ if(window.CINDER_MAPFIT && typeof window.CINDER_MAPFIT.fit === "function") window.CINDER_MAPFIT.fit(); }catch(e){}
+  }
+  function cvPaint(){
+    cvMarks();
+    var bar = g("cv_bar"); if(!bar) return;
+    var S = cvSlice(), on = !!(S && S.on), layer = cvLayer(), usable = cvUsable();
+    var show = usable && (on || layer);              /* a player's bar goes when the phase ends; the Overseer's stays to start one */
+    if(bar.hidden !== !show) bar.hidden = !show;
+    if(bar.classList && bar.classList.contains("cv-on") !== on) bar.classList.toggle("cv-on", on);
+    cvFit(bar);
+    if(!show){ if(CV_ARM) cvArm(""); return; }
+    var side = cvSideNow(S);
+    var set = function(id, hid){ var el = g(id); if(el && el.hidden !== hid) el.hidden = hid; };
+    set("cv_setup", on || !layer);
+    set("cv_play", !on);
+    set("cv_kbd", !(on && side));
+    set("cv_end", !(on && layer));
+    ["cv_k_off", "cv_k_l", "cv_k_m", "cv_k_h", "cv_pass"].forEach(function(id){ var el = g(id); if(el && el.disabled !== !side) el.disabled = !side; });
+    if(!side && CV_ARM) cvArm("");
+    var lab = g("cv_lab"), lt = "Cover phase", guide = "";
+    if(S && on && S.seed === String(MAP.seed)){
+      lt = "Cover phase - " + CV_SIDE[S.turn] + " to place - points left: Players " + S.pts.pc + ", Overseer " + S.pts.gm;
+      guide = side ? (cvRoomish() && swGM() && S.turn === "pc" ? "The Players place - lay their line for them, or let them lay it from their own devices." : "Pick Light, Medium or Heavy, then drag across 1 to 3 blocks in a row or a column (or use From and Place).") : "The Overseer is placing - your turn comes next.";
+    } else if(S && on){
+      guide = "The map changed since the phase began - the Overseer ends it and starts again.";
+    } else if(S && S.done && S.seed === String(MAP.seed)){
+      guide = "The cover phase is over: " + (S.lines || []).filter(function(l){ return l.state !== "refused"; }).length + " lines laid.";
+    } else guide = layer ? (MAP.v2 ? "Before the fight: both sides take turns laying short lines of cover on bare floor - each piece gives its zone that cover." : "Before the fight: both sides take turns laying short lines of cover. Edges stay open, and no line may wall the map in two.") : "";
+    if(lab && lab.textContent !== lt) lab.textContent = lt;
+    var key = S ? [S.on, S.turn, S.n, S.done].join("|") : "";
+    if(cvMsgKey !== key){ cvMsgKey = null; cvShow(guide); }
+    var log = g("cv_log");
+    if(log){
+      var html = ((S && S.seed === String(MAP.seed) && S.lines) || []).map(function(l){
+        return '<li class="cv-' + l.side + (l.state === "refused" ? " cv-refused" : "") + '">' + cvLineWords(l) + (l.state === "refused" ? " - refused: " + l.why : l.state === "new" ? " - going down" : "") + "</li>";
+      }).join("");
+      cvHtml(log, html);
+    }
+    var f = g("cv_from");
+    if(f && MAP.kind === "blocks"){
+      var keep = f.value, o = [];
+      for(var i = 0; i < MAP.w * MAP.h; i++) if(MAP.tiles[i] === "." && (MAP.v2 ? MAP.rooms[i] >= 0 : (i % MAP.w > 0 && i % MAP.w < MAP.w - 1))) o.push('<option value="' + i + '">' + blockCode(i % MAP.w, Math.floor(i / MAP.w)) + "</option>");
+      if(cvHtml(f, o.join("")) && keep) f.value = keep;
+    }
+  }
+  /* while the phase runs, each laid line is outlined on the map in its side's colour (Players blue, Overseer red), so
+     the table sees whose cover is whose; the outlines go when the phase ends - the cover stays */
+  var CV_INK = { pc:"#5ab0ff", gm:"#ff7a59" };
+  function cvMarks(){
+    var grid = document.querySelector("#stage svg.zm-blocks #bk_grid"); if(!grid || !MAP || MAP.kind !== "blocks") return;
+    var S = cvSlice(), want = (S && S.on && S.seed === String(MAP.seed)) ? (S.lines || []).filter(function(l){ return l.state !== "refused"; }) : [];
+    var sig = want.map(function(l){ return l.n + l.side + l.cells.join(","); }).join("|");
+    if(grid.getAttribute("data-cv") === sig) return;
+    Array.prototype.slice.call(grid.querySelectorAll("[data-cvline]")).forEach(function(el){ el.parentNode.removeChild(el); });
+    var B = MAP.B, NS = "http://www.w3.org/2000/svg";
+    want.forEach(function(l){
+      l.cells.forEach(function(i){
+        var r = document.createElementNS(NS, "rect"), x = i % MAP.w, y = Math.floor(i / MAP.w);
+        var at = { x:x * B + 3, y:y * B + 3, width:B - 6, height:B - 6, fill:"none", stroke:CV_INK[l.side] || "#fff", "stroke-width":5, rx:6, "pointer-events":"none", "data-cvline":l.n };
+        for(var k in at) r.setAttribute(k, String(at[k]));
+        grid.appendChild(r);
+      });
+    });
+    grid.setAttribute("data-cv", sig);
+  }
+  var __cvMapPaint = paint;
+  paint = function(){ __cvMapPaint(); cvMarks(); };
+  (function(){
+    var b = g("cv_start"); if(b) b.addEventListener("click", cvStart);
+    var p = g("cv_pass"); if(p) p.addEventListener("click", cvPassHere);
+    var e = g("cv_end"); if(e) e.addEventListener("click", cvEndHere);
+    var k = g("cv_go"); if(k) k.addEventListener("click", cvKey);
+    ["cv_k_off", "cv_k_l", "cv_k_m", "cv_k_h"].forEach(function(id){
+      var r = g(id); if(r) r.addEventListener("change", function(){ if(r.checked) cvArm(r.value); });
+    });
+    var bk = g("bk_bar");
+    if(bk) bk.addEventListener("change", function(ev){ var t = ev.target; if(t && t.name === "bk_brush" && t.value !== "off" && CV_ARM) cvArm(""); });
+  })();
+  T.subscribe(CKEY, function(){ cvBake(); cvPaint(); });
+  T.subscribe(TKEY, function(){ cvBake(); cvPaint(); });
+  if(typeof setInterval === "function") setInterval(function(){ cvBake(); cvPaint(); }, 1500);
+  cvPaint();
+  window.HELENA_MAP.coverPhase = { state:cvSlice, start:cvStart, place:cvPlaceHere, pass:cvPassHere, end:cvEndHere, bake:cvBake, arm:cvArm, paint:cvPaint };
   T.subscribe(TKEY, function(d){
     T.keepFocus(function(){ apply(d); });
     last = JSON.stringify(inputs() || null);
