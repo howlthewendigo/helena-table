@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"272ce101",at:"2026-11-03 01:26 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"f574d671",at:"2026-11-03 13:34 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -434,6 +434,10 @@
   .rail-pc-bar.hurt i{ background:#f0b429; } .rail-pc-bar.down i{ background:var(--sh-red); }
   .rail-pc-btns{ display:flex; gap:4px; margin-top:4px; }
   .rail-pc-btns button{ flex:1; font-size:11px; padding:3px 0; }
+  .suite-rail .rail-pc-dmg .rail-dmg-n{ width:46px; flex:0 0 auto; }
+  .suite-rail .rail-pc-dmg .rail-dmg-t{ flex:1 1 auto; min-width:0; font-size:11px; background:#0b0e07; color:#e8e4d4;
+    border:1px solid var(--sh-field-edge); border-radius:2px; padding:3px 4px; }
+  .rail-dmg-say{ font-size:11px; color:var(--sh-faint); padding:4px 0; }
   .rail-off{ font-size:11px; color:var(--sh-faint); line-height:1.5; }
   /* ---- ASK 1 (2026-09-23): what the deleted Action Points tab used to carry ---- */
   .rail-pips{ display:flex; gap:3px; flex-wrap:wrap; margin-top:7px; }
@@ -3134,6 +3138,8 @@
 #tool-shop .lg-purse{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 4px;font-size:15px}
 #tool-shop .lg-purse input{width:80px}
 #tool-shop .lg-purse .msg{margin:0;flex-basis:100%}
+#tool-shop .lg-purse .lg-start{display:inline-flex;gap:6px;align-items:center;margin-left:6px}
+#tool-shop .lg-purse .lg-start[hidden]{display:none}
 #tool-shop .b-confirm{border-color:var(--amber);color:var(--amber)}
 #tool-shop .b-confirm:hover{background:#2a2410}
 #tool-shop .b-confirm[disabled]{opacity:.45;cursor:not-allowed;border-color:var(--edge);color:var(--faint)}
@@ -5834,7 +5840,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-03 01:26 UTC">272ce101</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-03 13:34 UTC">f574d671</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -8101,6 +8107,10 @@ end $$;
     <select id="mc-lg-capwho" aria-label="whose sheet"></select>
     <button id="mc-lg-capin">Put in</button>
     <button id="mc-lg-capout">Take out</button>
+    <!-- Z050 P2 (R.47 B): the Overseer sets the party's starting caps, once; gone once set (its Undo brings it back) -->
+    <span class="lg-start" id="mc-lg-start" hidden>Starting caps
+      <input type="number" id="mc-lg-startn" min="0" max="999999" placeholder="caps" aria-label="the party's starting caps">
+      <button id="mc-lg-startgo">Set starting caps</button></span>
     <span class="msg plain" id="mc-lg-capmsg" role="status"></span>
   </div>
 
@@ -9468,6 +9478,9 @@ root.BESTIARY_RULES = {
     /* Z050 (R.22 AMENDED, NR-42): THE PARTY'S CAPS ride the slice when PRESENT — a whole number, never below 0 — so a slice
        that never held any is byte-for-byte the slice it always was (an old save loads as 0 and nothing is written) */
     if(s.caps != null && s.caps !== "" && isFinite(+s.caps)) out.caps = int(s.caps, 0);
+    /* Z050 P2 (R.47 B, Howl 2026-11-03): the Overseer's starting caps, once — what was set, carried only when present, so a
+       slice that never set them is byte-for-byte the slice it always was (an old save loads unset and nothing is written) */
+    if(isRec(s.capsStart) && isFinite(+s.capsStart.n)) out.capsStart = { n:int(s.capsStart.n, 0), at:str(s.capsStart.at).slice(0, 40) };
     return out;
   }
   /* a list of seed ids: strings, each once, the newest SEED_ADDED_MAX kept (the seed is 183) */
@@ -10769,6 +10782,22 @@ root.BESTIARY_RULES = {
       return { ok:true, purse:sl.caps, name:c.name || "unnamed" };
     }
 
+    /* Z050 P2 (R.47 B, Howl 2026-11-03; replaces Phase 1's "start at 0, no seeding"): THE OVERSEER SETS THE PARTY'S STARTING
+       CAPS, ONCE.  n caps go into the party's caps (on top of anything already put in — a seed, never a reset) and the slice
+       remembers it (capsStart), so the control is gone after; the Undo of that line puts the slice back unset.  ONE table
+       write.  Who may press it is the page's gate (overseerMay in src/merchant.html), as setCapacity's is. */
+    function startCaps(n){
+      n = Math.round(+n);
+      if(!isFinite(n) || n < 0 || n > 999999) return { ok:false, note:"type the party's starting caps — a whole number" };
+      var s = normalise(env.getLedger());
+      if(s.capsStart) return { ok:false, note:"the party's starting caps were set already (" + s.capsStart.n + ")" };
+      s.caps = purseOf(s) + n;
+      s.capsStart = { n:n, at:str((env.now && env.now()) || "") };
+      var w = env.setLedger(s) || { ok:true };
+      if(w.ok === false) return { ok:false, note:(w.note || "not shared") };
+      return { ok:true, purse:s.caps, n:n };
+    }
+
     /* SEND.  Ask 3.  ONE table-slice write: the row leaves the shelf and becomes a
        parcel addressed to a sheet, inside the same closure.  Atomic by
        construction — there is no state in which the row is off the shelf and not
@@ -10806,6 +10835,21 @@ root.BESTIARY_RULES = {
       var w = env.setLedger(clearPending(env.getLedger(), sendId).slice) || { ok:true };
       return { ok:true, to:entry.to, row:entry.row,
                note:(w.ok === false ? "it is on the sheet, but the inbox did not clear — decline the leftover" : "") };
+    }
+
+    /* Z050 P2 (K.12, Howl 2026-11-03): GIVE TO — a party-ledger item straight onto a sheet: the parcel (send) and the
+       taking (accept) in one press, so the row is never in two places.  A sheet this device may not write cannot be given
+       to directly; the item then waits in that player's inbox as a parcel, exactly as "send" leaves it, and the answer
+       says so (parcel:true). */
+    function giveTo(rowId, qty, to, fromName){
+      var c = charById(to);
+      if(!c) return { ok:false, note:"pick who it goes to" };
+      var s1 = sendTo(rowId, qty, to, fromName);
+      if(!s1.ok) return s1;
+      if(!may(to)) return { ok:true, parcel:true, to:c, row:s1.entry.row };
+      var a = accept(s1.entry.sendId);
+      if(!a.ok){ declineSend(s1.entry.sendId); return { ok:false, note:a.note || "that sheet did not take it — it is back on the shelf" }; }
+      return { ok:true, parcel:false, to:c, row:s1.entry.row, note:a.note || "" };
     }
 
     function declineSend(sendId){
@@ -11070,7 +11114,7 @@ root.BESTIARY_RULES = {
       return bad ? { ok:false, note:bad, rows:[] } : { ok:true, rows:r.rows, over:r.over };
     }
 
-    return { confirm:confirm, payers:payers, payerName:payerName, refund:refund, moveCaps:moveCaps, send:sendTo, accept:accept, decline:declineSend, put:put, seed:seedOnce,
+    return { confirm:confirm, payers:payers, payerName:payerName, refund:refund, moveCaps:moveCaps, startCaps:startCaps, give:giveTo, send:sendTo, accept:accept, decline:declineSend, put:put, seed:seedOnce,
              hold:holdRow, release:releaseHold, releaseAllBy:releaseAll, typeDarts:typeDartsOp,
              setCapacity:setCapacityOp, unshelve:unshelveOp,
              gainMount:gainMount, loseMount:loseMount,
@@ -11153,6 +11197,138 @@ root.BESTIARY_RULES = {
   API.SEED_ADDED_MAX = SEED_ADDED_MAX;
   API.sameThing   = sameThing;
   API.craft       = craft;
+  /* HAULSNAP:begin */
+  /* Z050 PHASE 2 (V.7, K.12, R.47 B, End combat cleanup — 2026-11-03): WHAT A PRESS CHANGED, AND HOW TO PUT IT BACK.
+     The haul's presses (the Spoils, a stripped body, a haul sent, a merchant deal, Give to, the starting caps, the End combat
+     cleanup) each move goods and caps across several stores at once — the ledger slice, the encounter's record, the loot
+     finder's tokens and finds, the sheets.  Their one Undo (window.HELENA_HAUL, src/merchant.html) does not rebuild any of
+     those rules backwards: it takes the table before the press and after it and keeps only what MOVED:
+       snap.diff(a, b)    -> d, the smallest description of how a became b (undefined: nothing moved)
+       snap.back(cur, d)  -> cur with d's before-values put back, everything else in cur left as it stands
+       snap.pick(cur, d)  -> the values at d's places as cur holds them; pick(after, d) is the line's "after", and an Undo
+                             whose pick(now, d) differs from it is stale (SUITE_UNDO refuses it)
+     Shapes: {v} a value (u:1 = it was absent); {o:{key:d}} an object's keys; {k:{id:{d}|{v,i}}, f} a list whose every entry
+     carries its own id (a shelf row's id, a hold's holdId, a parcel's sendId, a sheet's id) — kept by id, so a row taken out
+     of the middle of a 200-row shelf costs one entry; {x:{i:d}} a list of the same length, by place; {r:[h, head, n]} a ring
+     that rolled (h entries dropped off the front, the first n of now are the old tail) — the txns ring, xpSeen.
+     Pure: no window, no store.  tests/zoe-z050-p2-haul.js lifts this block from the BUILT file. */
+  var SNAP = (function(){
+    var NONE = "∅";
+    function isO(v){ return !!v && typeof v === "object" && !Array.isArray(v); }
+    function canon(v){
+      if(v === undefined) return "u";
+      if(v === null || typeof v !== "object") return JSON.stringify(v);
+      if(Array.isArray(v)) return "[" + v.map(canon).join(",") + "]";
+      return "{" + Object.keys(v).sort().filter(function(k){ return v[k] !== undefined; }).map(function(k){ return JSON.stringify(k) + ":" + canon(v[k]); }).join(",") + "}";
+    }
+    function same(a, b){ return canon(a) === canon(b); }
+    function cp(v){ return v === undefined ? undefined : JSON.parse(JSON.stringify(v)); }
+    var IDS = ["id", "holdId", "sendId"];
+    function idField(arr){
+      if(!arr.length) return "";
+      for(var j = 0; j < IDS.length; j++){
+        var f = IDS[j], seen = Object.create(null), okF = true;
+        for(var i = 0; i < arr.length && okF; i++){
+          var x = arr[i], id = isO(x) ? x[f] : null;
+          if((typeof id !== "string" && typeof id !== "number") || id === "" || seen[id]) okF = false; else seen[id] = 1;
+        }
+        if(okF) return f;
+      }
+      return "";
+    }
+    function at(arr, f, id){ for(var i = 0; i < arr.length; i++) if(isO(arr[i]) && String(arr[i][f]) === id) return i; return -1; }
+    function leaf(a){ return a === undefined ? { v:null, u:1 } : { v:cp(a) }; }
+    function diff(a, b){
+      if(same(a, b)) return undefined;
+      if(isO(a) && isO(b)){
+        var o = {}, ks = Object.keys(a).concat(Object.keys(b).filter(function(k){ return !Object.prototype.hasOwnProperty.call(a, k); }));
+        ks.forEach(function(k){ var d = diff(a[k], b[k]); if(d !== undefined) o[k] = d; });
+        return { o:o };
+      }
+      if(Array.isArray(a) && Array.isArray(b)){
+        var fa = idField(a), fb = idField(b), f = a.length ? fa : fb;
+        if(f && (!b.length || fb === f) && (!a.length || fa === f)){
+          var k = {}, i, id, ix;
+          for(i = 0; i < a.length; i++){
+            id = String(a[i][f]); ix = at(b, f, id);
+            if(ix < 0) k[id] = { v:cp(a[i]), i:i };
+            else { var dd = diff(a[i], b[ix]); if(dd !== undefined) k[id] = { d:dd }; }
+          }
+          for(i = 0; i < b.length; i++){ id = String(b[i][f]); if(at(a, f, id) < 0) k[id] = { v:null }; }
+          return { k:k, f:f };
+        }
+        if(a.length === b.length){
+          var x = {};
+          for(var j = 0; j < a.length; j++){ var dj = diff(a[j], b[j]); if(dj !== undefined) x[j] = dj; }
+          return { x:x };
+        }
+        for(var h = 0; h <= Math.min(8, a.length); h++){
+          var keep = a.length - h;
+          if(keep <= b.length && same(a.slice(h), b.slice(0, keep))) return { r:[h, cp(a.slice(0, h)), keep] };
+        }
+      }
+      return leaf(a);
+    }
+    function back(cur, d){
+      if(!d) return cp(cur);
+      if(d.u) return undefined;
+      if(Object.prototype.hasOwnProperty.call(d, "v")) return cp(d.v);
+      if(d.o){
+        var o = isO(cur) ? cp(cur) : {};
+        Object.keys(d.o).forEach(function(k){ var nv = back(o[k], d.o[k]); if(nv === undefined) delete o[k]; else o[k] = nv; });
+        return o;
+      }
+      if(d.k){
+        var arr = Array.isArray(cur) ? cp(cur) : [], f = d.f || "id", ids = Object.keys(d.k), adds = [];
+        ids.forEach(function(id){
+          var e = d.k[id], ix = at(arr, f, id);
+          if(e.d){ if(ix >= 0) arr[ix] = back(arr[ix], e.d); }
+          else if(e.v === null){ if(ix >= 0) arr.splice(ix, 1); }
+          else if(ix >= 0) arr[ix] = cp(e.v);
+          else adds.push(e);
+        });
+        adds.sort(function(p, q){ return (p.i | 0) - (q.i | 0); }).forEach(function(e){ arr.splice(Math.min(Math.max(0, e.i | 0), arr.length), 0, cp(e.v)); });
+        return arr;
+      }
+      if(d.x){
+        var a2 = Array.isArray(cur) ? cp(cur) : [];
+        Object.keys(d.x).forEach(function(i){ var nv = back(a2[i], d.x[i]); if(nv !== undefined) a2[i] = nv; });
+        return a2;
+      }
+      if(d.r){ var a3 = Array.isArray(cur) ? cur : []; return cp(d.r[1]).concat(cp(a3.slice(0, d.r[2]))); }
+      return cp(cur);
+    }
+    function pick(cur, d){
+      if(!d) return NONE;
+      if(d.u || Object.prototype.hasOwnProperty.call(d, "v")) return cur === undefined ? NONE : cp(cur);
+      if(d.o){ var o = {}, c = isO(cur) ? cur : {}; Object.keys(d.o).forEach(function(k){ o[k] = pick(c[k], d.o[k]); }); return o; }
+      if(d.k){
+        var arr = Array.isArray(cur) ? cur : [], f = d.f || "id", out = {};
+        Object.keys(d.k).forEach(function(id){
+          var e = d.k[id], ix = at(arr, f, id);
+          out[id] = e.d ? (ix >= 0 ? pick(arr[ix], e.d) : NONE) : (ix >= 0 ? cp(arr[ix]) : null);
+        });
+        return out;
+      }
+      if(d.x){ var a2 = Array.isArray(cur) ? cur : [], x = {}; Object.keys(d.x).forEach(function(i){ x[i] = pick(a2[i], d.x[i]); }); return x; }
+      if(d.r){ var a3 = Array.isArray(cur) ? cur : []; return { n:a3.length, t:cp(a3.slice(d.r[2])) }; }
+      return NONE;
+    }
+    /* the places d touches, two levels down ("tools.ledger", "chars.<id>") — who may write them is the caller's question */
+    function places(d){
+      var out = [];
+      if(d && d.o) Object.keys(d.o).forEach(function(k){
+        var s = d.o[k];
+        if(s && s.o) Object.keys(s.o).forEach(function(k2){ out.push(k + "." + k2); });
+        else if(s && s.k) Object.keys(s.k).forEach(function(id){ out.push(k + "." + id); });
+        else out.push(k);
+      });
+      return out;
+    }
+    return { diff:diff, back:back, pick:pick, same:same, canon:canon, places:places, NONE:NONE };
+  })();
+  /* HAULSNAP:end */
+  API.snap        = SNAP;
   root.HELENA_LEDGER = API;
 })(typeof window !== "undefined" ? window : this);
 
@@ -20064,6 +20240,8 @@ try{
       }
       /* ROUND 6 (skeptic B): a compare-and-set write's lines are held until its round won (heldTick); the S-R3 line
          below is kept as it reads, so track S's own mutants (tests/wave14-log.js §5) still find it */
+      /* Z050 P2 (V.6): opts.apSaid - the press says its own pool line, with an Undo (the rail's pool presses): no second AP line */
+      if(opts.apSaid) apBefore = { dm:mem.dmAP, pc:mem.pcAP };
       if(!opts.remote && !opts.retry && opts.won && rd && !overseerHere()) holdTick(rd.id, apBefore, before, opts.kept);
       else if(!opts.remote && !opts.retry) tick(apBefore, before);     // PROJECT G, TRACK S (S-R3): live or not
       else if(opts.retry && opts.of != null && heldTick[opts.of]) heldTick[opts.of] = tickLines(apBefore, before);   // the kept write's figures
@@ -20800,6 +20978,45 @@ function hpUndo(snaps, what, kind){
       return { ok:true };
     } });
 }
+/* Z050 P2 (V.6, 2026-11-03): THE POOLS' PRESSES AND THE ROW'S × CAN BE UNDONE.  Each press of a pool (−, +, a pip, Fill, Zero)
+   that moves it says one line ("spent 1 party AP (5 → 4)") with an Undo that puts the number back; the × on a row with no sheet says
+   "took X off the party health rail" and its Undo puts the whole row back where it sat (name, HP, Max).  By name ("ap-pool",
+   "rail-drop"), so any device holding the line, and this one after a reload, can offer it.  Stale once the pool moved again /
+   once a row with that name is back. */
+function poolName(w){ return w === "dm" ? "GM" : "party"; }
+function poolOf(m, w){ return Math.max(0, Math.round(+(w === "dm" ? m.dmAP : m.pcAP) || 0)); }
+function apPoolKeep(w, v0, v1){
+  var U = window.SUITE_UNDO;
+  if(v0 === v1 || !U || typeof U.keep !== "function") return null;
+  railRevs();
+  try{ return U.keep("ap-pool", { text:(v1 < v0 ? "spent " + (v0 - v1) : "added " + (v1 - v0)) + " " + poolName(w) + " AP (" + v0 + " → " + v1 + ")", rev:{ w:w === "dm" ? "dm" : "pc", before:v0, after:{ v:v1 } }, reverser:"ap-pool", revert:apPoolPut }); }catch(e){ return null; }
+}
+function apPoolPut(x){
+  if(!x || (x.w !== "dm" && x.w !== "pc")) return { ok:false, note:"Nothing to put back." };
+  setPool(x.w, x.before);
+  return { ok:true };
+}
+function railDropPut(x){
+  if(!x || !x.row || !x.row.name) return { ok:false, note:"Nothing to put back." };
+  S.update(function(m){
+    if(!Array.isArray(m.players)) m.players = [];
+    if(m.players.some(function(p){ return p && S.rowKey(p) === x.k; })) return;
+    m.players.splice(Math.max(0, Math.min(m.players.length, x.i | 0)), 0, x.row);
+  });
+  return { ok:true };
+}
+function railDropNow(x){ var m = S.get(); return { on:((m && m.players) || []).some(function(p){ return p && S.rowKey(p) === x.k; }) }; }
+/* the rail is drawn before the session log's block defines SUITE_UNDO: register once it is there (at the end of this page's
+   scripts, and again at the first press, idempotent) */
+function railRevs(){
+  var U = window.SUITE_UNDO;
+  if(!U || typeof U.reverser !== "function") return false;
+  if(railRevs.done) return true;
+  U.reverser("ap-pool", { put:apPoolPut, now:function(x){ return { v:poolOf(S.get(), x.w) }; } });
+  U.reverser("rail-drop", { put:railDropPut, now:railDropNow });
+  return (railRevs.done = true);
+}
+try{ if(!railRevs() && typeof setTimeout === "function") setTimeout(railRevs, 0); }catch(e){}
 /* Z010 (U.3): the players at the table — the rail's character rows (each a player's sheet); a table with no sheet rows
    counts every named row.  What the Overseer's Fill fills to. */
 function gmFillTo(m){
@@ -20812,8 +21029,10 @@ function setPool(which, v){
       // RULE 1: no ceiling on the GM's pool; the party's is 7
       if(which === "dm") m.dmAP = Math.max(0, Math.round(+v || 0));
       else               m.pcAP = Math.max(0, Math.min(partyCap(m), Math.round(+v || 0)));
-    });
+    }, poolSaid());
   }
+  /* Z050 P2 (V.6): a pool press says its own line with Undo (apPoolKeep), so the state's own AP line stands down */
+  function poolSaid(){ return { apSaid:!!(window.SUITE_UNDO && typeof window.SUITE_UNDO.keep === "function") }; }
   /* the pips a pool draws: the party's maximum, or for the uncapped GM never fewer than
      six and never fewer than it is actually holding (ASK 1, from the deleted AP tab) */
   function pipCount(which, v, cap){ return which === "dm" ? Math.max(6, v) : cap; }
@@ -20844,20 +21063,65 @@ function setPool(which, v){
      outside #rail-body, where no re-render can reach it. */
   function heldMax(){
     var el = null; try{ el = document.activeElement; }catch(e){ return null; }
-    if(!el || !rail.contains(el) || !el.hasAttribute || !el.hasAttribute("data-maxrk")) return null;
-    var o = { rk:el.getAttribute("data-maxrk"), val:el.value, s:null, e:null };
+    if(!el || !rail.contains(el) || !el.hasAttribute) return null;
+    var at = el.hasAttribute("data-maxrk") ? "data-maxrk" : el.hasAttribute("data-dmgrk") ? "data-dmgrk" : "";   /* Z050 P2: the Damage box too */
+    if(!at) return null;
+    var o = { at:at, rk:el.getAttribute(at), val:el.value, s:null, e:null };
     try{ if(typeof el.selectionStart === "number"){ o.s = el.selectionStart; o.e = el.selectionEnd; } }catch(x){}
     return o;
   }
   function giveBackMax(h){
     if(!h) return;
-    var el = rail.querySelector('[data-maxrk="' + String(h.rk).replace(/"/g, "") + '"]');
+    var el = rail.querySelector('[' + (h.at || "data-maxrk") + '="' + String(h.rk).replace(/"/g, "") + '"]');
     if(!el) return;
     el.value = h.val;
     try{ el.focus({ preventScroll:true }); }catch(e){ try{ el.focus(); }catch(e2){} }
     try{ if(h.s != null && el.setSelectionRange) el.setSelectionRange(h.s, h.e); }catch(e){}
   }
 
+  /* Z050 P2 (S.4, 2026-11-03): THE RAIL'S DAMAGE BOX.  Beside the quick HP steps, each row has a box: type the damage (and, on a
+     sheet, its type), press Damage or Enter.  A sheet's row goes through the sheet's own damage door, HELENA_CHAR.applyDamage
+     (CH.takeDamage: DR first, then the plate - armour or a robot's - then Health; a critical through armour is held for its
+     choice as everywhere), logged with an Undo by name ("pc-hit": it holds after a reload and on every device in the room).
+     A row with no sheet has no DR to read: the HP comes off as typed, logged with the steps' own Undo. */
+  var dmgAmt = Object.create(null), dmgType = Object.create(null), dmgSay = "";
+  var DMG_TYPES = [["Phys", "Physical"], ["En", "Energy"], ["Rad", "Radiation"]];
+  function railDmgRow(p, i, rk, rka){
+    var key = S.rowKey(p) || "", sheet = !!(p.sheet && p.id != null), t = dmgType[key] || "Phys";
+    return '<div class="rail-pc-btns rail-pc-dmg">' +
+      '<input type="number" class="rail-pc-max rail-dmg-n" min="0" max="999" placeholder="0" value="' + esc(dmgAmt[key] || "") + '"' +
+      ' data-dmgrk="' + rk + '" data-dmgi="' + i + '" aria-label="Damage to ' + esc(p.name) + '">' +
+      (sheet ? '<select class="rail-dmg-t" data-dmgtrk="' + rk + '" aria-label="Damage type for ' + esc(p.name) + '">' +
+               DMG_TYPES.map(function(o){ return '<option value="' + o[0] + '"' + (o[0] === t ? " selected" : "") + '>' + o[1] + '</option>'; }).join("") +
+               '</select>' : '') +
+      '<button class="rail-dmg-go" data-dmg="' + i + '"' + rka + ' title="' + (sheet ? "DR first, then the plate, then Health" : "No sheet: the HP comes off as typed") + '">Damage</button></div>';
+  }
+  function railDamage(i, rk){
+    var p = S.rowFor(i, rk); if(!p) return null;
+    var key = S.rowKey(p) || "", box = null;
+    try{ box = rail.querySelector('[data-dmgrk="' + String(key).split('"').join("") + '"]'); }catch(e){ box = null; }
+    var amount = Math.max(0, Math.min(999, Math.round(+((box && box.value) || dmgAmt[key] || 0) || 0)));
+    if(!amount){ dmgSay = "Type the damage first."; render(); return null; }
+    delete dmgAmt[key]; if(box) box.value = "";          /* the box empties once applied (the re-draw keeps the caret, not the number) */
+    var name = p.name || "That row", CH = window.HELENA_CHAR, res = null;
+    if(p.sheet && p.id != null && CH && typeof CH.applyDamage === "function"){
+      var type = dmgType[key] || "Phys", word = { Phys:"physical", En:"energy", Rad:"radiation" }[type] || "physical";
+      try{ res = CH.applyDamage(String(p.id), { amount:amount, type:type, from:"a typed " + amount + " " + word, named:true }); }catch(e){ res = null; }
+      if(!res || res.ok === false || res.refused) dmgSay = "Not written - " + name + ": " + ((res && res.why) || "the sheet did not take it; take it on the sheet") + ".";
+      else if(res.held) dmgSay = name + ": " + amount + " " + word + " - a critical through the armour; the sheet asks how it lands.";
+      else dmgSay = name + ": " + amount + " " + word + " - " + (res.dr === Infinity ? "immune" : (res.dr || 0) + " DR") + " = " + (res.past || 0) + " past" +
+                    (res.armour ? "; " + res.armour + " off the plate" : "") + (res.health ? "; " + res.health + " off Health" : "") +
+                    (res.rads ? "; " + res.rads + " Radiation" : "") + ".";
+    } else {
+      var snap = hpSnap(S.get(), [p]);
+      S.update(function(m){ var q = S.rowFor(i, rk); if(!q) return; if(q.sheet) q.hp = q.hp - amount; else q.hp = Math.max(0, Math.min(q.max, q.hp - amount)); });
+      hpUndo(snap, name + " took " + amount + " damage (typed)");
+      dmgSay = name + ": " + amount + " off HP (no sheet, so no DR).";
+      res = { ok:true, plain:true, amount:amount };
+    }
+    render();
+    return res;
+  }
   function render(){
     var m = S.get();
     var held = heldMax();
@@ -20881,6 +21145,7 @@ function setPool(which, v){
           '<div class="rail-pc-btns"><button data-hp="' + i + '"' + rka + ' data-d="-5">&minus;5</button>' +
           '<button data-hp="' + i + '"' + rka + ' data-d="-1">&minus;1</button>' +
           '<button data-hp="' + i + '"' + rka + ' data-d="1">+1</button></div>' +
+          railDmgRow(p, i, rk, rka) +
           // ASK 1: the Max editor and the row remover, the last two things the AP tab held
           '<div class="rail-pc-btns"><span class="rail-pc-maxlbl">Max</span>' +
           '<input type="number" class="rail-pc-max" min="1" max="999" value="' + p.max + '" data-maxrk="' + rk + '" data-maxi="' + i + '"' +
@@ -20890,6 +21155,7 @@ function setPool(which, v){
           '>&times;</button></div></div>';
       });
     }
+    if(m.hpOn && m.players.length && dmgSay) html += '<div class="rail-dmg-say" role="status">' + esc(dmgSay) + '</div>';
     rail.innerHTML = html;
     giveBackMax(held);
     renderOpts();
@@ -20898,13 +21164,19 @@ function setPool(which, v){
   rail.addEventListener("click", function(e){
     var b = e.target.closest("button"); if(!b) return;
     var d = +b.getAttribute("data-d");
+    /* Z050 P2 (V.6): a pool press says its line with Undo (apPoolKeep) once it has moved the pool */
+    var pw0 = b.getAttribute("data-ap") || b.getAttribute("data-pip") || b.getAttribute("data-fill") || b.getAttribute("data-zero");
+    var pv0 = pw0 ? poolOf(S.get(), pw0) : null;
+    try{ railPress(b, d); }finally{ if(pw0 && typeof apPoolKeep === "function") apPoolKeep(pw0, pv0, poolOf(S.get(), pw0)); }
+  });
+  function railPress(b, d){
     if(b.hasAttribute("data-ap")){
       var w = b.getAttribute("data-ap");
       S.update(function(m){
         // RULE 1: no ceiling on the GM's pool; the party's is 7
         if(w === "dm") m.dmAP = Math.max(0, m.dmAP + d);
         else           m.pcAP = Math.max(0, Math.min(partyCap(m), m.pcAP + d));
-      });
+      }, poolSaid());
     } else if(b.hasAttribute("data-pip")){
       var pw = b.getAttribute("data-pip"), pi = +b.getAttribute("data-i");
       var have = pw === "dm" ? S.get().dmAP : S.get().pcAP;
@@ -20927,15 +21199,36 @@ function setPool(which, v){
         else p.hp = Math.max(0, Math.min(p.max, p.hp + d));
       });
       if(hpSnap0) hpUndo(hpSnap0, (hpRow0.name || "a row") + (d < 0 ? " took " + (-d) : " healed " + d) + " HP");
+    } else if(b.hasAttribute("data-dmg")){
+      railDamage(+b.getAttribute("data-dmg"), b.getAttribute("data-rk") || "");   /* Z050 P2 (S.4) */
     } else if(b.hasAttribute("data-drop")){
-      var di = +b.getAttribute("data-drop"), drk = b.getAttribute("data-rk") || "";
+      var di = +b.getAttribute("data-drop"), drk = b.getAttribute("data-rk") || "", gone = null;
       S.update(function(m){
         var p = S.rowFor(di, drk); if(!p || p.sheet) return;   // a derived row comes straight back
-        var ix = m.players.indexOf(p); if(ix >= 0) m.players.splice(ix, 1);
+        var ix = m.players.indexOf(p); if(ix >= 0){ gone = { i:ix, k:S.rowKey(p), row:JSON.parse(JSON.stringify(p)) }; m.players.splice(ix, 1); }
       });
+      /* Z050 P2 (V.6): the row's × is said, with an Undo that puts the whole row back */
+      var U = window.SUITE_UNDO;
+      if(gone && U && typeof U.keep === "function" && railRevs() && !railDropNow(gone).on){
+        gone.after = { on:false };
+        try{ U.keep("rail-drop", { text:"took " + (gone.row.name || "a row") + " off the party health rail", rev:gone, reverser:"rail-drop", revert:railDropPut }); }catch(x){}
+      }
     }
-  });
+  }
 
+  /* Z050 P2 (S.4): the Damage box keeps what is typed through the rail's re-draws; Enter presses Damage */
+  rail.addEventListener("input", function(e){
+    var el = e.target; if(!el || !el.hasAttribute || !el.hasAttribute("data-dmgrk")) return;
+    dmgAmt[el.getAttribute("data-dmgrk")] = el.value;
+  });
+  rail.addEventListener("change", function(e){
+    var el = e.target; if(!el || !el.hasAttribute || !el.hasAttribute("data-dmgtrk")) return;
+    dmgType[el.getAttribute("data-dmgtrk")] = el.value;
+  });
+  rail.addEventListener("keydown", function(e){
+    var el = e.target; if(e.key !== "Enter" || !el || !el.hasAttribute || !el.hasAttribute("data-dmgrk")) return;
+    e.preventDefault(); railDamage(+el.getAttribute("data-dmgi"), el.getAttribute("data-dmgrk") || "");
+  });
   /* the per-row Max editor.  A sheet-backed row's max writes hpMaxOverride through
      syncPlayers; an edit is never read as damage there, so nothing drains the armour. */
   rail.addEventListener("change", function(e){
@@ -22259,7 +22552,7 @@ function setPool(which, v){
     var ud = str(o.undid, 80); if(ud) out.undid = ud;
     return out;
   }
-  var REV_MAX = 6000;
+  var REV_MAX = 16000;   /* Z050 P2 (haul): a haul line carries what moved across the ledger, the encounter and the sheets */
   function revOf(v){
     if(!v || typeof v !== "object" || Array.isArray(v)) return null;
     var j = null; try{ j = JSON.stringify(v); }catch(e){ return null; }
@@ -22679,7 +22972,11 @@ function setPool(which, v){
     reverser:reverser,
     record:function(name, rec){ rec = rec && typeof rec === "object" ? rec : {}; return undoKeep(name, { text:rec.text, rev:rec.rev, chars:rec.chars, revert:rec.revert, reverser:name }); },
     can:function(l){ if(typeof l === "string") l = lineByKey(l); return canUndo(l); },
-    reversers:function(){ return Object.keys(REV); }
+    reversers:function(){ return Object.keys(REV); },
+    /* Z050 P2 (V.8): the fields a module's OWN line carries so that line is its Undo (one line, not two):
+       SY.emit(topic, Object.assign({ text }, SUITE_UNDO.tag(name, rev))).  {} when no such reverser is registered. */
+    tag:function(name, rev){ name = str(name, 40); var rv = revOf(rev); if(!name || !REV[name] || !rv) return {};
+      return { undo:name + ":" + Date.now().toString(36) + ":" + (++undoSeq) + Math.floor(Math.random() * 1679616).toString(36), rev:rv, rv:name }; }
   };
   var tickEl = document.getElementById("tb-ticker");
   if(tickEl && typeof tickEl.addEventListener === "function") tickEl.addEventListener("click", function(e){
@@ -24705,6 +25002,41 @@ function dropRow(e){
   var id = e.key + "|" + e.rank;
   if(Object.prototype.hasOwnProperty.call(state.hp, id)) delete state.hp[id];
 }
+/* Z050 P2 (V.6, 2026-11-03): THE ROSTER'S × CAN BE UNDONE.  The press is said in the session log ("took the 2 Raiders (Normal)
+   off the roster") and its Undo puts the WHOLE entry back where it stood: the row (name, rank, count, XP), its HP pool, the
+   scene, the fight's number and nonce and the stripped-bodies record - the roster exactly as it was before the press.  By name
+   ("enc-drop"), so any device holding the line, and this one after a reload, can offer it; the encounter is the Overseer's
+   (a player's Undo asks that device).  Stale once the roster moved again (the fight's number changed since). */
+function dropPress(i){
+  var e = state.roster[i];
+  if(!e) return;
+  var id = e.key + "|" + e.rank, before = null;
+  try{ before = JSON.parse(JSON.stringify({ i:i, entry:e, hp:Object.prototype.hasOwnProperty.call(state.hp, id) ? state.hp[id] : null,
+    scene:state.scene == null ? null : state.scene, gen:state.gen | 0, fid:state.fid || "", looted:state.looted == null ? null : state.looted })); }catch(err){ before = null; }
+  dropRow(e); state.roster.splice(i, 1); state.scene = null; newFight(); renderAll();
+  var U = window.SUITE_UNDO;
+  if(before && U && typeof U.keep === "function"){
+    before.after = encDropNow();
+    try{ U.keep("enc-drop", { text:"took " + plural(e.name, Math.max(1, e.count | 0)) + " (" + e.rank + ") off the roster", rev:before, reverser:"enc-drop", revert:encDropPut }); }catch(err){}
+  }
+}
+function encDropNow(){ return { gen:state.gen | 0, n:Array.isArray(state.roster) ? state.roster.length : 0 }; }
+function encDropPut(x){
+  if(!x || !x.entry) return { ok:false, note:"Nothing to put back." };
+  if(typeof ENC_DOOR !== "undefined" && ENC_DOOR && typeof ENC_DOOR.canWrite === "function" && !ENC_DOOR.canWrite()) return { ok:false, note:"The encounter belongs to the Overseer." };
+  var at = Math.max(0, Math.min(state.roster.length, x.i | 0));
+  state.roster.splice(at, 0, x.entry);
+  if(x.hp != null) state.hp[x.entry.key + "|" + x.entry.rank] = x.hp;
+  state.scene = x.scene == null ? null : x.scene;
+  state.gen = x.gen | 0; state.fid = String(x.fid || "");
+  if(x.looted != null) state.looted = x.looted;
+  renderAll();
+  try{ if(typeof flushCommit === "function") flushCommit(); }catch(err){}
+  return { ok:true };
+}
+try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+  window.SUITE_UNDO.reverser("enc-drop", { put:encDropPut, now:function(){ return encDropNow(); },
+    mine:function(){ try{ return typeof ENC_DOOR === "undefined" || !ENC_DOOR || typeof ENC_DOOR.canWrite !== "function" || !!ENC_DOOR.canWrite(); }catch(err){ return false; } } }); }catch(err){}
 /* ENCROSTER:end */
 
 /* ---------------------------------------------------------------- budget */
@@ -24766,7 +25098,7 @@ function renderRoster(){
       '<td class="mono">' + e.xp + '</td>' +
       '<td class="mono">' + entryCost(e) + '</td>' +
       '<td style="text-align:right"><button class="drop" title="Remove">&times;</button></td>';
-    tr.querySelector(".drop").onclick = function(){ dropRow(state.roster[i]); state.roster.splice(i,1); state.scene=null; newFight(); renderAll(); };
+    tr.querySelector(".drop").onclick = function(){ if(typeof dropPress === "function"){ dropPress(i); return; } dropRow(state.roster[i]); state.roster.splice(i,1); state.scene=null; newFight(); renderAll(); };
     host.appendChild(tr);
   });
 }
@@ -25205,7 +25537,9 @@ function spoilsPayXp(xpEach, who){
   var H = window.HELENA_CHAR;
   if(!H || typeof H.awardXp !== "function"){ out.why = "nodoor"; return out; }
   var r = null;
-  try{ r = H.awardXp({ id:spoilsAwardId(), ids:who, xp:xpEach, why:"The Spoils" }); }catch(e){ r = null; }
+  /* Z050 P2 (V.7): with the haul's Undo on this page the Spoils' one line names the XP itself, so the door says nothing */
+  var quiet = !!(window.HELENA_HAUL && typeof window.HELENA_HAUL.keep === "function");
+  try{ r = H.awardXp({ id:spoilsAwardId(), ids:who, xp:xpEach, why:"The Spoils", quiet:quiet }); }catch(e){ r = null; }
   if(!r || !r.ok){ out.why = "refused"; out.note = r && r.note ? String(r.note) : "The XP door threw — nothing was written."; return out; }
   out.gave = r.gave || []; out.already = r.already || []; out.refused = r.refused || [];
   return out;
@@ -25499,6 +25833,16 @@ function spoilsTick(want, rep){
     tokens: want, xp: rep.xp, bodies: rep.bodies, diff: rep.diff
   });
 }
+/* Z050 P2 (V.7, Howl 2026-11-03): THE SPOILS' LINE, WITH ITS UNDO.  One line names what the press paid — the tokens to the
+   party and the XP to each sheet — and carries the Undo (window.HELENA_HAUL, src/merchant.html) that takes the tokens back
+   off the party's counter, the XP back off the sheets and the fight back to unpaid, in one step.  Where the haul's Undo is
+   not on the page the old line is said (spoilsTick). */
+var hlQuiet = false;          /* the End combat cleanup says ONE line for all of it; its parts say nothing */
+function spoilsWords(want, rep, xr, xpEach){
+  var gave = (xr && xr.gave) || [];
+  return "paid The Spoils: " + (rep.label || "a finished fight") + " — " + want + (want === 1 ? " survival token" : " survival tokens") +
+         " to the party" + (gave.length && xpEach > 0 ? ", " + xpEach + " XP each to " + gave.map(function(g){ return g.name || g.id; }).join(", ") : ", no XP paid");
+}
 
 /* The one hand-off.  window.HELENA_LOOT is published by the loot finder (src/loot-finder.html),
    which is a later tool in the same page, so it is resolved at click time and never at boot.
@@ -25514,6 +25858,7 @@ function paySpoils(){
   if(!mayPay()) return;
   var rep = spoilsReport();
   if(!rep.bodies) return;
+  var HH = window.HELENA_HAUL, hb = (!hlQuiet && HH && typeof HH.begin === "function") ? HH.begin() : null;   /* Z050 P2 (V.7) */
   var want = spoilsWanted(rep);
   var L = (typeof window !== "undefined") ? window.HELENA_LOOT : null;
   var res = (L && typeof L.award === "function")
@@ -25537,8 +25882,11 @@ function paySpoils(){
   if(xpEach > 0 && xr.refused.length)
     state.owed = normOwed((Array.isArray(state.owed) ? state.owed : []).concat([{ award:spoilsAwardId(), xp:xpEach,
                    left:xr.refused.map(function(g){ return g.id; }), label:rep.label, at:Date.now() }]));
-  spoilsTick(want, rep);
   renderSpoils();
+  /* Z050 P2 (V.7): the record of the payment rides the encounter slice — pushed now, so the line's Undo carries it */
+  if(typeof flushCommit === "function") flushCommit();
+  if(hlQuiet) return { want:want, xpEach:xpEach, xr:xr, rep:rep };
+  if(!(hb && HH.keep(hb, spoilsWords(want, rep, xr, xpEach), { chars:who }))) spoilsTick(want, rep);
 }
 
 /* LOOTPANEL:begin */
@@ -25952,6 +26300,7 @@ function lootSendable(rows){
 
 function lootTake(ent){
   if(!mayTake()) return;
+  var HH = window.HELENA_HAUL, hb = (!(typeof hlQuiet !== "undefined" && hlQuiet) && HH && typeof HH.begin === "function") ? HH.begin() : null;   /* Z050 P2 (V.7) */
   var w = workFor(ent.id), taken = lootTaken(ent.id);
   if(taken.n >= ent.count) return;                    /* every body has already been stripped */
   var rows = lootSendable(lootRows(ent));
@@ -25978,17 +26327,24 @@ function lootTake(ent){
   var res = lootSend(send, txn);
   if(!res.ok){ w.note = res.note || "that did not reach the shelf"; renderLoot(true); return; }
   lootMark(ent.id, send.map(function(r){ return { name:r.name, qty:r.qty }; }));
-  lootTick(ent, body, send);
   var keep = { mode:w.mode, who:w.who };
   lootWork[ent.id] = blankWork();
   lootWork[ent.id].mode = keep.mode; lootWork[ent.id].who = keep.who;   /* the next body, same hands */
   if(typeof flushCommit === "function") flushCommit();
+  /* Z050 P2 (V.7): the body's line carries its Undo — the goods off the shelf, the body back to unstripped (HELENA_HAUL) */
+  if(!(typeof hlQuiet !== "undefined" && hlQuiet) && !(hb && HH.keep(hb, lootWords(ent, body, send)))) lootTick(ent, body, send);
   renderLoot(true);
+  return { body:body, rows:send };
 }
 
 /* the Table: the room's ticker names what came off the body, so the party sees the shelf move
    rather than only the Overseer.  PROJECT G, TRACK S (S-R3): not gated on a room — Solo records it
    on this device and sends nothing; standalone there is no SUITE_SYNC and nothing is said. */
+function lootWords(ent, body, rows){
+  var what = (rows || []).map(function(r){ return r.qty + " × " + r.name; }).join(", ");
+  return "stripped " + ent.name + (ent.count > 1 ? " (body " + body + " of " + ent.count + ")" : "") +
+         " — " + (what || "nothing") + " to the party ledger";
+}
 function lootTick(ent, body, rows){
   var SY = window.SUITE_SYNC;
   if(!SY || typeof SY.emit !== "function") return;
@@ -26310,6 +26666,155 @@ function lootWire(){
   });
 }
 /* LOOTPANEL:end */
+/* CLEANUP:begin */
+/* ====== Z050 PHASE 2 — THE END COMBAT CLEANUP (Howl's CMD Z050, 2026-11-03) ======
+   End combat (the turn order's button, both views) opens one card, "After the fight", on the device that owns the encounter
+   (mayPay — the Overseer's, or anyone's in Solo and in a room with no Overseer).  One press of "Clean up" does all of it:
+     1. every body's own loot goes to the party ledger — the Loot card's own take (lootTake), body by body;
+     2. a body with a butcher or salvage test is rolled on the character picked beside it, with the test the line prints
+        (attribute + skill off that sheet, the printed difficulty, 2d20 — HELENA_ROLL's own newTest / roll / resolve); a pass
+        rolls the yield (lootRoll, the existing tables), a miss keeps only the kit off the body (lootRows' failed path);
+        a body nobody is picked for is left on the Loot card;
+     3. the fight's Spoils are paid — the survival tokens to the party and the XP to the sheets ticked on the Spoils card
+        (paySpoils, the existing door);
+     4. ONE log line says all of it and carries ONE Undo (window.HELENA_HAUL) that takes every part back together.
+   Nothing here is a rule of its own: each part is the pane's existing door, pressed with its line held back (hlQuiet).
+   G.20 (Phase 4) will add "Eat" beside the butcher prompt — a body's row carries data-how="butcher" for it; Eat is not
+   built.
+     HELENA_ENC.cleanup.plan()        -> { may, bodies:[{ key, id, name, body, of, test, sec }], spoils:{ tokens, xp, who } | null }
+     HELENA_ENC.cleanup.run(picks)    -> { ok, line, undo, parts }   picks: { "<row id>#<body>": charId }
+     HELENA_ENC.cleanup.open()        -> paints the card (true) or answers false when there is nothing to clean up
+     HELENA_ENC.cleanup.rollOn(charId, test) -> { ok, passed, successes, difficulty, dice, line } — the test, rolled on a sheet */
+function cleanupPlan(){
+  var out = { may:mayPay(), bodies:[], spoils:null };
+  lootEntries().forEach(function(ent){
+    var res = ent.res, t = lootTaken(ent.id);
+    if(!res || (!res.yields.length && !res.test)) return;
+    for(var b = t.n + 1; b <= ent.count; b++)
+      out.bodies.push({ key:ent.id + "#" + b, id:ent.id, name:ent.name, body:b, of:ent.count,
+                        test:res.test ? { attr:res.test.attr, skill:res.test.skill, diff:res.test.diff } : null,
+                        sec:LOOTLINE.section(res.tag) });
+  });
+  var rep = spoilsReport();
+  if(!paidNow() && rep.bodies)
+    out.spoils = { tokens:spoilsWanted(rep), xp:spoilsXpWanted(rep),
+                   who:spoilsWho().filter(function(x){ return x.on; }).map(function(x){ return { id:x.id, name:spNameOf(x.id) }; }) };
+  return out;
+}
+function cleanupSheet(id){
+  var S = (typeof STATE !== "undefined" && STATE && typeof STATE.get === "function") ? STATE : null, hit = null;
+  ((S && S.get().chars) || []).forEach(function(c){ if(c && String(c.id) === String(id)) hit = c; });
+  return hit;
+}
+function cleanupRollOn(charId, test){
+  var RL = window.HELENA_ROLL, CHk = window.HELENA_CHAR && window.HELENA_CHAR.KEY, c = cleanupSheet(charId);
+  if(!c) return { ok:false, note:"no sheet with that id" };
+  if(!test || test.diff == null) return { ok:false, note:"the line prints no difficulty" };
+  if(!RL || typeof RL.newTest !== "function" || !CHk) return { ok:false, note:"the dice are not on this page" };
+  var sk = (c.skills || {})[test.skill] || null;
+  var t = RL.newTest({ name:c.name || "", charId:String(c.id), attr:test.attr, skill:test.skill,
+                       attrValue:Math.max(0, +((c.special || {})[CHk[test.attr]]) || 0),
+                       skillRank:sk ? Math.max(0, +sk.rank || 0) : 0, tagged:!!(sk && sk.tag) });
+  t = RL.setDifficulty(t, test.diff); t = RL.roll(t); t = RL.resolve(t);
+  if(!t || !t.result) return { ok:false, note:(t && t.refused) || "the roll would not resolve" };
+  return { ok:true, passed:!!t.result.passed, successes:t.result.successes, difficulty:t.result.difficulty,
+           dice:t.dice.map(function(d){ return d.face; }), tn:t.tn, line:t.result.line };
+}
+function cleanupRun(picks){
+  picks = picks || {};
+  if(!mayPay()) return { ok:false, note:"The fight's cleanup is the Overseer's to press at this table." };
+  var plan = cleanupPlan(), HH = window.HELENA_HAUL, hb = HH && typeof HH.begin === "function" ? HH.begin() : null;
+  var parts = [], said = [], who = [];
+  hlQuiet = true;
+  try{
+    plan.bodies.forEach(function(b){
+      var ent = null; lootEntries().forEach(function(e){ if(e.id === b.id) ent = e; });
+      if(!ent) return;
+      var w = workFor(b.id), cid = picks[b.key] ? String(picks[b.key]) : "", nm = cid ? (cleanupSheet(cid) || {}).name || "someone" : "";
+      var part = { key:b.key, name:b.name, body:b.body, of:b.of, who:nm, test:b.test ? (b.test.attr + " + " + b.test.skill) : "" };
+      if(b.test){
+        if(!cid){ part.skipped = "nobody picked"; parts.push(part); return; }
+        var r = cleanupRollOn(cid, b.test);
+        if(!r.ok){ part.skipped = r.note; parts.push(part); return; }
+        w.who = cid;
+        part.passed = r.passed; part.successes = r.successes; part.difficulty = r.difficulty; part.dice = r.dice;
+        lootResult(b.id, { passed:r.passed, successes:r.successes, difficulty:r.difficulty, ap:0 });
+        if(who.indexOf(cid) < 0) who.push(cid);
+      } else if(!w.rolled && ent.res.rollable && !ent.res.test){ lootRoll(b.id, 0); }
+      var tk = lootTake(ent);
+      part.rows = tk && tk.rows ? tk.rows.map(function(x){ return { name:x.name, qty:x.qty }; }) : [];
+      if(!tk) part.nothing = true;
+      parts.push(part);
+    });
+    var sp = null;
+    if(plan.spoils) sp = paySpoils();
+  } finally { hlQuiet = false; }
+  parts.forEach(function(p){
+    var lab = p.name + (p.of > 1 ? " (body " + p.body + " of " + p.of + ")" : "");
+    var what = (p.rows || []).map(function(x){ return x.qty + " × " + x.name; }).join(", ");
+    if(p.skipped) said.push(lab + ": left on the Loot card (" + p.skipped + ")");
+    else if(p.test) said.push(p.who + " — " + lab + ", " + p.test + ": " + (p.passed ? "passed" : "failed") + " (" + p.successes + (p.successes === 1 ? " success" : " successes") + ", difficulty " + p.difficulty + ")" +
+                              (what ? " — " + what : " — nothing came off"));
+    else said.push(lab + ": " + (what || "nothing to take"));
+  });
+  if(sp) said.push(spoilsWords(sp.want, sp.rep, sp.xr, sp.xpEach).replace(/^paid /, ""));
+  var line = "cleaned up after the fight — " + (said.length ? said.join("; ") : "nothing to clean up");
+  var key = (hb && HH && typeof HH.keep === "function") ? HH.keep(hb, line, { chars:who }) : null;
+  if(!key){ var SY = window.SUITE_SYNC; if(SY && typeof SY.emit === "function" && said.length) try{ SY.emit("loot", { text:line }); }catch(e){} }
+  renderLoot(true); renderSpoils();
+  return { ok:true, line:line, undo:key, parts:parts, spoils:sp ? { tokens:sp.want, xp:sp.xpEach } : null };
+}
+/* the card — one per page, on the real <body> so it shows over whichever pane End combat was pressed in (Classic or Cinder) */
+function cleanupEsc(s){ return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function cleanupClose(){ var d = window.document.getElementById("eb-cleanup"); if(d && d.parentNode) d.parentNode.removeChild(d); }
+function cleanupOpen(){
+  var plan = cleanupPlan();
+  if(!plan.may || (!plan.bodies.length && !plan.spoils)) return false;
+  var RD = window.document, chars = [];
+  var S0 = (typeof STATE !== "undefined" && STATE && typeof STATE.get === "function") ? STATE.get() : {};
+  (S0.chars || []).forEach(function(c){ if(c && c.id != null && c.name && !c.unfilled) chars.push({ id:String(c.id), name:String(c.name) }); });
+  if(!RD.getElementById("eb-cleanup-css")){
+    var st = RD.createElement("style"); st.id = "eb-cleanup-css";
+    st.textContent = "#eb-cleanup{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45);padding:16px}" +
+      "#eb-cleanup .ec-card{background:var(--panel,#1b1a17);color:var(--ink,#eee);border:1px solid var(--line,#555);border-radius:8px;max-width:640px;width:100%;max-height:86vh;overflow:auto;padding:14px 16px;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.4)}" +
+      "#eb-cleanup h3{margin:0 0 6px;font-size:17px}#eb-cleanup p{margin:4px 0}#eb-cleanup .ec-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line,#444)}" +
+      "#eb-cleanup .ec-row b{flex:1 1 200px}#eb-cleanup .ec-row small{color:var(--dim,#aaa);flex-basis:100%}#eb-cleanup select{max-width:100%}" +
+      "#eb-cleanup .ec-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:10px;flex-wrap:wrap}#eb-cleanup .ec-msg{margin-top:8px}" +
+      "#eb-cleanup .ec-acts button{padding:6px 14px;font:inherit;cursor:pointer;border:1px solid var(--line,#555);border-radius:4px;background:transparent;color:inherit}" +
+      "#eb-cleanup .ec-acts .pri{border-color:var(--amber,#e9c46a);color:var(--amber,#e9c46a)}";
+    RD.head.appendChild(st);
+  }
+  cleanupClose();
+  var opts = '<option value="">— nobody (leave it) —</option>' + chars.map(function(c){ return '<option value="' + cleanupEsc(c.id) + '">' + cleanupEsc(c.name) + "</option>"; }).join("");
+  var h = '<div class="ec-card" role="dialog" aria-label="After the fight"><h3>After the fight</h3>' +
+          "<p>One press: the bodies’ loot goes to the party ledger, each test below is rolled on the character you pick, and the Spoils are paid. One line in the log, with one Undo.</p>";
+  plan.bodies.forEach(function(b){
+    var lab = cleanupEsc(b.name) + (b.of > 1 ? " — body " + b.body + " of " + b.of : "");
+    if(b.test) h += '<div class="ec-row" data-how="butcher"><b>' + lab + "</b><label>" + (/Survival/i.test(b.test.skill) ? "Butcher" : "Salvage") + " — who? " +
+                    '<select data-ec="' + cleanupEsc(b.key) + '">' + opts + "</select></label>" +
+                    "<small>" + cleanupEsc(b.test.attr + " + " + b.test.skill) + (b.test.diff == null ? ", no difficulty printed — roll it on the Loot card" : ", difficulty " + b.test.diff) + "</small></div>";
+    else h += '<div class="ec-row"><b>' + lab + "</b><small>its loot goes to the party ledger</small></div>";
+  });
+  if(plan.spoils) h += '<div class="ec-row"><b>The Spoils</b><small>' + plan.spoils.tokens + (plan.spoils.tokens === 1 ? " survival token" : " survival tokens") +
+                       " to the party; " + plan.spoils.xp + " XP each to " + (plan.spoils.who.length ? plan.spoils.who.map(function(x){ return cleanupEsc(x.name); }).join(", ") : "nobody ticked") + "</small></div>";
+  h += '<div class="ec-acts"><button type="button" data-ec-act="no">Not now</button><button type="button" class="pri" data-ec-act="go">Clean up</button></div>' +
+       '<div class="ec-msg" role="status"></div></div>';
+  var box = RD.createElement("div"); box.id = "eb-cleanup"; box.innerHTML = h;
+  RD.body.appendChild(box);
+  box.addEventListener("click", function(e){
+    var b = e.target && e.target.closest ? e.target.closest("[data-ec-act]") : null;
+    if(!b){ if(e.target === box) cleanupClose(); return; }
+    if(b.getAttribute("data-ec-act") === "no"){ cleanupClose(); return; }
+    var picks = {};
+    Array.prototype.forEach.call(box.querySelectorAll("select[data-ec]"), function(sel){ if(sel.value) picks[sel.getAttribute("data-ec")] = sel.value; });
+    var r = cleanupRun(picks);
+    if(!r.ok){ box.querySelector(".ec-msg").textContent = r.note || "Not done."; return; }
+    cleanupClose();
+  });
+  return true;
+}
+/* CLEANUP:end */
+
 
 /* ---------------------------------------------------------------- hazards */
 var HAZARDS = [
@@ -27049,6 +27554,9 @@ function blockCard(e){
     hpRow.querySelectorAll("[data-d]").forEach(function(b){
       b.onclick = function(){
         var r = ENC_DOOR.setHp(id, now + (+b.dataset.d));
+        /* Z050 P2 (V.6): the stat block's ±HP logs a line with Undo - the turn order's creature-HP Undo (HELENA_TURN.keepHpUndo) */
+        var TU = window.HELENA_TURN;
+        if(r && r.ok !== false && TU && typeof TU.keepHpUndo === "function") try{ TU.keepHpUndo(window.HELENA_ENC, id, c.name, r); }catch(err){}
         if(r && r.ok === false && r.refused === "gm" && window.SUITE_SYNC)
           try{ window.SUITE_SYNC.note(r.why); }catch(err){}
         renderBlocks();
@@ -27487,6 +27995,9 @@ window.HELENA_ENC_SPLIT = function(ref){
 /* ENCSPLIT:end */
 window.HELENA_ENC = {
   roster: function(){ return state.roster.map(function(e){ return { name:e.name, key:e.key, rank:e.rank, count:e.count }; }); },
+  /* Z050 P2: the End combat cleanup (CLEANUP block) */
+  cleanup: { plan:function(){ return cleanupPlan(); }, run:function(p){ return cleanupRun(p); }, open:function(){ return cleanupOpen(); },
+             rollOn:function(id, t){ return cleanupRollOn(id, t); } },
   focus: function(ref){
     var el = null;
     var want = statRef(ref);
@@ -31877,6 +32388,40 @@ var CH = {
     }
     return out;
   },
+  /* Z050 P2 (V.8): THE TAKE-BACK DOOR — an Undo of a press that paid XP or refreshed Luck through the two doors above (the
+     Quests pane's Complete) puts each sheet's figure back and lifts that press's stamp, so the same id pays again later.
+       spec = { xpId, luckId, xp:[[charId, from, to]], luck:[[charId, from, to]], full:[charIds stamped full] }
+     ONE S.update; a sheet this device may not write is refused by name and left alone; a sheet whose figure is no longer the
+     press's "to" is left alone too (newer play stands on it) -> { ok, back:[ids], refused:[{id, why}], moved:[ids] } */
+  takeBackWith: function(env, spec){
+    spec = spec && typeof spec === "object" ? spec : {};
+    var xid = spec.xpId == null ? "" : String(spec.xpId), lid = spec.luckId == null ? "" : String(spec.luckId);
+    var out = { ok:false, back:[], refused:[], moved:[] };
+    try{
+      env.S.update(function(m){
+        out.back = []; out.refused = []; out.moved = [];
+        var cs = m && Array.isArray(m.chars) ? m.chars : [];
+        var ids = [].concat((spec.xp || []).map(function(x){ return String(x[0]); }), (spec.luck || []).map(function(x){ return String(x[0]); }), (spec.full || []).map(String))
+          .filter(function(x, i, a){ return x && a.indexOf(x) === i; });
+        ids.forEach(function(cid){
+          var c = CH.doorSheet(cs, cid);
+          if(!c) return;
+          if(env.locked(c)){ out.refused.push({ id:cid, why:env.why(c) }); return; }
+          var moved = false;
+          (spec.xp || []).forEach(function(x){ if(String(x[0]) !== cid) return;
+            if(Math.round(+c.xp || 0) !== x[2]){ moved = true; return; }
+            c.xp = x[1]; if(xid && Array.isArray(c.xpSeen)) c.xpSeen = c.xpSeen.filter(function(t){ return t !== xid; }); });
+          (spec.luck || []).forEach(function(x){ if(String(x[0]) !== cid) return;
+            if(Math.round(+c.luck || 0) !== x[2]){ moved = true; return; }
+            c.luck = x[1]; if(lid && Array.isArray(c.luckSeen)) c.luckSeen = c.luckSeen.filter(function(t){ return t !== lid; }); });
+          if((spec.full || []).map(String).indexOf(cid) >= 0 && lid && Array.isArray(c.luckSeen)) c.luckSeen = c.luckSeen.filter(function(t){ return t !== lid; });
+          if(moved) out.moved.push(cid); else out.back.push(cid);
+        });
+      });
+      out.ok = true;
+    }catch(e){ out.ok = false; }
+    return out;
+  },
   refreshLuckWith: function(env, spec){
     spec = spec && typeof spec === "object" ? spec : {};
     var id = CH.doorId(spec.id), ids = CH.doorIds(spec.ids), why = spec.why == null ? "" : String(spec.why);
@@ -33744,6 +34289,37 @@ function woundsOfChar(c){
 
    `quiet` is deliberately restored in a finally, so a throw inside fn cannot leave this
    file's own subscription muted for the rest of the session. */
+/* Z050 P2 (V.8): AN INJURY ADDED OR REMOVED ON A SHEET, TAKEN BACK.  The press says one line on the session log
+   ("added an injury to Zoe: Left Arm") and that line is its Undo (reverser "inj-rec"): the sheet's injury list goes back to what
+   it held before the press.  Whoever may write the sheet runs it (a player in an Overseer's room: their own sheet, or the
+   Overseer's device on asking); stale once the list changed since.  The line reads after its maker's name:
+   "Dylan added an injury to Zoe: Left Arm". */
+function injCopy(c){ var k = c ? woundKeyOf(c) : null, l = k == null ? null : (S.get().injuries || {})[k]; return { k:k, l:Array.isArray(l) ? JSON.parse(JSON.stringify(l)) : [] }; }
+function injRecord(c, before, verb, loc){
+  var U = window.SUITE_UNDO;
+  if(!c || !before || before.k == null || !U || typeof U.keep !== "function") return null;
+  var now = injCopy(c);
+  if(JSON.stringify(now.l) === JSON.stringify(before.l)) return null;      /* nothing moved: no line */
+  return U.keep("inj-rec", { text:verb + (verb === "added" ? " an injury to " : " an injury from ") + (c.name || "unnamed") + ": " + (loc || "Unlocated"),
+    rev:{ k:before.k, cid:String(c.id), l:before.l, after:{ l:now.l } }, chars:[String(c.id)], reverser:"inj-rec", revert:injPut });
+}
+function injNow(rv){ var l = (S.get().injuries || {})[rv.k]; return { l:Array.isArray(l) ? l : [] }; }
+function injPut(rv){
+  if(!rv || rv.k == null) return { ok:false, note:"Nothing to put back." };
+  if(roomOn() && SY && typeof SY.canEdit === "function" && !SY.canEdit(rv.cid)) return { ok:false, note:"Not your sheet — nothing was put back." };
+  quiet = true;
+  try{
+    S.update(function(m){
+      if(!m.injuries || typeof m.injuries !== "object" || Array.isArray(m.injuries)) m.injuries = {};
+      m.injuries[rv.k] = JSON.parse(JSON.stringify(rv.l || []));
+    });
+  } finally { quiet = false; }
+  try{ renderConditions(me()); }catch(e){}
+  return { ok:true };
+}
+try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+  window.SUITE_UNDO.reverser("inj-rec", { put:injPut, now:injNow,
+    mine:function(rv){ try{ return !roomOn() || !SY || typeof SY.canEdit !== "function" || !!SY.canEdit(rv.cid); }catch(e){ return false; } } }); }catch(e){}
 function woundWrite(fn){
   var c = me(); if(!c) return null;
   if(roomOn() && !SY.canEdit(cur)) return null;      // the Table: not your sheet, and not the GM
@@ -37817,6 +38393,77 @@ function sicknessDeclare(){
    gate is armed for the morning.  Each press is one scene-door event with its own id, so a double
    press or a re-run writes nothing twice.  The walk is this device's; the events are the table's. */
 var NIGHT = null;            // { id, days, night, step:"night"|"day", last }
+/* Z050 P2 (V.8): NIGHTFALL, TAKEN BACK.  One Undo line for the whole walk (its nights and the days between): what the press
+   moved is the table's scene (the events it added, the gate and scene count it changed), the medical board's day (m.night)
+   and, on each sheet as its home device catches up, the night's drain, Sleep to Sound, the heal, armour, the day's ticks and
+   the diseases' days.  nightSnap() takes those before the first event; nightKeep(snap) - once the walk ends, stopped or
+   failed part-way - puts one line on the session log carrying them (reverser "nightfall").  The Undo takes the events back off
+   the scene and puts every sheet back as it lay down, stamps included, so no device catches the night up again.  Stale
+   (refused) once the table's scene moved on (New scene, another night). */
+var NIGHT_UNDO_MAX = 5600;
+function nightSheet(c){
+  var sv = c.survival && typeof c.survival === "object" ? JSON.parse(JSON.stringify(c.survival)) : null;
+  if(sv){ delete sv.sceneSeen; delete sv.note; }
+  return { id:String(c.id), hp:c.hp, ahp:c.armour && typeof c.armour === "object" ? c.armour.hp : null,
+           ps:Array.isArray(c.persistent) ? JSON.parse(JSON.stringify(c.persistent)) : [], ht:!!c.healedToday, rt:!!c.repairedToday,
+           f:c.fatigue, sv:sv, wr:c.wellRested ? JSON.parse(JSON.stringify(c.wellRested)) : null,
+           dz:Array.isArray(c.diseases) ? JSON.parse(JSON.stringify(c.diseases)) : null };
+}
+function nightSnap(){
+  var m = S.get() || {}, sc = CH.sceneOf(m.tools && m.tools.scene);
+  return { b:{ seq:sc.seq, n:sc.n, open:sc.open, openKind:sc.openKind, openSeq:sc.openSeq, armed:sc.armed },
+           night:+m.night || 0, nightOf:m.nightOf == null ? null : m.nightOf,
+           chars:(m.chars || []).filter(function(c){ return c && c.id != null; }).map(nightSheet) };
+}
+function nightNow(){
+  var sc = CH.sceneOf((S.get().tools || {}).scene), ev = sc.events.length ? sc.events[sc.events.length - 1] : null;
+  return { seq:sc.seq, last:ev ? ev.id : null };
+}
+function nightKeep(snap, nights){
+  var U = window.SUITE_UNDO;
+  if(!snap || !snap.b || !U || typeof U.keep !== "function") return null;
+  var sc = CH.sceneOf((S.get().tools || {}).scene);
+  var ids = sc.events.filter(function(e){ return e.seq > snap.b.seq; }).map(function(e){ return e.id; });
+  if(!ids.length) return null;
+  var rev = { b:snap.b, night:snap.night, nightOf:snap.nightOf, chars:snap.chars, ids:ids, after:nightNow() };
+  var n = Math.max(1, Math.round(+nights || 0) || ids.filter(function(id){ return /:n\d+$/.test(id); }).length || 1);
+  if(JSON.stringify(rev).length > NIGHT_UNDO_MAX) return null;   /* too big a table to carry on one line: no Undo, as before */
+  return U.keep("nightfall", { text:"Nightfall: " + n + (n === 1 ? " night" : " nights") + " of rest for the party (healed, armour restored, the day's ticks cleared)",
+                               rev:rev, chars:snap.chars.map(function(x){ return x.id; }), reverser:"nightfall", revert:nightPut });
+}
+function nightKeepFor(N){ try{ if(N && N.snap) return nightKeep(N.snap, N.night); }catch(e){} return null; }
+function nightPut(rv){
+  if(!rv || !rv.b || !Array.isArray(rv.ids)) return { ok:false, note:"Nothing to put back." };
+  var T = typeof sceneTools === "function" ? sceneTools() : null;
+  if(!T) return { ok:false, note:"There is no table to put the night back on." };
+  if(typeof T.canWrite === "function" && T.canWrite("scene") === false) return { ok:false, note:"Nightfall is the Overseer’s to take back at this table." };
+  var raw = null; try{ raw = T.get("scene"); }catch(e){ raw = null; }
+  var out = raw && typeof raw === "object" ? JSON.parse(JSON.stringify(raw)) : {};
+  ["seq", "n", "open", "openKind", "openSeq", "armed"].forEach(function(k){ out[k] = rv.b[k]; });
+  out.events = (Array.isArray(out.events) ? out.events : []).filter(function(e){ return e && rv.ids.indexOf(e.id) < 0 && CH.sceneInt(e.seq) <= rv.b.seq; });
+  var w = null; try{ w = T.set("scene", out); }catch(e){ w = { ok:false, note:String(e && e.message || e) }; }
+  if(!w || w.ok === false) return { ok:false, note:(w && w.note) || "The table refused the scene — nothing was put back." };
+  quiet = true;
+  try{
+    S.update(function(m){
+      m.night = rv.night; if(rv.nightOf == null) delete m.nightOf; else m.nightOf = rv.nightOf;
+      (m.chars || []).forEach(function(c){
+        if(!c || c.id == null) return;
+        var x = null; (rv.chars || []).forEach(function(y){ if(y && y.id === String(c.id)) x = y; });
+        if(!x) return;
+        var seen = c.survival && Array.isArray(c.survival.sceneSeen) ? c.survival.sceneSeen.filter(function(id){ return rv.ids.indexOf(id) < 0; }) : null;
+        c.hp = x.hp; if(c.armour && typeof c.armour === "object") c.armour.hp = x.ahp;
+        c.persistent = x.ps || []; c.healedToday = !!x.ht; c.repairedToday = !!x.rt; c.fatigue = x.f;
+        c.survival = x.sv ? JSON.parse(JSON.stringify(x.sv)) : {};
+        if(seen && seen.length) c.survival.sceneSeen = seen;
+        if(x.wr) c.wellRested = x.wr; else delete c.wellRested;
+        if(x.dz) c.diseases = x.dz;
+      });
+    });
+  } finally { quiet = false; }
+  try{ render(); }catch(e){}
+  return { ok:true };
+}
 function nightGate(){
   /* ONE NIGHTFALL (skeptic 1, round 4): the gate is the scene door's own — SUITE_TOOLS.canWrite("scene"): the GM
      while one is at the table, anyone when none is (the medical board's Nightfall reads the same).  It was
@@ -37843,6 +38490,7 @@ function nightStep(){
   var r = H.scene[kind]({ id:NIGHT.id + ":" + (kind === "night" ? "n" : "d") + NIGHT.night, label:label });
   var el = $("cs-night-walk");
   if(!r || !r.ok){
+    if(typeof nightKeepFor === "function") nightKeepFor(NIGHT);   /* Z050 P2: what the walk did before it stopped */
     NIGHT = null;
     if(el){ el.hidden = false; el.setAttribute("data-said", "1"); el.innerHTML = esc((r && r.note) || "Nightfall was not written."); }
     nightGate();
@@ -37851,6 +38499,7 @@ function nightStep(){
   /* ONE NIGHTFALL (skeptic 1, round 4): a night the table already holds (the medical board's, or this
      button pressed twice) is answered r.same — said as such, and the walk goes on from it */
   if(kind === "night" && NIGHT.night >= NIGHT.days){
+    if(typeof nightKeepFor === "function") nightKeepFor(NIGHT);   /* Z050 P2 (V.8): the walk's one Undo line */
     NIGHT = null;
     if(el){ el.hidden = false; el.setAttribute("data-said", "1"); el.innerHTML = r.same ? esc(r.note) : esc(r.line) + ". The gate is armed: the first scene of the morning pays again."; }
     nightGate();
@@ -41554,7 +42203,10 @@ root.addEventListener("click", function(e){
     case "inj-treat": i = +b.closest("[data-inj]").getAttribute("data-inj");
       woundWrite(function(l){ if(l[i]) l[i].treated = !l[i].treated; }); renderConditions(me()); break;
     case "inj-del": i = +b.closest("[data-inj]").getAttribute("data-inj");
-      woundWrite(function(l){ l.splice(i, 1); }); renderConditions(me()); break;
+      (function(){ var ib = typeof injCopy === "function" ? injCopy(me()) : null, gone = ib && ib.l[i] ? ib.l[i].loc : "";   /* Z050 P2 (V.8) */
+        woundWrite(function(l){ l.splice(i, 1); });
+        if(ib && typeof injRecord === "function") injRecord(me(), ib, "removed", gone); })();
+      renderConditions(me()); break;
     case "ps-tick": i = +b.closest("[data-ps]").getAttribute("data-ps");
       edit(function(c){ var p = c.persistent[i]; if(!p) return; c.hp = Math.max(0, (+c.hp || 0) - (+p.dmg || 0)); p.rounds = (+p.rounds || 0) - 1; if(p.rounds <= 0) c.persistent.splice(i, 1); });
       setVal("cs-hp", me().hp); renderConditions(me()); renderDerived(); break;
@@ -42822,7 +43474,9 @@ $("cs-inj-add").onclick = function(){
   var lword = lopt && lopt.getAttribute ? lopt.getAttribute("data-label") : null;
   if(lword && lword !== loc) note = lword + (note ? ": " + note : "");
   var treated = !!$("cs-inj-treated").checked;
+  var ib = typeof injCopy === "function" ? injCopy(me()) : null;      /* Z050 P2 (V.8): the list before, for its Undo line */
   var n = woundWrite(function(l){ l.push({ loc:loc, treated:treated, note:note || "added by hand" }); return l.length; });
+  if(n && ib && typeof injRecord === "function") injRecord(me(), ib, "added", loc);
   $("cs-inj-note").value = ""; $("cs-inj-treated").checked = false;
   renderConditions(me());
   var ih = $("cs-inj-hint");
@@ -42888,6 +43542,7 @@ $("cs-nightfall").onclick = function(){
   var days = clamp(Math.round(+$("cs-night-days").value || 1), 1, 14);
   $("cs-night-days").value = days;
   NIGHT = { id:"nf-" + Date.now().toString(36) + ri(1e6).toString(36), days:days, night:1, step:"night", last:"" };
+  try{ if(typeof nightSnap === "function") NIGHT.snap = nightSnap(); }catch(e){}   /* Z050 P2 (V.8): what the Undo puts back */
   nightStep();
 };
 root.addEventListener("input", function(e){ if(e.target && e.target.id === "cs-crit-dr") critVerdict(); });
@@ -43025,17 +43680,23 @@ function pcHitDiff(before, c, hp0){
     if(JSON.stringify(before[k]) !== JSON.stringify(after[k])) keys[k] = before[k] === undefined ? null : before[k];
   });
   var pl = function(x){ return x && x.armour && x.armour.hp != null ? Math.max(0, +x.armour.hp || 0) : null; };
-  return { id:String(c.id), name:c.name || "", hp0:hp0, hp1:Math.max(0, +c.hp || 0), pl0:pl(before), pl1:pl(after), keys:keys };
+  /* Z050 P2 (S.4): what the hit left in each key it changed - a named Undo refuses itself when that has moved since */
+  var aft = {}; Object.keys(keys).forEach(function(k){ aft[k] = after[k] === undefined ? null : after[k]; });
+  return { id:String(c.id), name:c.name || "", hp0:hp0, hp1:Math.max(0, +c.hp || 0), pl0:pl(before), pl1:pl(after), keys:keys, after:aft };
 }
 function pcHitUndo(u, what){
   var U = window.SUITE_UNDO; if(!u || !U || typeof U.keep !== "function") return null;
   /* Zoe 2026-10-26: an optional third argument { kind, text } — a Persistent tick per character, an HP typed in — keeps its own
      Undo slot and says its own line; with none it is the character hit's, as before */
   var how = arguments.length > 2 && arguments[2] ? arguments[2] : {};
+  /* Z050 P2 (S.4): how.named - the line names the sheet's reverser ("pc-hit"), so its Undo holds after a reload and on every
+     device in the room (a player's goes to the Overseer's device); rev.after makes a stale one refuse itself */
+  var nm = how.named && typeof U.reversers === "function" && U.reversers().indexOf("pc-hit") >= 0 ? "pc-hit" : "";
+  var rv0 = { id:u.id, keys:u.keys }; if(nm) rv0.after = u.after || {};
   try{
     return U.keep(how.kind || "pc-hit", { text:how.text ? String(how.text) : (u.name || "A character") + " took " + what + ": HP " + u.hp0 + " \u2192 " + u.hp1 +
                                    (u.pl0 != null && u.pl0 !== u.pl1 ? ", plate " + u.pl0 + " \u2192 " + u.pl1 : ""),
-      rev:{ id:u.id, keys:u.keys }, chars:[u.id], revert:function(x){
+      rev:rv0, chars:[u.id], reverser:nm || undefined, revert:function(x){
         if(!x || !x.id || !x.keys) return { ok:false, note:"This hit changed too much of the sheet to keep an Undo; fix it on the sheet." };
         var done = false;
         S.update(function(m){ (m.chars || []).forEach(function(ch){ if(ch && String(ch.id) === x.id){ Object.keys(x.keys).forEach(function(k){ if(x.keys[k] === null) delete ch[k]; else ch[k] = x.keys[k]; }); done = true; } }); });
@@ -43044,6 +43705,26 @@ function pcHitUndo(u, what){
       } });
   }catch(e){ return null; }
 }
+/* Z050 P2 (S.4): THE CHARACTER HIT'S REVERSER, BY NAME.  put: the changed keys back on the sheet (refused on a sheet this device
+   may not write - in a room a player's Undo is asked of the Overseer's device); now: those keys as they stand (stale = refused). */
+function pcHitOf(id){ var c = null; ((S.get() || {}).chars || []).forEach(function(ch){ if(ch && String(ch.id) === String(id)) c = ch; }); return c; }
+function pcHitPut(x){
+  if(!x || !x.id || !x.keys) return { ok:false, note:"This hit changed too much of the sheet to keep an Undo; fix it on the sheet." };
+  var c0 = pcHitOf(x.id);
+  if(!c0) return { ok:false, note:"That sheet is gone." };
+  if(typeof locked === "function" && locked(c0)) return { ok:false, note:"That sheet is not this device's to write." };
+  S.update(function(m){ (m.chars || []).forEach(function(ch){ if(ch && String(ch.id) === x.id) Object.keys(x.keys).forEach(function(k){ if(x.keys[k] === null) delete ch[k]; else ch[k] = x.keys[k]; }); }); });
+  if(typeof render === "function") try{ render(); }catch(e){}
+  return { ok:true };
+}
+function pcHitNow(x){
+  var c = x ? pcHitOf(x.id) : null, out = {};
+  if(!c) return null;
+  Object.keys((x && x.after) || {}).forEach(function(k){ out[k] = c[k] === undefined ? null : JSON.parse(JSON.stringify(c[k])); });
+  return out;
+}
+try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+  window.SUITE_UNDO.reverser("pc-hit", { put:pcHitPut, now:pcHitNow, mine:function(x){ var c = x ? pcHitOf(x.id) : null; return !!c && !(typeof locked === "function" && locked(c)); } }); }catch(e){}
 /* Zoe 2026-10-26: the same diff and Undo for the turn order's Persistent ticks and its typed HP (no second Undo path) */
 window.HELENA_CHAR.hitDiff = function(before, c, hp0){ return pcHitDiff(before, c, hp0); };
 window.HELENA_CHAR.hitUndo = function(u, what, how){ return pcHitUndo(u, what, how); };
@@ -43116,7 +43797,7 @@ window.HELENA_CHAR.applyDamage = function(charId, spec){
     }
     if(res && typeof pcHitDiff === "function") undoRec = pcHitDiff(snapBefore, c, hpBefore);
   });
-  if(res && undoRec && typeof pcHitUndo === "function") pcHitUndo(undoRec, (spec.from ? spec.from + " " : "a ") + "hit");
+  if(res && undoRec && typeof pcHitUndo === "function") pcHitUndo(undoRec, (spec.from ? spec.from + " " : "a ") + "hit", spec.named ? { named:true } : null);   /* Z050 P2 (S.4) */
   if(held && !res)
     return { ok:false, refused:"locked", name:held.name || "", past:0,
              why:typeof lockedWhy === "function" ? CH.plainText(lockedWhy(held)) : (held.name || "That sheet") + " is not this device’s to write." };
@@ -43327,6 +44008,7 @@ function xpDoorEnv(){
 }
 window.HELENA_CHAR.awardXp = function(spec){ return CH.awardXpWith(xpDoorEnv(), spec); };
 window.HELENA_CHAR.refreshLuck = function(spec){ return CH.refreshLuckWith(xpDoorEnv(), spec); };
+window.HELENA_CHAR.takeBack = function(spec){ return CH.takeBackWith(xpDoorEnv(), spec); };   /* Z050 P2 (V.8): Complete's Undo */
 /* WAVE 16, A1: the rounds door (CH.roundsWith) — the turn order's Attack spends a ranged weapon's rounds through
    it at declaration, stamped with the declaration's id, and puts them back through it when the drawer refuses */
 window.HELENA_CHAR.spendRounds = function(spec){ return CH.roundsWith(xpDoorEnv(), spec, false); };
@@ -43542,6 +44224,12 @@ window.HELENA_CHAR.scene = {
   end:function(o){   var r = CH.sceneDoorWith(sceneEnv(), "end",   sceneSpec(o)); if(r.ok && !r.dup) sceneCatchUpSoon(); return r; },
   weather:function(o){ return CH.sceneWeatherWith(sceneEnv(), sceneSpec(o)); }
 };
+/* Z050 P2 (V.8): Nightfall's Undo, by name - any device holding the line offers it; the scene's writer (the Overseer) runs it.
+   The medical board's Nightfall takes the same snapshot and line through these two. */
+window.HELENA_CHAR.scene.nightSnap = function(){ return nightSnap(); };
+window.HELENA_CHAR.scene.nightKeep = function(snap, n){ return nightKeep(snap, n); };
+try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+  window.SUITE_UNDO.reverser("nightfall", { put:nightPut, now:nightNow, slice:"scene" }); }catch(e){}
 /* T1-R5: Drink / Eat / An hour / Six hours answer a track IN THE SCENE IN PROGRESS — the stamp is that
    scene's openSeq; with no scene open nothing is stamped (it answers no scene) */
 function answerStamp(ch, track){
@@ -44160,6 +44848,7 @@ root.addEventListener("click", function(e){
   if(t.id === "cs-night-stop"){
     var w = $("cs-night-walk");
     if(NIGHT && w) w.innerHTML = esc(NIGHT.last || "") + " &mdash; stopped here; the next scene is the Overseer’s to declare.";
+    if(typeof nightKeepFor === "function") nightKeepFor(NIGHT);   /* Z050 P2 (V.8) */
     NIGHT = null; return;
   }
 });
@@ -48389,6 +49078,47 @@ function poolAdd(e, n){
   return back;
 }
 function refundAP(e, n){ return poolAdd(e, n); }
+/* Z050 P2 (V.8): AMMO SPENT AT DECLARATION, TAKEN BACK.  "Ammunition is spent once, at declaration" (RULE 2): the rounds (or a
+   grenade's one) come off the sheet before the roll.  An attack declared by mistake now has one Undo, on its own line in the
+   session log (reverser "decl-ammo"): the rounds go back through the sheet's rounds door under the declaration's own id
+   (returnRounds - once, never more than it took), the party AP it paid goes back, and the declaration is withdrawn from the
+   drawer while it is still unrolled (HELENA_ROLL.withdraw), so no attack follows it.  Refused once its dice are thrown, and
+   stale once the weapon's count moved since. */
+function declAmmoLeft(rv){
+  var CHx = typeof window !== "undefined" && window ? window.HELENA_CHAR : null, cs = [], c = null;
+  try{ cs = S.get().chars || []; }catch(err){ cs = []; }
+  cs.forEach(function(y){ if(y && String(y.id) === rv.cid) c = y; });
+  var w = c && Array.isArray(c.weapons) ? c.weapons[rv.w] : null;
+  if(!w || String(w.name || "").trim() !== rv.name) return { left:null };
+  if(rv.u){ var ua = CHx && typeof CHx.unitsAt === "function" ? CHx.unitsAt(c, rv.w) : null; return { left:ua ? ua.have : null }; }
+  return { left:w.ammoCount == null ? null : Math.round(+w.ammoCount || 0) };
+}
+function declAmmoKeep(e, x, target, did, stampId, n, u, ap){
+  var U = typeof window !== "undefined" && window ? window.SUITE_UNDO : null;
+  if(!U || typeof U.keep !== "function" || !e || e.kind !== "char" || !x || !(n > 0 || u > 0)) return null;
+  var rv = { id:stampId, decl:did, cid:String(e.ref), w:x.i, name:String(x.name || "").trim(), n:n > 0 ? n : 1, u:u > 0 && !(n > 0) ? 1 : 0, ap:ap > 0 ? ap : 0 };
+  rv.after = declAmmoLeft(rv);
+  var what = rv.u ? "one " + rv.name + " used" : rv.n + " round" + (rv.n === 1 ? "" : "s") + " off";
+  return U.keep("decl-ammo", { text:(e.name || "Someone") + " attacks " + ((target && target.name) || "no target") + " with " + rv.name + " — " + what,
+                               rev:rv, chars:[rv.cid], reverser:"decl-ammo", revert:declAmmoPut });
+}
+function declAmmoPut(rv){
+  if(!rv || !rv.id) return { ok:false, note:"Nothing to put back." };
+  var CHx = typeof window !== "undefined" && window ? window.HELENA_CHAR : null, R = typeof window !== "undefined" && window ? window.HELENA_ROLL : null;
+  if(!CHx || typeof CHx.returnRounds !== "function") return { ok:false, note:"The character sheet is not on this page — nothing was put back." };
+  var wd = "none";
+  try{ wd = R && typeof R.withdraw === "function" ? R.withdraw(rv.decl, "Withdrawn by Undo — the " + (rv.u ? rv.name : "rounds") + " went back on the sheet.") : "none"; }catch(err){ wd = "none"; }
+  if(wd === "rolled") return { ok:false, note:"Not undone: that attack's dice are already thrown — resolve it in the drawer." };
+  var rb = null;
+  try{ rb = CHx.returnRounds({ id:rv.id, charId:rv.cid, weapon:rv.w, name:rv.name, rounds:rv.n }); }catch(err){ rb = null; }
+  if(!rb || !rb.ok) return { ok:false, note:(rb && rb.note) || "The rounds could not go back on the sheet." };
+  if(rb.already) return { ok:false, note:"Those already went back on the sheet — nothing more was put back." };
+  if(rv.ap > 0) poolAdd({ kind:"char" }, rv.ap);
+  try{ render(); }catch(err){}
+  return { ok:true };
+}
+try{ if(typeof window !== "undefined" && window && window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+  window.SUITE_UNDO.reverser("decl-ammo", { put:declAmmoPut, now:declAmmoLeft }); }catch(err){}
 /* CMD Z040 (Zoe 2026-10-27): THE PRICE AND THE PAYMENT ARE ONE STEP.  A spend that buys something (a d20 on the turn card, an
    action's AP, an ability's AP) pays the WHOLE price in one read-check-write of that combatant's pool as it stands - the party
    pool through the sheet's payParty, the Overseer's here - or pays nothing: no part payment, so no refund to make.  A device whose
@@ -49340,6 +50070,8 @@ $("tt-end").onclick = function(){
                  "a fight that ends mid-round does not cancel a bleed.</div>" };
   render();
   tick("turn", "— combat ends");
+  /* Z050 P2: the fight's cleanup card - loot, butchery on a picked character, the Spoils; one line, one Undo (encounter CLEANUP) */
+  try{ var EC = window.HELENA_ENC && window.HELENA_ENC.cleanup; if(EC && typeof EC.open === "function") EC.open(); }catch(err){}
   companionsRecover();
 };
 $("tt-next").onclick = function(){
@@ -49771,10 +50503,28 @@ function keepHpUndo(E, ref, name, r){
   var U = window.SUITE_UNDO;
   if(!U || typeof U.keep !== "function" || !E || typeof E.setHp !== "function" || !r || r.ok === false || r.before == null || r.before === r.after) return null;
   return U.keep("creature-hp", { text:(name || "A creature") + (r.after < r.before ? " took " + (r.before - r.after) : " healed " + (r.after - r.before)) + " HP (" + r.before + " → " + r.after + ")",
-    rev:{ ref:ref, before:r.before, after:r.after },
+    rev:{ ref:ref, before:r.before, after:r.after }, reverser:"creature-hp",
     revert:function(rev){ var q = null; try{ q = E.setHp(rev.ref, rev.before); }catch(err){ q = { ok:false, why:String(err && err.message || err) }; }
                           return (q && q.ok === false) ? { ok:false, note:"The Encounter pane refused it: " + (q.why || "refused") } : { ok:true }; } });
 }
+/* Z050 P2 (V.6, 2026-11-03): THE CREATURE-HP UNDO BY NAME.  keepHpUndo's line names the reverser "creature-hp", so every
+   reversible line keeps its own Undo (not only the last press), after a reload too, on any device that holds it.  put: the pool
+   back through the Encounter pane's own door (HELENA_ENC.setHp); now: the pool as it stands (an Undo after the creature's HP
+   moved again is refused as stale); mine: the encounter is the Overseer's (a player's Undo asks that device). */
+function creatureHpPut(rev){
+  var E = window.HELENA_ENC, q = null;
+  if(!rev || rev.ref == null || !E || typeof E.setHp !== "function") return { ok:false, note:"The Encounter pane is not on this page." };
+  try{ q = E.setHp(rev.ref, rev.before); }catch(err){ q = { ok:false, why:String(err && err.message || err) }; }
+  return (q && q.ok === false) ? { ok:false, note:"The Encounter pane refused it: " + (q.why || "refused") } : { ok:true };
+}
+function creatureHpNow(rev){
+  var E = window.HELENA_ENC, r = null;
+  try{ r = E && typeof E.read === "function" ? E.read(rev.ref) : null; }catch(err){ r = null; }
+  return r && r.ok ? r.now : null;
+}
+try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+  window.SUITE_UNDO.reverser("creature-hp", { put:creatureHpPut, now:creatureHpNow,
+    mine:function(){ var E = window.HELENA_ENC; try{ return !E || typeof E.canWrite !== "function" || !!E.canWrite(); }catch(err){ return false; } } }); }catch(err){}
 function tvCharHp(e, d){
   var h = tvHp(e), rail = document.getElementById("rail-body"), m = S.get();
   var i = h && h.row ? (m.players || []).indexOf(h.row) : -1;
@@ -49819,7 +50569,7 @@ function tvDamage(e, n){
   if(e.kind === "char"){
     var CHx = window.HELENA_CHAR;
     if(!(CHx && typeof CHx.applyDamage === "function")){ msg = { cls:"warn", hd:"No sheet door", body:"The Characters pane is not on this build, so take it on the sheet." }; render(); return null; }
-    var res = null; try{ res = CHx.applyDamage(e.ref, { amount:amount, type:"Phys", from:"a typed " + amount + "-damage" }); }catch(err){ res = null; }
+    var res = null; try{ res = CHx.applyDamage(e.ref, { amount:amount, type:"Phys", from:"a typed " + amount + "-damage", named:true }); }catch(err){ res = null; }
     if(!res || res.ok === false || res.refused){
       msg = { cls:"warn", hd:"Not written — " + esc(e.name), body:esc((res && res.why) || "The sheet did not take it; take it on the sheet.") };
       render(); return res;
@@ -50662,7 +51412,11 @@ function takeAction(e, kind){
                  (kind === "major" && cap && cap.swarm && r.nth < cap.max
                    ? " " + (cap.max - r.nth) + " more can be bought this turn — " + esc(cap.why) : "") };
   });
-  if(r.ap) tick("turn", "— " + e.name + " bought a" + (r.nth > 2 ? " " + TT.nth(r.nth) : " second") + " " + kind + " action (" + r.ap + " AP)");
+  if(r.ap){
+    var bl = e.name + " bought a" + (r.nth > 2 ? " " + TT.nth(r.nth) : " second") + " " + kind + " action (" + r.ap + " AP)";
+    /* Z050 P2 (V.6): the buy's line carries an Undo (apBuyKeep); a page without the Undo base says it as before */
+    if(!(typeof apBuyKeep === "function" && apBuyKeep(e, kind, r, bl))) tick("turn", "— " + bl);
+  }
   return r;
   }
 }
@@ -50680,15 +51434,19 @@ function namedAction(e, key){
     if(!(nb && !nb.disabled)) return { ok:false, note:"Only the device holding the turn order can end the turn." };
     nb.click(); return { ok:true, note:(e.name || "They") + " passed." };
   }
-  /* Rally opens its test first: a drawer that will not take it (a test already on the table) costs nothing */
-  var rallyOpened = null;
+  /* Rally asks the drawer first: a drawer that will not take it (a test already on the table) costs nothing.
+     Z050 P2 (S.11, 2026-11-03): the drawer OPENS only once the action is taken - for a bought Rally, once the room has taken its
+     AP (in after(), which a waiting takeAction runs when the payment lands).  A build without canOpen opens it here, as before. */
+  var rallyOpened = null, rallySpec = null, R0 = window.HELENA_ROLL;
   if(key === "rally"){
-    var rc = e.kind === "char" && typeof charOf === "function" ? charOf(e.ref) : null, R0 = window.HELENA_ROLL;
+    var rc = e.kind === "char" && typeof charOf === "function" ? charOf(e.ref) : null;
     if(rc && R0 && typeof R0.open === "function"){
-      rallyOpened = R0.open({ kind:"test", source:"Rally", id:"rally-" + e.id + "-" + st.round, charId:String(rc.id),
-                              attacker:{ id:String(rc.id), kind:"char", ref:String(rc.id), name:rc.name || "" },
-                              attr:"END", skill:"Survival", difficulty:0, note:"Rally: every success is AP for the party pool (bank them on the drawer)." });
-      if(rallyOpened && rallyOpened.ok === false) return { ok:false, note:"The drawer would not take the Rally test: " + (rallyOpened.note || "") + " Nothing was spent." };
+      rallySpec = { kind:"test", source:"Rally", id:"rally-" + e.id + "-" + st.round, charId:String(rc.id),
+                    attacker:{ id:String(rc.id), kind:"char", ref:String(rc.id), name:rc.name || "" },
+                    attr:"END", skill:"Survival", difficulty:0, note:"Rally: every success is AP for the party pool (bank them on the drawer)." };
+      var rq = typeof R0.canOpen === "function" ? R0.canOpen(rallySpec) : (rallyOpened = R0.open(rallySpec));
+      if(rq && rq.ok === false) return { ok:false, note:"The drawer would not take the Rally test: " + (rq.note || "") + " Nothing was spent." };
+      if(rallyOpened) rallySpec = null;
     }
   }
   /* CMD Z050 (S.11): a bought action waits for the room - what the action does is done once it is taken (after) */
@@ -50705,7 +51463,8 @@ function namedAction(e, key){
     mutate(function(){ st = was ? TT.condClear(st, e.id, "prone") : TT.condApply(st, e.id, [{ key:"prone" }], st.round); });
     say += was ? "Standing." : "Prone.";
   }
-  else if(key === "rally") say += rallyOpened ? "END + Survival at Difficulty 0 is on the drawer; bank the successes as AP." : "Roll END + Survival at Difficulty 0 by hand; the successes are AP.";
+  else if(key === "rally"){ if(rallySpec){ var ro = null; try{ ro = R0.open(rallySpec); }catch(err){ ro = null; } rallyOpened = ro && ro.ok !== false ? ro : null; }
+    say += rallyOpened ? "END + Survival at Difficulty 0 is on the drawer; bank the successes as AP." : "Roll END + Survival at Difficulty 0 by hand; the successes are AP."; }
   else if(key === "firstaid"){ try{ var SH = window.SUITE_SHELL; if(SH && typeof SH.show === "function") SH.show("medical"); }catch(err){} say += "The Medical board is open."; }
   else if(key === "test"){ try{ var SH2 = window.SUITE_SHELL; if(SH2 && typeof SH2.showRoll === "function") SH2.showRoll(); }catch(err){} say += "Roll it on the dice drawer."; }
   else say += A.says;
@@ -50771,6 +51530,57 @@ function extraMajorFor(rowId){
   if(!r || !r.ok){ out.note = String((r && r.note) || "The major action was not taken."); return out; }
   return done(r);
 }
+
+/* Z050 P2 (V.6, 2026-11-03): AN AP SPEND ON THE ORDER CAN BE UNDONE FROM ITS LINE.  A bought action ("Raider bought a second major
+   action (2 AP)") and the creature card's buys (a d20, an ability's AP) each say one line with an Undo, by name, so the Overseer's
+   device - and a player's, through it - can take the press back: the action box un-ticked (TT.undoAction, the row's own Undo) and
+   the AP back on the pool it came off (refundAP, clamped at the party's cap as always).  Stale, and refused, once that row took
+   another action or the entry was rolled from (locked); a card buy, once the turn moved or the card's bag changed. */
+function apBuyNow(x){
+  var row = TT.logOf(st, x && x.id), last = row.length ? row[row.length - 1] : null;
+  return { n:row.length, kind:last ? last.kind : "", locked:!!(last && last.locked) };
+}
+function apBuyKeep(e, kind, r, text){
+  var U = window.SUITE_UNDO;
+  if(!U || typeof U.keep !== "function" || !e || !r || !r.ap) return null;
+  var rev = { id:String(e.id), kind:kind, ap:r.ap, char:e.kind === "char" };
+  rev.after = apBuyNow(rev);
+  try{ return U.keep("ap-buy", { text:text, rev:rev, reverser:"ap-buy", revert:apBuyPut }); }catch(err){ return null; }
+}
+function apBuyPut(x){
+  if(!x || !x.id) return { ok:false, note:"Nothing to put back." };
+  if(!writable()) return { ok:false, note:"The turn order belongs to the Overseer." };
+  var r = TT.undoAction(st, x.id);
+  if(!r.ok || r.kind !== x.kind) return { ok:false, note:r.note || "That action is no longer the row's last." };
+  if(!mutate(function(){ st = r.state; })) return { ok:false, note:"The turn order refused the write." };
+  if(x.ap) refundAP({ kind:x.char ? "char" : "enemy" }, x.ap);
+  return { ok:true };
+}
+function apCardNow(x){
+  var b = x && x.sig ? mtBags[x.sig] : null;
+  return { bought:b ? b.bought : 0, spent:b ? b.spent.length : 0 };
+}
+function apCardKeep(e, text, rev){
+  var U = window.SUITE_UNDO;
+  if(!U || typeof U.keep !== "function" || !e) return null;
+  rev.sig = mtSig(e); rev.after = apCardNow(rev);
+  try{ return U.keep("ap-card", { text:text, rev:rev, reverser:"ap-card", revert:apCardPut }); }catch(err){ return null; }
+}
+function apCardPut(x){
+  if(!x || !x.sig) return { ok:false, note:"Nothing to put back." };
+  if(!writable()) return { ok:false, note:"The turn order belongs to the Overseer." };
+  var b = mtBags[x.sig];
+  if(!b) return { ok:false, note:"That turn has passed." };
+  if(x.d20){ b.bought = Math.max(0, b.bought - 1); b.paid = Math.max(0, b.paid - x.ap); }
+  else if(b.spent.length) b.spent.pop();
+  refundAP({ kind:"enemy" }, x.ap);
+  render();
+  return { ok:true };
+}
+try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function"){
+  window.SUITE_UNDO.reverser("ap-buy", { put:apBuyPut, now:apBuyNow, mine:function(){ return writable(); } });
+  window.SUITE_UNDO.reverser("ap-card", { put:apCardPut, now:apCardNow, mine:function(){ return writable(); } });
+} }catch(err){}
 
 /* ==================================================== WAVE 10 — UNDO, AT THE ROW
    The pools are the caller's, so this is where the AP a cancelled click paid comes back.
@@ -51046,6 +51856,7 @@ function sbHp(e, d){
   if(now == null) return;
   var r = null;
   try{ r = api.setHp(e.ref, now + d); }catch(err){ r = null; }
+  if(r && r.ok !== false && typeof keepHpUndo === "function") keepHpUndo(api, e.ref, e.name, r);   /* Z050 P2 (V.6): the ±HP logs with Undo */
   if(r && r.ok === false)
     msg = { cls:"warn", hd:"Not written \u2014 " + esc(e.name),
             body:esc(r.why || "The Encounter pane refused the write.") };
@@ -51499,7 +52310,8 @@ function mtD20(e){
   var go = function(){
     b = mtBag(e);
     b.bought++; b.paid += q.cost;
-    tick("turn", "— " + e.name + " bought a d20 for its next attack (" + q.cost + " AP)");
+    var dl = e.name + " bought a d20 for its next attack (" + q.cost + " AP)";
+    if(!(typeof apCardKeep === "function" && apCardKeep(e, dl, { d20:true, ap:q.cost }))) tick("turn", "— " + dl);   /* Z050 P2 (V.6) */
     mtSay("good", "A d20 bought — " + esc(e.name), "<b>" + q.cost + " AP</b> came off the Overseer’s pool: its next attack this turn rolls <b>" +
           Math.min(5, base + b.bought) + "d20</b> (Book One p.15). The dice ride to the drawer as its pool, so the drawer sells no more for that attack.");
   };
@@ -51530,7 +52342,8 @@ function mtAbility(e, i, n){
   /* CMD Z041: the spend stands once the room has taken the AP (payThen) - at once in Solo */
   var go = function(){
     mtBag(e).spent.push({ name:ab.name, ap:n });
-    tick("turn", "— " + e.name + " spent " + n + " AP: " + ab.name);
+    var al = e.name + " spent " + n + " AP: " + ab.name;
+    if(!(typeof apCardKeep === "function" && apCardKeep(e, al, { d20:false, ap:n, name:ab.name }))) tick("turn", "— " + al);   /* Z050 P2 (V.6) */
     mtSay("good", esc(ab.name) + " — " + esc(e.name), "<b>" + n + " AP</b> came off the Overseer’s pool. What it does is the stat block’s: " + esc(ab.text));
   };
   if(typeof payThen !== "function"){ go(); return; }
@@ -52924,7 +53737,7 @@ function applyResult(rep){
       hd = "Dropped — ";
       lines.push(esc(plan.why));
       lines.push("Nothing was rolled and <b>nothing was applied</b>. Declare it again when the roller is free.");
-      if(plan.ammoSpent) lines.push("<b>" + plan.ammoSpent + " round" +
+      if(plan.ammoSpent && !/^Withdrawn by Undo/.test(String(plan.why || ""))) lines.push("<b>" + plan.ammoSpent + " round" +
         (plan.ammoSpent === 1 ? "" : "s") + " had already come off the sheet</b> for it — " +
         "the file takes the rounds off before the roll, so put them back or count them at the table.");
       dropNote = "<b>Dropped:</b> the earlier declaration — " + head + " — was thrown away " +
@@ -53974,6 +54787,8 @@ function wirePanel(){
     if(apBack) apPaid = 0;
     /* THE TURN CARD: the d20s it bought went with this declaration (a refused one keeps them for the next) */
     if(!r.refused && mtp !== pf && typeof mtUsed === "function") mtUsed(e);
+    /* Z050 P2 (V.8): rounds (or a thrown weapon's one) that came off the sheet at this declaration get one Undo line */
+    if(r.ok && typeof declAmmoKeep === "function") declAmmoKeep(e, x, target, did, stampId, offSheet ? spent : 0, unitOff ? 1 : 0, apPaid);
     panel = null;
     if(r.ok)
       msg = { cls:(dropNote ? "warn" : "good"), hd:(dropNote ? "Declared — and one was dropped" : "Declared"),
@@ -60884,6 +61699,11 @@ function pairGate(c, attr, skill, okd, H){
   if(perk) return { ok:true, how:perk + " prints " + attr + " + " + skill, say:"" };
   if(okd) return { ok:true, how:"the Overseer's OK", okd:true, say:"" };
   if(attr === "LCK"){
+    /* Z050 P2 (S.11): arguments[5] "dry" - Stacked Deck is asked, not spent (luck:true; the roller spends it once the AP clears) */
+    if(arguments.length > 5 && arguments[5] === "dry"){
+      if(Math.max(0, +c.luck || 0) >= 1) return { ok:true, luck:true, how:"Stacked Deck, 1 Luck point (spent once the dice are paid for)", say:"" };
+      return { ok:false, how:"", say:"No Luck point left for Stacked Deck. " + skill + " rolls on " + def + "." };
+    }
     var paid = H && typeof H.spendLuck === "function" ? H.spendLuck(c.id, 1) : 0;
     if(paid >= 1) return { ok:true, how:"Stacked Deck, 1 Luck point spent", say:"" };
     return { ok:false, how:"", say:"No Luck point left for Stacked Deck. " + skill + " rolls on " + def + "." };
@@ -60995,6 +61815,13 @@ function thrownPut(){
 }
 function thrownClear(id){ if(id == null || id === "") return; var all = thrownAll(), list = all.filter(function(r){ return r.id !== id; }); if(list.length !== all.length) thrownWrite(list); }
 RL.thrown = function(id){ var r = id == null ? null : thrownOf(String(id)); return !!(r && r.T.rolled && r.T.stage === "luck"); };
+/* Z050 P2 (V.8): an Undo of an attack's declaration withdraws it from this drawer while it is still unrolled.
+   -> "withdrawn" (dropped, answered cancelled) | "rolled" (its dice are thrown: too late) | "none" (not held here) */
+RL.withdraw = function(id, why){
+  if(id == null || !decl || String(decl.id || "") !== String(id)) return "none";
+  if((T && T.rolled) || declSent) return "rolled";
+  return abandonDecl(why || "Withdrawn by Undo — the rounds went back on the sheet.") ? "withdrawn" : "none";
+};
 
 /* WAVE 17, Z2 (Zoe 2026-10-07, ruled; the second walkthrough, Solo, S01-S02): A DECLARED ROLL A RELOAD DROPPED SAYS SO.
    Pressed in Solo: a stat block's Roll 2d20 declared into the dice pane, the page reloaded, and the pane came back empty
@@ -61096,6 +61923,24 @@ function droppedReveal(){
    test is nobody's declaration. */
 var decl = null;        /* the normalised declaration */
 var pairHow = "";       /* CMD Z016: how another attribute was allowed on this test (the OK, a perk, Stacked Deck) */
+/* Z050 P2 (S.11, 2026-11-03): THE ROLLER'S OWN STACKED DECK SPENDS ITS LUCK ONLY AFTER THE AP CLEARS.  Step 1 asks the gate "dry"
+   (a Luck point must be there; none is spent) and names the sheet here; step 2 closing spends it - once the room has taken the
+   dice's AP (inside payThen's go), or at once when no dice are bought.  No point left by then: the AP goes back (payBack) and
+   the test is dropped, nothing rolled.  A Difficulty 0 test that needs no roll spends nothing. */
+var stackLuck = null;
+function stackPay(){
+  var id = stackLuck; stackLuck = null;
+  if(!id) return true;
+  var got = typeof spendLuck === "function" ? spendLuck(id, 1) : 0;
+  if(got >= 1){ pairHow = "Stacked Deck, 1 Luck point spent"; return true; }
+  return false;
+}
+function stackRefused(back){
+  T = null; cur = 1; step2done = false; pairHow = "";
+  var n = $("gp-diff-note");
+  if(n) n.innerHTML = "<b>No Luck point left for Stacked Deck.</b> Nothing was rolled" + (back ? "; the " + back + " AP went back." : " and nothing was spent.");
+  paint();
+}
 var declCb = null;      /* the caller's onResult, if it passed one */
 var declSeq = 0;        /* ids for declarations that arrive without one */
 var declSent = "";      /* the last stage reported back, so nothing is sent twice */
@@ -62129,7 +62974,7 @@ function resetAll(){
               "another test took its place.");
   drawerClosed();                    /* a fresh hand-rolled test is nobody's declaration */
   T = null; cur = 1; pick = []; banked = false; bankLine = ""; step2done = false; paid = 0;
-  declared = null; pairHow = "";     /* CMD Z016 */
+  declared = null; pairHow = ""; stackLuck = null;     /* CMD Z016; Z050 P2 */
   majorSel = 1; sneakOn = false;     /* PROJECT H, FIGHT: a fresh test is a first major action, no sneak attack */
   rangeSel = "";                     /* …and no range: the next declaration brings its own band, or none */
   cmdOn = false;                    /* …and nobody's Command (R10): the tick is pressed for the attack it is for */
@@ -62282,10 +63127,11 @@ function declareDifficulty(d){
   if(typeof pairGate === "function" && !T && !decl && HASLISTS){
     /* CMD Z016: the pairing is asked before anything is spent or rolled */
     var pc = charById($("gp-who").value), okb = $("gp-attr-ok");
-    var pg = pairGate(pc, fv("gp-", "attr"), fv("gp-", "skill"), !!(okb && okb.checked), window.HELENA_CHAR);
+    var pg = pairGate(pc, fv("gp-", "attr"), fv("gp-", "skill"), !!(okb && okb.checked), window.HELENA_CHAR, "dry");
     if(!pg.ok){ $("gp-diff-note").innerHTML = esc(pg.say) + " Nothing was rolled and nothing was spent."; paint(); return false; }
     if(pg.okd && okb) okb.checked = false;
     pairHow = pg.how;
+    stackLuck = pg.luck && pc ? String(pc.id) : null;   /* Z050 P2 (S.11): Stacked Deck's point, spent when step 2 closes (stackPay) */
   }
   if(!T) T = RL.newTest(spec());
   if(typeof sumPath === "function" && sumPath()) return declareSum(d);   /* PROJECT H, FIGHT (typeof: lifted alone by older tests) */
@@ -62374,6 +63220,7 @@ panel.addEventListener("click", function(e){
       var T0 = T, payGo = typeof payThen === "function" ? payThen : function(p0, g){ return g(); };
       payGo(pay, function(){
         if(T !== T0){ if(typeof payBack === "function") payBack(pay); paint(); return; }          /* the test went away while it waited: nothing bought, the AP back */
+        if(typeof stackPay === "function" && !stackPay()){ stackRefused(typeof payBack === "function" ? payBack(pay) : 0); return; }   /* Z050 P2 (S.11) */
         paid += owe;
         T = RL.payDice(T, owe);
         step2done = true; cur = 3; paint();
@@ -62383,9 +63230,11 @@ panel.addEventListener("click", function(e){
       });
       return;
     }
+    if(typeof stackPay === "function" && !stackPay()){ stackRefused(0); return; }   /* Z050 P2 (S.11): no AP owed - the point now */
     step2done = true; cur = 3; paint(); return;
   }
   if(b.id === "gp-buy-skip"){
+    if(typeof stackPay === "function" && !stackPay()){ stackRefused(0); return; }   /* Z050 P2 (S.11) */
     T = RL.buyDice(T, 0, { free:freeNow(), have:poolAP($("gp-pool").value), pool:$("gp-pool").value, commanded:cmdNow() || null });
     step2done = true; cur = 3; paint(); return;
   }
@@ -62709,6 +63558,13 @@ function showGuided(){
   var tab = $("gp-tab");
   if(tab && tab.getAttribute("aria-selected") !== "true"){ try{ tab.click(); }catch(e){} }
 }
+/* Z050 P2 (2026-11-03): would open() take this declaration?  The same two refusals, nothing opened, nothing reset - so a caller
+   can ask before it pays (Rally: the drawer opens only once the action's AP has cleared) */
+RL.canOpen = function(sp){
+  if(T && T.rolled && T.stage !== "resolved") return { ok:false, note:"A pool is already on the table on the Dice pane — resolve that test before declaring another." };
+  var d = RL.declare(sp || {});
+  return d.ok ? { ok:true } : { ok:false, note:d.note };
+};
 RL.open = function(sp){
   sp = sp || {};
   if(T && T.rolled && T.stage !== "resolved"){
@@ -63243,11 +64099,33 @@ function render(){
     window.SUITE_SHELL.live("camp", campLive(camp)); }catch(e){}
 }
 
+/* Z050 P2 (V.6, 2026-11-03): BUILD AND STRIKE CAN BE UNDONE.  Build it, Test failed, Survival Tent and Strike camp each say one
+   line in the session log ("built a level 3 camp", "struck the camp") with an Undo that puts the camp back exactly as it stood
+   before the press - its level, its traits, the tent.  By name ("camp"), so any device holding the line, and this one after a
+   reload, can offer it; the camp is the party's, so anyone at the table may make the write.  Stale once the camp moved again.
+   A press that changed nothing says nothing. */
+function campPress(fn, words){
+  var b = campOf(), out = fn(), a = campOf();
+  if(JSON.stringify(a) === JSON.stringify(b)) return out;
+  var U = window.SUITE_UNDO;
+  if(U && typeof U.keep === "function"){ try{ U.keep("camp", { text:words(a), rev:{ before:b, after:a }, reverser:"camp", revert:campPut }); }catch(e){} }
+  return out;
+}
+function campPut(x){
+  if(!CH || !x || !x.before) return { ok:false, note:"Nothing to put back." };
+  setCamp(function(k){ k.level = x.before.level | 0; k.tent = !!x.before.tent; k.traits = Array.isArray(x.before.traits) ? x.before.traits.slice() : []; });
+  said = false;
+  render();
+  return { ok:true };
+}
+try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+  window.SUITE_UNDO.reverser("camp", { put:campPut, now:function(){ return CH ? campOf() : null; } }); }catch(e){}
+function campBuilt(a){ return "built a level " + a.level + " camp"; }
 $("cp-level").addEventListener("change", function(){ lvlPicked = true; });
-$("cp-build").addEventListener("click", function(){ if(!CH) return; say(own(function(){ return campBuild(+$("cp-level").value || 1, +$("cp-ap").value || 0, true); })); lvlPicked = false; render(); });
-$("cp-fail").addEventListener("click", function(){ if(!CH) return; say(own(function(){ return campBuild(+$("cp-level").value || 1, +$("cp-ap").value || 0, false); })); lvlPicked = false; render(); });
-$("cp-tent").addEventListener("click", function(){ if(!CH) return; say(own(campTent)); render(); });
-$("cp-strike").addEventListener("click", function(){ if(!CH) return; say(own(campStrike)); render(); });
+$("cp-build").addEventListener("click", function(){ if(!CH) return; say(own(function(){ return campPress(function(){ return campBuild(+$("cp-level").value || 1, +$("cp-ap").value || 0, true); }, campBuilt); })); lvlPicked = false; render(); });
+$("cp-fail").addEventListener("click", function(){ if(!CH) return; say(own(function(){ return campPress(function(){ return campBuild(+$("cp-level").value || 1, +$("cp-ap").value || 0, false); }, function(a){ return campBuilt(a) + " (the build test failed)"; }); })); lvlPicked = false; render(); });
+$("cp-tent").addEventListener("click", function(){ if(!CH) return; say(own(function(){ return campPress(campTent, function(){ return "put up a Survival Tent"; }); })); render(); });
+$("cp-strike").addEventListener("click", function(){ if(!CH) return; say(own(function(){ return campPress(campStrike, function(){ return "struck the camp"; }); })); render(); });
 $("cp-guests").addEventListener("click", function(){ if(!CH) return; $("cp-guests-out").innerHTML = campGuests(cd); });
 function d20(){ return 1 + Math.floor(Math.random() * 20); }
 $("cp-visitors").addEventListener("click", function(){ $("cp-table-out").innerHTML = campTableRoll("campVisitors", d20).line; });
@@ -63555,6 +64433,7 @@ function logIt(f){
             amt: f.amount ? f.amount.total : null, caps: !!f.row.caps,
             rar: f.row.rar, zbg: f.row.zbg, sent: false };
   state.log.unshift(e);
+  if(state.cleared) state.cleared = undefined;     /* Z050 P2 (V.6): a find since a Clear - its kept finds go (lfClearKeep) */
   f.lid = e.id;
   if(state.log.length > 400) state.log.pop();
   return e;
@@ -64093,7 +64972,33 @@ $("lf-roll-table").onclick = function(){
   }
   if(all.length) show(all);
 };
-$("lf-clear").onclick = function(){ state.log = []; $("lf-exp").value = ""; renderLog(); renderSendBar(); };
+$("lf-clear").onclick = function(){ var was = state.log; state.log = []; $("lf-exp").value = ""; renderLog(); renderSendBar(); if(typeof lfClearKeep === "function") lfClearKeep(was); };
+/* Z050 P2 (V.6, 2026-11-03): CLEAR LOG CAN BE UNDONE.  The press says "cleared the loot log (N finds)" in the session log, with an
+   Undo that puts every find back.  The finds are too many to ride the line itself, so the cleared log is kept in the loot slice
+   (state.cleared = { key, log }, shared like the log, absent until a Clear) and the line names its key.  By name ("loot-clear"),
+   so any device holding the line, and this one after a reload, can offer it.  The next find drops what was kept (a find since the
+   Clear makes the Undo stale anyway), and so does a later Clear (it keeps its own). */
+function lfClearKeep(was){
+  if(!Array.isArray(was) || !was.length) return null;
+  var key = "c" + Date.now().toString(36) + Math.floor(Math.random() * 1679616).toString(36);
+  state.cleared = { key:key, log:was };
+  var U = window.SUITE_UNDO;
+  if(!U || typeof U.keep !== "function") return null;
+  try{ return U.keep("loot-clear", { text:"cleared the loot log (" + was.length + (was.length === 1 ? " find)" : " finds)"),
+    rev:{ key:key, n:was.length, after:lfClearNow() }, reverser:"loot-clear", revert:lfClearPut }); }catch(e){ return null; }
+}
+function lfClearNow(){ return { n:state.log.length, key:state.cleared && state.cleared.key ? String(state.cleared.key) : "" }; }
+function lfClearPut(x){
+  var c = state.cleared;
+  if(!x || !c || c.key !== x.key || !Array.isArray(c.log)) return { ok:false, note:"The cleared finds are no longer kept." };
+  state.log = c.log; state.cleared = undefined;
+  renderLog(); renderSendBar();
+  if(typeof worthLine === "function") worthLine();
+  if(typeof tablePush === "function") tablePush();
+  return { ok:true };
+}
+try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+  window.SUITE_UNDO.reverser("loot-clear", { put:lfClearPut, now:function(){ return lfClearNow(); } }); }catch(e){}
 
 /* LFWIRE:begin */
 /* ---- the send (wave 10 track C) ---- */
@@ -64111,6 +65016,7 @@ $("lf-out").addEventListener("click", function(ev){
   var box = btn.closest("[data-lf-find]");
   if(!box) return;
   var id = box.getAttribute("data-lf-find"), msg = box.querySelector(".msg");
+  var HH = window.HELENA_HAUL, hb = HH && typeof HH.begin === "function" ? HH.begin() : null;   /* Z050 P2 (V.7) */
   var e = lfEntry(id), r = lfSendOne(id);
   if(msg){
     msg.className = "msg" + (r.ok ? " done" : "");
@@ -64119,13 +65025,18 @@ $("lf-out").addEventListener("click", function(ev){
       : ("not sent — " + (r.note || "the shelf would not take it"));
   }
   btn.disabled = !!r.ok;
-  if(r.ok && !r.replay && e)
-    lfTick("put " + lfQty(e) + " × " + String(e.item) + " on the party ledger — " + String(e.table || "the Scavenger's Tables"));
   renderLog(); renderSendBar(); worthLine();
   if(typeof tablePush === "function") tablePush();
+  /* Z050 P2 (V.7): the send's line carries its Undo (HELENA_HAUL): the find off the shelf and back on the list, unsent */
+  if(r.ok && !r.replay && e){
+    var said = "put " + lfQty(e) + " × " + String(e.item) + " on the party ledger — " + String(e.table || "the Scavenger's Tables");
+    if(!(hb && HH.keep(hb, said))) lfTick(said);
+  }
 });
 
 $("lf-send").onclick = function(){
+  var HH = window.HELENA_HAUL, hb = HH && typeof HH.begin === "function" ? HH.begin() : null;   /* Z050 P2 (V.7) */
+  var sent = state.log.filter(function(e){ return !lfBlocked(e); }).map(function(e){ return lfQty(e) + " × " + String(e.item); });
   var before = lfUnsent().n, r = lfSendAll(), out = $("lf-sent");
   renderLog(); renderSendBar();
   /* renderSendBar has already said what is left; this replaces it with what just happened, which
@@ -64138,8 +65049,13 @@ $("lf-send").onclick = function(){
          " Send them on to a sheet from the ledger card in Camp’s Merchant pane.")
       : ("Nothing was sent — " + (r.failed.length ? esc(r.failed[0]) : "there was nothing on the list that can go on a shelf") + ".");
   }
-  if(r.done) lfTick("put " + r.done + (r.done === 1 ? " find" : " finds") + " from the Scavenger's Tables on the party ledger");
   if(typeof tablePush === "function") tablePush();
+  /* Z050 P2 (V.7): the haul's one line names what went, and carries the one Undo for all of it (HELENA_HAUL) */
+  if(r.done){
+    var said = "put " + r.done + (r.done === 1 ? " find" : " finds") + " from the Scavenger's Tables on the party ledger" +
+               (sent.length && sent.length <= 12 && !r.failed.length ? ": " + sent.join(", ") : "");
+    if(!(hb && HH.keep(hb, said))) lfTick(said);
+  }
   return before;
 };
 /* LFWIRE:end */
@@ -64185,7 +65101,8 @@ renderPerks(); renderLog(); renderTokens(); renderSendBar();
   var T = (typeof window !== "undefined") ? window.SUITE_TOOLS : null;
   if(!T) return;
   var TKEY = "loot", applying = false, last = null;
-  function snapshot(){ return { tokens:state.tokens, perks:state.perks, log:state.log }; }
+  /* Z050 P2 (V.6): cleared (the last Clear's finds, for its Undo) rides only while it is held - absent, the slice is as before */
+  function snapshot(){ return { tokens:state.tokens, perks:state.perks, log:state.log, cleared:state.cleared || undefined }; }
   function apply(d){
     if(!d) return;
     applying = true;
@@ -64199,6 +65116,7 @@ renderPerks(); renderLog(); renderTokens(); renderSendBar();
         });
       }
       if(Array.isArray(d.log)) state.log = d.log;
+      state.cleared = (d.cleared && typeof d.cleared === "object" && Array.isArray(d.cleared.log) && d.cleared.key) ? d.cleared : undefined;
       renderTokens(); renderPerks(); renderLog(); worthLine(); renderSendBar();
     } finally { applying = false; }
   }
@@ -64230,6 +65148,14 @@ renderPerks(); renderLog(); renderTokens(); renderSendBar();
   }
   function flush(){ if(timer){ clearTimeout(timer); timer = null; } commit(); }
   tablePush = flush;                    // The Spoils pays from another tool's container
+  /* Z050 P2 (V.7): a press that keeps an Undo (HELENA_HAUL.begin) first seats this tool's counter on the table when the
+     table has none yet — otherwise the Undo would put back "no counter" and this page would keep the tokens it holds */
+  if(window.HELENA_LOOT) window.HELENA_LOOT.seat = function(){
+    if(T.get(TKEY) != null) return false;
+    var s0 = JSON.stringify(snapshot()), r0 = T.set(TKEY, JSON.parse(s0));
+    if(r0 && r0.ok !== false) last = s0;
+    return true;
+  };
 
   ["click", "input", "change"].forEach(function(t){
     document.body.addEventListener(t, schedule, true);
@@ -64665,6 +65591,76 @@ var TAB = (function(){
   return v;
 })();
 var OPS = LIVE ? LG.ops(env) : null;
+
+/* HAUL:begin */
+/* Z050 PHASE 2 (V.7, K.12, R.47 B, End combat cleanup — Howl's CMD Z050, 2026-11-03): ONE UNDO FOR THE HAUL.
+   The Spoils paid, a body stripped, a haul sent, a merchant deal, Give to, the party's starting caps and the End combat
+   cleanup each move goods and caps across the table at once (the ledger, the encounter's record, the loot finder's tokens
+   and finds, the sheets).  Each press takes the table before it (begin) and, when it is done, keeps ONE log line (keep) that
+   carries what moved — data/ledger.js snap.diff, only the places that changed — under the reverser "haul", registered here
+   by name so any device holding the line, and this one after a reload, can put it back (SUITE_UNDO, build-suite.js):
+     HELENA_HAUL.begin()                    -> the table now (a copy), or null where there is no table
+     HELENA_HAUL.keep(before, text, opts)   -> the line's undo key; null when nothing moved or the change is too big to
+                                               carry (the caller then says its own line, without an Undo)
+   The Undo writes the before-values back in ONE SUITE_STATE update: goods, caps, tokens, XP, the encounter's record, all in
+   one step; an Undo after any of those places moved again is refused as stale.  Who may: the places it touches decide —
+   a sheet this device may not write, or the Overseer's encounter, sends a player's Undo to the Overseer's device. */
+var HAUL_MAX = 15500;
+function haulView(m){
+  m = m || {};
+  return { tools:(m.tools && typeof m.tools === "object" && !Array.isArray(m.tools)) ? m.tools : {},
+           chars:Array.isArray(m.chars) ? m.chars : [], pcAP:m.pcAP, dmAP:m.dmAP };
+}
+function haulCopy(v){ try{ return JSON.parse(JSON.stringify(v)); }catch(e){ return null; } }
+function haulBegin(){
+  if(!S || !LG || !LG.snap) return null;
+  try{ var HL = window.HELENA_LOOT; if(HL && typeof HL.seat === "function") HL.seat(); }catch(e){}
+  return haulCopy(haulView(S.get()));
+}
+function haulMine(rev){
+  var ps = (LG && LG.snap) ? LG.snap.places(rev && rev.d) : [], i, p, st = null;
+  try{ st = SY && typeof SY.status === "function" ? SY.status() : null; }catch(e){ st = null; }
+  for(i = 0; i < ps.length; i++){
+    p = ps[i];
+    if(p.indexOf("tools.") === 0){ if(TL && typeof TL.canWrite === "function" && !TL.canWrite(p.slice(6))) return false; }
+    else if(p.indexOf("chars.") === 0){ try{ if(SY && typeof SY.canEdit === "function" && !SY.canEdit(p.slice(6))) return false; }catch(e){ return false; } }
+    else if(st && st.connected && !st.gm && TL && typeof TL.gmPresent === "function" && TL.gmPresent()) return false;
+  }
+  return true;
+}
+function haulNow(rev){ return (rev && rev.d && S) ? LG.snap.pick(haulView(S.get()), rev.d) : null; }
+function haulPut(rev){
+  if(!rev || !rev.d || !rev.d.o || !S || !LG || !LG.snap) return { ok:false, note:"Nothing to put back." };
+  S.update(function(m){
+    var nv = LG.snap.back(haulView(m), rev.d), d = rev.d.o;
+    if(d.tools){
+      if(!m.tools || typeof m.tools !== "object" || Array.isArray(m.tools)) m.tools = {};
+      Object.keys(d.tools.o || nv.tools || {}).forEach(function(k){ if(nv.tools[k] === undefined) delete m.tools[k]; else m.tools[k] = nv.tools[k]; });
+    }
+    if(d.chars) m.chars = nv.chars;
+    ["pcAP", "dmAP"].forEach(function(k){ if(d[k]){ if(nv[k] === undefined) delete m[k]; else m[k] = nv[k]; } });
+  });
+  try{ adoptHolds(); renderLedger(); renderDeal(); }catch(e){}
+  return { ok:true };
+}
+function haulKeep(before, text, opts){
+  opts = opts || {};
+  var U = window.SUITE_UNDO;
+  if(!before || !S || !LG || !LG.snap || !U || typeof U.record !== "function") return null;
+  var now = haulCopy(haulView(S.get())), d = LG.snap.diff(before, now);
+  if(d === undefined) return null;
+  var rev = { d:d, after:LG.snap.pick(now, d) };
+  if(JSON.stringify(rev).length > HAUL_MAX) return null;
+  var chars = Array.isArray(opts.chars) ? opts.chars.filter(Boolean).map(String) : [];
+  LG.snap.places(d).forEach(function(p){ if(p.indexOf("chars.") === 0 && chars.indexOf(p.slice(6)) < 0) chars.push(p.slice(6)); });
+  return U.record("haul", { text:String(text || "the haul"), rev:rev, chars:chars });
+}
+if(LIVE){
+  try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+    window.SUITE_UNDO.reverser("haul", { put:haulPut, now:haulNow, mine:haulMine }); }catch(e){}
+  window.HELENA_HAUL = { begin:haulBegin, keep:haulKeep };
+}
+/* HAUL:end */
 
 function say(id, cls, text){ var el = $(id); if(el){ el.className = "msg " + cls; el.textContent = text || ""; } }
 function sideTotal(side){
@@ -65196,10 +66192,12 @@ function renderShelf(){
         '<span class="acts">' +
           (dart ? '<button class="b-darts">roll for its type</button>' : "") +
           '<button class="b-send">send</button>' +
+          '<button class="b-give" title="put it on the sheet picked under “send to” now">give to</button>' +
           (caps ? '<button class="b-sell">sell</button>' +
                   (r.qty > 1 ? '<button class="b-sell b-sellall">sell all</button>' : "") : "") +
         '</span>';
       el.querySelector(".b-send").onclick = function(){ doSend(r); };
+      el.querySelector(".b-give").onclick = function(){ doGive(r); };   /* Z050 P2 (K.12) */
       /* WAVE 11: `sell` HOLDS — the goods leave the shelf now, not at confirm.  The
          qty field says how many; `sell all` is the whole row.  onCounter() reports
          what this tab already has of this row, for the message only, since the
@@ -65253,6 +66251,26 @@ function doSend(r){
   renderLedger();
 }
 
+/* Z050 P2 (K.12, Howl 2026-11-03): GIVE TO — the item moves onto the sheet picked under "send to" in one press (ops.give:
+   the parcel and its taking together), one log line with its Undo (HELENA_HAUL).  A sheet this device may not write gets
+   the item as a parcel in its inbox instead, and the line says so. */
+function doGive(r){
+  var to = $("mc-lg-to").value;
+  if(!to){ say("mc-lg-msg", "bad", "Pick who it goes to first, under “send to”."); return { ok:false }; }
+  var want = Math.min(r.qty, Math.max(1, parseInt($("mc-lg-qty").value, 10) || 1));
+  var hb = typeof haulBegin === "function" ? haulBegin() : null;
+  var res = OPS.give(r.id, want, to, "the party ledger");
+  if(!res.ok){ say("mc-lg-msg", "bad", res.note); renderLedger(); return res; }
+  var nm = (res.to && res.to.name) || "them";
+  var line = (res.parcel ? "sent " : "gave ") + r.name + " x" + want + " from the party ledger to " + nm +
+             (res.parcel ? " — it waits in their inbox until they take it" : "");
+  if(!(typeof haulKeep === "function" && haulKeep(hb, line, { chars:[to] })) && typeof townSay === "function") townSay(line, [to]);
+  say("mc-lg-msg", "good", res.parcel ? (r.name + " x" + want + " is waiting for " + nm + " — only they can take it onto their sheet.")
+                                      : (r.name + " x" + want + " is on " + nm + "’s sheet now."));
+  renderLedger();
+  return res;
+}
+
 /* --------------------------------------------------------------- the inbox */
 function renderInbox(){
   var box = $("mc-lg-inbox"), host = $("mc-lg-in");
@@ -65299,7 +66317,27 @@ function renderPurse(){
   env.chars().forEach(function(c){ var mine = env.canEdit(c.id);
     html += '<option value="' + esc(c.id) + '"' + (mine ? "" : " disabled") + ">" + esc(c.name) + " · " + c.caps + "</option>"; });
   if(who.getAttribute("data-was") !== html){ who.innerHTML = html; who.setAttribute("data-was", html); if(was) who.value = was; }
+  /* Z050 P2 (R.47 B): the starting caps — the Overseer's device only, and only until they are set */
+  var sb = $("mc-lg-start");
+  if(sb){ var hide = !(overseerMay() && !LG.normalise(env.getLedger()).capsStart); if(sb.hidden !== hide) sb.hidden = hide; }
 }
+/* Z050 P2 (R.47 B, Howl 2026-11-03): SET STARTING CAPS — the Overseer's, once (ops.startCaps), one line with its Undo; the
+   Undo puts the party's caps back and the control returns */
+function startCapsPress(){
+  if(!OPS || !overseerMay()) return { ok:false, note:"the starting caps are the Overseer's to set" };
+  var el = $("mc-lg-startn"), n = parseInt(el ? el.value : "", 10);
+  var hb = typeof haulBegin === "function" ? haulBegin() : null;
+  var r = OPS.startCaps(n);
+  say("mc-lg-capmsg", r.ok ? "good" : "bad", r.ok ? "The party starts with " + r.n + " caps — the party has " + r.purse + "." : r.note + ".");
+  if(r.ok){
+    if(el) el.value = "";
+    var line = "set the party’s starting caps: " + r.n + " caps (the party has " + r.purse + ")";
+    if(!(typeof haulKeep === "function" && haulKeep(hb, line)) && typeof townSay === "function") townSay(line, []);
+  }
+  renderLedger();
+  return r;
+}
+if($("mc-lg-startgo")) $("mc-lg-startgo").onclick = function(){ startCapsPress(); };
 function purseMove(sign){
   if(!OPS) return { ok:false };
   var n = Math.max(0, parseInt($("mc-lg-capamt").value, 10) || 0), id = $("mc-lg-capwho").value;
@@ -65351,6 +66389,13 @@ $("mc-confirm").onclick = function(){
      before anything moves, then consumes them in the same single table write that
      shelves the buys. */
   var dealLine = typeof dealWords === "function" ? dealWords(payWho) : "";
+  /* Z050 P2 (V.7): the table before the deal, with the counter's holds back on the shelf — an Undo puts the sold goods
+     there (the counter is cleared by then), the bought goods off it, and the caps back on whoever paid */
+  var hb = typeof haulBegin === "function" ? haulBegin() : null;
+  if(hb && hb.tools && hb.tools.ledger) holdRefs().forEach(function(h){
+    var hid = h && typeof h === "object" ? h.holdId : h;
+    try{ if(hid) hb.tools.ledger = LG.release(hb.tools.ledger, hid).slice; }catch(e){}
+  });
   var r = OPS.confirm({ payer:payId, cost:sideTotal("buy"), credit:sideTotal("sell"),
                         rows:buyRows(stamp, payWho), holds:holdRefs(), sold:soldRefs(), txn:dealTxn });
   /* A REFUSAL IS A REFUSAL OF THE WHOLE DEAL AND THE COUNTER IS LEFT ALONE.
@@ -65371,8 +66416,10 @@ $("mc-confirm").onclick = function(){
   say("mc-msg", loose ? "plain" : "good", "Done — " + bits.join(", ") + ".");
   dealKeptWatch(r);                                 /* WAVE 17 SKEPTIC: the room may not keep the deal's ledger write */
   /* Z050 (R.22): the deal says on the session log who paid (the town's own "trade" topic) */
-  if(typeof townSay === "function" && dealLine) townSay(dealLine + (r.paid > 0 ? " — " + r.paid + " caps, paid by " + payWho : r.paid < 0 ? " — " + Math.abs(r.paid) + " caps to " + payWho : ""),
-                                                      [typeof LG !== "undefined" && LG && payId === LG.PARTY ? "" : payId]);
+  /* Z050 P2 (V.7): every deal is one line - who, what, the caps, who paid - and that line carries the deal's Undo */
+  var dealSaid = dealLine + (r.paid > 0 ? " — " + r.paid + " caps, paid by " + payWho : r.paid < 0 ? " — " + Math.abs(r.paid) + " caps to " + payWho : " — no caps changed hands");
+  var dealIds = [typeof LG !== "undefined" && LG && payId === LG.PARTY ? "" : payId];
+  if(dealLine && !(typeof haulKeep === "function" && haulKeep(hb, dealSaid, { chars:dealIds })) && typeof townSay === "function") townSay(dealSaid, dealIds);
   clearCounter();
   renderLedger();
 };
@@ -65581,6 +66628,11 @@ if(LIVE){
   if(SY){
     if(typeof SY.onStatus === "function") SY.onStatus(reGate);
     if(typeof SY.onPeers === "function") SY.onPeers(reGate);
+  }
+  /* Z050 P2 (R.47 B): the starting caps follow the room under the same gate (renderPurse writes only on a real change) */
+  if(SY){
+    if(typeof SY.onStatus === "function") SY.onStatus(function(){ renderPurse(); });
+    if(typeof SY.onPeers === "function") SY.onPeers(function(){ renderPurse(); });
   }
   /* game day: the Party Ledger's missing rows follow the room under the same gate (MC_SEEDGAP) */
   if(SY){
@@ -66191,8 +67243,23 @@ function travelCore(env){
     var err = save(s);
     if(err) return refuse(err);
     var line = "Abandoned the journey to " + j.name + " after " + j.walked + " of " + TV.plural(j.legs, "leg", "legs");
-    emit(line, [], { journey:j.id, event:"abandon" });
+    /* Z050 P2 (V.8): the line is its own Undo (the "tv-abandon" reverser, unabandon below) */
+    var U = typeof window !== "undefined" ? window.SUITE_UNDO : null, tag = {};
+    try{ if(U && typeof U.tag === "function") tag = U.tag("tv-abandon", { j:j.id, name:j.name, after:{ j:j.id, status:"abandoned" } }) || {}; }catch(e){ tag = {}; }
+    emit(line, [], Object.assign({ journey:j.id, event:"abandon" }, tag));
     return { ok:true, line:line, note:line + "." };
+  }
+  /* Z050 P2 (V.8): ABANDON, TAKEN BACK — the same journey goes on where it stood (walked, legs, its last leg's rows untouched).
+     Refused when the journey is no longer the abandoned one (a new journey set out since: unabandonNow names that as stale). */
+  function unabandonNow(rv){ var j = read().journey; return { j:j ? j.id : null, status:j ? j.status : null }; }
+  function unabandon(rv){
+    if(!may()) return refuse(GATE);
+    var s = read(), j = s.journey;
+    if(!rv || !j || j.id !== rv.j || j.status !== "abandoned") return refuse("That journey is no longer the abandoned one — nothing was put back.");
+    j.status = "out"; j.endedAt = null;
+    var err = save(s);
+    if(err) return refuse(err);
+    return { ok:true, note:"The journey to " + j.name + " goes on." };
   }
 
   /* SET OUT AND NAVIGATE — one leg: its Difficulty frozen on the slice, then its scene through the gate
@@ -66581,7 +67648,7 @@ function travelCore(env){
     return { ok:true, shown:shown, note:line + "." + (shown ? "" : " (Fight is not on this page — build it there.)") };
   }
 
-  return { SLICE:SLICE, GATE:GATE, here:function(id){ return !!(id && openedHere[id]); }, may:may, read:read, poolNow:poolNow, setOut:setOut, abandon:abandon, navigate:navigate, answer:answer,
+  return { SLICE:SLICE, GATE:GATE, here:function(id){ return !!(id && openedHere[id]); }, may:may, read:read, poolNow:poolNow, setOut:setOut, abandon:abandon, unabandon:unabandon, unabandonNow:unabandonNow, navigate:navigate, answer:answer,
            chargeLost:chargeLost, tryAgain:tryAgain, compAP:compAP, compTrail:compTrail, omen:omen, encounter:encounter, avoid:avoid,
            campsite:campsite, shortcut:shortcut, turnUp:turnUp };
 }
@@ -66726,6 +67793,10 @@ var core = travelCore({
   /* round 7: a Navigate whose scene the room did not keep — repainted only while the message is still that press's */
   told:function(r){ if(r && r === shown){ say(r); T.keepFocus(render); } }
 });
+/* Z050 P2 (V.8): Abandon's Undo, registered by name so any device holding the line can offer it; the journey's writer runs it */
+try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+  window.SUITE_UNDO.reverser("tv-abandon", { put:function(rv){ var r = core.unabandon(rv); try{ render(); }catch(e){} return r; },
+    now:core.unabandonNow, mine:function(){ return core.may(); } }); }catch(e){}
 var shown = null;                     /* the answer the message line is showing */
 function say(r){
   shown = r || null;
@@ -67562,7 +68633,7 @@ function questCore(env){
       res.line = doneLine(q2, p.pay, p.lk);
       /* WAVE 16, C1: no second "Quest done" — when the doors answered "already" for every sheet, another device's
          owed press paid this completion in the quiet second, and its own line said so (owedDone) */
-      if(!p.err && doneNews(p)) emitNow(res.line, doneIds(p), { quest:q.id, event:"done", xp:p.pay.xp });
+      if(!p.err && doneNews(p)) emitNow(res.line, doneIds(p), Object.assign({ quest:q.id, event:"done", xp:p.pay.xp }, doneTag(q2, p)));
       res.note = res.line + "." + tail(p.pay, "Already paid by this quest") +
                  (p.lk ? (p.lk.r.ok ? tail(p.lk.r, "Already refreshed by this completion") : " " + (p.lk.r.note || "No Luck was refreshed."))
                        : spec.refresh === false ? " No Luck was refreshed — the box was not ticked." : "") +
@@ -67575,6 +68646,48 @@ function questCore(env){
                  " and the line wait until the table has kept its completion (a moment).";
     }
     return res;
+  }
+  /* Z050 P2 (V.8): COMPLETE, TAKEN BACK — one Undo on the "Quest done" line (reverser "qs-done").  The line carries what the
+     completion moved: each sheet's XP and Luck before and after, and the stamps the doors left (quest:<q>, quest:<q>:done), so
+     the Undo takes the XP and the refreshed Luck back off, lifts the stamps (a later Complete pays again) and puts the quest back
+     open with its milestones, its reward box and no closure.  Caps, gear and reputation are printed by Complete, never paid
+     (Q-R5), so there is nothing of theirs to take back.  Stale (refused) once any of those sheets' XP or Luck, or the quest,
+     moved since. */
+  function doneTag(q, p){
+    var U = typeof window !== "undefined" ? window.SUITE_UNDO : null;
+    if(!U || typeof U.tag !== "function") return {};
+    var xp = (p.pay.gave || []).map(function(g){ return [g.id, g.from, g.to]; });
+    var lk = p.lk && p.lk.r ? p.lk.r : {};
+    var luck = (lk.filled || []).map(function(f){ return [f.id, f.from, f.to]; });
+    var full = (lk.full || []).map(function(f){ return f.id; });
+    var rev = { q:q.id, name:q.name, xp:xp, luck:luck, full:full };
+    rev.after = doneNow(rev);
+    try{ return U.tag("qs-done", rev) || {}; }catch(e){ return {}; }
+  }
+  function doneNow(rv){
+    var out = { status:null, xp:{}, luck:{} }, q = find(read(), rv.q), cs = [];
+    try{ cs = env.chars() || []; }catch(e){ cs = []; }
+    out.status = q ? q.status : null;
+    function sheet(id){ for(var i = 0; i < cs.length; i++) if(cs[i] && String(cs[i].id) === id) return cs[i]; return null; }
+    (rv.xp || []).forEach(function(x){ var c = sheet(x[0]); out.xp[x[0]] = c ? Math.round(+c.xp || 0) : null; });
+    (rv.luck || []).forEach(function(x){ var c = sheet(x[0]); out.luck[x[0]] = c ? Math.round(+c.luck || 0) : null; });
+    return out;
+  }
+  function undoDone(rv){
+    if(!may()) return refuse(GATE);
+    var H = doors();
+    if(!H || typeof H.takeBack !== "function") return refuse(NO_DOORS);
+    var s = read(), q = rv ? find(s, rv.q) : null;
+    if(!q || q.status !== "done") return refuse("That quest is no longer a completed one — nothing was put back.");
+    var lid = "quest:" + q.id + ":done";
+    var tb = H.takeBack({ xpId:"quest:" + q.id, luckId:lid, xp:rv.xp || [], luck:rv.luck || [], full:rv.full || [] }) || {};
+    if(!tb.ok) return refuse("The sheets could not be written — nothing was put back.");
+    if((tb.refused || []).length) return refuse("Not undone: " + tb.refused.map(function(x){ return x.why; }).join(" "));
+    q.status = "open"; q.closed = null;
+    s.refreshes = s.refreshes.filter(function(r){ return r.id !== lid; });
+    var err = save(s);
+    if(err) return refuse(err);
+    return { ok:true, note:quoted(q.name) + " is open again; its XP and Luck came back off." };
   }
   /* the completion's payment — phase two's, or the card's owed press (owedDone): the XP door at the CLOSURE's figure
      (never the box — round 7) and, if its box was ticked, the completion's refresh, with the ids every press of this
@@ -67785,7 +68898,8 @@ function questCore(env){
   function waiting(){ var o = Object.create(null); for(var k in waitingQ) o[k] = true; return o; }
 
   return { SLICE:SLICE, GATE:GATE, may:may, read:read, start:start, addMilestone:addMilestone, reach:reach, edit:edit, complete:complete, drop:drop,
-           takeXp:takeXp, takeLuck:takeLuck, owed:owed, owedDone:owedDone, owedMilestone:owedMilestone, waiting:waiting };
+           takeXp:takeXp, takeLuck:takeLuck, owed:owed, owedDone:owedDone, owedMilestone:owedMilestone, waiting:waiting,
+           undoDone:undoDone, doneNow:doneNow };
 }
 /* QUESTCORE:end */
 
@@ -67977,6 +69091,10 @@ var core = questCore({
   now:function(){ return new Date().toISOString(); },
   newId:function(p){ return p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 });
+/* Z050 P2 (V.8): Complete's Undo, registered by name (questCore undoDone); the quests' writer runs it */
+try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
+  window.SUITE_UNDO.reverser("qs-done", { put:function(rv){ var r = core.undoDone(rv); try{ render(); }catch(e){} return r; },
+    now:core.doneNow, mine:function(){ return core.may(); } }); }catch(e){}
 function say(r){
   var el = $("qs-msg");
   el.className = "qs-msg " + (r.ok ? "ok" : "bad");
@@ -71480,10 +72598,12 @@ var document = new Proxy(__rdoc, {
         return;
       }
       nb.setAttribute("data-armed", "0"); nb.innerHTML = "&#9790; Nightfall &mdash; new day";
-      var r = null;
+      var r = null, snap = null;
+      try { snap = typeof H.scene.nightSnap === "function" ? H.scene.nightSnap() : null; } catch(e){ snap = null; }   /* Z050 P2 (V.8) */
       try { r = H.scene.night({ id:"mb-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), label:"Nightfall (the medical board)" }); }
       catch(e){ r = { ok:false, note:"The night could not be written: " + (e && e.message || e) }; }
       if (!r || !r.ok){ nightSay((r && r.note) || "The night was not written.", true); return; }
+      try { if (snap && !r.dup && typeof H.scene.nightKeep === "function") H.scene.nightKeep(snap, 1); } catch(e){}   /* its one Undo line */
       nightSay(r.same ? r.note : (r.line || "Night") + ". Each sheet takes the night — the heal, the two daily ticks cleared — on its own device.", false);
       render();
       return;
@@ -77528,7 +78648,9 @@ var D = W.document, KEY = "helena-cinder-night", night = false, subs = [];
    new and an older build reads it as not-"1", i.e. paper, so a rollback keeps the choice. */
 var chosen = null;
 try{ var sv = W.localStorage.getItem(KEY); chosen = sv === "1" ? true : sv === "paper" ? false : null; }catch(e){ chosen = null; }
-function byDefault(){ return !!(D.body && D.body.classList.contains("view-cinder")); }
+/* Z050 P2 (R.50 B, Howl 2026-11-03): Night Shift is the default in BOTH views - Classic too.  A device that never chose (nothing
+   stored, or the old "0" as R.51) opens in Night Shift in either view; paper stays a choice ("paper") and sticks in both. */
+function byDefault(){ return true; }
 night = chosen === null ? byDefault() : chosen;
 
 function rgb(s){
@@ -77678,7 +78800,7 @@ try{
   D.addEventListener("suite-mode", now);
   D.addEventListener("cinder-tab", now);
   D.addEventListener("cinder-view", now);
-  /* Z050 item 10: no choice stored - the default follows the view (Night Shift in Cinder, paper in Classic), only on a change */
+  /* Z050 item 10: no choice stored - the default (R.50 B: Night Shift in both views), set only on a change */
   D.addEventListener("cinder-view", function(){ if(chosen === null && byDefault() !== night) set(byDefault(), true); });
   ["click", "focusin", "change"].forEach(function(k){ D.addEventListener(k, function(){ later(); }, true); });
 }catch(e){}
