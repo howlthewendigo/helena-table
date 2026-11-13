@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"3c829c68",at:"2026-11-13 18:23 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"693ef1d8",at:"2026-11-13 23:02 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -4621,6 +4621,12 @@ body.view-cinder[data-cl-tab="fight"] #suite-stage > #fold-map{ overflow-y:auto;
 #cl-rail-x{ position:fixed; top:56px; right:12px; z-index:200; min-width:40px; min-height:40px; font-size:24px; line-height:1; cursor:pointer;
   background:#221C17; color:#E8DFCC; border:2px solid #9C7A3C; border-radius:6px; }
 #cl-rail-x[hidden]{ display:none !important; }
+
+/* Z051 tabs (char): the Character tab's three jumps, at the top of the sheet pane, both views */
+.char-jump{ display:flex; align-items:center; gap:.4em; flex-wrap:wrap; margin:0 0 .6em; padding:.3em .1em; font-size:.95em; }
+.char-jump-b{ background:none; border:1px solid currentColor; border-radius:3px; padding:.2em .7em; color:inherit; font:inherit; cursor:pointer; opacity:.8; }
+.char-jump-b[aria-current="true"]{ opacity:1; font-weight:600; }
+.char-jump-dot{ opacity:.5; }
 </style>
 <style data-suite="cinder-1-combat">/* Z032 — the Cinder Ledger's combat loop (src/cinder-1-combat.js).  Drawn only under body.view-cinder. */
 body:not(.view-cinder) #cl-ribbon, body:not(.view-cinder) #cl-party, body:not(.view-cinder) #cl-bar,
@@ -5599,6 +5605,25 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 .z35-cur-bar select{ font:inherit; font-size:14px; padding:3px 6px; min-height:32px; max-width:200px; }
 .z35-is-cur{ outline:2px solid #D9A13B !important; outline-offset:-2px; }
 </style>
+<style data-suite="cinder-zr-road-tab">/* Z051 tabs (lane road): the Road tab's own parts, both views (src/cinder-zr-road-tab.js).  Classic's Camp tab is hidden: Camp is
+   the fold at the foot of Road. */
+#mode-suite-camp{ display:none !important; }
+#rt-top{ display:flex; flex-wrap:wrap; gap:.6em 1.4em; margin:0 0 .8em; padding:.5em .7em; border:1px solid rgba(128,128,128,.35); border-radius:6px; }
+#rt-top .rt-cell{ min-width:12em; flex:1 1 14em; }
+#rt-top .rail-food, #rt-top .rail-adren{ display:flex; flex-wrap:wrap; gap:.3em 1em; align-items:baseline; }
+#rt-acts, #rt-toks{ margin:1em 0 .6em; }
+#rt-acts .rt-h, #rt-toks .rt-h{ margin:0 0 .4em; font-size:1em; }
+#rt-acts .rt-row{ display:flex; flex-wrap:wrap; gap:.5em; }
+#rt-acts .rt-btn{ min-height:2.4em; padding:.3em .9em; }
+#rt-toks .rt-tk{ margin:.25em 0; overflow-wrap:anywhere; }
+#rt-toks .rt-chip{ display:inline-block; margin:.1em .2em; padding:.05em .45em; border:1px solid rgba(128,128,128,.45); border-radius:4px; }
+#rt-camp{ margin:1em 0 0; border-top:1px solid rgba(128,128,128,.35); padding-top:.5em; }
+#rt-camp > summary{ cursor:pointer; font-weight:600; padding:.4em 0; }
+/* Cinder: the old Camp tab's Medical and Fusion panes ride on Road now (cinder-0-shell.js: road extra ["med","fuse"]) */
+body.view-cinder[data-cl-tab="road"] #suite-stage > #fold-med,
+body.view-cinder[data-cl-tab="road"] #suite-stage > #fold-fuse{ display:block !important; }
+body.view-cinder[data-cl-tab="road"] #suite-stage > .suite-fold > .tool[hidden]{ display:block !important; }
+</style>
 <script data-suite="display-modes">/* src/display-modes.js - TWO DISPLAY MODES, PER DEVICE (2026-10-13).  Built into the head of both files by ONE line in
    build-suite.js (a script element of its own, data-suite display-modes, after the stylesheet, before the head closes), so its classes are on <html> before the
    first paint and nothing flashes.
@@ -6063,16 +6088,16 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-13 18:23 UTC">3c829c68</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-13 23:02 UTC">693ef1d8</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-dice" data-mode="dice" aria-controls="suite-stage" aria-selected="false">Dice<small>Skill tests and combat dice</small></button>
-    <button class="suite-mode" role="tab" id="mode-suite-sheets" data-mode="sheets" aria-controls="suite-stage" aria-selected="false">Sheets<small>Characters and the companion</small></button>
+    <button class="suite-mode" role="tab" id="mode-suite-sheets" data-mode="sheets" aria-controls="suite-stage" aria-selected="false">Character<small>The sheet, the pack and growth (Z051 tabs: one tab, was Sheets)</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-camp" data-mode="camp" aria-controls="suite-stage" aria-selected="false">Camp<small>The camp and everyone's survival</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-med" data-mode="med" aria-controls="suite-stage" aria-selected="false">Medical<small>Party medical board</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-fuse" data-mode="fuse" aria-controls="suite-stage" aria-selected="false">Fusion<small>Fusion core charges</small></button>
-    <button class="suite-mode" role="tab" id="mode-suite-travel" data-mode="travel" aria-controls="suite-stage" aria-selected="false">Travel<small>Towns and the road between</small></button>
+    <button class="suite-mode" role="tab" id="mode-suite-travel" data-mode="travel" aria-controls="suite-stage" aria-selected="false">Road<small>Bowls, Adrenaline, the road, fights, camp</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-craft" data-mode="craft" aria-controls="suite-stage" aria-selected="false">Craft<small>Recipes, materials, salvage</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-shop" data-mode="shop" aria-controls="suite-stage" aria-selected="false">Merchant<small>Buy, sell and haggle</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-loot" data-mode="loot" aria-controls="suite-stage" aria-selected="false">Loot<small>Scavenger's tables</small></button>
@@ -84957,11 +84982,14 @@ var TABS = [
   { k:"fight",     label:"Fight",     ch:"field",    mode:"map",    extra:["turn","dice","log","chat"] },
   { k:"encounter", label:"Encounter", ch:"field",    mode:"enc",    gm:true },
   { k:"maps",      label:"Maps",      ch:"field",    mode:"map",    gm:true },
-  { k:"sheets",    label:"Sheets",    ch:"people",   mode:"sheets" },
-  { k:"pack",      label:"Pack",      ch:"people",   mode:"sheets", to:"#cs-inv", head:"Inventory" },
-  { k:"growth",    label:"Growth",    ch:"people",   mode:"sheets", to:"#cs-f-perks" },
-  { k:"camp",      label:"Camp",      ch:"road",     mode:"camp",   extra:["med","fuse"] },
-  { k:"road",      label:"Road",      ch:"road",     mode:"travel" },
+  /* Z051 tabs (char): ONE tab, Character, in place of Sheets, Pack and Growth.  Pack and Growth stay as keys (old links,
+     shortcuts and showTool land on Character at their section) but get no button of their own: alias = the tab they light. */
+  { k:"sheets",    label:"Character", ch:"people",   mode:"sheets" },
+  { k:"pack",      label:"Pack",      ch:"people",   mode:"sheets", to:"#cs-inv", head:"Inventory", alias:"sheets" },
+  { k:"growth",    label:"Growth",    ch:"people",   mode:"sheets", to:"#cs-f-perks", alias:"sheets" },
+  /* Z051 tabs (road): ONE Road tab replaces Camp and Road - the Travel pane with the Camp pane in a fold at its foot
+     (src/cinder-zr-road-tab.js); Camp's medical board and fusion rack ride along as before */
+  { k:"road",      label:"Road",      ch:"road",     mode:"travel", extra:["med","fuse"] },
   { k:"trader",    label:"Trader",    ch:"road",     mode:"shop" },
   { k:"journal",   label:"Journal",   ch:"road",     mode:"quests", extra:["log","chat"] },
   { k:"workbench", label:"Workbench", ch:"workshop", mode:"craft" },
@@ -84973,9 +85001,13 @@ var CH = { field:"Field", people:"People", road:"Road", workshop:"Workshop" };
 /* where a Classic mode lands when something else (a token strip, the order) brings it on top */
 var HOME = { fight:"fight", turn:"fight", dice:"fight", map:"fight", enc:"encounter", sheets:"sheets", camp:"camp", med:"camp",
   fuse:"camp", travel:"road", shop:"trader", quests:"journal", chat:"journal", log:"journal", craft:"workbench", loot:"overseer" };
+/* Z051 tabs (road): Camp, its medical board and its fusion rack live on Road now */
+HOME.camp = "road"; HOME.med = "road"; HOME.fuse = "road";
 var cur = "fight", busy = false;
 function SH(){ return W.SUITE_SHELL || null; }
 function byKey(k){ if(k === "log") return LOGTAB; for(var i = 0; i < TABS.length; i++) if(TABS[i].k === k) return TABS[i]; return null; }
+/* Z051 tabs (road): the old Camp tab key (a stored tab, a link) lands on Road */
+var ROAD_ALIAS = { camp:"road" }, byKeyRoad0 = byKey; byKey = function(k){ return byKeyRoad0(Object.prototype.hasOwnProperty.call(ROAD_ALIAS, k) ? ROAD_ALIAS[k] : k); };
 function role(){ try{ var s = SH(); return s && typeof s.role === "function" ? s.role() : "solo"; }catch(e){ return "solo"; } }
 function isPlayer(){ return role() === "player"; }
 function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
@@ -85049,7 +85081,9 @@ classicBtn.addEventListener("click", function(){ setView(false); });
 /* ---- 3. Tab spine ---- */
 var spine = el("nav", "cl-spine"); spine.id = "cinder-spine"; spine.setAttribute("role", "tablist"); spine.setAttribute("aria-label", "Tabs");
 var tabBtns = [], lastCh = null;
-TABS.forEach(function(t, i){
+/* Z051 tabs (char): the tabs with a button of their own (Pack and Growth are sections of Character now) */
+var VIS = TABS.filter(function(t){ return !t.alias; });
+VIS.forEach(function(t, i){
   if(t.ch !== lastCh){
     var c = el("span", "cl-chapter cl-label cl-ch-" + t.ch, CH[t.ch]); c.setAttribute("aria-hidden", "true");
     if(lastCh) spine.appendChild(el("span", "cl-stitch"));
@@ -85065,12 +85099,12 @@ TABS.forEach(function(t, i){
 /* ---- 5. Phone bottom bar and the More grid ---- */
 var bar = el("nav", "cl-phonebar"); bar.id = "cinder-phonebar"; bar.setAttribute("aria-label", "Tabs");
 var more = el("div", "cl-more"); more.id = "cinder-more"; more.hidden = true;
-[["fight","Fight"],["sheets","Sheets"],["camp","Camp"],["log","Log"],["more","More"]].forEach(function(p){
+[["fight","Fight"],["sheets","Character"],["camp","Camp"],["log","Log"],["more","More"]].forEach(function(p){
   var b = el("button", "cl-pbtn cl-label", p[1]); b.type = "button"; b.setAttribute("data-cl-tab", p[0]); b.id = "cinder-pb-" + p[0];
   b.addEventListener("click", function(){ if(p[0] === "more"){ more.hidden = !more.hidden; return; } tab(p[0]); });
   bar.appendChild(b);
 });
-TABS.forEach(function(t){
+VIS.forEach(function(t){
   var b = el("button", "cl-mbtn cl-ch-" + t.ch + (t.gm ? " cl-gm" : ""), t.label); b.type = "button"; b.setAttribute("data-cl-tab", t.k);
   b.addEventListener("click", function(){ tab(t.k); });
   more.appendChild(b);
@@ -85095,9 +85129,14 @@ var backBtn = el("button", "cl-back", "Cinder view"); backBtn.type = "button"; b
 backBtn.addEventListener("click", function(){ setView(true); });
 try{ var rail = $("suite-rail"); if(rail) rail.insertBefore(backBtn, rail.firstChild); }catch(e){}
 
-function tab(k){
+function tab(k, fromJump){
+  if(Object.prototype.hasOwnProperty.call(ROAD_ALIAS, k)) k = ROAD_ALIAS[k];   /* Z051 tabs (road) */
   var t = byKey(k); if(!t) return false;
   if(t.gm && isPlayer()) return false;
+  /* Z051 tabs (char): Character remembers its section on this device - entering it plainly goes back there */
+  if(k === "sheets" && !fromJump){ var ls0 = charSec(); if(ls0 !== "sheet") { k = ls0; t = byKey(k) || t; } }
+  if(t.mode === "sheets") keepSec(k === "pack" ? "pack" : k === "growth" ? "growth" : "sheet");
+  if(t.alias) k = t.alias;
   cur = k; more.hidden = true;
   D.body.setAttribute("data-cl-tab", k);
   tabBtns.forEach(function(b){ b.setAttribute("aria-selected", String(b.getAttribute("data-cl-tab") === k)); });
@@ -85107,6 +85146,7 @@ function tab(k){
   try{ if(s && typeof s.show === "function" && (s.active() !== t.mode)) s.show(t.mode); }catch(e){}
   busy = false;
   try{ W.localStorage.setItem("helena-cinder-tab", k); }catch(e){}
+  if(k === "sheets") try{ seatJump(); }catch(e){}
   if(t.to) setTimeout(function(){
     var x = D.querySelector(t.to); if(!x) return;
     if(t.head){ var hs = D.querySelectorAll("#tool-char h3"); for(var i = 0; i < hs.length; i++) if(hs[i].textContent.trim() === t.head){ x = hs[i]; break; } }
@@ -85146,8 +85186,45 @@ D.addEventListener("keydown", function(e){
   if(!W.CINDER.on() || !e.altKey || e.ctrlKey || e.metaKey) return;
   var i = KEYS[e.code]; if(i == null) return;
   e.preventDefault(); e.stopImmediatePropagation();
-  tab(TABS[i].k);
+  if(VIS[i]) tab(VIS[i].k);
 }, true);
+
+/* ---- Z051 tabs (char): the Character tab's three jumps (Sheet · Pack · Growth), in BOTH views, at the top of the
+   sheet pane; the section last used is kept on this device only (its own key; never in the save, never synced) ---- */
+var SEC_KEY = "helena-char-section";
+function charSec(){ var v = null; try{ v = W.localStorage.getItem(SEC_KEY); }catch(e){} return v === "pack" || v === "growth" ? v : "sheet"; }
+function keepSec(v){ try{ W.localStorage.setItem(SEC_KEY, v); }catch(e){} paintJump(); }
+var jumpBar = el("nav", "char-jump"); jumpBar.id = "char-jump"; jumpBar.setAttribute("aria-label", "Jump to a part of the character");
+[["sheet","Sheet"],["pack","Pack"],["growth","Growth"]].forEach(function(p, i){
+  if(i) jumpBar.appendChild(el("span", "char-jump-dot", "·"));
+  var b = el("button", "char-jump-b", p[1]); b.type = "button"; b.setAttribute("data-char-jump", p[0]);
+  b.addEventListener("click", function(){ jumpTo(p[0]); });
+  jumpBar.appendChild(b);
+});
+function paintJump(){ var s = charSec(); jumpBar.querySelectorAll("[data-char-jump]").forEach(function(b){ var on = b.getAttribute("data-char-jump") === s; if(b.getAttribute("aria-current") !== String(on)) b.setAttribute("aria-current", String(on)); }); }
+function seatJump(){ var host = $("tool-char"); if(host && jumpBar.parentNode !== host) host.insertBefore(jumpBar, host.firstChild); paintJump(); }
+function classicScroll(sec){
+  var t = byKey(sec === "sheet" ? "sheets" : sec), x = t && t.to ? D.querySelector(t.to) : $("tool-char");
+  if(t && t.head){ var hs = D.querySelectorAll("#tool-char h3"); for(var i = 0; i < hs.length; i++) if(hs[i].textContent.trim() === t.head){ x = hs[i]; break; } }
+  if(!x) return;
+  var dt = x.closest ? x.closest("details") : null; if(dt) dt.open = true;
+  if(x.tagName === "DETAILS") x.open = true;
+  try{ x.scrollIntoView({ block:"start" }); }catch(e){}
+}
+function jumpTo(sec){
+  if(W.CINDER && W.CINDER.on()){ keepSec(sec); return tab(sec === "sheet" ? "sheets" : sec, true); }
+  keepSec(sec);
+  var s = SH(); try{ if(s && s.active() !== "sheets") s.show("sheets"); }catch(e){}
+  setTimeout(function(){ classicScroll(sec); }, 30);
+  return true;
+}
+/* Classic: coming onto the sheets mode by any way lands on the section this device was last on */
+D.addEventListener("suite-mode", function(e){
+  seatJump();
+  if(W.CINDER && W.CINDER.on()) return;
+  if(e && e.detail && e.detail.mode === "sheets"){ var sec = charSec(); if(sec !== "sheet") setTimeout(function(){ classicScroll(sec); }, 30); }
+});
+seatJump();
 
 function setView(v){
   v = !!v; save(v ? "cinder" : "classic");
@@ -87982,6 +88059,94 @@ try{
 }catch(e){}
 mountPickers();
 last = get(); follow();
+})(window);
+</script>
+<script data-suite="cinder-zr-road-tab">/* ============================================================================
+   Helena Suite - Z051 tabs (lane road, CMD "Cores + Road tab + Character tab", 2026-11-13): ONE ROAD TAB, both views.
+   The Travel pane (#tool-travel) becomes the Road tab; this file only MOVES and READS screens - no rule, no save, no engine:
+     top     the party's bowls and HP reserve (HELENA_POOL.railHtml) and the Adrenaline track (HELENA_ADREN.railHtml), read only
+             (their ids stripped: the side panel keeps #rail-food / #rail-adren)
+     middle  the road strip (cinder-8-road.js) and the Travel pane as it was: Rest in town / Set out, the road scene's cost,
+             the Pathfinder roll
+     then    Lead-in (HELENA_LEADIN.show), Start a fight (the turn order, where Start combat and its difficulty pick are) and
+             Skirmish (the Auto-fight window, whose Skirmish section is the existing one)
+     then    This trip's tokens: the buffs waiting (HELENA_POOL.read().tokens) and the Spoils tokens on the loot counter
+             (tools.loot.tokens).  "Spoils gained since leaving town" would need a new stored mark - not built (no save change).
+     last    Camp as ONE fold, shut: the whole Camp pane (#tool-camp, moved, nothing deleted).
+   Old links land here: the Classic Camp tab is hidden and a Camp mode brought on top (a stored tab, Alt+key, showTool("camp"))
+   turns into Road with the Camp fold open; Cinder's Camp tab key is an alias of Road (cinder-0-shell.js ROAD_ALIAS).
+   It writes the page only when what it shows changed.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document, host = D.getElementById("tool-travel"), camp = D.getElementById("tool-camp");
+if(!host) return;
+function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+function noIds(h){ return String(h || "").replace(/\sid="[^"]*"/g, ""); }
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]; }); }
+
+/* ---- top: the bowls and the Adrenaline track ---- */
+var top = el("section", "rt-top"); top.id = "rt-top"; top.setAttribute("aria-label", "The party's bowls and Adrenaline");
+host.insertBefore(top, host.firstChild);
+
+/* ---- the fight row, the trip's tokens, the Camp fold (kept at the foot of the pane) ---- */
+var acts = el("section", "rt-acts"); acts.id = "rt-acts"; acts.setAttribute("aria-label", "Fights");
+acts.appendChild(el("h3", "rt-h", "Fights"));
+var row = el("div", "rt-row"); acts.appendChild(row);
+function btn(id, txt, title, fn){ var b = el("button", "rt-btn", txt); b.type = "button"; b.id = id; b.title = title; b.addEventListener("click", fn); row.appendChild(b); return b; }
+function SH(){ return W.SUITE_SHELL || null; }
+var bLead = btn("rt-leadin", "Lead-in…", "The lead-in before a fight: what the party faces, the ways through and the party’s vote", function(){
+  var L = W.HELENA_LEADIN; try{ if(L && typeof L.show === "function") L.show(); }catch(e){}
+});
+btn("rt-fight", "Start a fight", "The turn order: pick the difficulty and press Start combat there", function(){
+  var s = SH(); try{ if(s && typeof s.showTool === "function") s.showTool("turn"); }catch(e){}
+});
+var bSk = btn("rt-skirmish", "Skirmish…", "The Auto-fight window: the skirmish on autopilot", function(){
+  var o = D.getElementById("tt-auto-open"); if(o) o.click();
+});
+var toks = el("section", "rt-toks"); toks.id = "rt-toks"; toks.setAttribute("aria-label", "This trip's tokens");
+var fold = D.createElement("details"); fold.className = "rt-camp"; fold.id = "rt-camp";
+var sum = el("summary", "rt-camp-s", "Camp — build, traits, Uninvited Guests"); fold.appendChild(sum);
+if(camp) fold.appendChild(camp);
+function keepFoot(){
+  if(acts.nextSibling !== toks || toks.nextSibling !== fold || host.lastChild !== fold){ host.appendChild(acts); host.appendChild(toks); host.appendChild(fold); }
+  if(camp && camp.hidden) camp.hidden = false;
+}
+
+function state(){ try{ return W.SUITE_STATE && W.SUITE_STATE.get ? W.SUITE_STATE.get() : {}; }catch(e){ return {}; } }
+var last = "";
+function paint(){
+  keepFoot();
+  var P = W.HELENA_POOL, A = W.HELENA_ADREN, h = "";
+  try{ if(P && typeof P.railHtml === "function") h += '<div class="rt-cell">' + noIds(P.railHtml()) + "</div>"; }catch(e){}
+  try{ if(A && typeof A.railHtml === "function") h += '<div class="rt-cell">' + noIds(A.railHtml()) + "</div>"; }catch(e){}
+  var tk = [], sp = null, m = state();
+  try{ tk = P && typeof P.read === "function" ? (P.read().tokens || []) : []; }catch(e){ tk = []; }
+  try{ var lo = m && m.tools && m.tools.loot; sp = lo && typeof lo === "object" ? Math.max(0, Math.round(+lo.tokens || 0)) : null; }catch(e){ sp = null; }
+  var t = '<h3 class="rt-h">This trip’s tokens</h3>' +
+    '<div class="rt-tk"><b>Buffs waiting for a fight:</b> ' + (tk.length ? tk.map(function(x){ return '<span class="rt-chip" title="' + esc(x.buff) + '">' + esc(x.name) + (x.from ? " <small>(" + esc(x.from) + ")</small>" : "") + "</span>"; }).join(" ") : "none") + "</div>" +
+    '<div class="rt-tk"><b>Spoils tokens:</b> ' + (sp == null ? "no loot counter on this table" : sp + " on the loot counter") + "</div>";
+  var lab = ""; try{ lab = W.HELENA_LEADIN && typeof W.HELENA_LEADIN.label === "function" ? W.HELENA_LEADIN.label() : ""; }catch(e){ lab = ""; }
+  var key = h + "|" + t + "|" + lab;
+  if(key === last) return; last = key;
+  if(top.innerHTML !== h) top.innerHTML = h;
+  if(toks.innerHTML !== t) toks.innerHTML = t;
+  bLead.textContent = lab || "Lead-in…"; bLead.disabled = !lab;
+  if(!lab) bLead.title = "Only the Overseer opens a lead-in; it shows here while one is open";
+}
+
+/* ---- old links: a Camp mode on top becomes Road, with the Camp fold open ---- */
+function toRoad(){ fold.open = true; var s = SH(); try{ if(s && s.active && s.active() === "camp" && typeof s.show === "function") s.show("travel"); }catch(e){} }
+D.addEventListener("suite-mode", function(e){ if(e && e.detail && e.detail.mode === "camp") toRoad(); });
+try{ var C = W.CINDER; if(C && typeof C.tab === "function"){ var t0 = C.tab; C.tab = function(name){ var r = t0.apply(this, arguments); if(String(name || "").toLowerCase() === "camp") fold.open = true; return r; }; } }catch(e){}
+try{ var pb = D.getElementById("cinder-pb-camp"); if(pb){ pb.textContent = "Road"; pb.setAttribute("data-cl-tab", "road"); pb.id = "cinder-pb-road"; } }catch(e){}
+
+paint();
+try{ var s0 = SH(); if(s0 && s0.active && s0.active() === "camp") toRoad(); }catch(e){}
+try{ if(W.SUITE_STATE && typeof W.SUITE_STATE.subscribe === "function") W.SUITE_STATE.subscribe(function(){ paint(); }); }catch(e){}
+try{ if(W.SUITE_SYNC && typeof W.SUITE_SYNC.onStatus === "function") W.SUITE_SYNC.onStatus(function(){ paint(); }); }catch(e){}
+setInterval(paint, 2000);
+W.HELENA_ROADTAB = { paint:paint, fold:function(){ return fold; }, openCamp:toRoad };
 })(window);
 </script>
 
