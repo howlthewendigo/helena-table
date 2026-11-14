@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"693ef1d8",at:"2026-11-13 23:02 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"623be547",at:"2026-11-13 23:55 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6088,7 +6088,7 @@ body.view-cinder[data-cl-tab="road"] #suite-stage > .suite-fold > .tool[hidden]{
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-13 23:02 UTC">693ef1d8</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-13 23:55 UTC">623be547</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -8477,7 +8477,7 @@ end $$;
 <div class="suite-fold-bar"><button type="button" class="suite-fold-h" id="fold-h-travel" aria-expanded="true" aria-controls="tool-travel"><span class="suite-fold-t" id="fold-t-travel">Travel</span><span class="suite-fold-b" id="fold-b-travel">Towns, the road between them, its food and water</span><span class="suite-fold-n" id="fold-n-travel"></span></button></div>
 <section class="tool" id="tool-travel" role="region" aria-labelledby="fold-h-travel">
 <div class="tv-card" id="tv-root">
-  <h2 id="tv-title">Travel</h2>
+  <h2 id="tv-title">Road</h2>
   <p class="tv-sub" id="tv-sub">Towns are safe: resting in one restores everyone. The road between towns costs food and water &mdash; every road scene, 1 food and 1 water a person from the party&rsquo;s bowls, paid before the party moves on (house rule).</p>
   <p class="tv-gate" id="tv-gate" hidden></p>
   <div class="tv-msg" id="tv-msg" aria-live="polite"></div>
@@ -33511,7 +33511,11 @@ var CH = {
     if(typeof item === "object"){
       if(item.tainted === true) return /water|drink/i.test(name) || item.kind === "drink" ? "water" : "raw";
       if(item.raw === true) return "raw";
-      var txt = [item.notes, item.effect].filter(function(x){ return typeof x === "string"; }).join(" ");
+      /* Z051 fix (game night 11-13): a row that prints "never a source of disease" (Boiled Water) is never tainted, and a note
+         that says what a dish was made FROM ("from Dirty Water x2") is its recipe, not its state */
+      if(typeof item.effect === "string" && /never a source of disease/i.test(item.effect)) return "";
+      var txt = [item.notes, item.effect].filter(function(x){ return typeof x === "string"; }).join(" ")
+                .replace(/\bfrom\s+(dirty|unpurified|murky)\s+water\b/ig, "");
       if(/\b(dirty|unpurified|murky)\s+water\b/i.test(txt)) return "water";
       if(/\b(spoiled|spoilt|rotten|rotting|tainted)\b/i.test(txt)) return "raw";
     }
@@ -35703,7 +35707,7 @@ var CH = {
     ctx = ctx || {};
     if(!c.survival || typeof c.survival !== "object") c.survival = {};
     /* CMD Z019 (Z018-4): the whole scene in warm shelter — not exposed, so no test at all; the watch run is broken */
-    if(ev && ev.warmAll){ c.survival.coldRun = 0; delete c.survival.coldLast; return { tested:false, sheltered:true }; }
+    if(ev && ev.warmAll){ delete c.survival.coldRun; delete c.survival.coldLast;   /* Z051 fix: a broken run is NO key (as townRest does), so a sheet that never had one is not written and its Undo stays clean */ return { tested:false, sheltered:true }; }
     var t = CH.exposureTest(c, ev), sk = (c.skills || {}).Survival || {}, rank = Math.max(0, Math.round(+sk.rank || 0));
     /* CMD Z019 (Z018-7): Stacked Deck, paid on the sheet before the roll (coldDeck), rolls LCK in place of END, once */
     var deck = c.survival.coldDeck === true; delete c.survival.coldDeck;
@@ -35726,7 +35730,8 @@ var CH = {
       if(out.fatigue) c.survival.cold = cold0 + out.fatigue;
       /* Z051 P1 (the audit's W4, A): a complication's hold is retired — every step clears on a rest in town alike */
     }
-    c.survival.coldRun = ev && ev.shelter ? 0 : Math.max(0, Math.round(+c.survival.coldRun || 0)) + 1;
+    if(ev && ev.shelter) delete c.survival.coldRun;   /* Z051 fix: no key, not 0 (see warmAll) */
+    else c.survival.coldRun = Math.max(0, Math.round(+c.survival.coldRun || 0)) + 1;
     /* CMD Z019 (Z018-7): the test as rolled, kept until the next one, so Miss Fortune can re-roll a die of it */
     if(out.faces.length) c.survival.coldLast = { seq:CH.sceneInt(ev && ev.seq), d:t.difficulty, tn:tn, crit:crit, faces:out.faces.slice(),
                                                  fatigue:out.fatigue, re:[] };
@@ -35772,7 +35777,7 @@ var CH = {
   coldNight: function(c, ev, cold0){
     var out = { cleared:0, unlocked:false, kept:0 };
     if(ev && ev.shelter && c.survival && (c.survival.coldRun || c.survival.coldLast)){
-      c.survival.coldRun = 0;               /* a warm night breaks the run of exposed scenes (W5) */
+      delete c.survival.coldRun;            /* a warm night breaks the run of exposed scenes (W5); Z051 fix: no key, not 0 */
       delete c.survival.coldLast;
     }
     out.kept = cold0;
