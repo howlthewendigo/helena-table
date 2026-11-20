@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"623be547",at:"2026-11-15 20:38 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"5e94af91",at:"2026-11-20 23:05 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5623,6 +5623,11 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 body.view-cinder[data-cl-tab="road"] #suite-stage > #fold-med,
 body.view-cinder[data-cl-tab="road"] #suite-stage > #fold-fuse{ display:block !important; }
 body.view-cinder[data-cl-tab="road"] #suite-stage > .suite-fold > .tool[hidden]{ display:block !important; }
+
+/* Z051 pre-game: How the road works, a shut fold at the top of the Road tab */
+.rt-how{margin:0 0 10px;padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:4px}
+.rt-how-s{cursor:pointer;font-weight:600}
+.rt-how-l{margin:6px 0 2px;padding-left:20px;line-height:1.5}
 </style>
 <script data-suite="display-modes">/* src/display-modes.js - TWO DISPLAY MODES, PER DEVICE (2026-10-13).  Built into the head of both files by ONE line in
    build-suite.js (a script element of its own, data-suite display-modes, after the stylesheet, before the head closes), so its classes are on <html> before the
@@ -6088,7 +6093,7 @@ body.view-cinder[data-cl-tab="road"] #suite-stage > .suite-fold > .tool[hidden]{
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-15 20:38 UTC">623be547</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-20 23:05 UTC">5e94af91</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -8494,6 +8499,7 @@ end $$;
         <label class="tv-lab tv-wide">From <input id="tv-j-from" maxlength="80" placeholder="Goodneighbor" aria-label="the town the party leaves"></label>
         <label class="tv-lab tv-wide">Where to <input id="tv-j-name" maxlength="80" placeholder="Diamond City" aria-label="the town the party heads for"></label>
         <label class="tv-lab tv-wide">How <select id="tv-j-veh" aria-label="on foot or by vehicle"></select></label>
+        <label class="tv-lab">Road scenes <input type="number" id="tv-j-n" min="1" max="20" placeholder="1" aria-label="how many road scenes the trip takes (the Overseer sets it)"></label>
         <button type="button" class="tv-go" id="tv-j-go">Set out</button>
       </div>
       <div class="tv-form" id="tv-ride" hidden>
@@ -8502,6 +8508,7 @@ end $$;
         <label class="tv-lab tv-wide" id="tv-ride-payl" hidden>Who pays? <select id="tv-ride-payer" aria-label="who pays the fare"></select></label>
       </div>
       <p class="tv-hint" id="tv-j-hint"></p>
+      <p class="tv-cost" id="tv-j-trip" hidden></p>
     </div>
 
     <!-- on the road: this road scene, its cost, the Pathfinder, pay, arrive -->
@@ -8525,6 +8532,8 @@ end $$;
       <div class="tv-row"><button type="button" class="tv-go" id="tv-r-pay">Pay and travel</button>
         <button type="button" id="tv-r-arrive">Arrive</button>
         <button type="button" id="tv-r-back">Turn back</button></div>
+      <div class="tv-row" id="tv-trip-row" hidden><button type="button" class="tv-go" id="tv-trip-go">Travel the trip</button>
+        <span class="tv-hint" id="tv-trip-st"></span></div>
     </div>
   </div>
 
@@ -17461,6 +17470,40 @@ window.LOOT = {"tables":{"AMMUNITION":{"name":"AMMUNITION","sub":"what the dead 
       return f === t.after;
     });
   }
+  /* Z051 PRE-GAME PATCH (R.182 A, Howl 11-20): A BUFF'S PLAIN NUMBERS.  A used token's printed line read for the numbers the engine
+     can apply for its fight: Max HP, Initiative, AP (into the party's pool when it is used) and DR (Physical / Energy / Radiation;
+     "RR" / "ER" / "Rad resistance" are the Rad / Energy DR; a bare "DR" is Physical and Energy; "all damage resistance" is all
+     three).  Read part by part (the line split at , ; and "and"); a part that is conditional, rolled in dice (1CD), about the cap
+     ("max AP", "pool holds") or anything else is not a plain number and stays the reminder it is.  -> { maxHp, init, ap, dr:{ Phys,
+     En, Rad }, any } (any = at least one number) */
+  function plainOf(buff){
+    var out = { maxHp:0, init:0, ap:0, dr:{ Phys:0, En:0, Rad:0 }, any:false }, t = str(buff);
+    if(/\b(if the next scene|vs |against [A-Z]|ghouls only|per turn|each turn|start of each)\b/i.test(t)) return out;
+    t.split(/\s*(?:[,;]|\band\b)\s*/i).forEach(function(part){
+      var x = part.replace(/^\s*(alcoholic|for a scene:|immediately gain|gain)\s*/ig, "").trim(), m;
+      if(/\d\s*CD\b|\bmax(?:imum)?\s+AP\b|\bholds?\b|\bcap\b/i.test(x)) return;
+      if((m = /^\+?(\d+)\s*(?:max(?:imum)?\s*(?:HP|health))\b/i.exec(x))){ out.maxHp += +m[1]; out.any = true; return; }
+      if((m = /^\+(\d+)\s*Initiative\b/i.exec(x))){ out.init += +m[1]; out.any = true; return; }
+      if((m = /^\+?(\d+)\s*AP\b/i.exec(x)) || (m = /^\+(\d+)AP\b/i.exec(x)) || (m = /^\+(\d+)\s*to\s+(?:the\s+)?party\s+AP\s+pool\b/i.exec(x))){ out.ap += +m[1]; out.any = true; return; }
+      if((m = /^\+(\d+)\s*(?:to\s+)?all\s+damage\s+resistance\b/i.exec(x))){ var a = +m[1]; out.dr.Phys += a; out.dr.En += a; out.dr.Rad += a; out.any = true; return; }
+      if((m = /^\+(\d+)\s*Energy\s*&\s*Rad\s*DR\b/i.exec(x))){ out.dr.En += +m[1]; out.dr.Rad += +m[1]; out.any = true; return; }
+      if((m = /^\+(\d+)\s*(?:Rad(?:iation)?\s*(?:DR|resistance)|RR)\b/i.exec(x))){ out.dr.Rad += +m[1]; out.any = true; return; }
+      if((m = /^\+(\d+)\s*(?:Energy\s*DR|ER)\b/i.exec(x))){ out.dr.En += +m[1]; out.any = true; return; }
+      if((m = /^\+(\d+)\s*Physical\s*DR\b/i.exec(x))){ out.dr.Phys += +m[1]; out.any = true; return; }
+      if((m = /^\+(\d+)\s*DR\b/i.exec(x))){ out.dr.Phys += +m[1]; out.dr.En += +m[1]; out.any = true; return; }
+    });
+    return out;
+  }
+  /* the plain numbers on a sheet NOW: the used tokens that show on it (showing), while a fight is live - the fight they were
+     used for, or the next one; after it they show nowhere and add nothing.  AP is not here: it went into the pool on use. */
+  function boostOf(pool, turn, charId){
+    var b = { maxHp:0, init:0, dr:{ Phys:0, En:0, Rad:0 } }, live = !!(turn && turn.phase && turn.phase !== "idle");
+    if(!live) return b;
+    showing(pool, turn, charId).forEach(function(t){
+      var n = plainOf(t.buff); b.maxHp += n.maxHp; b.init += n.init; b.dr.Phys += n.dr.Phys; b.dr.En += n.dr.En; b.dr.Rad += n.dr.Rad;
+    });
+    return b;
+  }
   /* the used tokens whose fight is over - dropped on the pool's next real write, never by a watcher */
   function prune(pool, turn){
     var p = pool || rec(null), keep = showing(p, turn, ""), ids = Object.create(null);
@@ -17498,7 +17541,7 @@ window.LOOT = {"tables":{"AMMUNITION":{"name":"AMMUNITION","sub":"what the dead 
   function fastMetabolism(rank){ rank = int(rank); return rank >= 3 ? 4 : rank === 2 ? 2 : rank === 1 ? 1 : 0; }
 
   var core = { eatFx:eatFx, alcoholic:alcoholic, fastMetabolism:fastMetabolism, genericUse:genericUse, poolOf:slicePool, cost:cost, short:short, payOn:payOn, KEY:KEY, gainOf:gainOf, tokenOf:tokenOf, addOn:addOn,
-               spendOn:spendOn, useOn:useOn, showing:showing, prune:prune, rec:rec };
+               spendOn:spendOn, useOn:useOn, showing:showing, prune:prune, rec:rec, plainOf:plainOf, boostOf:boostOf };
   var P = root.HELENA_POOL = root.HELENA_POOL || {};
   P.core = core;
   P.cost = cost;
@@ -31791,6 +31834,11 @@ var CH = {
      while it has a name and is not wrecked (HP above 0); a wrecked set gives no DR. */
   armourWorn: function(c){ var a = c && c.armour; return !!(a && a.name && (+a.hp || 0) > 0); },
   armourDR: function(c, type){
+    /* Z051 PRE-GAME PATCH (R.182 A): a used buff's DR rides on top of the armour's, worn or not, for its fight */
+    var tb = CH.tokenBoost(c).dr, add = type === "Rad" ? tb.Rad : type === "PhEn" ? Math.min(tb.Phys, tb.En) : type === "En" ? tb.En : tb.Phys;
+    return CH.armourDRBase(c, type) + (add || 0);
+  },
+  armourDRBase: function(c, type){
     if(!CH.armourWorn(c)) return 0;
     var a = c.armour;
     if(type === "Rad"){ var r = String(a.rad == null ? "0" : a.rad).trim(); return /immune/i.test(r) ? Infinity : (+r || 0); }
@@ -32683,7 +32731,14 @@ var CH = {
        charMax() in build-suite.js, which the rail derives from. */
     /* Z051 P1 (house rule, road rules): each exhaustion step is 1 off Max HP, never below 1 (CH.exhaustOf) */
     var ex = typeof CH.exhaustOf === "function" ? CH.exhaustOf(c) : 0;
-    return Math.max(1, base + CH.perkTotal(c, "hp") + CH.wellRestedHp(c) - ((c && +c.rads) || 0) - ex);
+    return Math.max(1, base + CH.perkTotal(c, "hp") + CH.wellRestedHp(c) + CH.tokenBoost(c).maxHp - ((c && +c.rads) || 0) - ex);
+  },
+  /* Z051 PRE-GAME PATCH (R.182 A): what a used buff token adds to this sheet in its fight (HELENA_POOL.boost: Max HP, Initiative,
+     DR), nothing outside a fight or with no pool on the page */
+  tokenBoost: function(c){
+    var z = { maxHp:0, init:0, dr:{ Phys:0, En:0, Rad:0 } };
+    try{ var P = (typeof window !== "undefined") ? window.HELENA_POOL : null; if(c && c.id != null && P && typeof P.boost === "function"){ var b = P.boost(String(c.id)); if(b) return b; } }catch(e){}
+    return z;
   },
   /* Z037: Well Rested (Guide p.ccviii) — +2 Maximum HP until you next sleep; c.wellRested is set by a rented room's night
      (sceneApply) and cleared by the next night or Six hours.  A sheet without the field reads 0.  Kept in step with the
@@ -32722,7 +32777,7 @@ var CH = {
   initiativeLine: function(c){
     var sp = (c && c.special) || {};
     var per = Math.round(+sp.P || 0), agi = Math.round(+sp.A || 0);
-    var perk = Math.round(+CH.perkTotal(c, "init") || 0);
+    var perk = Math.round(+CH.perkTotal(c, "init") || 0) + Math.round(+CH.tokenBoost(c).init || 0);   /* + a used buff's Initiative (R.182 A) */
     var base = CH.initiative(per, agi) + perk;
     var E = CH.encumbrance(c);
     var immobile = !!E.immobile;
@@ -54269,6 +54324,9 @@ function apRead(v){
 function apRevPut(rev){ var r = apPut(rev.before || {}, rev.lb || null);
   /* Z051P2 coordinator: a skirmish's Adrenaline move rides this Undo (the track as it was; null = there was none) */
   if(r.ok && rev && Object.prototype.hasOwnProperty.call(rev, "adren")) apAdrenBack(rev.adren);
+  /* Z051 pre-game patch: a skirmish's Spoils ride this Undo too (their own line's Undo, run once; a line already undone is left) */
+  if(r.ok && rev && rev.spoils){ try{ var U = window.SUITE_UNDO, sl = null; (window.SUITE_LOG.lines({}) || []).forEach(function(l){ if(!sl && l && l.undo === rev.spoils) sl = l; });
+    if(U && sl && U.can(sl)) setTimeout(function(){ try{ U.undo(rev.spoils); }catch(e){} }, 0); }catch(e){} }
   try{ render(); }catch(e){} return r.ok ? { ok:true } : { ok:false, note:r.note }; }
 function apAdrenBack(was){
   var A = window.HELENA_ADREN, SS = window.SUITE_STATE;
@@ -54289,6 +54347,7 @@ function apWrite(d, text, labels, extra){
   var rev = { before:d.before, after:apRead(d.after) };
   if(Object.keys(lb).length) rev.lb = lb;
   if(extra && Object.prototype.hasOwnProperty.call(extra, "adren")) rev.adren = extra.adren;
+  if(extra && extra.spoils) rev.spoils = String(extra.spoils);   /* Z051 pre-game patch: the Spoils line this Undo also takes back */
   try{ key = U && typeof U.record === "function" ? U.record("auto-act", { text:text, rev:rev, chars:Object.keys(d.after.c || {}) }) : null; }catch(e){ key = null; }
   if(!key) tick("turn", "— " + text);
   return { ok:true, key:key };
@@ -54366,10 +54425,19 @@ function apSkirmishPlay(o){
   try{ if(A && typeof A.onEnd === "function") ad = A.onEnd(res.result, lv, { skirmish:true, line:false }); }catch(e){ ad = null; }
   var ext = null;
   if(ad && ad.ok){ text += "; " + ad.text; ext = { adren:ad.before }; }
+  /* Z051 pre-game patch (CMD 11-20, item 3): ONE Undo reverses all of it.  A win's Spoils are paid FIRST (the Encounter pane's own
+     press and line, as before), and the skirmish's line carries that line's Undo key: its Undo takes the Spoils back too.  If the
+     skirmish's write fails, the Spoils are taken back at once. */
+  var paid = false, spKey = null;
+  if(res.winner === "pc"){
+    var L0 = {}; try{ (window.SUITE_LOG.lines({}) || []).forEach(function(l){ if(l && l.undo) L0[l.undo] = 1; }); }catch(e){}
+    try{ paid = typeof tvLoot === "function" ? !!tvLoot() : false; }catch(e){ paid = false; }
+    if(paid){ try{ (window.SUITE_LOG.lines({}) || []).forEach(function(l){ if(!spKey && l && l.undo && !L0[l.undo]) spKey = l.undo; }); }catch(e){ spKey = null; } }
+    if(spKey){ ext = ext || {}; ext.spoils = spKey; }
+  }
   var r = apWrite(d, text, null, ext);
-  if(!r.ok){ if(ext) apAdrenBack(ext.adren); apSk = { err:r.note }; autoPaint(apSkHtml(), true); return { ok:false, note:r.note }; }
-  var paid = false;
-  if(res.winner === "pc"){ try{ paid = typeof tvLoot === "function" ? !!tvLoot() : false; }catch(e){ paid = false; } }
+  if(!r.ok){ if(ext && Object.prototype.hasOwnProperty.call(ext, "adren")) apAdrenBack(ext.adren); if(spKey){ try{ window.SUITE_UNDO.undo(spKey); }catch(e){} paid = false; }
+             apSk = { err:r.note }; autoPaint(apSkHtml(), true); return { ok:false, note:r.note }; }
   apSk = { res:res, text:text, paid:paid, adren:!!ext, lines:res.log.map(function(e){ return "Round " + e.r + ": " + TT.apSay(e, nm, function(z){ return "zone " + z; }); }) };
   autoPaint(apSkHtml(), true);
   render();
@@ -54381,7 +54449,7 @@ function apSkHtml(){
   var R = apSk.res;
   return '<div class="ta-out ap-sk-out"><p class="ta-verdict ' + R.winner + '">' + esc(apSk.text) + "</p>" +
     '<p class="ta-note">' + (R.winner === "pc" ? (apSk.paid ? "The Spoils are paid (the Encounter pane's own press, its own line). " : "The Spoils could not be paid from here; the Encounter pane says why. ") : "") +
-    (apSk.adren ? "Its Adrenaline move is on the skirmish's line. " : "") + "The skirmish's line in the log has one Undo for every sheet and creature it wrote.</p>" +
+    (apSk.adren ? "Its Adrenaline move is on the skirmish's line. " : "") + "The skirmish's line in the log has one Undo for every sheet and creature it wrote" + (R.winner === "pc" && apSk.paid ? ", and the Spoils" : "") + ".</p>" +
     '<details class="ap-sk-log"><summary>Every action (' + apSk.lines.length + ")</summary><ol>" + apSk.lines.map(function(l){ return "<li>" + esc(l) + "</li>"; }).join("") + "</ol></details></div>";
 }
 /* the Skirmish section of the Auto-fight window (both views open it) */
@@ -71207,7 +71275,7 @@ var TV = {
   /* Z051P2 rules: only a character with the Pathfinder perk rolls it - the words when nobody in the party has it */
   PF_NONE: "Nobody in the party has the Pathfinder perk, so there is no Pathfinder roll: this road scene costs the full food and water.",
   WHERE: ["town", "road"],
-  SCENE_MAX: 999, LOG_KEEP:30, WR_KEEP:16,
+  SCENE_MAX: 999, LOG_KEEP:30, WR_KEEP:16, TRIP_MAX:20,
   FUEL_CITE: "Guide p.cxciii",
   /* Z051 P1 (lane picks; Howl ruled every open pick "A", 2026-11-12 - house rules on watch):
        a carrier's ride   is still called the printed way - rank 3+ with a faction (the caller's own sheet), or a neutral carrier paid
@@ -71322,6 +71390,8 @@ var TV = {
                     scene:road ? TV.num(p.scene, 1, TV.SCENE_MAX, 1) : 0, jid:road ? (TV.idOf(p.jid) || "j-road") : null,
                     vid:road ? TV.str(p.vid, 40) : null, vname:road && TV.str(p.vid, 40) ? (TV.text(p.vname, 60) || "the vehicle") : null,
                     paid:road ? TV.num(p.paid, 0, TV.SCENE_MAX, 0) : 0, at:TV.str(p.at) };
+      /* Z051 pre-game (trip): the whole trip's road scenes, set at Set out - kept only when stored, so an older save loads unchanged */
+      if(road){ var pl = TV.int(p.plan, 1, TV.TRIP_MAX); if(pl != null) out.place.plan = pl; }
       if(road && TV.obj(p.ride) && ["rank", "carrier", "waived"].indexOf(p.ride.how) >= 0 && !out.place.vid){
         var rd = { how:p.ride.how, word:TV.text(p.ride.word, 160) };
         if(p.ride.how === "carrier"){ var fr = TV.int(p.ride.fare, 1, TV.RIDE.FARE_MAX); if(fr != null) rd.fare = fr; var py = TV.str(p.ride.payer, 60); if(py) rd.payer = py; }
@@ -71541,6 +71611,42 @@ function travelCore(env){
              have:bowls(P), ok:!can || can.ok !== false, short:can && can.short ? { food:Math.max(0, Math.round(+can.short.food || 0)), water:Math.max(0, Math.round(+can.short.water || 0)) } : { food:0, water:0 } };
   }
 
+  /* Z051 pre-game (trip): THE WHOLE TRIP'S COST, before anything is set out.  spec { scenes, vid, ride } -> { ok, n, can, per, total,
+     fuel, scenes:[{ n, food, water, fuel, heat, cold }], why } or null without the pool.  Each scene costs what the road scene's own
+     rule says (NR-122 onward: people x 1 food + 1 water, the heat doubles the water and the cold the food); the Pathfinder is rolled
+     AT each scene (a pass halves that scene then), so the whole trip is counted at the full cost - never less than it can be. */
+  function tripCost(spec){
+    spec = spec || {};
+    var n = TV.int(spec.scenes, 1, TV.TRIP_MAX); if(n == null) return null;
+    var P = pool(); if(!P || typeof P.cost !== "function") return null;
+    var rail = railWx(), ppl = people(), c = null;
+    try{ c = P.cost({ people:ppl, heat:rail.heat, cold:rail.cold, pathfinder:false }); }catch(e){ c = null; }
+    if(!c) return null;
+    var per = { food:Math.max(0, Math.round(+c.food || 0)), water:Math.max(0, Math.round(+c.water || 0)) };
+    var have = bowls(P), vid = TV.str(spec.vid, 40), v = null, perFuel = 0, tank = Infinity;
+    if(vid && vid !== "@carrier"){ var V = veh(); v = V ? vehOf(V, vid) : null; if(v && !v.freeLeg){ perFuel = 1; tank = Math.max(0, Math.floor(+v.fuel || 0)); } }
+    var bowlCan = n, tankCan = n;
+    if(per.food > 0) bowlCan = Math.min(bowlCan, Math.floor(have.food / per.food));
+    if(per.water > 0) bowlCan = Math.min(bowlCan, Math.floor(have.water / per.water));
+    if(perFuel > 0) tankCan = Math.min(tankCan, Math.floor(tank / perFuel));
+    var can = Math.max(0, Math.min(bowlCan, tankCan));
+    var scenes = []; for(var i = 1; i <= n; i++) scenes.push({ n:i, food:per.food, water:per.water, fuel:perFuel, heat:rail.heat, cold:rail.cold });
+    return { ok:can >= n, n:n, can:can, bowlCan:Math.max(0, bowlCan), tankCan:Math.max(0, tankCan), per:per, have:have, total:{ food:per.food * n, water:per.water * n }, fuel:perFuel * n, tank:perFuel ? tank : null,
+             vname:v ? (TV.text(v.name, 60) || "the vehicle") : null, people:ppl, heat:rail.heat, cold:rail.cold, scenes:scenes,
+             why:TV.costWhy(ppl, rail.heat, rail.cold, false, "") };
+  }
+  function tripWord(t){
+    if(!t) return "";
+    return "The whole trip, " + TV.plural(t.n, "road scene", "road scenes") + ": " + TV.costWord(t.total) + (t.fuel ? " and " + t.fuel + " fuel on " + t.vname : "") +
+           " (each scene " + TV.costWord(t.per) + ": " + t.why + "; Pathfinder is rolled at each scene, and a pass halves that scene’s food and water).";
+  }
+  function tripShort(t){
+    var who = t.tankCan < t.bowlCan ? "The tank" : t.tankCan === t.bowlCan && t.fuel ? "The bowls and the tank" : "The bowls";
+    return who + " can pay for " + (t.can ? TV.plural(t.can, "road scene", "road scenes") : "no road scene") + " of the " + t.n +
+           " (the trip needs " + TV.costWord(t.total) + (t.fuel ? " and " + t.fuel + " fuel" : "") + "; the bowls hold " + TV.costWord(t.have) +
+           (t.fuel ? ", the tank " + t.tank : "") + "). Plan a shorter trip, or refill first. Nothing was set out.";
+  }
+
   /* SET OUT.  spec { from, to (or name), vid } */
   function setOut(spec){
     spec = spec || {};
@@ -71561,6 +71667,14 @@ function travelCore(env){
       v = vehOf(V, vid);
       if(!v) return refuse("That vehicle is no longer at the table — pick another, or go on foot. Nothing was set out.");
     }
+    /* Z051 pre-game (trip): a trip of N road scenes is paid for whole or not at all - checked before the fare or anything else moves */
+    var trip = null;
+    if(spec.scenes != null && spec.scenes !== ""){
+      if(TV.int(spec.scenes, 1, TV.TRIP_MAX) == null) return refuse("The trip is 1 to " + TV.TRIP_MAX + " road scenes — nothing was set out.");
+      trip = tripCost({ scenes:spec.scenes, vid:vid || (ride ? "@carrier" : null) });
+      if(!trip) return refuse(NO_POOL);
+      if(!trip.ok) return refuse(tripShort(trip));
+    }
     var b = brief(s), raw = cpy(s);
     /* the carrier's fare first, through Who pays? (the party by default); the Undo hands it back */
     if(ride && ride.how === "carrier"){
@@ -71573,15 +71687,17 @@ function travelCore(env){
     }
     s.place = { where:"road", town:from, to:to, scene:1, jid:TV.idOf(env.newId("j")) || "j-road", vid:v ? v.id : null, vname:v ? TV.text(v.name, 60) || "the vehicle" : null, paid:0, at:env.now() };
     if(ride) s.place.ride = { how:ride.how, word:ride.word, fare:ride.fare, payer:ride.payer };
+    if(trip) s.place.plan = trip.n;
     s.road = { n:1, heat:false, cold:false, pf:null };
     var err = save(s);
     if(err){ if(paid && paid.ok){ try{ veh().refundCaps(ride.payer, ride.fare); }catch(e){} } return refuse(err); }
     var line = "Set out" + (from ? " from " + from : "") + " for " + to + (v ? " by " + s.place.vname : ride ? " by a carrier’s ride (" + ride.word + ")" : " on foot");
+    if(trip) line += ": a trip of " + TV.plural(trip.n, "road scene", "road scenes") + ", " + TV.costWord(trip.total) + (trip.fuel ? " and " + trip.fuel + " fuel" : "") + " in all";
     var rev = { k:"tv", b:b, raw:raw };
     if(ride && ride.how === "carrier") rev.fare = { payer:ride.payer, cost:ride.fare };
     rev.after = now(rev);
     emit(line, [], Object.assign({ event:"set-out" }, tagOf(rev)));
-    return { ok:true, line:line, note:line + ". Road scene 1: tick the heat or the cold, roll Pathfinder if you like, then Pay and travel." };
+    return { ok:true, line:line, note:line + ". Road scene 1: tick the heat or the cold, roll Pathfinder if you like, then " + (trip ? "Travel the trip (or Pay and travel one scene)." : "Pay and travel.") };
   }
 
   /* THE TICKS: this scene's extreme heat and extreme cold (a setting; the Pay line says them and its Undo puts them back) */
@@ -72017,7 +72133,7 @@ function travelCore(env){
     var took = Math.max(0, Math.round(+res.rads || 0));
     return { ok:true, note:head + (took ? ": " + took + " rads past DR." : ": the Radiation DR stops it all.") + past };
   }
-  return { SLICE:SLICE, GATE:GATE, may:may, read:read, costNow:costNow, people:people, oldShape:oldShape, rideRanks:rideRanks, railWx:railWx,
+  return { SLICE:SLICE, GATE:GATE, may:may, read:read, costNow:costNow, tripCost:tripCost, tripWord:tripWord, tripShort:tripShort, people:people, oldShape:oldShape, rideRanks:rideRanks, railWx:railWx,
            setOut:setOut, weather:weather, pathfinder:pathfinder, pfAnswer:pfAnswer, pay:pay, arrive:arrive, turnBack:turnBack, rest:rest,
            now:now, mine:mine, put:put,
            swim:swim, buriedOn:buriedOn, buriedRoll:buriedRoll, buriedSalvage:buriedSalvage, buriedAnswer:buriedAnswer };
@@ -72156,6 +72272,10 @@ function renderTown(s){
   }
   txt($("tv-j-hint"), to ? "Set out" + (fr ? " from " + fr : "") + " for " + to + ": road scene 1, then each road scene costs 1 food and 1 water a person, paid before the party moves on." +
       (car ? " " + TV.multWord("", true) : pv ? " " + TV.multWord(pv.make, false) : "") : "Name the town the party heads for, then press Set out.");
+  /* Z051 pre-game (trip): the whole trip's cost, before Set out */
+  var tn = $("tv-j-n").value, tc = tn !== "" ? core.tripCost({ scenes:tn, vid:$("tv-j-veh").value || null }) : null;
+  hide($("tv-j-trip"), !tc);
+  if(tc){ txt($("tv-j-trip"), core.tripWord(tc) + (tc.ok ? "" : " " + core.tripShort(tc).replace(/ Nothing was set out\.$/, ""))); var jt = $("tv-j-trip"), jc = "tv-cost" + (tc.ok ? "" : " tv-short"); if(jt.className !== jc) jt.className = jc; }
   var n = chars().filter(function(c){ return c && c.id != null; }).length;
   txt($("tv-rest-hint"), n ? "Every sheet (" + TV.plural(n, "character", "characters") + "): healed as at Nightfall, and exhaustion cleared (a disease that holds a step keeps it)." : "No character sheets yet — make one in Sheets with + New.");
 }
@@ -72185,6 +72305,16 @@ function renderRoad(s){
   var ar = $("tv-r-arrive"), off = !(p.paid >= 1);
   if(ar.disabled !== off) ar.disabled = off;
   var bk = $("tv-r-back"); hide(bk, !p.town); if(p.town) txt(bk, "Turn back to " + p.town);
+  /* Z051 pre-game (trip): the whole trip, scene by scene */
+  var plan = p.plan || 0;
+  hide($("tv-trip-row"), !plan);
+  if(plan){
+    var left = Math.max(0, plan - p.paid);
+    txt($("tv-trip-go"), left <= 0 ? "Trip paid" : (trip && trip.run) ? "Travelling…" : p.paid > 0 ? "Continue the trip" : "Travel the trip");
+    var tg = $("tv-trip-go"), toff = left <= 0 || !!(trip && trip.run) || !core.may();
+    if(tg.disabled !== toff) tg.disabled = toff;
+    txt($("tv-trip-st"), (trip && trip.msg) || (p.paid + " of " + TV.plural(plan, "road scene", "road scenes") + " paid" + (left <= 0 ? " — Arrive in " + p.to + "." : ".")));
+  }
   var wx = c ? c.rail : core.railWx(), wt = (wx.heat || wx.cold) ? "The side panel’s standing weather says extreme " + (wx.heat && wx.cold ? "heat and cold" : wx.heat ? "heat" : "cold") + " — it counts on this road scene too." : "";
   if(c && c.climate && (c.heat || c.cold)) wt = (wt ? wt + " " : "") + c.climate + " has Heating & Cooling: those aboard pay no doubling.";
   hide($("tv-r-wx"), !wt); txt($("tv-r-wx"), wt);
@@ -72238,10 +72368,10 @@ $("tv-j-veh").addEventListener("change", function(){ ui.veh = $("tv-j-veh").valu
 $("tv-ride-how").addEventListener("change", function(){ ui.ride = $("tv-ride-how").value || null; render(); });
 $("tv-ride-payer").addEventListener("change", function(){ ui.rpay = $("tv-ride-payer").value || null; });
 $("tv-j-go").addEventListener("click", function(){
-  var r = core.setOut({ from:$("tv-j-from").value, to:$("tv-j-name").value, vid:$("tv-j-veh").value || null,
+  var r = core.setOut({ from:$("tv-j-from").value, to:$("tv-j-name").value, vid:$("tv-j-veh").value || null, scenes:$("tv-j-n").value,
                         ride:$("tv-ride-how").value, fare:$("tv-ride-fare").value, payer:$("tv-ride-payer").value });
   say(r);
-  if(r.ok){ $("tv-j-name").value = ""; $("tv-j-from").value = ""; }
+  if(r.ok){ $("tv-j-name").value = ""; $("tv-j-from").value = ""; $("tv-j-n").value = ""; trip.msg = ""; }
   render();
 });
 $("tv-j-name").addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); $("tv-j-go").click(); } });
@@ -72253,6 +72383,50 @@ $("tv-r-cold").addEventListener("change", function(){ var r = core.weather({ col
 $("tv-pf-who").addEventListener("change", function(){ ui.pf = $("tv-pf-who").value || null; render(); });
 $("tv-pf-go").addEventListener("click", function(){ say(core.pathfinder({ who:$("tv-pf-who").value, difficulty:$("tv-pf-d").value, pointer:$("tv-pf-ptr").checked })); render(); });
 $("tv-r-pay").addEventListener("click", function(){ say(core.pay()); render(); });
+/* Z051 pre-game (trip): THE TRIP IN ONE PRESS.  Each road scene is the road's own Pay and travel (its own line and Undo); a pause
+   between scenes gives the Overseer room to open a lead-in or start a fight, and the trip stops there until "Continue the trip". */
+var trip = { run:false, msg:"", timer:null };
+var TRIP_GAP = 1500;
+function tripHold(){
+  try{ var L = window.HELENA_LEADIN, c = L && typeof L.current === "function" ? L.current() : null; if(c) return "a lead-in is open"; }catch(e){}
+  try{ var t = window.SUITE_TOOLS && typeof window.SUITE_TOOLS.get === "function" ? window.SUITE_TOOLS.get("turn") : null; if(t && t.phase && t.phase !== "idle") return "a fight is running"; }catch(e){}
+  return "";
+}
+function tripStop(msg){ trip.run = false; trip.msg = msg || ""; if(trip.timer){ clearTimeout(trip.timer); trip.timer = null; } render(); }
+function tripStep(){
+  trip.timer = null;
+  var s = core.read(), p = s.place;
+  if(p.where !== "road" || !p.plan) return tripStop("");
+  if(p.paid >= p.plan) return tripStop("All " + TV.plural(p.plan, "road scene", "road scenes") + " paid — Arrive in " + p.to + ".");
+  var h = tripHold();
+  if(h) return tripStop("Paused: " + h + " — press Continue the trip when it is over (" + p.paid + " of " + p.plan + " paid).");
+  if(s.road && s.road.pf && s.road.pf.passed === null) return tripStop("Paused: the Pathfinder test is in the drawer — roll it, then Continue the trip.");
+  var r = core.pay();
+  say(r);
+  if(!r.ok) return tripStop("Stopped: " + r.note);
+  var s2 = core.read();
+  if(s2.place.paid >= (s2.place.plan || 0)) return tripStop("All " + TV.plural(s2.place.plan, "road scene", "road scenes") + " paid — Arrive in " + s2.place.to + ".");
+  trip.msg = "Travelling: " + s2.place.paid + " of " + s2.place.plan + " paid…";
+  render();
+  trip.timer = setTimeout(tripStep, TRIP_GAP);
+}
+function tripGo(){
+  if(trip.run) return { ok:false, note:"The trip is already under way." };
+  var s = core.read(), p = s.place;
+  if(p.where !== "road" || !p.plan) return { ok:false, note:"Set out with a number of road scenes first." };
+  if(!core.may()) return { ok:false, note:core.GATE };
+  var h = tripHold();
+  if(h){ trip.msg = "Paused: " + h + " — press Continue the trip when it is over."; render(); return { ok:false, note:trip.msg }; }
+  trip.run = true; trip.msg = "";
+  tripStep();
+  return { ok:true, note:trip.msg };
+}
+$("tv-trip-go").addEventListener("click", function(){ tripGo(); });
+$("tv-j-n").addEventListener("input", function(){ render(); });
+window.HELENA_TRAVEL.tripCost = function(spec){ return core.tripCost(spec); };
+window.HELENA_TRAVEL.trip = function(){ return tripGo(); };
+window.HELENA_TRAVEL.tripState = function(){ var p = core.read().place; return { run:trip.run, msg:trip.msg, plan:p.plan || 0, paid:p.paid, where:p.where }; };
+window.HELENA_TRAVEL.tripGap = function(ms){ if(+ms >= 0) TRIP_GAP = +ms; return TRIP_GAP; };
 $("tv-r-arrive").addEventListener("click", function(){ say(core.arrive()); render(); });
 $("tv-r-back").addEventListener("click", function(){ say(core.turnBack()); render(); });
 
@@ -81899,12 +82073,22 @@ function useToken(tokenId, onId){
   if(!tok) return { ok:false, note:"That buff is no longer waiting — someone used it already." };
   var live = !!(t && t.phase && t.phase !== "idle"), fid = live ? String(t.fid || "") : "", after = live ? "" : String((t && t.fid) || "");
   var before = begin(), id = String(c.id);
+  /* Z051 PRE-GAME PATCH (R.182 A): a buff's AP goes into the party's AP pool as it is used, in this press's one write (so its Undo
+     takes it back), up to the pool's cap; like any AP it is then spent in the fight, so nothing is taken back at its end */
+  var apN = C.plainOf ? C.plainOf(tok.buff).ap : 0, apGot = 0;
   var res = write(function(m, L){
     var r = C.useOn(L, tokenId, id, nm(charIn(m, id) || c), fid, after);
+    if(r.ok && apN > 0){
+      var have = Math.max(0, Math.round(+m.pcAP || 0)), hard = 7;
+      try{ var H0 = CH(); if(H0 && isFinite(+H0.AP_PARTY_MAX)) hard = Math.max(1, Math.round(+H0.AP_PARTY_MAX)); }catch(e){}
+      var cap = Math.max(1, Math.min(hard, Math.round(+m.pcCap || hard)));
+      apGot = Math.max(0, Math.min(cap, have + apN) - have); m.pcAP = have + apGot;
+    }
     return r.ok ? r.slice : null;
   });
   if(!res) return { ok:false, note:"That buff is no longer waiting — someone used it already." };
   var text = nm(c) + " takes " + (tok.from ? tok.from + "’s " : "the ") + tok.name + " buff " + (live ? "for this fight" : "for the next fight") + ": " + tok.buff;
+  if(apN > 0) text += apGot > 0 ? " (party AP +" + apGot + ")" : " (the party AP pool is full)";
   var key = say(before, text, [id]);
   paintSoon();
   return { ok:true, note:text + ".", undo:key };
@@ -82136,6 +82320,8 @@ if(typeof P.refund !== "function") P.refund = function(c, why, opts){ return add
 P.beforeFight = beforeFight;
 P.inFight = inFight;
 P.useToken = useToken;
+/* Z051 PRE-GAME PATCH (R.182 A): the plain numbers the used tokens give a sheet now (a live fight only) - CH reads it */
+P.boost = function(charId){ var m = state(); try{ return C.boostOf(C.poolOf(tools(m).ledger), turnOf(m), String(charId)); }catch(e){ return { maxHp:0, init:0, dr:{ Phys:0, En:0, Rad:0 } }; } };
 P.spendToken = spendToken;
 P.openBuffs = openBuffs;
 P.railHtml = railHtml;
@@ -86379,6 +86565,19 @@ function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c
 /* ---- top: the bowls and the Adrenaline track ---- */
 var top = el("section", "rt-top"); top.id = "rt-top"; top.setAttribute("aria-label", "The party's bowls and Adrenaline");
 host.insertBefore(top, host.firstChild);
+
+/* ---- Z051 pre-game: HOW THE ROAD WORKS, a shut fold at the very top: six plain lines the players read here, not on a handout ---- */
+var how = D.createElement("details"); how.className = "rt-how"; how.id = "rt-how";
+how.appendChild(el("summary", "rt-how-s", "How the road works"));
+var hl = el("ul", "rt-how-l");
+["Eat and drink to fill the party’s Food and Water bowls.",
+ "Each road scene costs 1 Food and 1 Water for each person.",
+ "An empty bowl stops the party until it is refilled.",
+ "Every fight starts with a lead-in and costs everyone a step of exhaustion.",
+ "Wins build Adrenaline; a rest resets it.",
+ "Skirmish plays a quick fight for you."].forEach(function(t){ hl.appendChild(el("li", null, t)); });
+how.appendChild(hl);
+host.insertBefore(how, host.firstChild);
 
 /* ---- the fight row, the trip's tokens, the Camp fold (kept at the foot of the pane) ---- */
 var acts = el("section", "rt-acts"); acts.id = "rt-acts"; acts.setAttribute("aria-label", "Fights");
