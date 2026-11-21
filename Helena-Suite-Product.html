@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"5e94af91",at:"2026-11-20 23:05 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"739e2c46",at:"2026-11-20 23:59 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5629,6 +5629,45 @@ body.view-cinder[data-cl-tab="road"] #suite-stage > .suite-fold > .tool[hidden]{
 .rt-how-s{cursor:pointer;font-weight:600}
 .rt-how-l{margin:6px 0 2px;padding-left:20px;line-height:1.5}
 </style>
+<style data-suite="cinder-zt-trip-window">/* Helena Suite - THE TRIP WINDOW (2026-11-20): a window over the page for the whole journey, both views; full screen on a phone */
+.tw-veil{position:fixed;inset:0;z-index:9000;background:rgba(10,8,6,.62);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px}
+.tw-veil[hidden]{display:none}
+.tw-card{background:#1c1a16;color:#e9e1cf;border:1px solid #6b5a3a;border-radius:8px;max-width:920px;width:100%;padding:14px 16px;box-shadow:0 12px 40px rgba(0,0,0,.5);font-size:14px;line-height:1.45}
+body.view-cinder .tw-card{background:#F4ECD8;color:#2b241a;border-color:#8a6a3a}
+.tw-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tw-head h2{margin:0;font-size:20px;letter-spacing:.04em}
+.tw-x{min-width:40px;min-height:40px;font-size:18px}
+.tw-sec{border-top:1px solid rgba(138,106,58,.45);padding:10px 0}
+.tw-sec h3{margin:0 0 6px;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.tw-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:6px 0}
+.tw-row label{display:flex;flex-direction:column;font-size:12px;gap:2px}
+.tw-row input{min-width:0;width:11em;padding:6px}
+.tw-row input[type=number]{width:5em}
+.tw-card button{padding:7px 12px;min-height:36px;cursor:pointer}
+.tw-card button[disabled]{opacity:.55;cursor:default}
+.tw-stat{display:inline-block;margin:0 14px 4px 0}
+.tw-say{display:block;font-style:normal;opacity:.85}
+.tw-cost{margin:4px 0;font-size:13px}
+.tw-short{color:#c0392b}
+.tw-msg{min-height:1.2em;margin:4px 0;font-weight:600}
+.tw-note{opacity:.8;font-size:12.5px;margin:4px 0}
+.tw-lead,.tw-sk,.tw-res{margin:6px 0;padding:8px;border:1px solid rgba(138,106,58,.35);border-radius:6px}
+.tw-stances{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.tw-stances label{display:flex;flex-direction:column;font-size:12px}
+.tw-t{border-collapse:collapse;width:100%;margin:6px 0;font-size:13px}
+.tw-t th,.tw-t td{border-bottom:1px solid rgba(138,106,58,.3);padding:4px 6px;text-align:left;vertical-align:top}
+.tw-wrap{align-items:center}
+.tw-lab{font-size:12px;opacity:.85}
+html.tw-open body{overflow:hidden}
+@media (max-width:700px){
+  .tw-veil{padding:0}
+  .tw-card{max-width:none;min-height:100%;border-radius:0;padding:10px 12px}
+  .tw-row input{width:100%}
+  .tw-row label{flex:1 1 40%}
+  .tw-t{font-size:12px}
+}
+.tw-story{margin:8px 0 2px;font-style:italic;line-height:1.5}
+</style>
 <script data-suite="display-modes">/* src/display-modes.js - TWO DISPLAY MODES, PER DEVICE (2026-10-13).  Built into the head of both files by ONE line in
    build-suite.js (a script element of its own, data-suite display-modes, after the stylesheet, before the head closes), so its classes are on <html> before the
    first paint and nothing flashes.
@@ -6093,7 +6132,7 @@ body.view-cinder[data-cl-tab="road"] #suite-stage > .suite-fold > .tool[hidden]{
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-20 23:05 UTC">5e94af91</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-20 23:59 UTC">739e2c46</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -54327,6 +54366,9 @@ function apRevPut(rev){ var r = apPut(rev.before || {}, rev.lb || null);
   /* Z051 pre-game patch: a skirmish's Spoils ride this Undo too (their own line's Undo, run once; a line already undone is left) */
   if(r.ok && rev && rev.spoils){ try{ var U = window.SUITE_UNDO, sl = null; (window.SUITE_LOG.lines({}) || []).forEach(function(l){ if(!sl && l && l.undo === rev.spoils) sl = l; });
     if(U && sl && U.can(sl)) setTimeout(function(){ try{ U.undo(rev.spoils); }catch(e){} }, 0); }catch(e){} }
+  /* Z051 11-20: the skirmish's start bonuses ride this Undo too, after the Spoils (newest first) */
+  if(r.ok && rev && Array.isArray(rev.also) && rev.also.length){ var also = rev.also.slice(); setTimeout(function(){ also.forEach(function(k){ try{ var U2 = window.SUITE_UNDO, l2 = null;
+    (window.SUITE_LOG.lines({}) || []).forEach(function(l){ if(!l2 && l && l.undo === k) l2 = l; }); if(U2 && l2 && U2.can(l2)) U2.undo(k); }catch(e){} }); }, 30); }
   try{ render(); }catch(e){} return r.ok ? { ok:true } : { ok:false, note:r.note }; }
 function apAdrenBack(was){
   var A = window.HELENA_ADREN, SS = window.SUITE_STATE;
@@ -54348,6 +54390,7 @@ function apWrite(d, text, labels, extra){
   if(Object.keys(lb).length) rev.lb = lb;
   if(extra && Object.prototype.hasOwnProperty.call(extra, "adren")) rev.adren = extra.adren;
   if(extra && extra.spoils) rev.spoils = String(extra.spoils);   /* Z051 pre-game patch: the Spoils line this Undo also takes back */
+  if(extra && Array.isArray(extra.also) && extra.also.length) rev.also = extra.also.map(String);   /* Z051 11-20: the start bonuses' line */
   try{ key = U && typeof U.record === "function" ? U.record("auto-act", { text:text, rev:rev, chars:Object.keys(d.after.c || {}) }) : null; }catch(e){ key = null; }
   if(!key) tick("turn", "— " + text);
   return { ok:true, key:key };
@@ -54410,6 +54453,18 @@ function apSkirmishPlay(o){
   if(!apOverseer()) return { ok:false, note:"Only the Overseer plays a skirmish." };
   var w = apWorld(false), pcs = w.fs.filter(function(f){ return f.side === "pc"; }), foes = w.fs.filter(function(f){ return f.side === "foe"; });
   if(!pcs.length || !foes.length) return { ok:false, note:"Nothing to fight: put an encounter in the Encounter pane and the party in the turn order first." };
+  /* Z051 (Howl 11-20, "skirmishes deserve the buffs"): a skirmish gets Adrenaline's start bonuses as Start combat pays them (+1 party
+     AP, +1 Spoils token, +1 rarity on this fight's loot rolls, at 9-10 +1 Luck each and a Legendary roll) - HELENA_ADREN's own press,
+     its own line; the skirmish's ONE Undo takes it back too (rev.also).  Then the world is read again, so the fight plays on them. */
+  var bnKey = null, bnText = "";
+  try{
+    var AB = window.HELENA_ADREN;
+    if(AB && typeof AB.startBegin === "function" && typeof AB.started === "function"){
+      var hb = AB.startBegin(pcs.map(function(f){ return String(f.ref); }));
+      var rb = hb ? AB.started(hb) : null;
+      if(rb && rb.ok){ bnKey = rb.undo || null; bnText = rb.own || rb.text || ""; w = apWorld(false); pcs = w.fs.filter(function(f){ return f.side === "pc"; }); foes = w.fs.filter(function(f){ return f.side === "foe"; }); }
+    }
+  }catch(e){ bnKey = null; }
   var st0 = {}; pcs.forEach(function(f){ st0[f.ref] = TT.apStance(stances[f.ref] || stances[f.id] || apStances[f.ref]).key; });
   var a = apSnap(w), h0 = {}, p0 = {}; w.fs.forEach(function(f){ h0[f.id] = f.hp; p0[f.id] = f.plate || 0; });
   var res = TT.apSkirmish(w, st0, Math.random, { rounds:o.rounds || 10 }), b = apSnap(w), d = apDiff(a, b), nm = apNames(w);
@@ -54435,13 +54490,14 @@ function apSkirmishPlay(o){
     if(paid){ try{ (window.SUITE_LOG.lines({}) || []).forEach(function(l){ if(!spKey && l && l.undo && !L0[l.undo]) spKey = l.undo; }); }catch(e){ spKey = null; } }
     if(spKey){ ext = ext || {}; ext.spoils = spKey; }
   }
+  if(bnKey){ ext = ext || {}; ext.also = [bnKey]; }
   var r = apWrite(d, text, null, ext);
-  if(!r.ok){ if(ext && Object.prototype.hasOwnProperty.call(ext, "adren")) apAdrenBack(ext.adren); if(spKey){ try{ window.SUITE_UNDO.undo(spKey); }catch(e){} paid = false; }
+  if(!r.ok){ if(ext && Object.prototype.hasOwnProperty.call(ext, "adren")) apAdrenBack(ext.adren); if(spKey){ try{ window.SUITE_UNDO.undo(spKey); }catch(e){} paid = false; } if(bnKey){ try{ window.SUITE_UNDO.undo(bnKey); }catch(e){} }
              apSk = { err:r.note }; autoPaint(apSkHtml(), true); return { ok:false, note:r.note }; }
   apSk = { res:res, text:text, paid:paid, adren:!!ext, lines:res.log.map(function(e){ return "Round " + e.r + ": " + TT.apSay(e, nm, function(z){ return "zone " + z; }); }) };
   autoPaint(apSkHtml(), true);
   render();
-  return { ok:true, winner:res.winner, result:res.result, rounds:res.rounds, paid:paid, level:lv, key:r.key };
+  return { ok:true, winner:res.winner, result:res.result, rounds:res.rounds, paid:paid, level:lv, key:r.key, bonus:bnText, log:(apSk && apSk.lines ? apSk.lines.slice() : []) };
 }
 function apSkHtml(){
   if(!apSk) return "";
@@ -86637,6 +86693,293 @@ try{ if(W.SUITE_STATE && typeof W.SUITE_STATE.subscribe === "function") W.SUITE_
 try{ if(W.SUITE_SYNC && typeof W.SUITE_SYNC.onStatus === "function") W.SUITE_SYNC.onStatus(function(){ paint(); }); }catch(e){}
 setInterval(paint, 2000);
 W.HELENA_ROADTAB = { paint:paint, fold:function(){ return fold; }, openCamp:toRoad };
+})(window);
+</script>
+<script data-suite="cinder-zt-trip-window">/* ============================================================================
+   Helena Suite - THE TRIP WINDOW (Howl, 2026-11-20: "its own pop-up special tab"), both views.
+   A window that stays open over the page for a whole journey, opened from the Road tab's "Trip window" button.  It only
+   READS and PRESSES the doors that already exist - it writes nothing itself, so every press is that door's own line and Undo:
+     the place and the trip       HELENA_TRAVEL.tripState / tripCost; Set out, Travel the trip, Continue and Arrive are the
+                                  Road pane's own buttons and fields (#tv-j-*, #tv-trip-go, #tv-r-arrive)
+     the bowls, reserve, buffs    HELENA_POOL.read / chipText; Heal from the reserve = HELENA_POOL.spendHP(id, "full");
+                                  eat and drink = HELENA_POOL.eat(who, ledger row, { from:"ledger" })
+     Adrenaline                   HELENA_ADREN.read
+     the lead-in                  HELENA_LEADIN.current / fight / avoid / show
+     the skirmish                 HELENA_AUTOPILOT.stances / skirmish({ stances }) - the Overseer's; a player's window says so
+   After each skirmish a results card: per character HP, armour plate, rounds and pack items before -> after (snapshots of the
+   room, pure reads: twSnap / twDiff), the creatures down, the Spoils and the Adrenaline move from the skirmish's own lines.
+   The trip's running total (fights, wins, Spoils tokens, XP) is kept on this device only (sessionStorage TW_KEY), never in the
+   save, and starts again when a new trip is set out from the window.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document;
+if(!D || W.HELENA_TRIPWIN) return;
+var TW_KEY = "helena-trip-window";
+function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]; }); }
+function $(id){ return D.getElementById(id); }
+function state(){ try{ return W.SUITE_STATE && W.SUITE_STATE.get ? W.SUITE_STATE.get() || {} : {}; }catch(e){ return {}; } }
+function chars(){ var m = state(); return (m.chars || m.characters || []).filter(function(c){ return c && c.id != null; }); }
+function nm(c){ return String((c && (c.name || c.aka)) || "Someone"); }
+
+/* ---------------------------------------------------------------- the results diff (pure) */
+var POUCH = /stimpak|rad-?away|rad-?x|med-?x|psycho|buffout|jet|mentats|blood pack|healing salve|grenade|mine|molotov|ammo|cell|shell|cartridge|round|arrow|fuel|\bmm\b|gauge/i;
+function twSnap(m){
+  var out = { c:{}, ad:null };
+  ((m && (m.chars || m.characters)) || []).forEach(function(c){
+    if(!c || c.id == null) return;
+    var w = {}, p = {};
+    (Array.isArray(c.weapons) ? c.weapons : []).forEach(function(r){ if(r && r.ammoCount != null && r.name) w[String(r.name).trim()] = Math.max(0, Math.round(+r.ammoCount || 0)); });
+    (Array.isArray(c.inventory) ? c.inventory : []).forEach(function(r){ if(r && r.name && POUCH.test(String(r.name))) p[String(r.name)] = Math.max(0, Math.round(+(r.qty == null || r.qty === "" ? 1 : r.qty) || 0)); });
+    out.c[String(c.id)] = { n:String(c.name || c.aka || "Someone"), hp:Math.max(0, Math.round(+c.hp || 0)), pl:c.armour && typeof c.armour === "object" && c.armour.hp != null ? Math.max(0, Math.round(+c.armour.hp || 0)) : null, w:w, p:p };
+  });
+  try{ var a = m && m.tools && m.tools.adren; out.ad = a && typeof a === "object" && a.level != null ? Math.round(+a.level || 0) : (typeof a === "number" ? a : null); }catch(e){ out.ad = null; }
+  return out;
+}
+/* -> [{ id, name, hp:[a,b], pl:[a,b]|null, used:[{ what, from, to }] }] only the characters something changed for */
+function twDiff(a, b){
+  var rows = [];
+  Object.keys((b && b.c) || {}).forEach(function(id){
+    var x = (a && a.c && a.c[id]) || null, y = b.c[id]; if(!x) return;
+    var used = [];
+    Object.keys(Object.assign({}, x.w, y.w)).forEach(function(k){ var f = x.w[k], t = y.w[k]; if(f !== t) used.push({ what:k + " rounds", from:f == null ? 0 : f, to:t == null ? 0 : t }); });
+    Object.keys(Object.assign({}, x.p, y.p)).forEach(function(k){ var f = x.p[k], t = y.p[k]; if(f !== t) used.push({ what:k, from:f == null ? 0 : f, to:t == null ? 0 : t }); });
+    var pl = x.pl !== y.pl ? [x.pl == null ? 0 : x.pl, y.pl == null ? 0 : y.pl] : null;
+    if(x.hp !== y.hp || pl || used.length) rows.push({ id:id, name:y.n, hp:[x.hp, y.hp], pl:pl, used:used });
+  });
+  return rows;
+}
+/* the Spoils and the Adrenaline move, read from the skirmish's new lines -> { tokens, xp, adren } */
+function twSpoils(lines){
+  var out = { tokens:0, xp:0, adren:"" };
+  (lines || []).forEach(function(t){
+    t = String(t || "");
+    var m = /Spoils[^—]*—\s*(\d+)\s+survival tokens?/i.exec(t); if(m) out.tokens += +m[1];
+    var x = /(\d+)\s*XP each/i.exec(t); if(x && /Spoils/i.test(t)) out.xp += +x[1];
+    var a = /Adrenaline\s+(\d+\s*→\s*\d+)/.exec(t); if(a && /Skirmish/i.test(t)) out.adren = a[1];
+  });
+  return out;
+}
+
+
+/* ---------------------------------------------------------------- the skirmish's story (pure) - 3 to 8 plain sentences from the
+   round-by-round lines ("Round 1: Manny (autopilot) attacks RAIDER BOSS ×2 with …: … — a hit: 16 damage past DR (60 → 44 HP)."), the
+   wording picked from a small set by a number made from the text itself (the same fight always tells the same story) */
+function twSeed(t){ var h = 7; t = String(t || ""); for(var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) % 1000003; return h; }
+function twName(n){ n = String(n || "").trim(); if(n && n === n.toUpperCase() && /[A-Z]/.test(n)) return "the " + n.toLowerCase().replace(/\s*×\s*\d+$/, "").replace(/\b\w/g, function(c){ return c.toUpperCase(); }) + (/×\s*\d+$/.test(n) ? " pack" : ""); return n; }
+function twFoe(n){ n = String(n || "").trim(); return !!n && n === n.toUpperCase() && /[A-Z]/.test(n); }
+function twStory(lines, o){
+  o = o || {};
+  var L = (lines || []).map(function(x){ return String(x || ""); }).filter(Boolean);
+  if(!L.length) return "";
+  var seed = twSeed(L.join("|")), pick = function(slot, arr){ return arr[(seed + slot * 7) % arr.length]; };
+  var acts = [], miss = [], heals = [], downs = [], hurt = {};
+  L.forEach(function(t){
+    var a = /^Round (\d+): (.+?) \(autopilot\) attacks (.+?) with (.+?): .*?— (a miss|a hit: (\d+) damage past DR[^(]*\((\d+) → (\d+) HP\)(, down)?)/.exec(t);
+    if(a){ var x = { r:+a[1], who:a[2], to:a[3], w:a[4], hit:a[5] !== "a miss", dmg:+(a[6] || 0), kill:!!a[9] }; acts.push(x); if(!x.hit) miss.push(x);
+      if(x.hit && !twFoe(x.to)) hurt[x.to] = (hurt[x.to] || 0) + x.dmg; if(x.kill) downs.push(x); return; }
+    var s = /^Round \d+: (.+?) \(autopilot\) uses an? (.+?): \+(\d+) HP/.exec(t); if(s){ heals.push(s[1] + " patched up with a " + s[2] + " (+" + s[3] + " HP)"); return; }
+    var f = /^Round \d+: (.+?) \(autopilot\) gives (.+?) First Aid.*?— (stabilised|not stabilised)/.exec(t); if(f){ heals.push(f[1] + (f[3] === "stabilised" ? " got " + f[2] + " back on their feet" : " tried to steady " + f[2] + ", without luck")); return; }
+  });
+  var out = [];
+  if(acts.length){ var a0 = acts[0];
+    out.push(pick(1, ["{A} struck first, opening up on {T} with {W}.", "It started with {A}, who went for {T} with {W}.", "{A} moved first and put {W} to work on {T}."])
+      .replace("{A}", twName(a0.who)).replace("{T}", twName(a0.to)).replace("{W}", a0.w === a0.w.toUpperCase() ? "its " + a0.w.toLowerCase() : a0.w)); }
+  var big = acts.filter(function(x){ return x.hit; }).sort(function(p, q){ return q.dmg - p.dmg; })[0];
+  if(big) out.push(pick(2, ["The heaviest blow came from {A}: {D} damage into {T}.", "{A} landed the hardest hit of the fight, {D} damage on {T}.", "Nothing hit harder than {A}'s {D} damage against {T}."])
+      .replace("{A}", twName(big.who)).replace("{T}", twName(big.to)).replace("{D}", big.dmg));
+  var hk = Object.keys(hurt);
+  if(hk.length) out.push(hk.map(function(k){ return twName(k) + " took " + hurt[k] + " damage"; }).join(", ") + ".");
+  var pcDown = downs.filter(function(x){ return !twFoe(x.to); });
+  var dn = []; pcDown.forEach(function(x){ var n = twName(x.to); if(dn.indexOf(n) < 0) dn.push(n); });
+  if(dn.length) out.push(dn.join(" and ") + pick(3, [" went down" + (pcDown.length > dn.length ? " more than once" : "") + ".", " hit the dirt" + (pcDown.length > dn.length ? " more than once" : "") + ".", " dropped" + (pcDown.length > dn.length ? " more than once" : "") + "."]));
+  var hc = {}; heals.forEach(function(h){ hc[h] = (hc[h] || 0) + 1; });
+  if(heals.length) out.push(Object.keys(hc).map(function(h){ return h + (hc[h] === 2 ? " twice" : hc[h] > 2 ? " " + hc[h] + " times" : ""); }).join("; ") + ".");
+  if(miss.length) out.push(miss.length === 1 ? pick(4, ["{A} had one shot go just wide.", "One swing from {A} found only air.", "{A} missed once, by a hair."]).replace("{A}", twName(miss[0].who))
+                                             : pick(4, ["{N} attacks went wide.", "{N} shots missed their mark.", "The fight saw {N} near misses."]).replace("{N}", miss.length));
+  var r = +o.rounds || (acts.length ? acts[acts.length - 1].r : 0), rw = r === 1 ? "one round" : r + " rounds";
+  out.push(o.winner === "pc" ? pick(5, ["It was over in " + rw + ", and the party stood.", "After " + rw + " the last enemy fell.", "The party won it in " + rw + "."])
+         : o.winner === "foe" ? "After " + rw + " the party was beaten back." : "After " + rw + " both sides pulled back.");
+  if(o.tokens || o.xp) out.push("The party took " + (o.tokens || 0) + (o.tokens === 1 ? " survival token" : " survival tokens") + " and " + (o.xp || 0) + " XP each.");
+  return out.slice(0, 8).map(function(x){ return x.charAt(0).toUpperCase() + x.slice(1); }).join(" ");
+}
+/* ---------------------------------------------------------------- the trip's running total (this device only) */
+function totRead(){ try{ var o = JSON.parse(W.sessionStorage.getItem(TW_KEY) || "null"); if(o && typeof o === "object") return o; }catch(e){} return { fights:0, won:0, tokens:0, xp:0, last:[] }; }
+function totSave(o){ try{ W.sessionStorage.setItem(TW_KEY, JSON.stringify(o)); }catch(e){} }
+
+/* ---------------------------------------------------------------- the window */
+var veil = el("div", "tw-veil"); veil.id = "tw-veil"; veil.hidden = true;
+var card = el("div", "tw-card"); card.setAttribute("role", "dialog"); card.setAttribute("aria-modal", "true"); card.setAttribute("aria-labelledby", "tw-h");
+veil.appendChild(card);
+card.innerHTML =
+  '<div class="tw-head"><h2 id="tw-h">The trip</h2><button type="button" class="tw-x" id="tw-close" aria-label="Close the trip window">✕</button></div>' +
+  '<div class="tw-sec" id="tw-now"></div>' +
+  '<div class="tw-sec" id="tw-go"><h3>Travel</h3>' +
+    '<div class="tw-row" id="tw-plan"><label>From <input id="tw-from" maxlength="80" placeholder="Goodneighbor" aria-label="the town the party leaves"></label>' +
+    '<label>Where to <input id="tw-to" maxlength="80" placeholder="Diamond City" aria-label="the town the party heads for"></label>' +
+    '<label>Road scenes <input type="number" id="tw-n" min="1" max="20" placeholder="2" aria-label="how many road scenes"></label>' +
+    '<button type="button" id="tw-setout">Set out</button></div>' +
+    '<p class="tw-cost" id="tw-cost"></p>' +
+    '<div class="tw-row"><button type="button" id="tw-trip">Travel the trip</button><button type="button" id="tw-arrive">Arrive</button></div>' +
+    '<p class="tw-msg" id="tw-msg" role="status"></p></div>' +
+  '<div class="tw-sec" id="tw-fight"><h3>The fight</h3><div id="tw-lead"></div><div id="tw-sk"></div><div id="tw-res"></div></div>' +
+  '<div class="tw-sec" id="tw-mend"><h3>Between fights</h3><div id="tw-heal"></div><div class="tw-row" id="tw-eatrow"><label>Who eats <select id="tw-who" aria-label="who eats or drinks"></select></label></div><div id="tw-eat"></div></div>' +
+  '<div class="tw-sec" id="tw-tot"></div>';
+function mount(){ if(D.body && veil.parentNode !== D.body) D.body.appendChild(veil); }
+
+var msg = "", res = null, stance = {};
+function say(r){ msg = r && r.note ? String(r.note) : (typeof r === "string" ? r : ""); paint(); }
+function gm(){ try{ var s = W.SUITE_SYNC && W.SUITE_SYNC.status ? W.SUITE_SYNC.status() : null; return !(s && s.connected && !s.gm); }catch(e){ return true; } }
+function paneMsg(){ var m = $("tv-msg"); return m ? m.textContent.trim() : ""; }
+function setField(id, v){ var f = $(id); if(!f) return; f.value = v; try{ f.dispatchEvent(new Event("input", { bubbles:true })); f.dispatchEvent(new Event("change", { bubbles:true })); }catch(e){} }
+function press(id){ var b = $(id); if(!b) return "That button is not on this page."; if(b.disabled) return b.title || "Not now."; b.click(); return paneMsg(); }
+
+function setHtml(e, h){ if(e && e.getAttribute("data-h") !== h){ e.innerHTML = h; e.setAttribute("data-h", h); } }
+function paint(){
+  if(veil.hidden) return;
+  var T = W.HELENA_TRAVEL, P = W.HELENA_POOL, A = W.HELENA_ADREN, L = W.HELENA_LEADIN, AP = W.HELENA_AUTOPILOT;
+  var ts = null; try{ ts = T && T.tripState ? T.tripState() : null; }catch(e){ ts = null; }
+  var ad = null; try{ ad = A && A.read ? A.read().level : null; }catch(e){ ad = null; }
+  var chip = ""; try{ chip = P && P.chipText ? P.chipText() : ""; }catch(e){ chip = ""; }
+  var where = !ts ? "The Road pane is not on this page." : ts.where === "road" ? "On the road — " + ts.paid + " of " + (ts.plan || "?") + " road scenes paid" + (ts.run ? ", travelling…" : "") : "In town";
+  setHtml($("tw-now"), '<div class="tw-stat"><b>' + esc(where) + "</b></div>" + '<div class="tw-stat">' + esc(chip) + "</div>" +
+    '<div class="tw-stat">Adrenaline <b>' + (ad == null ? "—" : ad + " of 10") + "</b></div>" + (ts && ts.msg ? '<div class="tw-stat tw-say">' + esc(ts.msg) + "</div>" : ""));
+  var road = !!ts && ts.where === "road";
+  $("tw-plan").hidden = road; $("tw-trip").hidden = !road; $("tw-arrive").hidden = !road;
+  $("tw-trip").textContent = ts && ts.paid > 0 ? "Continue the trip" : "Travel the trip";
+  $("tw-trip").disabled = !!(ts && ts.run);
+  var n = $("tw-n").value, tc = null;
+  if(!road && n !== ""){ try{ tc = T && T.tripCost ? T.tripCost({ scenes:n, vid:($("tv-j-veh") || {}).value || null }) : null; }catch(e){ tc = null; } }
+  var ce = $("tw-cost"), ct = tc ? (($("tv-j-trip") || {}).textContent || "") : "";
+  if(tc && !ct) ct = "The whole trip: " + tc.total.food + " Food and " + tc.total.water + " Water" + (tc.fuel ? " and " + tc.fuel + " fuel" : "") + (tc.ok ? "" : " — the bowls can pay for " + tc.can + " of " + tc.n + ".");
+  if(ce.textContent !== ct) ce.textContent = ct; ce.className = "tw-cost" + (tc && !tc.ok ? " tw-short" : "");
+  if($("tw-msg").textContent !== msg) $("tw-msg").textContent = msg;
+
+  /* the lead-in */
+  var cur = null; try{ cur = L && L.current ? L.current() : null; }catch(e){ cur = null; }
+  var lh = "";
+  if(cur){
+    lh = '<div class="tw-lead"><b>Lead-in:</b> ' + esc(cur.prompt || cur.text || "a lead-in is open") + '<div class="tw-row">' +
+         '<button type="button" data-tw="lead-show">Open the lead-in card</button>' +
+         (gm() ? '<button type="button" data-tw="lead-fight">Fight it</button><button type="button" data-tw="lead-avoid">Avoid the fight</button>' : "") + "</div></div>";
+  } else lh = '<p class="tw-note">No lead-in is open. The Overseer opens one when the party meets something on the road.</p>';
+  setHtml($("tw-lead"), lh);
+
+  /* the skirmish */
+  var pcs = chars(), st = {};
+  try{ st = AP && AP.stances ? AP.stances() : {}; }catch(e){ st = {}; }
+  var keys = Object.keys(st || {});
+  var sh = '<div class="tw-sk"><b>Skirmish</b> <small>a quick fight played for you: real dice, real costs, the Spoils paid on a win</small>';
+  if(!AP) sh += '<p class="tw-note">The turn tracker is not on this page.</p>';
+  else {
+    sh += '<div class="tw-stances">' + pcs.filter(function(c){ return !c.robot || true; }).map(function(c){
+      var v = stance[c.id] || "steady";
+      return '<label>' + esc(nm(c)) + ' <select data-tw-st="' + esc(c.id) + '"' + (gm() ? "" : " disabled") + ">" +
+        keys.map(function(k){ return '<option value="' + esc(k) + '"' + (k === v ? " selected" : "") + ">" + esc((st[k] && st[k].name) || k) + "</option>"; }).join("") + "</select></label>";
+    }).join("") + "</div>" +
+      (gm() ? '<button type="button" data-tw="skirmish">Play the skirmish</button>' : '<p class="tw-note">Only the Overseer plays a skirmish; the results show here on every page.</p>');
+  }
+  setHtml($("tw-sk"), sh + "</div>");
+
+  /* the results card */
+  var rh = "";
+  if(res){
+    rh = '<div class="tw-res"><b>' + esc(res.head) + "</b>" + (res.rows.length ? '<table class="tw-t"><tr><th>Who</th><th>HP</th><th>Plate</th><th>Used</th></tr>' +
+      res.rows.map(function(r){ return "<tr><td>" + esc(r.name) + "</td><td>" + r.hp[0] + " → " + r.hp[1] + "</td><td>" + (r.pl ? r.pl[0] + " → " + r.pl[1] : "—") + "</td><td>" +
+        (r.used.length ? r.used.map(function(u){ return esc(u.what) + " " + u.from + " → " + u.to; }).join("; ") : "—") + "</td></tr>"; }).join("") + "</table>"
+      : '<p class="tw-note">Nobody lost HP, plate, rounds or pack items.</p>') +
+      '<p class="tw-note">' + esc(res.foot) + "</p>" + (res.story ? '<p class="tw-story">' + esc(res.story) + "</p>" : "") + "</div>";
+  }
+  setHtml($("tw-res"), rh);
+
+  /* between fights */
+  var rsv = 0; try{ rsv = P && P.read ? Math.max(0, Math.round(+P.read().hp || 0)) : 0; }catch(e){ rsv = 0; }
+  var hh = pcs.map(function(c){ var mx = c.hp; try{ mx = W.HELENA_CHAR && W.HELENA_CHAR.effMax ? W.HELENA_CHAR.effMax(c) : c.hpMax || c.hp; }catch(e){}
+    var hurt = +c.hp < +mx && rsv > 0;
+    return '<button type="button" data-tw-heal="' + esc(c.id) + '"' + (hurt ? "" : " disabled") + '>Heal ' + esc(nm(c)) + " <small>" + Math.round(+c.hp || 0) + "/" + Math.round(+mx || 0) + "</small></button>"; }).join("");
+  setHtml($("tw-heal"), '<div class="tw-row tw-wrap"><span class="tw-lab">Heal from the reserve' + (rsv ? " (" + rsv + " HP in it)" : " — it is empty; eat to fill it") + ':</span> ' + hh + "</div>");
+  var who = $("tw-who"), wv = who.value, oh = pcs.filter(function(c){ return !c.robot; }).map(function(c){ return '<option value="' + esc(c.id) + '">' + esc(nm(c)) + "</option>"; }).join("");
+  if(who.getAttribute("data-h") !== oh){ who.innerHTML = oh; who.setAttribute("data-h", oh); if(wv) who.value = wv; }
+  var m = state(), items = (m.tools && m.tools.ledger && Array.isArray(m.tools.ledger.items)) ? m.tools.ledger.items : [];
+  var eh = items.filter(function(r){ return r && r.id && (r.qty == null || +r.qty > 0) && /food|drink|cooked|bottled|provision/i.test(String(r.sec || "")); }).slice(0, 30).map(function(r){
+    return '<button type="button" data-tw-eat="' + esc(r.id) + '">' + esc(r.name) + " <small>×" + (r.qty == null ? 1 : r.qty) + "</small></button>"; }).join("");
+  setHtml($("tw-eat"), '<div class="tw-row tw-wrap"><span class="tw-lab">Eat or drink from the ledger:</span> ' + (eh || "<i>nothing on the ledger</i>") + "</div>");
+
+  /* the trip's total */
+  var t = totRead();
+  setHtml($("tw-tot"), "<h3>This trip so far</h3><p>" + t.fights + (t.fights === 1 ? " skirmish" : " skirmishes") + ", " + t.won + " won · Spoils " + t.tokens + (t.tokens === 1 ? " survival token" : " survival tokens") + " · " + t.xp + " XP each</p>" +
+    '<p class="tw-note">Kept on this device for this trip only; it starts again when the party sets out from this window.</p>');
+}
+
+function skirmish(){
+  var AP = W.HELENA_AUTOPILOT; if(!AP) return say("The turn tracker is not on this page.");
+  var before = twSnap(state()), k0 = {};
+  try{ (W.SUITE_LOG.lines({}) || []).forEach(function(l){ k0[l.undo || l.id || l.text] = 1; }); }catch(e){}
+  var st = {}; chars().forEach(function(c){ st[c.id] = stance[c.id] || "steady"; });
+  var r = null; try{ r = AP.skirmish({ stances:st }); }catch(e){ r = { ok:false, note:String(e && e.message || e) }; }
+  if(!r || !r.ok) return say(r || "The skirmish did not play.");
+  setTimeout(function(){
+    var after = twSnap(state()), lines = [];
+    try{ (W.SUITE_LOG.lines({}) || []).forEach(function(l){ if(!k0[l.undo || l.id || l.text]) lines.push(String(l.text || "")); }); }catch(e){}
+    var sp = twSpoils(lines), sk = lines.filter(function(t){ return /Skirmish on autopilot/.test(t); })[0] || "";
+    var down = /(\d+ of \d+ creatures down)/.exec(sk);
+    var rl = Array.isArray(r.log) ? r.log.map(String) : [];
+    if(!rl.length){ try{ rl = Array.prototype.map.call(D.querySelectorAll("#tt-auto .ap-sk-log li"), function(li){ return li.textContent; }); }catch(e){ rl = []; } }
+    var story = twStory(rl, { winner:r.winner, rounds:r.rounds, tokens:sp.tokens, xp:sp.xp });
+    res = { head:"Skirmish " + (r.winner === "pc" ? "won" : r.winner === "foe" ? "lost" : "unfinished") + " in " + r.rounds + (r.rounds === 1 ? " round" : " rounds"),
+            rows:twDiff(before, after),
+            foot:(down ? down[1] + ". " : "") + (sp.tokens || sp.xp ? "Spoils: " + sp.tokens + " survival tokens, " + sp.xp + " XP each. " : r.winner === "pc" ? "Spoils: not paid (the Encounter pane says why). " : "") +
+                 (sp.adren ? "Adrenaline " + sp.adren + ". " : "") + "One Undo in the log takes all of it back.", story:story };
+    var t = totRead(); t.fights += 1; if(r.winner === "pc") t.won += 1; t.tokens += sp.tokens; t.xp += sp.xp; totSave(t);
+    msg = ""; paint();
+  }, 400);
+}
+
+card.addEventListener("click", function(e){
+  var b = e.target && e.target.closest ? e.target.closest("button") : null; if(!b || b.disabled) return;
+  var L = W.HELENA_LEADIN, T = W.HELENA_TRAVEL, P = W.HELENA_POOL, a = b.getAttribute("data-tw");
+  if(b.id === "tw-close") return hide();
+  if(b.id === "tw-setout"){
+    setField("tv-j-from", $("tw-from").value); setField("tv-j-name", $("tw-to").value); setField("tv-j-n", $("tw-n").value);
+    var before = (T && T.tripState) ? T.tripState().where : "";
+    var note = press("tv-j-go");
+    var now = (T && T.tripState) ? T.tripState().where : "";
+    if(before !== "road" && now === "road"){ totSave({ fights:0, won:0, tokens:0, xp:0, last:[] }); res = null; }
+    return say(note);
+  }
+  if(b.id === "tw-trip"){ var r = T && T.trip ? T.trip() : { ok:false, note:"The Road pane is not on this page." }; return say(r.note || paneMsg()); }
+  if(b.id === "tw-arrive") return say(press("tv-r-arrive"));
+  if(a === "lead-show"){ try{ L.show(); }catch(x){} return; }
+  if(a === "lead-fight"){ var f = null; try{ f = L.fight(); }catch(x){ f = null; } return say(f || "Fight it — the turn order is where Start combat is, or play a skirmish below."); }
+  if(a === "lead-avoid"){ var v = null; try{ v = L.avoid(); }catch(x){ v = null; } return say(v || ""); }
+  if(a === "skirmish") return skirmish();
+  var h = b.getAttribute("data-tw-heal"); if(h){ var hr = null; try{ hr = P.spendHP(h, "full"); }catch(x){ hr = { note:String(x && x.message || x) }; } return say(hr); }
+  var ei = b.getAttribute("data-tw-eat"); if(ei){ var er = null; try{ er = P.eat($("tw-who").value, ei, { from:"ledger" }); }catch(x){ er = { note:String(x && x.message || x) }; } return say(er); }
+});
+card.addEventListener("change", function(e){ var s = e.target; if(s && s.getAttribute && s.getAttribute("data-tw-st")) stance[s.getAttribute("data-tw-st")] = s.value; if(s && s.id === "tw-n") paint(); });
+card.addEventListener("input", function(e){ if(e.target && e.target.id === "tw-n") paint(); });
+veil.addEventListener("keydown", function(e){ if(e.key === "Escape") hide(); });
+veil.addEventListener("click", function(e){ if(e.target === veil) hide(); });
+
+var tick = null;
+function show(){ mount(); veil.hidden = false; D.documentElement.classList.add("tw-open"); paint(); if(!tick) tick = setInterval(paint, 1000); try{ $("tw-close").focus(); }catch(e){} return true; }
+function hide(){ veil.hidden = true; D.documentElement.classList.remove("tw-open"); if(tick){ clearInterval(tick); tick = null; } return true; }
+try{ if(W.SUITE_STATE && typeof W.SUITE_STATE.subscribe === "function") W.SUITE_STATE.subscribe(function(){ paint(); }); }catch(e){}
+
+/* the Road tab's button */
+function addButton(){
+  var row = D.querySelector("#rt-acts .rt-row");
+  if(!row || $("rt-tripwin")) return !!row;
+  var b = el("button", "rt-btn rt-tw", "Trip window"); b.type = "button"; b.id = "rt-tripwin";
+  b.title = "The whole journey in one window: travel, lead-ins, skirmishes, what they cost, healing and the trip's Spoils";
+  b.addEventListener("click", show);
+  row.insertBefore(b, row.firstChild);
+  return true;
+}
+if(!addButton()){ var tries = 0, iv = setInterval(function(){ if(addButton() || ++tries > 40) clearInterval(iv); }, 250); }
+
+W.HELENA_TRIPWIN = { show:show, hide:hide, paint:paint, snap:twSnap, diff:twDiff, spoils:twSpoils, story:twStory, total:totRead, KEY:TW_KEY };
 })(window);
 </script>
 
