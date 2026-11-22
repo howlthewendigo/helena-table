@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"4cacae92",at:"2026-11-22 01:47 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"b456fd8d",at:"2026-11-22 16:46 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5841,6 +5841,9 @@ html body #tool-char .cs-rollopts > label.cs-lab{ min-width:0; max-width:100%; }
 @media (max-width: 380px){
   html body #tool-char .cs-row > label.cs-lab{ flex-basis:100%; }
 }
+
+/* night (REVIEW-04 N5/F8): the staging mark beside the build id, both views */
+.cl-build.is-staging, .suite-build.is-staging{ color:#fff; background:#b3401f; padding:0 var(--sp-2, 4px); border-radius:3px; font-weight:700; }
 </style>
 <script data-suite="display-modes">/* src/display-modes.js - TWO DISPLAY MODES, PER DEVICE (2026-10-13).  Built into the head of both files by ONE line in
    build-suite.js (a script element of its own, data-suite display-modes, after the stylesheet, before the head closes), so its classes are on <html> before the
@@ -6306,7 +6309,7 @@ html body #tool-char .cs-rollopts > label.cs-lab{ min-width:0; max-width:100%; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-22 01:47 UTC">4cacae92</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-22 16:46 UTC">b456fd8d</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -85807,6 +85810,14 @@ var build = el("span", "cl-build");  build.id = "cinder-build";
   if(!B || !B.id){ build.hidden = true; return; }
   build.textContent = String(B.id);
   build.title = "This page\u2019s build \u2014 if two players see different ids, one needs to refresh (Ctrl+Shift+R)" + (B.at ? " \u00b7 built " + B.at : "");
+  /* night (REVIEW-04 N5/F8): the staging copy says so, beside the build id, in both views (Classic's #suite-build too) */
+  var stg = false; try{ stg = /\/next\//.test(String(W.location && W.location.pathname || "")); }catch(e){ stg = false; }
+  if(stg){
+    build.textContent = String(B.id) + " \u00b7 STAGING"; build.className += " is-staging";
+    build.title = "The staging copy (helena-table/next/) \u2014 not the live table. " + build.title;
+    var cb = D.getElementById("suite-build");
+    if(cb && !/STAGING/.test(cb.textContent)){ cb.textContent = cb.textContent + " \u00b7 STAGING"; cb.className += " is-staging"; }
+  }
 })();
 var pill = el("button", "cl-pill cl-label"); pill.type = "button"; pill.id = "cinder-clock-pill"; pill.title = "The clock";
 var right = el("span", "cl-right");
