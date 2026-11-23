@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"723fa3ed",at:"2026-11-23 10:06 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"4a983311",at:"2026-11-23 11:44 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6310,7 +6310,7 @@ html body #tool-char .cs-rollopts > label.cs-lab{ min-width:0; max-width:100%; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-23 10:06 UTC">723fa3ed</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-23 11:44 UTC">4a983311</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -7627,7 +7627,7 @@ end $$;
             <button class="cs-mini" id="cs-ps-add">Add</button>
           </div>
           <details class="cs-why" data-why="persistent"><summary>why &mdash; the Persistent tick</summary>
-          <div class="cs-hint">Tick at the end of your turn: the damage ignores DR, comes off the armour's HP first and then Health, and a round comes off. Bleeding and Radiation skip the armour. A major action and a test at Difficulty = Effects ends it early. Radiation and Exhaustion live in the Health box.</div>
+          <div class="cs-hint">Tick at the end of your turn: the damage ignores DR, comes off the armour's HP first and then Health, and a round comes off. Bleeding and Radiation skip the armour, and a Radiation tick comes off maximum HP. A major action and a test at Difficulty = Effects ends it early. Radiation and Exhaustion live in the Health box.</div>
           </details>
         </details>
 
@@ -7864,7 +7864,7 @@ end $$;
       A critical is 5+ damage past DR in one hit, or any hit that drops you to 0 HP. Head: dazed, lose next turn's actions, +2 Difficulty to sight. Torso: bleeding 2 CD at the end of each turn, ignores DR.
       Arm: drop what it holds, no actions with it. Leg: prone, no Sprint, Move is a major action. Lasts until treated.</p>
     <p><b>Persistent (X)</b>If any Effects are rolled, take damage equal to the Effects at the end of each of your turns for that many rounds; it ignores all DR. A major action and a test at Difficulty = Effects ends it early.</p>
-    <p><b>Armour</b>One pool. Damage past DR comes off Armour HP first, then Health; at 0 the set is wrecked and gives no DR. Damage that ignores DR lands on Health; a Persistent tick ignores DR too but burns Armour HP first (Bleeding and Radiation do not). Rad past Rad DR comes off Max HP.</p>
+    <p><b>Armour</b>One pool. Damage past DR comes off Armour HP first, then Health; at 0 the set is wrecked and gives no DR. Damage that ignores DR lands on Health; a Persistent tick ignores DR too but burns Armour HP first (Bleeding and Radiation do not; a Radiation tick comes off Max HP). Rad past Rad DR comes off Max HP.</p>
     <p><b>Each day</b>Medicine mends a person once per person per day; a bench mends a thing once per thing per day. Nightfall: full HP, full armour HP, both ticks cleared. Damage bonus: attribute 7&ndash;8 +1 CD &middot; 9&ndash;10 +2 CD &middot; 11+ +3 CD, for whatever attribute the attack used.</p>
   </div>
 </div>
@@ -10102,7 +10102,17 @@ root.BESTIARY_RULES = {
        mod records, at most 24, dropped when broken or empty, never added — so a set shelved and taken back wears with them again */
     var am = armMods(r.armMods);
     if(am) out.armMods = am;
+    /* L1 (REVIEW 11-23 08): a hand-typed set's own numbers (the sheet's pack-row armSet) ride the row too, when PRESENT, so a set the
+       Guide does not print can still be worn from the row it lands on */
+    var as = armSet(r.armSet);
+    if(as) out.armSet = as;
     return out;
+  }
+  function armSet(v){
+    if(!isRec(v)) return null;
+    var hm = v.hpMax == null || v.hpMax === "" ? null : Math.round(+v.hpMax);
+    return { phys:Math.min(99, Math.max(0, Math.round(+v.phys || 0))), en:Math.min(99, Math.max(0, Math.round(+v.en || 0))), rad:str(v.rad == null ? "0" : v.rad).slice(0, 12),
+             rarity:Math.min(9, Math.max(0, Math.round(+v.rarity || 0))), hpMax:hm != null && isFinite(hm) && hm >= 0 ? Math.min(999, hm) : null };
   }
   function armMods(v){
     if(!Array.isArray(v)) return null;
@@ -10235,6 +10245,7 @@ root.BESTIARY_RULES = {
       if(i > 0) delete one.legendary;      /* CMD Z018 (G.8): one property, one item — the first of a split row carries it */
       if(i > 0) delete one.armHp;          /* CMD Z019: one set's kept HP, one set — likewise */
       if(i > 0) delete one.armMods;        /* CMD Z054: one set's fitted mods, one set — likewise */
+      if(i > 0) delete one.armSet;         /* L1: and its own numbers */
       foundStamp(one);                     /* CMD Z014 (G.9): each looted rifle is its own find */
       out.push(one); made.push(one);
     }
@@ -10367,7 +10378,7 @@ root.BESTIARY_RULES = {
     if(want > src.qty) return { slice:s, row:null, error:"the shelf holds only " + src.qty };
     var lifted = row(src); lifted.id = mintId("t"); lifted.qty = want;
     if(want === src.qty) s.items.splice(i, 1);
-    else { var left = row(src); left.qty = src.qty - want; delete left.armMods; s.items[i] = left; }   /* CMD Z054: fitted mods go with the lifted set, once */
+    else { var left = row(src); left.qty = src.qty - want; delete left.armMods; delete left.armSet; s.items[i] = left; }   /* CMD Z054: fitted mods go with the lifted set, once */
     return { slice:s, row:lifted };
   }
 
@@ -10988,7 +10999,7 @@ root.BESTIARY_RULES = {
     var back = s.pending[at].row;
     s.pending.splice(at, 1);
     var res = addRow(s.items, { key:back.key, name:back.name, qty:back.qty, stack:back.stack,
-                                sec:back.sec, notes:back.notes, from:back.from, at:back.at, found:back.found, degr:back.degr, legendary:back.legendary, armHp:back.armHp, armMods:back.armMods });
+                                sec:back.sec, notes:back.notes, from:back.from, at:back.at, found:back.found, degr:back.degr, legendary:back.legendary, armHp:back.armHp, armMods:back.armMods, armSet:back.armSet });
     if(!res.error) s.items = res.items;
     return { slice:s, row:back };
   }
@@ -11032,7 +11043,7 @@ root.BESTIARY_RULES = {
       inv.push(sheetRow(r, r.qty));
       return inv;
     }
-    for(i = 0; i < r.qty; i++){ var one = sheetRow(r, 1); if(i > 0){ delete one.armHp; delete one.armMods; } inv.push(one); }   /* CMD Z019: one set's HP, one set */
+    for(i = 0; i < r.qty; i++){ var one = sheetRow(r, 1); if(i > 0){ delete one.armHp; delete one.armMods; delete one.armSet; } inv.push(one); }   /* CMD Z019: one set's HP, one set */
     return inv;
   }
   function shallow(o){ var c = {}, k; for(k in o) if(Object.prototype.hasOwnProperty.call(o, k)) c[k] = o[k]; return c; }
@@ -11044,6 +11055,7 @@ root.BESTIARY_RULES = {
     if(legRec(r.legendary)) o.legendary = legRec(r.legendary);   /* CMD Z018 (G.8) */
     if(r.armHp != null && qty === 1) o.armHp = r.armHp;          /* CMD Z019: the set's kept HP, onto the one set it belongs to */
     if(r.armMods && qty === 1) o.armMods = armMods(r.armMods);   /* CMD Z054: and its fitted mods */
+    if(r.armSet && qty === 1) o.armSet = armSet(r.armSet);       /* L1: and a hand-typed set's own numbers */
     return o;
   }
 
@@ -25163,6 +25175,9 @@ function setPool(which, v){
   window.SUITE_UNDO = {
     keep:undoKeep,
     undo:undoPress,
+    /* R.235 B (REVIEW 11-23 08): one line's Undo run from inside another's (a hit's Undo taking back the step its Injury caused):
+       the same run as a press, every check with it, but a refusal is handed back and not said over the page */
+    quiet:function(key){ return undoRun(key); },
     seal:undoSeal,
     has:function(kind){ return Object.keys(undos).some(function(k){ return undos[k].kind === kind; }); },
     /* Z050 (V.5) */
@@ -32322,11 +32337,40 @@ var CH = {
        persistTick(c, i)   one tick of c.persistent[i], applied; a round comes off, a spent effect leaves the list
                            -> { cause, dmg, armour, health, wrecked, left } | null */
   persistBody: function(cause){ return /bleed|radiat/i.test(String(cause == null ? "" : cause)); },
+  /* R.234 B (REVIEW 11-23 08; the Persistent ruling of 2026-09-21, "radiation ticks still reduce maximum HP"; the Guide's Contaminating,
+     p.lii): A PERSISTENT (RADIATION) TICK LOWERS MAXIMUM HP.  It was: off Health, like any tick.  It lands as a radiation hit lands
+     (c.rads, which CH.effMax takes off the maximum) and current HP follows the maximum down where it would stand above it.  It
+     still skips the plate and ignores DR.  A sheet the radiation door calls immune (a worn set whose Rad DR reads Immune, a
+     transformation that is) takes nothing; the round still comes off.  A ghoul's sheet is left as it was (off Health): R.236.
+       persistRad(cause) -> true: a radiation tick      radImmune(c) -> true: the radiation hit's door would land nothing
+       isGhoul(c)        -> true: the origin or a trait names a ghoul (the words the perk gate reads) */
+  persistRad: function(cause){ return /radiat/i.test(String(cause == null ? "" : cause)); },
+  radImmune: function(c){
+    try{
+      if(CH.armourDR(c, "Rad") === Infinity) return true;
+      var tf = typeof CH.transformOf === "function" ? CH.transformOf(c) : null;
+      return !!(tf && CH.TRANSFORM[tf.kind] && CH.TRANSFORM[tf.kind].rad);
+    }catch(e){ return false; }
+  },
+  isGhoul: function(c){
+    c = c || {};
+    var who = [String(c.origin == null ? "" : c.origin).trim()];
+    (Array.isArray(c.traits) ? c.traits : []).forEach(function(t){ if(!t) return; who.push(String(t.name == null ? "" : t.name)); who.push(String(t.from == null ? "" : t.from)); });
+    return /\bghoul|necrotic post-human/i.test(who.join(" "));
+  },
   persistTick: function(c, i){
     var p = c && Array.isArray(c.persistent) ? c.persistent[i] : null;
     if(!p) return null;
-    var dmg = Math.max(0, Math.round(+p.dmg || 0)), out = { cause:String(p.cause || "Persistent"), dmg:dmg, armour:0, health:0, wrecked:false, left:0 };
-    if(CH.persistBody(p.cause)){ c.hp = Math.max(0, (+c.hp || 0) - dmg); out.health = dmg; }
+    var dmg = Math.max(0, Math.round(+p.dmg || 0)), out = { cause:String(p.cause || "Persistent"), dmg:dmg, armour:0, health:0, rads:0, immune:false, wrecked:false, left:0 };
+    if(CH.persistRad(p.cause) && !CH.isGhoul(c)){
+      if(CH.radImmune(c)) out.immune = true;
+      else if(dmg > 0){
+        c.rads = Math.max(0, Math.round(+c.rads || 0)) + dmg; out.rads = dmg;
+        var mx = Math.max(1, Math.round(+CH.effMax(c) || 0)); out.max = mx;
+        if((+c.hp || 0) > mx) c.hp = mx;
+      }
+    }
+    else if(CH.persistBody(p.cause)){ c.hp = Math.max(0, (+c.hp || 0) - dmg); out.health = dmg; }
     else { var d = CH.drain(c, dmg); out.armour = d.armour; out.health = d.health; out.wrecked = d.wrecked; }
     p.rounds = (+p.rounds || 0) - 1; out.left = Math.max(0, p.rounds);
     if(p.rounds <= 0) c.persistent.splice(i, 1);
@@ -36620,6 +36664,16 @@ function normalise(c, readOnly){
     }) : [];
     if(ms.length) r.armMods = ms; else delete r.armMods;
   });
+  /* L1 (REVIEW 11-23 08): a hand-typed set's own numbers on its pack row (armSet) — whole numbers and a short Rad word when PRESENT,
+     dropped when it is not a record, never added */
+  (c.inventory || []).forEach(function(r){
+    if(!r || r.armSet == null) return;
+    var as = r.armSet;
+    if(!isRec(as)){ delete r.armSet; return; }
+    var hm = as.hpMax == null || as.hpMax === "" ? null : Math.round(+as.hpMax);
+    r.armSet = { phys:Math.min(99, Math.max(0, Math.round(+as.phys || 0))), en:Math.min(99, Math.max(0, Math.round(+as.en || 0))), rad:String(as.rad == null ? "0" : as.rad).slice(0, 12),
+                 rarity:Math.min(9, Math.max(0, Math.round(+as.rarity || 0))), hpMax:hm != null && isFinite(hm) && hm >= 0 ? Math.min(999, hm) : null };
+  });
   /* CMD Z050 (S.13): a robot part the parts table renamed (the Robobrain mk1 "Jar" is the Robobrain Head) is rewritten where it is
      PRESENT - robotParts and the pack's part rows - and nothing else; a save with no renamed part is not touched (idempotent) */
   if(CH.ROBOT && typeof CH.ROBOT.migrate === "function") CH.ROBOT.migrate(c);
@@ -37229,6 +37283,8 @@ var ARMOUR_CAT = /Body Armor|Power Armor|Robot Armor|Clothing & Outfits/i;
 function isArmourRow(row){
   var it = itemOf(row);
   if(it && ARMOUR_CAT.test(it.cat || "")) return true;
+  /* L1 (REVIEW 11-23 08): a set the Guide does not print, taken off with its own numbers kept on its pack row (armSet), wears from that row */
+  if(row && row.armSet && typeof row.armSet === "object") return true;
   return !!(row && row.cat && ARMOUR_CAT.test(row.cat));
 }
 function armourFrom(c){
@@ -37268,10 +37324,18 @@ function weaponFrom(c){
    set just put on is not a set already damaged. */
 function wearFromRow(row, where){
   var it = itemOf(row);
-  if(!it) return { ok:false, why:"That name is not a Guide row, so it has no DR to read. Type the numbers in by hand." };
-  if(!ARMOUR_CAT.test(it.cat || ""))
+  /* L1 (REVIEW 11-23 08): A SET THE GUIDE DOES NOT PRINT WEARS FROM ITS OWN NUMBERS.  A hand-typed set that came off with mods fitted
+     got a pack row for them (the swap ruling) and no way back on: the caps were spent and the part could never be used again, a mod
+     destroyed by another road.  The row now keeps the set's own numbers as it came off (armSet), and this crossing reads them where
+     the Guide has no armour row of that name. */
+  var own = (!it || !ARMOUR_CAT.test(it.cat || "")) && row && row.armSet && typeof row.armSet === "object" ? row.armSet : null;
+  if(!it && !own) return { ok:false, why:"That name is not a Guide row, so it has no DR to read. Type the numbers in by hand." };
+  if(!own && !ARMOUR_CAT.test(it.cat || ""))
     return { ok:false, why:'"' + (it.name || row.name) + '" is ' + (it.cat ? "in " + it.cat : "uncategorised") + ", not armour." };
-  var a = armourFrom({ name:it.name, stats:it.stats, rar:it.rar, key:row.key || norm(row.name) });
+  var a = own ? { name:String(row.name || "").trim() || "Unnamed armour", phys:Math.max(0, Math.round(+own.phys || 0)), en:Math.max(0, Math.round(+own.en || 0)),
+                  rad:String(own.rad == null ? "0" : own.rad), rarity:Math.max(0, Math.round(+own.rarity || 0)),
+                  hp:own.hpMax != null && isFinite(+own.hpMax) ? Math.max(0, Math.round(+own.hpMax)) : null, hpPrinted:"", key:row.key || "", own:true }
+              : armourFrom({ name:it.name, stats:it.stats, rar:it.rar, key:row.key || norm(row.name) });
   var was = "", kept = null, offMods = [], onMods = [], madeRow = false;
   var modNames = function(list){ return list.map(function(md){ return esc(md.name || md.id || "a mod"); }).join(", "); };
   edit(function(ch){
@@ -37293,7 +37357,11 @@ function wearFromRow(row, where){
     if(ch.modeSets && Array.isArray(ch.modeSets.modes)) ch.modeSets.modes.forEach(function(mo){ if(mo && Array.isArray(mo.mods)) modeIds = modeIds.concat(mo.mods); });
     (Array.isArray(ch.armour.mods) ? ch.armour.mods : []).forEach(function(md){
       if(!md) return;
-      var body = ch.robot === true || /^(Robot Modules|Chassis Parts|Heads & Arms|Chassis Plating)/i.test(String(md.slot || "")) || modeIds.indexOf(md.id) >= 0;
+      /* R.233 A with its check (REVIEW 11-23 08): on a robot sheet a part of the ARMOUR tables (a lining, a plating, a field mod) is fitted
+         to the set worn over the frame, not to the robot: it rides that set's row like any armour mod, or the robot would carry a
+         paid-for bonus on to a cheaper set for free.  Everything else on a robot sheet is the robot's and stays. */
+      var slot = String(md.slot || ""), setsOwn = /^(Linings|Armor Plating|Field Mods|Plating Mods)/i.test(slot);
+      var body = (ch.robot === true && !setsOwn) || /^(Robot Modules|Chassis Parts|Heads & Arms|Chassis Plating)/i.test(slot) || modeIds.indexOf(md.id) >= 0;
       (body || !swap ? stayMods : offMods).push(md);
     });
     if(offMods.length){
@@ -37306,6 +37374,11 @@ function wearFromRow(row, where){
         inv.push(keepRow); madeRow = true;
       }
       inv[j].armMods = offMods.slice();
+      /* L1: a set the Guide does not print keeps its own numbers on that row, so the row's Wear button can put it back on */
+      var offIt = itemOf({ name:was, key:ch.armour.key || "" });
+      if(!(offIt && ARMOUR_CAT.test(offIt.cat || "")))
+        inv[j].armSet = { phys:Math.max(0, Math.round(+ch.armour.phys || 0)), en:Math.max(0, Math.round(+ch.armour.en || 0)), rad:String(ch.armour.rad == null ? "0" : ch.armour.rad).slice(0, 12),
+                          rarity:Math.max(0, Math.round(+ch.armour.rarity || 0)), hpMax:ch.armour.hpMaxOverride != null && isFinite(+ch.armour.hpMaxOverride) ? Math.max(0, Math.round(+ch.armour.hpMaxOverride)) : null };
     }
     if(swap) for(j = 0; j < inv.length; j++) if(inv[j] && Array.isArray(inv[j].armMods) && CH.sameItem(nu, inv[j])){ onMods = inv[j].armMods.slice(); delete inv[j].armMods; break; }
     /* Z054 R195:end */
@@ -37338,7 +37411,8 @@ function wearFromRow(row, where){
   return { ok:true, was:was, armour:a, where:where || "",
            line:"Wearing <b>" + esc(a.name) + "</b> — Phys " + a.phys + " / En " + a.en +
                 " / Rad " + esc(a.rad) + ", rarity " + a.rarity + ", " +
-                (a.hp != null ? "armour HP " + a.hp + " (the row's printed HP, set as the maximum)"
+                (a.own ? "armour HP " + (a.hp != null ? a.hp : CH.armourHp(a.phys, a.en, a.rarity)) + " (the set's own numbers, kept on its pack row)" :
+                 a.hp != null ? "armour HP " + a.hp + " (the row's printed HP, set as the maximum)"
                               : "armour HP " + CH.armourHp(a.phys, a.en, a.rarity) + " from the formula — this row's HP cell is prose (" + esc(a.hpPrinted || "blank") + "), not a number") +
                 (kept != null ? ". <b>Worn at the HP it came off with, " + Math.min(kept, a.hp != null ? a.hp : CH.armourHp(a.phys, a.en, a.rarity)) + "</b>" :
                  row && row.found === true ? ". <b>Found: worn at half its HP, " + CH.foundArmourHp(a.hp != null ? a.hp : CH.armourHp(a.phys, a.en, a.rarity)) +
@@ -37770,15 +37844,20 @@ function heldChoose(id, how){
     /* Z051 P2 (first; FIRST item c): the choice is the hit landing - ONE line with its Undo (the sheet's diff, and the Injury it
        recorded with it: rev.inj), then the Injury's own line with its own Undo.  A page with no Undo registry says the line as before. */
     var hcInj = out.count && out.wkey != null ? { key:String(out.wkey), n:out.count, loc:L.loc, note:String(out.wnote || "") } : null, hcKey = null;
-    if(now && typeof pcHitDiff === "function" && typeof pcHitUndo === "function"){
-      var hcU = pcHitDiff(hcBefore, now, hcHp0); if(hcInj) hcU.inj = hcInj;
+    /* the choice's own change to the sheet, read BEFORE the step below moves the sheet again */
+    var hcU = now && typeof pcHitDiff === "function" && typeof pcHitUndo === "function" ? pcHitDiff(hcBefore, now, hcHp0) : null;
+    /* Z051 P1 (fight, house rule): the Injury is +1 exhaustion - the turn order's step, its own line and Undo (guarded).
+       CMD Z054 (R.174 B): taken BEFORE the Injury's line is kept, so that line's Undo takes the step back too (rev.step).
+       R.235 B (REVIEW 11-23 08): and BEFORE the choice's line is kept, so the choice's Undo takes the step back with its Injury. */
+    var TX = typeof window !== "undefined" ? window.HELENA_TURN_EXH : null, hcEx = null;
+    if((out.injury || out.zeroHp) && out.count && now && TX && typeof TX.injured === "function") try{ hcEx = TX.injured(now.id, L.loc); }catch(e){ hcEx = null; }
+    if(hcInj && hcEx && hcEx.ok && hcEx.undo) hcInj.step = String(hcEx.undo);
+    if(hcU){
+      if(hcInj) hcU.inj = hcInj;
+      if(hcInj && hcInj.step && typeof pcHitAfterNow === "function") pcHitAfterNow(hcU);
       hcKey = pcHitUndo(hcU, "", { kind:"held-crit", text:nm + " took the " + hcSaid + (hcU.hp0 !== hcU.hp1 ? " (HP " + hcU.hp0 + " \u2192 " + hcU.hp1 + ")" : "") });
     }
     if(!hcKey) tableRoll(now, hcSaid);
-    /* Z051 P1 (fight, house rule): the Injury is +1 exhaustion - the turn order's step, its own line and Undo (guarded).
-       CMD Z054 (R.174 B): taken BEFORE the Injury's line is kept, so that line's Undo takes the step back too (rev.step). */
-    var TX = typeof window !== "undefined" ? window.HELENA_TURN_EXH : null, hcEx = null;
-    if((out.injury || out.zeroHp) && out.count && now && TX && typeof TX.injured === "function") try{ hcEx = TX.injured(now.id, L.loc); }catch(e){ hcEx = null; }
     if(hcInj && now && typeof window !== "undefined" && window.HELENA_CHAR && typeof window.HELENA_CHAR.injuryKeep === "function")
       try{ window.HELENA_CHAR.injuryKeep({ key:hcInj.key, n:hcInj.n, loc:hcInj.loc, note:hcInj.note, id:String(now.id), name:nm, why:out.injury ? "a critical" + (rec.from ? " from " + rec.from : "") : "down to 0 HP" + (rec.from ? " from " + rec.from : ""),
                                              step:hcEx && hcEx.ok ? hcEx.undo : null }); }catch(e){}
@@ -38289,7 +38368,7 @@ function perkKinOf(c){
   traits.forEach(function(t){ if(!t) return; who.push(String(t.name == null ? "" : t.name)); who.push(String(t.from == null ? "" : t.from)); texts.push(String(t.text == null ? "" : t.text)); });
   var w = who.join(" ").replace(/\s+/g, " ").trim(), tx = texts.join("\n");
   var known = robot || !!w;
-  var ghoul = /\bghoul|necrotic post-human/i.test(w), mutant = /super mutant|forced evolution/i.test(w);
+  var ghoul = CH.isGhoul(c), mutant = /super mutant|forced evolution/i.test(w);
   var label = origin || (traits[0] && (traits[0].from || traits[0].name)) || "";
   var immune = null, immuneWhy = "";
   if(robot){ immune = true; immuneWhy = "a robot is"; }
@@ -40071,6 +40150,7 @@ function invPut(i, n){
   if(row.armHp != null && isFinite(+row.armHp) && +row.armHp >= 0) lrow.armHp = Math.round(+row.armHp);   // CMD Z019: a set's kept HP rides along
   /* CMD Z054: and its fitted mods, when the whole row goes (part of a row leaves them on the sheet's row: they are never copied) */
   if(Array.isArray(row.armMods) && row.armMods.length && n >= have) lrow.armMods = JSON.parse(JSON.stringify(row.armMods));
+  if(row.armSet && typeof row.armSet === "object" && n >= have) lrow.armSet = JSON.parse(JSON.stringify(row.armSet));   /* L1: a hand-typed set's own numbers ride with it */
   /* 1 — THE LEDGER.  The write that can only be refused, never denied. */
   var txn = "sheet-put:" + uid();
   var res = LG.ops(env).put(lrow, txn);
@@ -45160,7 +45240,7 @@ root.addEventListener("click", function(e){
         if(tk && b4 && c1 && typeof pcHitDiff === "function" && typeof pcHitUndo === "function"){
           var u = pcHitDiff(b4, c1, hp0);
           pcHitUndo(u, "", { kind:"ps-tick", text:(c1.name || "A character") + " — " + tk.dmg + " Persistent damage (" + tk.cause + "), ignores DR" +
-            (tk.armour ? ", " + tk.armour + " off the plate" : "") + " (HP " + u.hp0 + " → " + u.hp1 + (u.pl0 != null && u.pl0 !== u.pl1 ? ", plate " + u.pl0 + " → " + u.pl1 : "") + ")" });
+            (tk.armour ? ", " + tk.armour + " off the plate" : "") + (tk.rads ? ", " + tk.rads + " off maximum HP (" + (tk.max + tk.rads) + " → " + tk.max + ")" : tk.immune ? ", immune to radiation: nothing lands" : "") + " (HP " + u.hp0 + " → " + u.hp1 + (u.pl0 != null && u.pl0 !== u.pl1 ? ", plate " + u.pl0 + " → " + u.pl1 : "") + ")" });
         }
       })();
       setVal("cs-hp", me().hp); renderConditions(me()); renderDerived(); break;
@@ -46661,6 +46741,7 @@ function pcHitUndo(u, what){
       rev:rv0, chars:[u.id], reverser:nm || undefined, revert:function(x){
         if(!x || !x.id || !x.keys) return { ok:false, note:"This hit changed too much of the sheet to keep an Undo; fix it on the sheet." };
         var done = false;
+        if(typeof pcHitOf === "function" && typeof pcHitStepBack === "function" && pcHitOf(x.id)) pcHitStepBack(x.inj);   /* R.235 B: the step that Injury caused, first */
         S.update(function(m){ (m.chars || []).forEach(function(ch){ if(ch && String(ch.id) === x.id){ Object.keys(x.keys).forEach(function(k){ if(x.keys[k] === null) delete ch[k]; else ch[k] = x.keys[k]; }); done = true; } });
           if(done && x.inj && typeof injOff === "function") injOff(m, x.inj); });   /* Z051P2 first */
         if(typeof render === "function") try{ render(); }catch(e){}
@@ -46685,10 +46766,36 @@ function pcHitPut(x){
   var c0 = pcHitOf(x.id);
   if(!c0) return { ok:false, note:"That sheet is gone." };
   if(typeof locked === "function" && locked(c0)) return { ok:false, note:"That sheet is not this device's to write." };
+  if(typeof pcHitStepBack === "function") pcHitStepBack(x.inj);   /* R.235 B: the step that Injury caused goes back FIRST (newest first), while its Injury is still on the record; guarded, because tests lift this function alone */
   S.update(function(m){ (m.chars || []).forEach(function(ch){ if(ch && String(ch.id) === x.id) Object.keys(x.keys).forEach(function(k){ if(x.keys[k] === null) delete ch[k]; else ch[k] = x.keys[k]; }); });
     if(x.inj && typeof injOff === "function") injOff(m, x.inj); }, { hpSaid:true });   /* the "Undid:" line says it; Z051P2 first: and the critical's Injury goes with its hit */
   if(typeof render === "function") try{ render(); }catch(e){}
   return { ok:true };
+}
+/* R.235 B (REVIEW 11-23 08; NR-219's "one Undo, whole"): UNDOING A HIT THAT DEALT AN INJURY TAKES BACK THE EXHAUSTION STEP THAT INJURY
+   CAUSED.  It was: the hit's Undo took the Injury off and left the step.  The hit's line carries the step's Undo key beside its
+   Injury (rev.inj.step).  The hit's Undo runs that step's own line's Undo FIRST and in the same press (newest first: the step was
+   written after the hit, and it can lower the same HP the hit lowered - the maximum drops under a sheet standing at its maximum),
+   then puts its own keys back and takes the Injury off.  Only while that Injury is still this Undo's to take off: one treated since,
+   or already undone (its own Undo took the step with it), takes no step.  A step already undone, sealed, or stale because the sheet
+   moved since is left as it is, quietly (SUITE_UNDO.quiet: the same run as a press, without the refusal's toast). */
+function pcHitStepBack(inj){
+  if(!inj || !inj.step || !inj.key) return false;
+  try{
+    var h = typeof injAt === "function" ? injAt(S.get(), inj) : null;
+    if(!h || h.a[h.i].treated) return false;
+    var U = window.SUITE_UNDO, r = U && typeof U.quiet === "function" ? U.quiet(String(inj.step)) : null;
+    return !!(r && r.ok);
+  }catch(e){ return false; }
+}
+/* R.235 B: what a kept hit reads NOW in the keys it changed (pcHitNow's own reading).  The step an Injury causes is written after
+   the hit and before the hit's line is kept; where it moved one of the hit's keys, the line's "after" is the sheet as the step
+   left it, so the hit's Undo is not refused as stale by its own Injury's step. */
+function pcHitAfterNow(u){
+  var c = u && u.id != null ? pcHitOf(u.id) : null;
+  if(!c || !u.after) return u;
+  Object.keys(u.after).forEach(function(k){ u.after[k] = c[k] === undefined ? null : JSON.parse(JSON.stringify(c[k])); });
+  return u;
 }
 function pcHitNow(x){
   if(x && Array.isArray(x.list)) return x.list.map(function(y){ return pcHitNow({ id:y && y.id, after:y && y.after }); });
@@ -46865,7 +46972,7 @@ window.HELENA_CHAR.applyDamage = function(charId, spec){
   function keepHit(){
   if(res && undoRec && typeof pcHitUndo === "function") res.said = !!pcHitUndo(undoRec, (spec.from ? spec.from + " " : "a ") + "hit" + (res.exhausted ? " (+" + res.exhausted + " exhaustion: " + String(spec.exhaust.why || "") + ")" : ""), spec.text ? { text:String(spec.text) + (undoRec.hp0 !== undoRec.hp1 ? ": HP " + undoRec.hp0 + " \u2192 " + undoRec.hp1 : "") } : spec.named ? { named:true } : null);   /* Z050 P2 (S.4); P4: spec.text, the line's own words */
   }
-  if(res && undoRec && spec.injLater === true && res.crit && !res.held) res.keepUndo = function(inj){ if(inj && inj.key) undoRec.inj = inj; keepHit(); res.keepUndo = null; return res.said; };
+  if(res && undoRec && spec.injLater === true && res.crit && !res.held) res.keepUndo = function(inj){ if(inj && inj.key) undoRec.inj = inj; if(inj && inj.step && typeof pcHitAfterNow === "function") pcHitAfterNow(undoRec); keepHit(); res.keepUndo = null; return res.said; };
   else keepHit();
   /* Z051P2 first:end */
   if(held && !res)
@@ -50349,32 +50456,50 @@ var TT = {
      the body and skip the plate, as before.  No plate (none worn, or wrecked): Health, as before.  Several sources stack, each
      in turn.  The same rule as the sheet's own Tick button (CH.persistTick), pinned equal by tests/zoe-z052.js. */
   persistBody: function(cause){ return /bleed|radiat/i.test(String(cause == null ? "" : cause)); },
-  tickOne: function(c){
-    var dealt = 0, plate = 0, lines = [], keep = [];
+  /* R.234 B (REVIEW 11-23 08): A PERSISTENT (RADIATION) TICK LOWERS MAXIMUM HP - it lands in c.rads, as a radiation hit does, and
+     current HP follows the maximum down (H.effMax, the sheet's own).  It skips the plate and ignores DR; a sheet the radiation
+     door calls immune (H.radImmune) takes nothing; a ghoul's sheet (H.isGhoul) is left as it was, off Health (R.236).  H: the
+     sheet's three readers, handed in by the page (HELENA_CHAR); the same rule as CH.persistTick, pinned equal by tests/zoe-z052.js. */
+  persistRad: function(cause){ return /radiat/i.test(String(cause == null ? "" : cause)); },
+  tickOne: function(c, H){
+    H = H || {};
+    var dealt = 0, plate = 0, rads = 0, lines = [], keep = [];
+    var say = function(f, d){ try{ return typeof f === "function" ? f(c) : d; }catch(e){ return d; } };
+    var ghoul = !!say(H.isGhoul, false), immune = !!say(H.radImmune, false);
     ((c && c.persistent) || []).forEach(function(p){
       if(!p) return;
       var rounds = Math.round(+p.rounds || 0);
       if(rounds <= 0) return;
       var dmg = Math.max(0, Math.round(+p.dmg || 0)), a = c.armour, off = 0;
+      if(TT.persistRad(p.cause) && !ghoul){
+        if(immune) lines.push((p.cause || "Persistent") + " — " + dmg + ", ignores DR: immune to radiation, nothing lands");
+        else{ if(dmg > 0){ c.rads = Math.max(0, Math.round(+c.rads || 0)) + dmg; rads += dmg; dealt += dmg; }
+              lines.push((p.cause || "Persistent") + " — " + dmg + ", ignores DR" + (dmg ? ": " + dmg + " off maximum HP" : "")); }
+        if(rounds - 1 > 0) keep.push({ cause:p.cause, dmg:p.dmg, rounds:rounds - 1 });
+        return;
+      }
       if(dmg > 0 && !TT.persistBody(p.cause) && a && a.name && (+a.hp || 0) > 0){ off = Math.min(+a.hp, dmg); a.hp = +a.hp - off; }
       dealt += dmg; plate += off;
       lines.push((p.cause || "Persistent") + " — " + dmg + ", ignores DR" + (off ? ": " + off + " off the plate" + (dmg - off ? ", " + (dmg - off) + " off Health" : "") : ""));
       if(rounds - 1 > 0) keep.push({ cause:p.cause, dmg:p.dmg, rounds:rounds - 1 });
     });
     c.persistent = keep;
-    c.hp = Math.max(0, Math.round(+c.hp || 0) - (dealt - plate));
-    return { damage:dealt, plate:plate, health:dealt - plate, hp:c.hp, lines:lines, left:keep.length };
+    c.hp = Math.max(0, Math.round(+c.hp || 0) - (dealt - plate - rads));
+    var mx = null;
+    if(rads){ mx = say(H.effMax, null); mx = mx == null ? null : Math.max(1, Math.round(+mx || 0)); if(mx != null && c.hp > mx) c.hp = mx; }
+    return { damage:dealt, plate:plate, rads:rads, max:mx, health:dealt - plate - rads, hp:c.hp, lines:lines, left:keep.length };
   },
-  roundTicks: function(chars, list){
+  roundTicks: function(chars, list, H){
     var want = {};
     (list || []).forEach(function(e){ if(e && e.kind === "char") want[String(e.ref)] = 1; });
     var out = [];
     (chars || []).forEach(function(c){
       if(!c || !c.id || !want[String(c.id)]) return;
       if(!((c.persistent || []).some(function(p){ return p && Math.round(+p.rounds || 0) > 0; }))) return;
-      var copy = TT.clone(c), r = TT.tickOne(copy);
-      out.push({ id:String(c.id), name:c.name || "unnamed", damage:r.damage, plate:r.plate, hp:r.hp, lines:r.lines, left:r.left,
-                 text:(c.name || "unnamed") + " — " + r.damage + " Persistent damage, ignores DR" + (r.plate ? ", " + r.plate + " off the plate" : "") + " → " + r.hp + " HP" });
+      var copy = TT.clone(c), r = TT.tickOne(copy, H);
+      out.push({ id:String(c.id), name:c.name || "unnamed", damage:r.damage, plate:r.plate, rads:r.rads, hp:r.hp, lines:r.lines, left:r.left,
+                 text:(c.name || "unnamed") + " — " + r.damage + " Persistent damage, ignores DR" + (r.plate ? ", " + r.plate + " off the plate" : "") +
+                      (r.rads ? ", " + r.rads + " off maximum HP" : "") + " → " + r.hp + " HP" });
     });
     return out;
   },
@@ -53948,7 +54073,9 @@ function sweepRound(){
   var plateSaid = function(u){ return u && u.pl0 != null && u.pl0 !== u.pl1 ? ", plate " + u.pl0 + " → " + u.pl1 : ""; };
   var lines = [];
   /* characters — the sheet is where their Persistent lives */
-  var ticks = TT.roundTicks(charList(), all);
+  /* R.234 B: the sheet's own readers, for a radiation tick (the maximum, who is immune, who is a ghoul) */
+  var CHt = (typeof window !== "undefined" && window.HELENA_CHAR) || {}, tickH = { effMax:CHt.effMax, radImmune:CHt.radImmune, isGhoul:CHt.isGhoul };
+  var ticks = TT.roundTicks(charList(), all, tickH);
   /* Z050 P4 (G.13): breath, a round at a time; a drowning rides the round's tick (one line, one Undo) */
   var wet = typeof subRound === "function" ? subRound(ticks, lines) : null;
   if(ticks.length){
@@ -53960,7 +54087,7 @@ function sweepRound(){
       (m.chars || []).forEach(function(ch){
         if(!ch || !ticks.some(function(t){ return t.id === String(ch.id); })) return;
         var b4 = JSON.parse(JSON.stringify(ch)), h0 = Math.max(0, Math.round(+ch.hp || 0));
-        TT.tickOne(ch);
+        TT.tickOne(ch, tickH);
         ticks.forEach(function(t){ if(t.id === String(ch.id) && t.drown) ch.hp = Math.max(0, Math.round(+ch.hp || 0) - t.drown); });
         if(CHx && typeof CHx.hitDiff === "function") undoOf[String(ch.id)] = CHx.hitDiff(b4, ch, h0);
       });
@@ -58695,10 +58822,13 @@ function applyResult(rep){
       /* Z051P2 first:begin */
       /* Z051 P2 (first; FIRST item c): the hit's one line now, its Undo taking this Injury back too; then the Injury's own line and Undo */
       var injRec = n ? { key:woundKeyFor(tgt.ref, tgt.name), n:n, loc:loc.loc, note:"from " + ((rep.weapon && rep.weapon.name) || "an attack") } : null;
-      if(typeof res.keepUndo === "function") res.keepUndo(injRec);
       /* Z051 P1 (fight, house rule): taking an injury is +1 exhaustion - its own line and Undo.  CMD Z054 (R.174 B): the step is
-         taken BEFORE the Injury's line is kept, so that line carries the step's Undo key and its Undo takes the step back too. */
+         taken BEFORE the Injury's line is kept, so that line carries the step's Undo key and its Undo takes the step back too.
+         R.235 B (REVIEW 11-23 08): and BEFORE the hit's line is kept, for the same reason - the hit's Undo takes its Injury off, so
+         it takes that Injury's step back too, by the same key (injRec.step).  One Undo, whole. */
       var exI = n && typeof exhInjured === "function" ? exhInjured(tgt.ref, loc.loc) : null;
+      if(injRec && exI && exI.ok && exI.undo) injRec.step = String(exI.undo);
+      if(typeof res.keepUndo === "function") res.keepUndo(injRec);
       if(injRec && CH && typeof CH.injuryKeep === "function")
         try{ CH.injuryKeep({ key:injRec.key, n:injRec.n, loc:injRec.loc, note:injRec.note, id:String(tgt.ref), name:tgt.name || ((rep.target && rep.target.name) || ""), why:"a critical, " + injRec.note + (rep.attacker && rep.attacker.name ? " (" + rep.attacker.name + ")" : ""),
                              step:exI && exI.ok ? exI.undo : null }); }catch(err){}
@@ -70313,7 +70443,7 @@ function add(side, c, opts){
   if(opts.cap != null) total = Math.min(total, Math.max(0, opts.cap));
   if(found) found.q = Math.max(found.q, total);   /* never shrink a line the shopper built */
   else if(total > 0) arr.push({ key:c.key, name:c.name, caps:c.caps, q:total, rowId:opts.rowId || "",
-                                holdId:opts.holdId || "" });
+                                holdId:opts.holdId || "", mods:opts.mods || "" });
   renderDeal();
   return found ? found.q : total;
 }
@@ -70337,7 +70467,7 @@ function renderSide(side){
     var flag = lineFlag(slice, x);
     var qWord = !A ? "x" + x.q : (x.holdId || x.rowId) ? x.q + " rounds (" + (Math.round(window.HELENA_LEDGER.ammoRows(ITEMS[x.key], x.q) * 10) / 10) + " rows)"
                                 : x.q + (x.q === 1 ? " row" : " rows") + (side === "buy" ? " = " + lineRounds(x) + " rounds" : "");
-    el.innerHTML = '<span>' + esc(x.name) + ' <span class="q">' + esc(qWord) + '</span>' +
+    el.innerHTML = '<span>' + esc(side === "sell" && typeof soldName === "function" ? soldName(x) : x.name) + ' <span class="q">' + esc(qWord) + '</span>' +
                    (x.rowId ? ' <span class="q" style="color:var(--amber)">off the shelf</span>' : "") +
                    (flag ? ' <span class="gone">' + esc(flag) + '</span>' : "") +
                    '</span><span class="v">' + v + '</span><button class="drop">&times;</button>';
@@ -70398,7 +70528,7 @@ $("mc-copy").onclick = function(){
   if(state.sell.length){
     L.push("SOLD");
     state.sell.forEach(function(x){ var v = (typeof linePrice === "function" ? linePrice("sell", x) : ("sell" === "buy" ? buyPrice(x.caps, x.q) : sellPrice(x.caps, x.q))); s += v;
-      L.push("  " + x.name + "  x" + x.q + "   " + v + " caps"); });
+      L.push("  " + (typeof soldName === "function" ? soldName(x) : x.name) + "  x" + x.q + "   " + v + " caps"); });
     L.push("  subtotal " + s);
     L.push("");
   }
@@ -70696,6 +70826,14 @@ function renderTo(){
 /* MC_COUNTER:begin */
 /* the sell side of a confirm: every held line, by hold id AND name, so a hold that
    somebody released is refused by name */
+/* L2 (REVIEW 11-23 08): A SALE THAT TAKES A SET'S FITTED MODS SAYS SO.  A pack row that carries a set's mods (the swap ruling) is sold
+   with them at the bare set's price - no new rule - but the counter's line, the receipt and the deal's log line name them:
+   "Sturdy Leather with its Ballistic Weave".  modNames: the names on a held row, "" when it holds none. */
+function modNames(row){
+  var ms = row && Array.isArray(row.armMods) ? row.armMods.map(function(md){ return String((md && (md.name || md.id)) || "").trim(); }).filter(Boolean) : [];
+  return ms.length > 1 ? ms.slice(0, -1).join(", ") + " and " + ms[ms.length - 1] : (ms[0] || "");
+}
+function soldName(x){ return String(x.name || "") + (x && x.mods ? " with its " + x.mods : ""); }
 function holdRefs(){
   return state.sell.filter(function(x){ return !!x.holdId; })
                    .map(function(x){ return { holdId:x.holdId, name:x.name, qty:x.q }; });
@@ -70734,7 +70872,7 @@ function holdToCounter(r, want, caps){
   /* the line carries what the HOLD took (res.entry.row.qty), never `want` restated —
      the two are equal today, and the hold is the one the confirm consumes */
   add("sell", { key:r.key, name:r.name, caps:caps },
-      { qty:(res.entry && res.entry.row && res.entry.row.qty) || want, rowId:r.id, cap:r.qty, holdId:res.entry.holdId });
+      { qty:(res.entry && res.entry.row && res.entry.row.qty) || want, rowId:r.id, cap:r.qty, holdId:res.entry.holdId, mods:modNames(res.entry && res.entry.row) });
   return res;
 }
 /* WHO MAY SET THE OVERSEER'S CAPACITY.  The same gate SUITE_TOOLS.canWrite (build-suite.js)
@@ -70791,7 +70929,7 @@ function adoptHolds(){
     if(state.sell.some(function(x){ return x.holdId === h.holdId; })) return;
     var it = h.row.key ? (ITEMS[h.row.key] || null) : null;
     state.sell.push({ key:h.row.key || "", name:h.row.name, caps: it ? (parseInt(it.caps, 10) || 0) : 0,
-                      q:h.row.qty, rowId:h.src, holdId:h.holdId });
+                      q:h.row.qty, rowId:h.src, holdId:h.holdId, mods:modNames(h.row) });
     n++;
   });
   return n;
@@ -71170,7 +71308,7 @@ function renderShelf(){
         var want = Math.min(r.qty, Math.max(1, parseInt($("mc-lg-qty").value, 10) || 1));
         var res = holdToCounter(r, want, caps);
         if(!res.ok){ say("mc-lg-msg", "bad", res.note); renderLedger(); return; }
-        say("mc-lg-msg", "plain", r.name + " x" + want + " is on the counter and off the shelf" +
+        say("mc-lg-msg", "plain", r.name + (typeof modNames === "function" && modNames(r) ? " with its " + modNames(r) : "") + " x" + want + " is on the counter and off the shelf" +
             (already ? " (x" + (already + want) + " of it on this counter now)" : "") +
             " — drop the line or clear the counter to put it back.");
         renderLedger();
@@ -71341,7 +71479,7 @@ function buyRows(stamp, payWho){
 /* Z050 (R.22): the deal in one line for the session log — "The party: bought Stimpak x2; sold .45 ACP 52 rounds" */
 function dealWords(payWho){
   var b = state.buy.map(function(x){ var A = typeof lineAmmo === "function" ? lineAmmo(x) : null; return x.name + (A ? " " + x.q + (x.q === 1 ? " row" : " rows") : " x" + x.q); });
-  var s2 = state.sell.map(function(x){ var A = typeof lineAmmo === "function" ? lineAmmo(x) : null; return x.name + (A && (x.holdId || x.rowId) ? " " + x.q + " rounds" : " x" + x.q); });
+  var s2 = state.sell.map(function(x){ var A = typeof lineAmmo === "function" ? lineAmmo(x) : null; return (typeof soldName === "function" ? soldName(x) : x.name) + (A && (x.holdId || x.rowId) ? " " + x.q + " rounds" : " x" + x.q); });
   if(!b.length && !s2.length) return "";
   var who = String(payWho || "someone");
   return who.charAt(0).toUpperCase() + who.slice(1) + " — at the trader: " + [b.length ? "bought " + b.join(", ") : "", s2.length ? "sold " + s2.join(", ") : ""].filter(Boolean).join("; ");
