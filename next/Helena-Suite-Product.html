@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"1800c415",at:"2026-11-24 03:09 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"8bfead81",at:"2026-11-24 06:30 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -1492,6 +1492,7 @@
 #tool-char .cs-armmods{font-size:15px;line-height:1.4;color:var(--faint);margin-top:3px}
 #tool-char .cs-armmods summary{cursor:pointer}
 #tool-char .cs-invmore{display:none}
+#tool-char .cs-badge.cs-worn{color:var(--green);border-color:var(--green);letter-spacing:.08em}
 #tool-char .cs-tick{display:flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);cursor:pointer;white-space:nowrap}
 #tool-char .cs-tick input{margin:0}
 #tool-char .cs-tick input:checked + span{color:var(--amber)}
@@ -1954,11 +1955,19 @@
 #tool-char #cs-sheet .cs-inv tr[data-inv] > td.pr br{display:none}
 #tool-char #cs-sheet .cs-inv tr[data-inv] > td.pr b::after{content:" · ";color:var(--faint)}
 #tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-armmods.cs-armmods.cs-armmods{order:7;flex:0 0 100%;margin:0}
-#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > div:not(.cs-hint):not(.cs-armmods), #tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-invctl{order:8;margin:4px 0 0}
-#tool-char #cs-sheet .cs-inv tr[data-inv] > td:nth-child(3){order:9}
-#tool-char #cs-sheet .cs-inv tr[data-inv] > td:last-child{order:10;margin-left:auto}
+#tool-char #cs-sheet .cs-inv tr[data-inv]::after{content:"";order:8;flex:0 0 100%;height:0}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > div:not(.cs-hint):not(.cs-armmods), #tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-invctl{order:9;margin:4px 0 0}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:nth-child(3){order:10}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:last-child{order:11;margin-left:auto}
 #tool-char #cs-sheet .cs-inv tr[data-inv] > td:last-child .cs-x{min-width:44px;min-height:44px}
-#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-hint{order:11;flex:0 0 100%;margin:2px 0 0 !important}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-hint{order:12;flex:0 0 100%;margin:2px 0 0 !important}
+#tool-char #cs-sheet .cs-inv tr[data-inv] .cs-invctl .cs-putq{min-height:44px;width:64px}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:nth-child(3) label{display:inline-flex;align-items:center;min-height:44px;gap:2px}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:nth-child(3) input[type=checkbox]{-webkit-appearance:none;appearance:none;width:44px;height:44px;margin:0;border:0;background:transparent;position:relative;cursor:pointer;flex:0 0 auto}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:nth-child(3) input[type=checkbox]::before{content:"";position:absolute;left:12px;top:12px;width:18px;height:18px;border:1px solid var(--dim);border-radius:2px;background:var(--plate)}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:nth-child(3) input[type=checkbox]:checked::before{background:var(--amber);border-color:var(--amber)}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:nth-child(3) input[type=checkbox]:focus-visible{outline:2px solid var(--amber);outline-offset:-6px}
+#tool-char #cs-sheet #cs-persist .cs-cond .cs-mini, #tool-char #cs-sheet #cs-persist .cs-cond .cs-x, #tool-char #cs-sheet #cs-ps-add{min-height:44px;min-width:44px}
 #tool-char #cs-sheet .cs-inv tr[data-inv] .cs-invctl .cs-mini, #tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > div:not(.cs-hint):not(.cs-armmods) .cs-mini{min-height:44px}
 #tool-char #cs-sheet .cs-inv tr[data-inv]:not(.cs-inv-open) > td:first-child > div:not(.cs-armmods), #tool-char #cs-sheet .cs-inv tr[data-inv]:not(.cs-inv-open) > td:nth-child(3), #tool-char #cs-sheet .cs-inv tr[data-inv]:not(.cs-inv-open) > td:last-child{display:none}
 }
@@ -6413,7 +6422,7 @@ html body #tool-char .cs-rollopts > label.cs-lab{ min-width:0; max-width:100%; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-24 03:09 UTC">1800c415</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-24 06:30 UTC">8bfead81</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -40143,15 +40152,32 @@ function renderConditions(c){
 /* CMD Z055, F25: the pack rows this device has opened with More (sheet id | row index); F31: the last Tick's own line, by sheet */
 var INV_OPEN = Object.create(null);
 var PS_SAID = null;
+/* F37 (REVIEW 2026-11-24 00): the parts fitted to the WORN SET itself, for its pack row's "Fitted:" line.  The same sort wearFromRow
+   makes when a set comes off (CMD Z054, R.233): a robot's own parts, a robot slot's part on any sheet and a part a Mode Selector
+   mode names stay on the body and are not the set's.  wearFromRow keeps its own copy of the two patterns because its block is
+   lifted and run alone by tests; tests/zoe-z055-pack.js holds the two copies equal. */
+function setModsOn(ch){
+  var modeIds = [];
+  if(ch && ch.modeSets && Array.isArray(ch.modeSets.modes)) ch.modeSets.modes.forEach(function(mo){ if(mo && Array.isArray(mo.mods)) modeIds = modeIds.concat(mo.mods); });
+  return (ch && ch.armour && Array.isArray(ch.armour.mods) ? ch.armour.mods : []).filter(function(md){
+    if(!md) return false;
+    var slot = String(md.slot || ""), setsOwn = /^(Linings|Armor Plating|Field Mods|Plating Mods)/i.test(slot);
+    var body = (ch.robot === true && !setsOwn) || /^(Robot Modules|Chassis Parts|Heads & Arms|Chassis Plating)/i.test(slot) || modeIds.indexOf(md.id) >= 0;
+    return !body;
+  });
+}
 function psSaidEl(s, ended){
   var d = document.createElement("div"); d.className = "cs-ps-said"; d.setAttribute("role", "status");
   d.innerHTML = "<b>" + esc(s.cause) + "</b> ticked: " + esc(s.text) + (ended ? ". That was its last round." : ".") + " <span>Undo is on its line in the Log.</span>";
   return d;
 }
-function invPrompt(html){
+/* REVIEW 2026-11-24 00 ("Refusals keep the red.  Mark every refusal that box can show"): a second argument of "refused" marks the
+   line as a refusal (.cs-refused, the damage colour); a note, or a press that worked, stays in the page's hint colour.  It is
+   an argument and not a second function so every block that is lifted into a vm with invPrompt stubbed still runs. */
+function invPrompt(html, how){
   var box = $("cs-inv-prompt"); if(!box) return;
   if(!html){ box.hidden = true; box.innerHTML = ""; return; }
-  box.hidden = false; box.innerHTML = html;
+  box.hidden = false; box.innerHTML = how === "refused" ? '<span class="cs-refused">' + html + "</span>" : html;
 }
 /* ================================================================== WAVE 11 (2026-09-28)
    PLAYER → LEDGER.  WAVE10_ADDENDA.md item 3 — "Joel is trying to put the excess loot he has
@@ -40282,11 +40308,11 @@ function invPut(i, n){
   var have = row ? Math.max(1, Math.round(+row.qty) || 1) : 0;
   n = Math.round(+n) || have;                       // blank or nonsense means the whole row
   var why = invPutWhy(c, row, n);
-  if(why){ invPrompt(esc(why) + "."); return { ok:false, note:why }; }
+  if(why){ invPrompt(esc(why) + ".", "refused"); return { ok:false, note:why }; }
   var LG = ledgerApi(), env = sheetLedgerEnv();
   if(!LG || typeof LG.ops !== "function" || !env){
     why = "the party ledger is not on this page — open the suite";
-    invPrompt(esc(why) + "."); return { ok:false, note:why };
+    invPrompt(esc(why) + ".", "refused"); return { ok:false, note:why };
   }
   var lrow = { key:row.key ? String(row.key) : null, name:String(row.name).trim(), qty:n, stack:!!row.stack,
                notes:String(row.notes || ""), from:String(c.id), sec:"From " + (c.name || "unnamed") + "'s pack", at:env.now() };
@@ -40302,7 +40328,7 @@ function invPut(i, n){
   var res = LG.ops(env).put(lrow, txn);
   if(!res || res.ok === false){
     var note = (res && res.note) || "the ledger did not take it";
-    invPrompt(esc(note) + "."); return { ok:false, note:note };
+    invPrompt(esc(note) + ".", "refused"); return { ok:false, note:note };
   }
   var putRound = putRoundNow();                     /* WAVE 17 SKEPTIC: the ledger write's round, before the sheet's names another */
   var rowWas = JSON.parse(JSON.stringify(row));     /* …and the row as it stood, should the goods have to come back (putKeptWatch) */
@@ -40327,7 +40353,7 @@ function invPut(i, n){
                (back.ok ? " — the " + short + " × " + lrow.name + " the ledger took are back off it; nothing moved"
                         : " — and the ledger's copy could not be taken back (" + (back.note || "no answer") + "): " +
                           short + " × " + lrow.name + " is on BOTH now; the Overseer can sort it from the Trader");
-    invPrompt(esc(why2) + ".");
+    invPrompt(esc(why2) + ".", "refused");
     return { ok:false, note:why2, reversed:!!back.ok, took:took };
   }
   /* 2c — arm the watch for the OTHER way the second half is lost: the room denying the
@@ -40384,7 +40410,7 @@ function putKeptWatch(rid, txn, cid, cname, i, like, n, whole, rowWas, name){
       invPrompt("<b>Not on the ledger.</b> Another device changed the party ledger at the same moment and the table kept that write, so the " +
                 n + " × " + esc(name) + " " + esc(cname) + " sent did not reach it" +
                 (back ? " — <b>they are back in " + esc(cname) + "’s pack</b>. Send them again."
-                      : " — and this device may no longer write " + esc(cname) + "’s sheet, so they are on neither: the Overseer can put them back on the sheet."));
+                      : " — and this device may no longer write " + esc(cname) + "’s sheet, so they are on neither: the Overseer can put them back on the sheet."), "refused");
     });
   }catch(e){ return false; }
   return true;
@@ -40446,7 +40472,7 @@ function invPutWatch(){
   var p = lastPut;
   invPrompt("The room would not take the change to this sheet (" + esc(note) + "). <b>" + p.n + " × " + esc(p.name) +
             "</b> is on the party ledger AND still on this sheet — counted twice. " +
-            '<a href="#" class="cs-mini" data-act="inv-unput" role="button">take the ledger’s copy back</a>');
+            '<a href="#" class="cs-mini" data-act="inv-unput" role="button">take the ledger’s copy back</a>', "refused");
   invUnputWire();
 }
 function invUnputWire(){
@@ -40455,11 +40481,11 @@ function invUnputWire(){
 }
 function invUnput(){
   var p = lastPut, LG = ledgerApi(), env = sheetLedgerEnv();
-  if(!p){ invPrompt("Nothing to take back — the last put is settled."); return { ok:false, note:"nothing to take back" }; }
-  if(!LG || typeof LG.ops !== "function" || !env){ invPrompt("The party ledger is not on this page."); return { ok:false, note:"no ledger" }; }
+  if(!p){ invPrompt("Nothing to take back — the last put is settled.", "refused"); return { ok:false, note:"nothing to take back" }; }
+  if(!LG || typeof LG.ops !== "function" || !env){ invPrompt("The party ledger is not on this page.", "refused"); return { ok:false, note:"no ledger" }; }
   var ops = LG.ops(env);
   var r = (typeof ops.unshelve === "function") ? ops.unshelve(refsFor(p.refs, p.n, p.stack)) : { ok:false, note:"this ledger cannot take goods back" };
-  if(!r.ok){ invPrompt(esc(r.note || "the ledger did not give it back") + " — the Overseer can sort it from the Trader."); return { ok:false, note:r.note }; }
+  if(!r.ok){ invPrompt(esc(r.note || "the ledger did not give it back") + " — the Overseer can sort it from the Trader.", "refused"); return { ok:false, note:r.note }; }
   lastPut = null;
   renderLedgerSlots();
   var lt = ledgerSlotsText();
@@ -40791,7 +40817,7 @@ function invUse(i){
   var U = CH.consumableOf(row.name, ITEMS, window.RECIPES);
   if(!U) return { ok:false, note:"not a consumable" };
   if(invNone(row)) return { ok:false, note:"none left" };
-  if(!CH.tracksAtAll(c)){ invPrompt((c.robot ? "A robot" : "A synth") + " gains nothing from " + esc(U.name) + " — nothing was used."); return { ok:false, note:"robot" }; }
+  if(!CH.tracksAtAll(c)){ invPrompt((c.robot ? "A robot" : "A synth") + " gains nothing from " + esc(U.name) + " — nothing was used.", "refused"); return { ok:false, note:"robot" }; }
   /* Z051 P1, CORE (house rule, the party pool): food and drink are the pool's — when the party pool is on this page, the
      sheet's Eat / Drink hands the row to it (it owns what eating does: the bowl, the banked HP, the buff, a tainted bite's
      test).  Without it the sheet's own Use runs below and a tainted bite opens the eater's disease test at once. */
@@ -40799,7 +40825,7 @@ function invUse(i){
   if((U.kind === "food" || U.kind === "drink") && PL && typeof PL.eat === "function"){
     var pr = null;
     try{ pr = PL.eat(String(c.id), i, { name:row.name, row:i, from:"sheet" }); }catch(e){ pr = { ok:false, note:String(e && e.message || e) }; }
-    if(pr && pr.note) invPrompt(esc(pr.note));
+    if(pr && pr.note) invPrompt(esc(pr.note), pr.ok === false ? "refused" : "");
     try{ renderInventory(me()); renderDerived(); render(); }catch(e){}
     return pr || { ok:false };
   }
@@ -40994,7 +41020,7 @@ function invSyringer(i, rand){
   else if(!LG || typeof LG.rollSyringer !== "function" || typeof LG.isUntypedDart !== "function") why = "the syringer table is not on this page — open the suite";
   else if(locked(c)) why = "this sheet belongs to someone else — they have to press this";
   else if(!LG.isUntypedDart(row.name)) why = String(row.name) + " already has its type";
-  if(why){ invPrompt(esc(why) + "."); return { ok:false, note:why }; }
+  if(why){ invPrompt(esc(why) + ".", "refused"); return { ok:false, note:why }; }
   var n = Math.max(1, Math.round(+row.qty) || 1), rolls = [], groups = [], by = {}, k, r;
   for(k = 0; k < n; k++){
     r = LG.rollSyringer(rand || Math.random);
@@ -41032,15 +41058,26 @@ function renderInventory(c){
   /* the ledger's "n / cap" once per render, handed to every row (wave 11 second skeptic);
      typeof-guarded like everything else this function reaches, for the five-variable vm */
   var lt = (typeof ledgerSlotsText === "function") ? ledgerSlotsText() : "";
+  /* F37 (REVIEW 2026-11-24 00): THE PACK SAYS WHICH SET IS ON YOUR BACK.  The worn set's own pack row is the first armour row that
+     is the same thing as the ARMOUR box (CH.sameItem, the slot count's twin - the row wearFromRow itself stamps when the set comes
+     off) and carries no came-off stamp (armHp, armMods: a row with one is a second set of the same name, off the body).  It is
+     read, never stored: no save field.  That row gets a WORN chip, the plate's HP as it stands, the names of the parts fitted to
+     the set, and no "wear" button.  typeof-guarded like everything here (the five-variable vm). */
+  var wornAt = -1;
+  if(typeof CH === "object" && CH && typeof CH.sameItem === "function" && typeof isArmourRow === "function" && c.armour && String(c.armour.name || "").trim())
+    c.inventory.some(function(r0, i0){ if(r0 && r0.armHp == null && r0.armMods == null && isArmourRow(r0) && CH.sameItem(c.armour, r0)){ wornAt = i0; return true; } return false; });
   c.inventory.forEach(function(row, i){
     var it = itemOf(row), caps = it ? parseInt(it.caps, 10) || 0 : 0;
     var tr = document.createElement("tr"); tr.setAttribute("data-inv", i);
+    var worn = i === wornAt, wornMods = worn && typeof setModsOn === "function" ? setModsOn(c) : [];
+    if(worn) tr.setAttribute("data-worn", "1");
     /* CMD Z055, F25: on a phone a row's own buttons sit behind its More button (the stylesheet shows the button only where the
        sheet is one column).  Which rows are open is this device's, kept by sheet and row for as long as the page is.
        typeof-guarded, as everything this function reaches is: it runs in a five-variable vm in two wave-9 test blocks. */
     var invOpen = typeof INV_OPEN !== "undefined" && !!INV_OPEN && INV_OPEN[c.id + "|" + i] === true;
     if(invOpen) tr.className = "cs-inv-open";
-    var armNames = Array.isArray(row.armMods) && row.armMods.length ? row.armMods.map(function(md){ return (md && (md.name || md.id)) || "a mod"; }).join(", ") : "";
+    var armList = worn ? wornMods : (Array.isArray(row.armMods) ? row.armMods : []);
+    var armNames = armList.length ? armList.map(function(md){ return (md && (md.name || md.id)) || "a mod"; }).join(", ") : "";
     /* ITEM 12: a row that IS armour gets a Wear button and a row that IS a weapon gets an
        "as weapon" button, so a thing already in the pack can reach the box it belongs in.
        Both are decided from the CATALOGUE row, not from the typed name, so a hand-typed
@@ -41054,7 +41091,8 @@ function renderInventory(c){
        of two constants in the file, which the Depth Doctrine forbids and which is how the
        two of them would drift.  Guarded, the slice evaluates, the price cell is still driven,
        and the crossing buttons simply do not appear in a harness that never asked for them. */
-    var cross = (typeof isArmourRow === "function" && isArmourRow(row))
+    var cross = worn ? ""                                                                            /* F37: the set on your back offers no "wear" */
+              : (typeof isArmourRow === "function" && isArmourRow(row))
               ? '<button class="cs-mini" data-act="inv-wear" title="fill the ARMOUR box from this row">wear</button>'
               : (it && typeof WEAPON_CAT !== "undefined" && WEAPON_CAT.test(it.cat || ""))
                 /* pressed 2026-09-24: once the weapon is on the table the row says so instead
@@ -41073,13 +41111,16 @@ function renderInventory(c){
           (row.degr > 0 ? " \u00b7 " + row.degr + (row.degr === 1 ? " Degradation" : " Degradations") : "") + '</span>' : "") +
         /* CMD Z016: a set taken off says the HP it came off with, and wears at it again */
         (row.armHp != null ? '<span class="cs-badge prop" style="margin-left:4px" title="the armour HP this set came off with; it is worn at this again">HP ' + esc(row.armHp) + "</span>" : "") +
+        /* F37: the worn set's row says so, with the plate's HP as it stands */
+        (worn ? '<span class="cs-badge cs-worn" style="margin-left:4px" title="this is the set in the ARMOUR box">WORN</span>' +
+                '<span class="cs-badge prop" style="margin-left:4px" title="the worn set’s armour HP now">HP ' + esc(Math.max(0, Math.round(+c.armour.hp || 0))) + "</span>" : "") +
         /* CMD Z054 (the swap ruling): a set taken off keeps its fitted mods, and wears with them again */
         (Array.isArray(row.armMods) && row.armMods.length ? '<span class="cs-badge prop cs-modchip" style="margin-left:4px" title="fitted to this set when it came off; they go back on with it: ' +
           esc(row.armMods.map(function(md){ return (md && (md.name || md.id)) || "a mod"; }).join(", ")) + '">' + row.armMods.length + (row.armMods.length === 1 ? " mod" : " mods") + "</span>" : "") +
         /* F26 (REVIEW 11-23 08): the chip's names were on a hover tip, and a phone has no hover.  Three or fewer print under the
            row; more than three sit behind a tap on their own count */
-        (armNames ? (row.armMods.length <= 3 ? '<div class="cs-armmods">Fitted: ' + esc(armNames) + "</div>"
-                                             : '<details class="cs-armmods"><summary>' + row.armMods.length + " mods fitted</summary>" + esc(armNames) + "</details>") : "") +
+        (armNames ? (armList.length <= 3 ? '<div class="cs-armmods">Fitted: ' + esc(armNames) + "</div>"
+                                         : '<details class="cs-armmods"><summary>' + armList.length + " mods fitted</summary>" + esc(armNames) + "</details>") : "") +
         /* CMD Z018 (G.8) */
         (typeof CH === "object" && CH && typeof CH.legOf === "function" && CH.legOf(row) ? '<span class="cs-badge prop" style="margin-left:4px" title="' + esc(CH.legOf(row).text) + '">legendary: ' + esc(CH.legOf(row).name) + "</span>" : "") +
         (cross ? '<div style="margin-top:2px">' + cross + "</div>" : "") +
@@ -41146,7 +41187,7 @@ function renderHits(){
     var ab = row.querySelector('[data-k="arm"]');
     if(ab) ab.onclick = function(){
       var r = wearFromRow({ name:c.name, key:c.key }, "the Guide search");
-      invPrompt(r.ok ? r.line : esc(r.why));
+      invPrompt(r.ok ? r.line : esc(r.why), r.ok ? "" : "refused");
     };
     host.appendChild(row);
   });
@@ -43189,8 +43230,8 @@ function stripPackRow(i){
   var c = me(), row = c && (c.inventory || [])[i];
   if(!row) return { ok:false };
   var it = itemOf(row);
-  if(!printedRar(it) || !it.cat || !WEAPON_CAT.test(it.cat || "")){ invPrompt("That row is not a weapon with a printed rarity, so there are no parts to read off it."); return { ok:false }; }
-  if(wpnHas(c, row)){ invPrompt("<b>" + esc(row.name) + "</b> is on the weapons table — break it down there."); return { ok:false }; }
+  if(!printedRar(it) || !it.cat || !WEAPON_CAT.test(it.cat || "")){ invPrompt("That row is not a weapon with a printed rarity, so there are no parts to read off it.", "refused"); return { ok:false }; }
+  if(wpnHas(c, row)){ invPrompt("<b>" + esc(row.name) + "</b> is on the weapons table — break it down there.", "refused"); return { ok:false }; }
   var cat = String(it.cat), rar = Math.max(0, parseInt(it.rar, 10) || 0), n = CH.stripYield(rar, CH.degrOf(row));
   if(typeof confirm === "function" && !confirm("Break down one " + (row.name || "weapon") + " for " + n + " part" + (n === 1 ? "" : "s") + "? It is destroyed (30 minutes, no bench).")) return { ok:false };
   var done = false;
@@ -43203,7 +43244,7 @@ function stripPackRow(i){
     else ch.inventory.push({ name:CH.partsName(cat), qty:n, stack:true, notes:"fits any " + cat + " (Guide p.xv)", key:"", proposed:false });
     done = true;
   });
-  if(!done){ invPrompt("Nothing was broken down — the sheet refused the write."); return { ok:false }; }
+  if(!done){ invPrompt("Nothing was broken down — the sheet refused the write.", "refused"); return { ok:false }; }
   tableRoll(c, "breaks down " + (row.name || "a weapon") + " for " + n + " " + cat + " part" + (n === 1 ? "" : "s"));
   renderInventory(me()); renderDerived();
   invPrompt("<b>" + esc(row.name) + "</b> broken down: +" + n + " " + esc(cat) + " part" + (n === 1 ? "" : "s") + " (rarity " + rar +
@@ -45051,17 +45092,17 @@ function fitMod(kind, mi, id){
   var M = modsApi(); if(!M) return false;
   var row = null;
   try{ row = M.find(id); }catch(err){ row = null; }
-  if(!row){ invPrompt("That part is not in the table any more — the build moved under the dropdown."); return false; }
+  if(!row){ invPrompt("That part is not in the table any more — the build moved under the dropdown.", "refused"); return false; }
   var c0 = me(); if(!c0) return false;
   var tgt0 = kind === "a" ? (c0.armour || {}) : (c0.weapons[mi] || {});
   var inSlot = modsOf(tgt0).filter(function(md){ return md.slot === row.slot; });
   var cap = modSlotCap(row.slot, kind === "a" ? c0 : null);
-  if(inSlot.some(function(md){ return md.id === row.id; })){ invPrompt("<b>" + esc(row.name) + "</b> is already fitted."); return false; }
+  if(inSlot.some(function(md){ return md.id === row.id; })){ invPrompt("<b>" + esc(row.name) + "</b> is already fitted.", "refused"); return false; }
   if(inSlot.length >= cap){
     invPrompt("<b>" + esc(String(row.slot || "").replace(/\s*\(.*$/, "")) + "</b> already holds <b>" +
       esc(inSlot.map(function(md){ return md.name || md.id; }).join(", ")) + "</b> — " +
       (cap === 1 ? "one part per slot" : cap + " at most in that slot") +
-      " (Guide Ch. VII). Take it off first, then fit <b>" + esc(row.name) + "</b>.");
+      " (Guide Ch. VII). Take it off first, then fit <b>" + esc(row.name) + "</b>.", "refused");
     return false;
   }
   var before = modTotals(kind, tgt0);
@@ -45072,11 +45113,11 @@ function fitMod(kind, mi, id){
      Short of caps: refused by the amount, nothing fitted, nothing spent. */
   var due = before.known && fee > 0 ? fee : 0, W = typeof feeWho === "function" ? feeWho(feePick(), c0) : { other:false, caps:Math.max(0, Math.round(+c0.caps || 0)) }, short = Math.max(0, due - W.caps);
   if(short){
-    invPrompt("<b>Not fitted:</b> " + esc(row.name) + "'s install fee is <b>" + due + "c</b> and " + esc(W.other ? W.name : "this sheet") + " holds " + (due - short) + "c — <b>" + short + "c short</b>. Nothing was fitted and nothing was spent.");
+    invPrompt("<b>Not fitted:</b> " + esc(row.name) + "'s install fee is <b>" + due + "c</b> and " + esc(W.other ? W.name : "this sheet") + " holds " + (due - short) + "c — <b>" + short + "c short</b>. Nothing was fitted and nothing was spent.", "refused");
     return false;
   }
   var fc = typeof feeCharge === "function" ? feeCharge(W, due) : { ok:true };
-  if(!fc.ok){ invPrompt("<b>Not fitted:</b> the fee was not paid (" + esc(fc.note) + "). Nothing was fitted and nothing was spent."); return false; }
+  if(!fc.ok){ invPrompt("<b>Not fitted:</b> the fee was not paid (" + esc(fc.note) + "). Nothing was fitted and nothing was spent.", "refused"); return false; }
   var done = false, paid = 0, own = W.other ? 0 : due;
   edit(function(ch){
     var tgt = kind === "a" ? ch.armour : ch.weapons[mi];
@@ -45088,7 +45129,7 @@ function fitMod(kind, mi, id){
     paid = due;
     tgt.mods.push(modRecord(row)); done = true;
   });
-  if(!done){ if(W.other && due) W.O.refund(W.payer, due); invPrompt("Nothing was fitted — the sheet refused the write."); return false; }
+  if(!done){ if(W.other && due) W.O.refund(W.payer, due); invPrompt("Nothing was fitted — the sheet refused the write.", "refused"); return false; }
   if(typeof tableRoll === "function") tableRoll(me(), "fits " + row.name + (paid ? ", install fee " + paid + " caps paid" + (W.other ? " by " + W.name : "") : ", no install fee"));
   if(kind === "a") renderDerived(); else renderWeapons(me());
   render();
@@ -45104,7 +45145,13 @@ function fitMod(kind, mi, id){
     (paid ? (W.other ? " — <b>paid by " + esc(W.name) + "</b>" : " — <b>paid from the caps</b>, " + Math.round(+me().caps || 0) + "c left") : "") +
     ". Needs <b>" + esc(row.perk || "no perk") + "</b>, Complexity <b>" + (+row.cx || 0) +
     "</b>, materials <b>" + esc(row.mats || "none printed") + "</b>. " +
-    (after.known ? "This thing is now worth <b>" + after.value + "c</b>." : "Its parts now total <b>" + after.part + "c</b>.") +
+    /* F42 (REVIEW 2026-11-24 00, R.249 A): "now worth 320c" stood beside a pack row that still read 220.  Both numbers are right and
+       they are different things: the 320 is what the NEXT install fee is a percentage of (the thing with its parts); the 220 is
+       what the row sells for, fitted or not (L2: a set is sold with its mods at the bare set's price).  The line says which is
+       which.  Words only: no price and no fee is computed differently. */
+    (after.known ? "With its parts this thing counts as <b>" + after.value + "c</b> for the next install fee." +
+                   (kind === "a" ? " Its price on the pack row stays <b>" + after.base + "c</b>: a set sells at its own price, fitted or not." : "")
+                 : "Its parts now total <b>" + after.part + "c</b>.") +
     (Array.isArray(row.roll) && row.roll.length
       ? ' <span style="color:var(--amber,#FFB000)">⟳ It bends a roll (' + esc(row.roll.join(", ")) +
         ") — the Attack, Damage and skill read-outs on this sheet will say so, and every other pane that rolls for this sheet reads it too.</span>"
@@ -45117,7 +45164,7 @@ function fitMod(kind, mi, id){
 function fitFromSelect(sel){
   if(!sel) return;
   var id = sel.value, kind = sel.getAttribute("data-modsel"), mi = +sel.getAttribute("data-modi");
-  if(!id){ invPrompt("Pick a part in the dropdown first, then press fit."); return; }
+  if(!id){ invPrompt("Pick a part in the dropdown first, then press fit.", "refused"); return; }
   sel.value = "";
   fitMod(kind, mi, id);
 }
@@ -45132,18 +45179,18 @@ function buildMod(kind, mi, id){
   try{ row = M.find(id); }catch(err){ row = null; }
   var c0 = me(); if(!row || !c0) return null;
   var tgt0 = kind === "a" ? (c0.armour || {}) : ((c0.weapons || [])[mi] || null);
-  if(!tgt0){ invPrompt("That item is gone from the sheet."); return null; }
+  if(!tgt0){ invPrompt("That item is gone from the sheet.", "refused"); return null; }
   var inSlot = modsOf(tgt0).filter(function(md){ return md.slot === row.slot; });
-  if(inSlot.some(function(md){ return md.id === row.id; })){ invPrompt("<b>" + esc(row.name) + "</b> is already fitted."); return { ok:false }; }
-  if(inSlot.length >= modSlotCap(row.slot, kind === "a" ? c0 : null)){ invPrompt("<b>" + esc(String(row.slot || "").replace(/\s*\(.*$/, "")) + "</b> is full — take a part off first, then build <b>" + esc(row.name) + "</b>."); return { ok:false }; }
+  if(inSlot.some(function(md){ return md.id === row.id; })){ invPrompt("<b>" + esc(row.name) + "</b> is already fitted.", "refused"); return { ok:false }; }
+  if(inSlot.length >= modSlotCap(row.slot, kind === "a" ? c0 : null)){ invPrompt("<b>" + esc(String(row.slot || "").replace(/\s*\(.*$/, "")) + "</b> is full — take a part off first, then build <b>" + esc(row.name) + "</b>.", "refused"); return { ok:false }; }
   var plan = CH.modBuildPlan(c0, row);
-  if(!plan.ok){ invPrompt("<b>Not built:</b> " + esc(row.name) + " " + esc(plan.why) + ". Nothing was rolled and nothing was spent."); return { ok:false, plan:plan }; }
+  if(!plan.ok){ invPrompt("<b>Not built:</b> " + esc(row.name) + " " + esc(plan.why) + ". Nothing was rolled and nothing was spent.", "refused"); return { ok:false, plan:plan }; }
   var before = modTotals(kind, tgt0), fee = 0;
   try{ fee = M.installCaps(row, before.value); }catch(err){ fee = 0; }
   /* CMD Z019 (Zoe's ruling, 2026-10-22): the install fee comes off the caps — short, it is refused before any die (fitMod) */
   var due = before.known && fee > 0 ? fee : 0, W = typeof feeWho === "function" ? feeWho(feePick(), c0) : { other:false, caps:Math.max(0, Math.round(+c0.caps || 0)) }, short = Math.max(0, due - W.caps);
   if(short){
-    invPrompt("<b>Not built:</b> " + esc(row.name) + "'s install fee is <b>" + due + "c</b> and " + esc(W.other ? W.name : "this sheet") + " holds " + (due - short) + "c — <b>" + short + "c short</b>. Nothing was rolled and nothing was spent.");
+    invPrompt("<b>Not built:</b> " + esc(row.name) + "'s install fee is <b>" + due + "c</b> and " + esc(W.other ? W.name : "this sheet") + " holds " + (due - short) + "c — <b>" + short + "c short</b>. Nothing was rolled and nothing was spent.", "refused");
     return { ok:false, plan:plan, short:short };
   }
   var s = skillOf(c0, plan.skill), tn = attrVal(c0, "INT") + s.rank, r = null, won = true;
@@ -45155,7 +45202,7 @@ function buildMod(kind, mi, id){
     return { ok:false, roll:r, plan:plan };
   }
   var fc = typeof feeCharge === "function" ? feeCharge(W, due) : { ok:true };
-  if(!fc.ok){ invPrompt("<b>Not built:</b> the fee was not paid (" + esc(fc.note) + "). Nothing was spent."); return { ok:false }; }
+  if(!fc.ok){ invPrompt("<b>Not built:</b> the fee was not paid (" + esc(fc.note) + "). Nothing was spent.", "refused"); return { ok:false }; }
   var done = false, paid = 0, own = W.other ? 0 : due;
   edit(function(ch){
     var tgt = kind === "a" ? ch.armour : (ch.weapons || [])[mi];
@@ -45171,7 +45218,7 @@ function buildMod(kind, mi, id){
     });
     tgt.mods.push(modRecord(row)); done = true;
   });
-  if(!done){ if(W.other && due) W.O.refund(W.payer, due); invPrompt("Nothing was built — the sheet refused the write."); return { ok:false }; }
+  if(!done){ if(W.other && due) W.O.refund(W.payer, due); invPrompt("Nothing was built — the sheet refused the write.", "refused"); return { ok:false }; }
   var mats = CH.MATERIAL_TIERS.filter(function(t){ return plan.mats[t]; }).map(function(t){ return plan.mats[t] + " " + t; }).join(", ") || "no materials";
   var feeSay = +row.install
     ? (before.known ? (+row.install) + "% of " + before.value + "c = " + fee + "c" : (+row.install) + "% of its worth (no catalogue row, so the Overseer names it)")
@@ -45307,9 +45354,9 @@ root.addEventListener("click", function(e){
       if(!row) return;
       /* pressed 2026-09-24: refused here as well as hidden on the row, because the search
          prompt's button is offered before the row has been repainted */
-      if(wpnHas(me(), row)){ invPrompt("<b>" + esc(row.name || "it") + "</b> is already on the weapons table."); renderInventory(me()); return; }
+      if(wpnHas(me(), row)){ invPrompt("<b>" + esc(row.name || "it") + "</b> is already on the weapons table.", "refused"); renderInventory(me()); return; }
       var w = weaponFromInvRow(row);
-      if(!w){ invPrompt("That row is not a weapon in the Guide, so there are no dice to read off it."); return; }
+      if(!w){ invPrompt("That row is not a weapon in the Guide, so there are no dice to read off it.", "refused"); return; }
       edit(function(ch){ ch.weapons.push(w); });
       renderWeapons(me()); renderInventory(me()); renderDerived();
       invPrompt("<b>" + esc(w.name) + "</b> is on the weapons table — " + (+w.cd || 0) + " CD " + esc(w.type || "") +
@@ -45319,18 +45366,18 @@ root.addEventListener("click", function(e){
       wrap = b.closest(".cs-wpn"); if(!wrap) return;
       var wi = +wrap.getAttribute("data-w"), w = me().weapons[wi]; if(!w) return;
       /* pressed 2026-09-24: on a row not yet named this made an inventory row called "weapon" */
-      if(!String(w.name || "").trim()){ invPrompt("Name the weapon first \u2014 a nameless row would take an inventory slot under the name \u201cweapon\u201d."); return; }
-      if(invHas(me(), w)){ invPrompt("<b>" + esc(w.name || "it") + "</b> is already an inventory row."); renderWeapons(me()); return; }
-      if(unitsOut(me(), wi)){ invPrompt("<b>No " + esc(CH.unitPlural(w.name)) + " left</b> — there is nothing to put in the inventory."); renderWeapons(me()); return; }
+      if(!String(w.name || "").trim()){ invPrompt("Name the weapon first \u2014 a nameless row would take an inventory slot under the name \u201cweapon\u201d.", "refused"); return; }
+      if(invHas(me(), w)){ invPrompt("<b>" + esc(w.name || "it") + "</b> is already an inventory row.", "refused"); renderWeapons(me()); return; }
+      if(unitsOut(me(), wi)){ invPrompt("<b>No " + esc(CH.unitPlural(w.name)) + " left</b> — there is nothing to put in the inventory.", "refused"); renderWeapons(me()); return; }
       edit(function(ch){ ch.inventory.push(invRowFromWeapon(w)); });
       renderInventory(me()); renderWeapons(me()); renderDerived();
       invPrompt("<b>" + esc(w.name || "the weapon") + "</b> is an inventory row now, so it shows up in the sell price. The slot it takes on the weapons table is not charged twice.");
     })(); break;
     case "wpn-to-inv-last": (function(){
       var ws = me().weapons, w = ws[ws.length - 1]; if(!w) return;
-      if(!String(w.name || "").trim()){ invPrompt("Name the weapon first \u2014 a nameless row would take an inventory slot under the name \u201cweapon\u201d."); return; }
-      if(invHas(me(), w)){ invPrompt("<b>" + esc(w.name || "it") + "</b> is already an inventory row."); return; }
-      if(unitsOut(me(), ws.length - 1)){ invPrompt("<b>No " + esc(CH.unitPlural(w.name)) + " left</b> — there is nothing to put in the inventory."); return; }
+      if(!String(w.name || "").trim()){ invPrompt("Name the weapon first \u2014 a nameless row would take an inventory slot under the name \u201cweapon\u201d.", "refused"); return; }
+      if(invHas(me(), w)){ invPrompt("<b>" + esc(w.name || "it") + "</b> is already an inventory row.", "refused"); return; }
+      if(unitsOut(me(), ws.length - 1)){ invPrompt("<b>No " + esc(CH.unitPlural(w.name)) + " left</b> — there is nothing to put in the inventory.", "refused"); return; }
       edit(function(ch){ ch.inventory.push(invRowFromWeapon(w)); });
       renderInventory(me()); renderWeapons(me()); renderDerived();
       invPrompt("<b>" + esc(w.name || "the weapon") + "</b> is an inventory row now as well.");
@@ -45343,7 +45390,7 @@ root.addEventListener("click", function(e){
     /* CMD Z016: build the chosen part at a bench (buildMod) */
     case "mod-build": (function(){
       var box = b.closest(".cs-modadd"), sel = box && box.querySelector("select[data-modsel]"); if(!sel) return;
-      if(!sel.value){ invPrompt("Pick a part in the dropdown first, then press build."); return; }
+      if(!sel.value){ invPrompt("Pick a part in the dropdown first, then press build.", "refused"); return; }
       var id = sel.value; sel.value = "";
       buildMod(sel.getAttribute("data-modsel"), +sel.getAttribute("data-modi"), id);
     })(); break;
@@ -84904,6 +84951,7 @@ function tab(k, fromJump){
     var dt = x.closest ? x.closest("details") : null; if(dt) dt.open = true;
     if(x.tagName === "DETAILS") x.open = true;
     try{ x.scrollIntoView({ block:"start" }); }catch(e){}
+    if(typeof clearHead === "function") clearHead(x);
   }, 30);
   else try{ W.scrollTo(0, 0); }catch(e){}
   try{ D.dispatchEvent(new W.CustomEvent("cinder-tab", { detail:{ tab:k } })); }catch(e){}
@@ -84957,6 +85005,29 @@ function classicScroll(sec){
   var dt = x.closest ? x.closest("details") : null; if(dt) dt.open = true;
   if(x.tagName === "DETAILS") x.open = true;
   try{ x.scrollIntoView({ block:"start" }); }catch(e){}
+  if(typeof clearHead === "function") clearHead(x);
+}
+/* F41 (REVIEW 2026-11-24 00): A JUMP LANDS UNDER THE HEADER.  The Pack jump scrolls to the "Inventory" heading, which has no id, so
+   the stylesheet's scroll margin (it is written for [id]) never applied: the heading stood at 0 px and the first row at 30,
+   both under the fixed header (44 px on a phone, 48 at 1440), in both views.  After the scroll, whatever is fixed or sticky
+   across the top of the window is measured, and the heading is given that much scroll margin and scrolled to again.  Measured, not a
+   constant: the two views' headers are different heights, and the STAGING mark can add a line. */
+function clearHead(x){
+  try{
+    if(!x || !x.getBoundingClientRect || typeof D.elementsFromPoint !== "function") return;
+    var r = x.getBoundingClientRect(), bar = 0, limit = W.innerHeight / 3;
+    [W.innerWidth / 2, 12, W.innerWidth - 12].forEach(function(px){
+      D.elementsFromPoint(px, 2).forEach(function(n){
+        for(var up = n; up && up !== D.body && up !== D.documentElement; up = up.parentNode){
+          if(!up.getBoundingClientRect || up === x || (up.contains && up.contains(x))) continue;
+          var pos = W.getComputedStyle(up).position;
+          if(pos === "fixed" || pos === "sticky"){ var b = up.getBoundingClientRect(); if(b.top <= 2 && b.bottom < limit && b.bottom > bar) bar = b.bottom; }
+        }
+      });
+    });
+    /* the margin is set on the heading and the same scroll is asked again, so it works whichever box does the scrolling */
+    if(bar && r.top < bar + 8){ x.style.scrollMarginTop = Math.round(bar + 8) + "px"; x.scrollIntoView({ block:"start" }); }
+  }catch(e){}
 }
 function jumpTo(sec){
   if(W.CINDER && W.CINDER.on()){ keepSec(sec); return tab(sec === "sheet" ? "sheets" : sec, true); }
