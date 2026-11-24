@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"bed507bb",at:"2026-11-23 19:23 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"1800c415",at:"2026-11-24 03:09 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -1234,6 +1234,7 @@
 #tool-char .cs-menu-b{position:absolute;right:0;top:calc(100% + 4px);z-index:30;display:flex;flex-direction:column;gap:4px;
        min-width:170px;padding:6px;background:var(--panel);border:1px solid var(--edge);border-radius:3px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 #tool-char .cs-menu-b > button{text-align:left;min-height:32px}
+#tool-char .cs-menu-note{margin:2px 0 0;padding:6px 4px 2px;max-width:240px;border-top:1px dotted var(--edge);font-size:15px;line-height:1.45;color:var(--faint)}
 @media screen{
 #tool-char #cs-sheet .cs-cols > div{display:contents}
 #tool-char #cs-sheet .cs-cols{gap:12px 14px;grid-template-columns:minmax(0,1fr);grid-template-rows:none;
@@ -1422,7 +1423,8 @@
 #tool-char .cs-skills td{padding:3px 6px;border-bottom:1px solid #232a1b;vertical-align:middle;font-size:15px}
 #tool-char .cs-skills tr:nth-child(odd) td{background:#1f2318}
 #tool-char .cs-skills td.n{white-space:nowrap}
-#tool-char .cs-skills td.n[data-tag="1"]{color:var(--amber);font-weight:600}
+#tool-char .cs-skills td.n[data-tag="1"]{color:var(--amber);font-weight:700}
+#tool-char .cs-skills td.n[data-tag="1"]::before{content:"★ "}
 #tool-char .cs-skills td.n select{background:transparent;border:none;color:var(--faint);font-family:var(--f-data);font-size:12.5px;
        padding:0 2px;margin-left:2px;cursor:pointer;-webkit-appearance:none;appearance:none}
 #tool-char .cs-skills td.n select:focus{color:var(--amber)}
@@ -1483,6 +1485,13 @@
 #tool-char .cs-dmg-out{padding:5px 9px 7px;font-size:15px;line-height:1.5;border-bottom:1px dotted var(--edge);min-height:1.5em}
 #tool-char .cs-dmg-out b{color:var(--ink)}
 #tool-char .cs-dmg-out .crit{color:var(--red);font-weight:700}
+#tool-char #cs-inv-prompt{color:var(--faint)}
+#tool-char #cs-inv-prompt .cs-refused{color:var(--z-dmg, var(--red))}
+#tool-char .cs-ps-said{flex-basis:100%;font-size:15px;line-height:1.5;color:var(--faint);padding:2px 0 7px;border-bottom:1px solid #232a1b}
+#tool-char .cs-ps-said b{color:var(--ink)}
+#tool-char .cs-armmods{font-size:15px;line-height:1.4;color:var(--faint);margin-top:3px}
+#tool-char .cs-armmods summary{cursor:pointer}
+#tool-char .cs-invmore{display:none}
 #tool-char .cs-tick{display:flex;align-items:center;gap:7px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);cursor:pointer;white-space:nowrap}
 #tool-char .cs-tick input{margin:0}
 #tool-char .cs-tick input:checked + span{color:var(--amber)}
@@ -1926,6 +1935,33 @@
 #tool-char #cs-sheet .cs-inv td:first-child > div:not(.cs-hint), #tool-char #cs-sheet .cs-inv td:first-child > .cs-invctl{display:inline-flex;gap:4px;vertical-align:middle;margin:6px 6px 0 0}
 #tool-char #cs-sheet .cs-inv td:first-child > .cs-hint{margin-top:4px !important}
 #tool-char #cs-sheet .cs-inv td label{font-size:13.5px !important;letter-spacing:.04em !important}
+#tool-char #cs-sheet .cs-inv td:first-child > div.cs-armmods.cs-armmods:not(.cs-hint){display:block;margin:3px 0 0}
+@container (max-width:760px){
+#tool-char #cs-sheet table.cs-inv, #tool-char #cs-sheet table.cs-inv > tbody{display:block;width:100%}
+#tool-char #cs-sheet .cs-inv tr[data-inv]{display:flex;flex-wrap:wrap;align-items:center;gap:1px 8px;padding:2px 0 3px;border-bottom:1px solid #232a1b}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-modchip{display:none}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-badge{padding-top:1px;padding-bottom:1px;line-height:1.3}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-armmods{line-height:1.25}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td{padding:0;border:0;min-width:0}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child{display:contents}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > input[data-if="name"]{order:1;flex:1 1 0;min-width:0;width:auto;min-height:44px}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td.q{order:2}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td.q input{width:56px;min-height:44px}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-invmore{display:inline-flex;align-items:center;justify-content:center;order:3;min-width:64px;min-height:44px;margin:0}
+#tool-char #cs-sheet .cs-inv tr[data-inv]::before{content:"";order:4;flex:0 0 100%;height:0}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-badge{order:5;margin-left:0 !important}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td.pr{order:6;margin-left:auto;white-space:nowrap;font-size:15px;line-height:1.4}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td.pr br{display:none}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td.pr b::after{content:" · ";color:var(--faint)}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-armmods.cs-armmods.cs-armmods{order:7;flex:0 0 100%;margin:0}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > div:not(.cs-hint):not(.cs-armmods), #tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-invctl{order:8;margin:4px 0 0}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:nth-child(3){order:9}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:last-child{order:10;margin-left:auto}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:last-child .cs-x{min-width:44px;min-height:44px}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-hint{order:11;flex:0 0 100%;margin:2px 0 0 !important}
+#tool-char #cs-sheet .cs-inv tr[data-inv] .cs-invctl .cs-mini, #tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > div:not(.cs-hint):not(.cs-armmods) .cs-mini{min-height:44px}
+#tool-char #cs-sheet .cs-inv tr[data-inv]:not(.cs-inv-open) > td:first-child > div:not(.cs-armmods), #tool-char #cs-sheet .cs-inv tr[data-inv]:not(.cs-inv-open) > td:nth-child(3), #tool-char #cs-sheet .cs-inv tr[data-inv]:not(.cs-inv-open) > td:last-child{display:none}
+}
 #tool-char #cs-sheet .cs-wtab td.nmc{min-width:180px}
 #tool-char #cs-sheet .cs-wtab td:nth-child(6), #tool-char #cs-sheet .cs-wtab td:nth-child(10){min-width:104px}
 #tool-char #cs-sheet .cs-wtab td{padding:6px 4px}
@@ -4982,6 +5018,14 @@ body:not(.view-cinder) #cl-ms{ display:none !important; }
   body.view-cinder #cx-sheet3 .cs-exh b{color:#8E2A1B;font-family:"Special Elite","Courier New",monospace}
   body.view-cinder #cx-sheet3 .cs-exh[data-exh="0"] b{color:#5E5346}
   body.view-cinder #cx-sheet3 .cs-hint,body.view-cinder #cx-sheet3 small{color:#5E5346}
+  /* CMD Z055 §3: Identity is a fold (the portrait, the name, also known as, the player, the XP): its heading is the tap */
+  body.view-cinder #cx-sheet3 .cx-idfold{margin:0}
+  body.view-cinder #cx-sheet3 .cx-idfold > summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:32px}
+  body.view-cinder #cx-sheet3 .cx-idfold > summary::-webkit-details-marker{display:none}
+  body.view-cinder #cx-sheet3 .cx-idfold > summary::after{content:"▸";font-size:var(--fs-base)}
+  body.view-cinder #cx-sheet3 .cx-idfold[open] > summary::after{content:"▾"}
+  body.view-cinder #cx-sheet3 .cx-idfold > :not(summary){margin-top:12px}
+  @media(max-width:900px){body.view-cinder #cx-sheet3 .cx-idfold > summary{min-height:44px}}
   /* identity: the head as a stacked column */
   body.view-cinder #cx-sheet3 .cs-head{display:flex;flex-direction:column;gap:6px;padding:10px}
   body.view-cinder #cx-sheet3 .cs-head .cs-box,body.view-cinder #cx-sheet3 .cs-head .cs-xpbox,
@@ -5655,6 +5699,32 @@ body.qb-on{ padding-bottom:calc(56px + 190px); }
 .qb-msg{ color:#F7D9A6; }
 body:not(.view-cinder) .qb-bar{ background:#0d130b; color:#d5e6b8; border-top-color:#b9a44a; }
 
+/* ---- CMD Z055 §3: the first screen of Character - one card at the top of the page, in the page, both views, every width.
+   It reuses the quick bar's buttons (.qb-btn: 44 px targets).  On a phone the weapons stack one to a line with Roll at the right;
+   wider, they sit two or three to a row.  Where the fixed quick bar is up the script hides the card (one of them, never both). ---- */
+.cn-card{ box-sizing:border-box; margin:0 0 12px; padding:10px 12px 12px; background:#1C1814; color:#F2E6C9; border:1.5px solid #3A2C20; border-left:4px solid #E8692C; border-radius:6px; font-family:inherit; }
+.cn-card[hidden]{ display:none !important; }
+.cn-top{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:0 0 6px; }
+.cn-hp b{ font-size:var(--fs-xl, 20px); line-height:1; }   /* 20 px: a size the Character page already uses (28 px would add one; Z055 counts them) */
+.cn-hp small{ font-size:var(--fs-md, 13px); margin-left:4px; }
+.cn-who{ font-size:var(--fs-base, 15px); font-weight:700; text-align:right; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cn-line{ display:flex; flex-wrap:wrap; gap:4px 16px; margin:0 0 10px; font-size:var(--fs-md, 13px); line-height:1.4; }
+.cn-line b{ font-size:var(--fs-base, 15px); }
+.cn-atks{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:8px 12px; margin:0 0 10px; }
+.cn-atk{ display:flex; align-items:center; justify-content:space-between; gap:10px; min-width:0; }
+.cn-wn{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:var(--fs-base, 15px); }
+.cn-wn small{ font-size:var(--fs-sm, 12px); opacity:.85; margin-left:6px; }
+/* the sheet's own button rules (two ids deep) would shrink these: the card's buttons keep the quick bar's 44 px */
+#cn-card .qb-btn{ min-height:44px !important; min-width:44px !important; padding:8px 10px !important; font-size:var(--fs-base, 15px) !important; line-height:1.2 !important; }
+#cn-card .cn-atk .qb-btn{ flex:0 0 auto; min-width:88px !important; }
+.cn-acts{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 6px; }
+#cn-card .cn-acts .qb-btn{ flex:1 1 140px; max-width:260px; }
+.cn-ph{ font-weight:700; margin:0 0 6px; }
+.cn-note, .cn-msg{ margin:4px 0 0; font-size:var(--fs-md, 13px); line-height:1.4; }
+.cn-msg{ color:#F7D9A6; }
+body:not(.view-cinder) .cn-card{ background:#0d130b; color:#d5e6b8; border-color:#2c3a22; border-left-color:#b9a44a; }
+@media print{ .cn-card{ display:none !important; } }
+
 /* ---- Cinder's fight bar at phone width: nothing covers it, nothing in it is clipped, no scroll box inside it ---- */
 @media (max-width:480px){
   /* the Mysterious Stranger's card sat at the foot of the screen over the fight bar: on a phone it docks under the initiative ribbon */
@@ -5684,7 +5754,32 @@ body.view-cinder[data-cl-tab="road"] #suite-stage > #fold-med,
 body.view-cinder[data-cl-tab="road"] #suite-stage > #fold-fuse{ display:block !important; }
 body.view-cinder[data-cl-tab="road"] #suite-stage > .suite-fold > .tool[hidden]{ display:block !important; }
 
-/* Z051 pre-game: How the road works, a shut fold at the top of the Road tab */
+/* CMD Z055 §4: on Road in Cinder the Medical and Fusion panes are shut until their header is tapped (src/cinder-zr-road-tab.js sets
+   .rt-shut); a shut pane keeps its header and its live number.  After the rule above, so it wins the tie. */
+body.view-cinder[data-cl-tab="road"] #suite-stage > .suite-fold.rt-shut > .tool.tool{ display:none !important; }
+body.view-cinder[data-cl-tab="road"] #suite-stage > :is(#fold-med, #fold-fuse) > .suite-fold-bar .suite-fold-h{ cursor:pointer; min-height:44px; }
+body.view-cinder[data-cl-tab="road"] #suite-stage > :is(#fold-med, #fold-fuse) > .suite-fold-bar .suite-fold-t::before{ content:"▾ "; }
+body.view-cinder[data-cl-tab="road"] #suite-stage > :is(#fold-med, #fold-fuse).rt-shut > .suite-fold-bar .suite-fold-t::before{ content:"▸ "; }
+
+/* CMD Z055 §4: ONE LINE SAYS WHERE THE PARTY IS.  Inside the suite the pane's own title ("ROAD", under a header that says Road) and
+   its standing paragraph ("Towns are safe…", said again by How the road works and by Why) do not show; the trip's controls come up.
+   On a phone the line beside Rest in town steps aside too (How the road works says what a rest does). */
+#tool-travel #tv-title, #tool-travel #tv-sub{ display:none; }
+@media (max-width:560px){ #tool-travel #tv-rest-hint{ display:none; } }
+#tool-travel #tv-root > #tv-journey{ border-top:0; margin-top:0; padding-top:0; }
+#tool-travel #tv-msg:empty{ min-height:0; padding:0; }
+/* the folds under the trip: A swim, Vehicles, How the road works, Why */
+#rt-more{ margin:1em 0 0; border-top:1px solid rgba(128,128,128,.35); }
+#rt-more > details{ margin:0; padding:0; border:0; border-bottom:1px solid rgba(128,128,128,.25); border-radius:0; }
+#rt-more > details > summary{ cursor:pointer; font-weight:600; min-height:44px; display:flex; align-items:center; gap:8px; padding:.2em 0; }
+#rt-more > details[hidden]{ display:none; }
+#rt-f-swim > #tv-swim{ border-top:0; margin-top:0; padding-top:0; }
+#rt-f-swim > #tv-swim > .tv-bh, #rt-f-veh > #vh-box > h2{ display:none; }
+#rt-f-veh > #vh-box{ border:0; padding:0 0 .6em; background:transparent; }
+#tool-travel > #tv-log{ margin:.2em 0 .6em; }
+#rt-more .rt-how-l{ margin:0 0 .6em; }
+
+/* Z051 pre-game: How the road works, a shut fold (with the other folds since Z055) */
 .rt-how{margin:0 0 10px;padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:4px}
 .rt-how-s{cursor:pointer;font-weight:600}
 .rt-how-l{margin:6px 0 var(--sp-1);padding-left:20px;line-height:1.5}
@@ -5820,6 +5915,13 @@ html body.view-cinder .ap-sk > small{ color:#E8875A !important; }
    are set at the same weight.  On paper (day) the original inks already pass. */
 html:is(#z35-never, *) body.cl-night .cl-card .cl-disc.z35-ink.z35-ink.z35-ink{ color:#FFFFFF !important; }
 html:is(#z35-never, *) body.cl-night #tool-char :is(td.n, td.tn), html:is(#z35-never, *) body.cl-night #tool-char .cs-hbox > .t{ color:#E2B868 !important; }
+/* CMD Z055 §3: A SKILL'S NAME AT FULL CONTRAST.  In Cinder a skill's name drew dimmer than its own attribute tag ([STR]): 9.06 to 1
+   against 12.72 in Night Shift.  A name takes the ink of the ground it stands on; a tagged skill keeps its amber and is marked by
+   more than colour (bold, its Tag box, and the star the sheet's own stylesheet puts before its name). */
+html body.view-cinder #tool-char .cs-skills td.n.n{ color:#1C1814 !important; }
+html body.view-cinder #tool-char .z35-dk td.n.n, html body.view-cinder #tool-char .cs-skills.z35-dk td.n.n{ color:#F2E6C9 !important; }
+html:is(#z35-never, *) body.cl-night #tool-char .cs-skills td.n.n{ color:#F2E6C9 !important; }
+html:is(#z35-never, *) body.cl-night #tool-char .cs-skills td.n.n[data-tag="1"]{ color:#E2B868 !important; }
 /* the Auto-fight window's small headings (THE PARTY, SKIRMISH ON AUTOPILOT) where the window is dark: Night Shift and Classic */
 html:is(#z35-never, *) body.cl-night #tt-auto small, html:is(#z35-never, *) body:not(.view-cinder) #tt-auto small{ color:#E8875A !important; }
 /* Classic: a caps chip's white on the brighter red (3.62 -> 5.51), the companion block when there is none (4.14 -> 5.3) */
@@ -6311,7 +6413,7 @@ html body #tool-char .cs-rollopts > label.cs-lab{ min-width:0; max-width:100%; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-23 19:23 UTC">bed507bb</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-24 03:09 UTC">1800c415</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -7074,7 +7176,7 @@ end $$;
 </div>
 
 <div class="suite-fold" id="fold-char" data-mode="sheets" data-pane="char" hidden>
-<div class="suite-fold-bar"><button type="button" class="suite-fold-h" id="fold-h-char" aria-expanded="true" aria-controls="tool-char"><span class="suite-fold-t" id="fold-t-char">Characters</span><span class="suite-fold-b" id="fold-b-char">Sheets built to house law</span><span class="suite-fold-n" id="fold-n-char"></span></button></div>
+<div class="suite-fold-bar"><button type="button" class="suite-fold-h" id="fold-h-char" aria-expanded="true" aria-controls="tool-char"><span class="suite-fold-t" id="fold-t-char">Character</span><span class="suite-fold-b" id="fold-b-char"></span><span class="suite-fold-n" id="fold-n-char"></span></button></div>
 <section class="tool" id="tool-char" role="region" aria-labelledby="fold-h-char">
 <!-- ASK 8: PERKS_GUIDE - the six perks the Guide prints in full.  Suggestions for the
      slot's name box, never a picker: see the header of data/perks.js for why. -->
@@ -7117,6 +7219,9 @@ end $$;
       <button class="cs-mini" id="cs-export-table" title="Download the whole table as helena-table.json (the same file as Export in the side panel's Table box)">Export table</button>
       <button class="cs-mini" id="cs-import-table" title="Replace the whole table from a helena-table.json">Import table</button>
       <input type="file" id="cs-import-table-file" accept=".json,application/json" hidden>
+      <!-- CMD Z055 §3: what Import does with a file, said here (renderImportRow writes it); the row under the tabs shows only while
+           it has an offer to make or a question open -->
+      <p class="cs-menu-note" id="cs-imp-note"></p>
         </div>
       </details>
     </div>
@@ -7592,7 +7697,7 @@ end $$;
 
         <details class="cs-card cs-fold" id="cs-f-cond" data-card="cond">
           <summary><span class="cs-rib" style="--c:var(--red)">Conditions</span><span class="cs-fold-n" id="cs-fn-cond"></span></summary>
-          <h3>Injuries <span class="cs-hint" style="display:inline;margin-left:4px;text-transform:none;letter-spacing:0">shared with Fight’s Encounter pane and Camp’s Party Medical pane</span></h3>
+          <h3>Injuries <span class="cs-hint" style="display:inline;margin-left:4px;text-transform:none;letter-spacing:0">shared with Encounter and the Medical board</span></h3>
           <div id="cs-injuries"></div>
           <!-- WAVE 10 ITEM 12 (2026-09-23): "Injuries still can't be manually typed out and needs
                an option to do so."  The rolled path is unchanged and still owns the d20 — "no
@@ -8361,7 +8466,7 @@ end $$;
     </div>
     <!-- CMD Z014 (G.6): the Overseer's two camp tables, one press each; the result goes to the session log -->
     <div class="cp-guests">
-      <button type="button" id="cp-visitors" title="Roll this when the watch dice show an Effect (Guide p.ccxci)">Camp Visitors</button>
+      <button type="button" id="cp-visitors" title="Roll this when Uninvited Guests shows an Effect (Guide p.ccxci)">Camp Visitors</button>
       <button type="button" id="cp-tenants" title="Roll this when finding the campsite rolls a complication (Guide p.ccxci)">Prior Tenants</button>
       <span class="cp-out" id="cp-table-out" aria-live="polite"></span>
     </div>
@@ -8706,7 +8811,7 @@ end $$;
 </div>
 
 <div class="suite-fold" id="fold-travel" data-mode="travel" data-pane="travel" hidden>
-<div class="suite-fold-bar"><button type="button" class="suite-fold-h" id="fold-h-travel" aria-expanded="true" aria-controls="tool-travel"><span class="suite-fold-t" id="fold-t-travel">Travel</span><span class="suite-fold-b" id="fold-b-travel">Towns, the road between them, its food and water</span><span class="suite-fold-n" id="fold-n-travel"></span></button></div>
+<div class="suite-fold-bar"><button type="button" class="suite-fold-h" id="fold-h-travel" aria-expanded="true" aria-controls="tool-travel"><span class="suite-fold-t" id="fold-t-travel">Road</span><span class="suite-fold-b" id="fold-b-travel"></span><span class="suite-fold-n" id="fold-n-travel"></span></button></div>
 <section class="tool" id="tool-travel" role="region" aria-labelledby="fold-h-travel">
 <div class="tv-card" id="tv-root">
   <h2 id="tv-title">Road</h2>
@@ -8780,7 +8885,7 @@ end $$;
   <!-- Z050 P5 (field 2, G.13): A SWIM (Guide pp.viii-ix), the Overseer's: the swim time, and irradiated water's radiation. -->
   <div class="tv-block" id="tv-swim" hidden>
     <div class="tv-bh">A swim</div>
-    <p class="tv-hint">Swim time is half END, rounded down, +1 hours before Fatigue. Irradiated water: 1CD Radiation, Persistent, for every full half hour under, rolled once for the whole swim (Guide pp.viii&ndash;ix).</p>
+    <p class="tv-hint">Swim time is half END, rounded down, +1 hours before exhaustion. Irradiated water: 1CD Radiation, Persistent, for every full half hour under, rolled once for the whole swim (Guide pp.viii&ndash;ix).</p>
     <div class="tv-form">
       <label class="tv-lab tv-wide">Who swims <select id="tv-s-who" aria-label="who swims"></select></label>
       <label class="tv-lab">Minutes in the water <input type="number" id="tv-s-min" min="0" max="1440" step="30" value="30"></label>
@@ -38180,7 +38285,7 @@ function repMayRank(){
 function repRanksPaint(R){
   var host = $("cs-rep-ranks"); if(!host) return;
   var may = repMayRank();
-  var html = !R.factions.length ? '<div class="cs-hint">No faction yet — the Overseer names them in Quests.</div>'
+  var html = !R.factions.length ? '<div class="cs-hint">No faction yet — the Overseer names them in the Journal.</div>'
     : R.factions.map(function(f){
         var opts = '<option value=""' + (f.own ? "" : " selected") + ">start: " + f.start + " " + CH.REP_STANDING[f.start] + "</option>" +
           CH.REP_STANDING.map(function(w, r){ return '<option value="' + r + '"' + (f.own && r === f.rank ? " selected" : "") + ">" + r + " " + w + "</option>"; }).join("");
@@ -40016,6 +40121,10 @@ function renderConditions(c){
       "it becomes the same record, in the same shared bucket, in every pane.";
   var ph = $("cs-persist"); ph.innerHTML = "";
   if(!c.persistent.length) ph.innerHTML = '<div class="cs-empty">Nothing burning, bleeding or glowing.</div>';
+  /* F31: the last Tick's own line, on this sheet only (typeof-guarded: this function is lifted and run alone by tests) */
+  var psSaid = (typeof PS_SAID !== "undefined" && PS_SAID && String(PS_SAID.id) === String(c.id) && typeof psSaidEl === "function") ? PS_SAID : null;
+  /* …and only while the sheet is as that tick left it: an Undo (the rounds come back) or any other change to the list takes it away */
+  if(psSaid && !(psSaid.len === c.persistent.length && (psSaid.gone || (c.persistent[psSaid.i] && Math.round(+c.persistent[psSaid.i].rounds || 0) === psSaid.rounds)))) psSaid = null;
   c.persistent.forEach(function(p, i){
     var d = document.createElement("div"); d.className = "cs-cond"; d.setAttribute("data-ps", i);
     d.innerHTML = '<span class="loc">' + esc(p.cause || "Persistent") + '</span>' +
@@ -40023,12 +40132,22 @@ function renderConditions(c){
       '<button class="cs-mini" data-act="ps-tick">Tick</button>' +
       '<button class="cs-x" data-act="ps-del" title="ended">&times;</button>';
     ph.appendChild(d);
+    if(psSaid && !psSaid.gone && psSaid.i === i) ph.appendChild(psSaidEl(psSaid, false));
   });
+  if(psSaid && psSaid.gone) ph.appendChild(psSaidEl(psSaid, true));
   if(typeof cardsPaint === "function") cardsPaint();     // PROJECT C stage 3: Conditions' "n carried · m open" (stage 6)
 }
 
 /* WAVE 10 ITEM 12: the one place the crossings speak.  Empty html hides the box, so a plain
    `add` of a stimpak says nothing at all. */
+/* CMD Z055, F25: the pack rows this device has opened with More (sheet id | row index); F31: the last Tick's own line, by sheet */
+var INV_OPEN = Object.create(null);
+var PS_SAID = null;
+function psSaidEl(s, ended){
+  var d = document.createElement("div"); d.className = "cs-ps-said"; d.setAttribute("role", "status");
+  d.innerHTML = "<b>" + esc(s.cause) + "</b> ticked: " + esc(s.text) + (ended ? ". That was its last round." : ".") + " <span>Undo is on its line in the Log.</span>";
+  return d;
+}
 function invPrompt(html){
   var box = $("cs-inv-prompt"); if(!box) return;
   if(!html){ box.hidden = true; box.innerHTML = ""; return; }
@@ -40916,6 +41035,12 @@ function renderInventory(c){
   c.inventory.forEach(function(row, i){
     var it = itemOf(row), caps = it ? parseInt(it.caps, 10) || 0 : 0;
     var tr = document.createElement("tr"); tr.setAttribute("data-inv", i);
+    /* CMD Z055, F25: on a phone a row's own buttons sit behind its More button (the stylesheet shows the button only where the
+       sheet is one column).  Which rows are open is this device's, kept by sheet and row for as long as the page is.
+       typeof-guarded, as everything this function reaches is: it runs in a five-variable vm in two wave-9 test blocks. */
+    var invOpen = typeof INV_OPEN !== "undefined" && !!INV_OPEN && INV_OPEN[c.id + "|" + i] === true;
+    if(invOpen) tr.className = "cs-inv-open";
+    var armNames = Array.isArray(row.armMods) && row.armMods.length ? row.armMods.map(function(md){ return (md && (md.name || md.id)) || "a mod"; }).join(", ") : "";
     /* ITEM 12: a row that IS armour gets a Wear button and a row that IS a weapon gets an
        "as weapon" button, so a thing already in the pack can reach the box it belongs in.
        Both are decided from the CATALOGUE row, not from the typed name, so a hand-typed
@@ -40941,6 +41066,7 @@ function renderInventory(c){
                 : "";
     tr.innerHTML =
       '<td><input type="text" data-if="name" value="' + esc(row.name) + '" maxlength="60">' +
+        '<button type="button" class="cs-mini cs-invmore" data-act="inv-more" aria-expanded="' + (invOpen ? "true" : "false") + '" title="this row’s buttons: wear, use, put on the ledger, drop">' + (invOpen ? "Less" : "More") + "</button>" +
         (row.proposed ? '<span class="cs-badge prop" style="margin-left:4px" title="proposed 2026-09-21, not yet issued">proposed</span>' : "") +
         /* CMD Z014 (G.9): taken from the dead (Guide p.lviii) */
         (row.found === true ? '<span class="cs-badge prop" style="margin-left:4px" title="Taken from the dead: armour is worn at half its HP; a weapon carries its Degradations (Guide p.lviii)">found' +
@@ -40948,8 +41074,12 @@ function renderInventory(c){
         /* CMD Z016: a set taken off says the HP it came off with, and wears at it again */
         (row.armHp != null ? '<span class="cs-badge prop" style="margin-left:4px" title="the armour HP this set came off with; it is worn at this again">HP ' + esc(row.armHp) + "</span>" : "") +
         /* CMD Z054 (the swap ruling): a set taken off keeps its fitted mods, and wears with them again */
-        (Array.isArray(row.armMods) && row.armMods.length ? '<span class="cs-badge prop" style="margin-left:4px" title="fitted to this set when it came off; they go back on with it: ' +
+        (Array.isArray(row.armMods) && row.armMods.length ? '<span class="cs-badge prop cs-modchip" style="margin-left:4px" title="fitted to this set when it came off; they go back on with it: ' +
           esc(row.armMods.map(function(md){ return (md && (md.name || md.id)) || "a mod"; }).join(", ")) + '">' + row.armMods.length + (row.armMods.length === 1 ? " mod" : " mods") + "</span>" : "") +
+        /* F26 (REVIEW 11-23 08): the chip's names were on a hover tip, and a phone has no hover.  Three or fewer print under the
+           row; more than three sit behind a tap on their own count */
+        (armNames ? (row.armMods.length <= 3 ? '<div class="cs-armmods">Fitted: ' + esc(armNames) + "</div>"
+                                             : '<details class="cs-armmods"><summary>' + row.armMods.length + " mods fitted</summary>" + esc(armNames) + "</details>") : "") +
         /* CMD Z018 (G.8) */
         (typeof CH === "object" && CH && typeof CH.legOf === "function" && CH.legOf(row) ? '<span class="cs-badge prop" style="margin-left:4px" title="' + esc(CH.legOf(row).text) + '">legendary: ' + esc(CH.legOf(row).name) + "</span>" : "") +
         (cross ? '<div style="margin-top:2px">' + cross + "</div>" : "") +
@@ -42521,7 +42651,7 @@ function critLocation(targetId){
   /* CMD Z042: "Take damage" is THIS sheet's injury, so a robot with a torso rolls its torso's table; the attack card's crit is the target's */
   var roll = d20(), L = CH.locationFor(roll, targetId === "cs-dmg-loc" ? me() : null), host = $(targetId || "cs-crit-loc"); if(!host) return;
   host.innerHTML = '<div class="cs-loc"><b>' + esc(L.label && L.label !== L.loc ? L.label + " (" + L.loc + ")" : L.loc) + ' <span class="d20">d20 = ' + roll + '</span></b>' + esc(L.pen) +
-    ' <span style="color:var(--faint)">Lasts until treated. Record it on the Injury card in Fight’s Encounter pane, or in Camp’s Party Medical pane.</span></div>';
+    ' <span style="color:var(--faint)">Lasts until treated. Record it on the Injury card in Encounter, or on the Medical board.</span></div>';
 }
 /* Ruling 5: the Take damage control in the HEALTH box */
 function takeDamage(){
@@ -43589,14 +43719,17 @@ function importRowLine(list){
      numbers asks like any other (CH.importPlan), so it is not counted as one here either */
   if(ph && typeof CH.isPlaceholder === "function") ph = (list || []).filter(function(x){ return CH.isPlaceholder(x); }).length;
   return ph
-    ? "Sheet from an earlier session? Its file takes the place of its “Fill me in” placeholder at once. A sheet with real numbers asks first."
-    : "Sheet from an earlier session? A sheet with real numbers asks before its file replaces it, or adds it as a new sheet.";
+    /* CMD Z055 §3: one short sentence (it was a question and two sentences) */
+    ? "A file takes the place of a “Fill me in” sheet at once; a sheet with real numbers asks first."
+    : "A file asks before it replaces a sheet with real numbers.";
 }
 function renderImportRow(){
   var el = $("cs-imp-line"); if(!el) return null;
   /* wave 16: while a file's question is open the row points at it — the question is the next thing to do */
   var t = PEND ? "A question about that file is just below — nothing is imported until you answer it." : importRowLine(chars());
   if(el.textContent !== t) el.textContent = t;
+  /* CMD Z055 §3: the same sentence under Sheet ▾, beside Import, where it lives now */
+  var note = $("cs-imp-note"); if(note && note.textContent !== t) note.textContent = t;
   renderPreload();
   return t;
 }
@@ -43751,6 +43884,10 @@ function renderPreload(){
   box.hidden = !shown;
   var row = $("cs-imp-row");
   if(row && row.classList && typeof row.classList.toggle === "function") row.classList.toggle("pre", shown);
+  /* CMD Z055 §3: THE IMPORT LINE MOVED UNDER Sheet ▾.  The row stood under the tabs on every visit (about 110 px on a phone, above
+     the sheet).  It shows now only while it has something to say that cannot wait in a menu: this build's offer to load a
+     seeded sheet over its placeholder, the note that an offer was held back, or a file's question open just below it. */
+  if(row) row.hidden = !(shown || !!PEND);
   return offers;
 }
 function seedFor(seeds, id){
@@ -45152,7 +45289,16 @@ root.addEventListener("click", function(e){
       else { wrap = b.closest("tr[data-inv]"); row = wrap ? me().inventory[+wrap.getAttribute("data-inv")] : null; }
       if(!row) return;
       var r = wearFromRow(row, "the inventory");
-      invPrompt(r.ok ? r.line : esc(r.why));
+      invPrompt(r.ok ? r.line : '<span class="cs-refused">' + esc(r.why) + "</span>");      /* F25: a refusal keeps the red; a Wear that worked does not */
+    })(); break;
+    /* CMD Z055, F25: a pack row's More button (a phone) opens and shuts that row's own buttons */
+    case "inv-more": (function(){
+      wrap = b.closest("tr[data-inv]"); if(!wrap || !me()) return;
+      var mk = me().id + "|" + wrap.getAttribute("data-inv");
+      if(INV_OPEN[mk]) delete INV_OPEN[mk]; else INV_OPEN[mk] = true;
+      renderInventory(me());
+      var again = document.querySelector('#cs-inv tr[data-inv="' + wrap.getAttribute("data-inv") + '"] [data-act="inv-more"]');
+      if(again && typeof again.focus === "function") try{ again.focus({ preventScroll:true }); }catch(e){}
     })(); break;
     case "inv-as-wpn": (function(){
       var key = b.getAttribute("data-key"), row;
@@ -45264,15 +45410,21 @@ root.addEventListener("click", function(e){
         var c0 = me(), b4 = c0 ? JSON.parse(JSON.stringify(c0)) : null, hp0 = c0 ? Math.max(0, Math.round(+c0.hp || 0)) : 0, tk = null;
         edit(function(c){ tk = CH.persistTick(c, i); });
         var c1 = me();
+        PS_SAID = null;
         if(tk && b4 && c1 && typeof pcHitDiff === "function" && typeof pcHitUndo === "function"){
           var u = pcHitDiff(b4, c1, hp0);
-          pcHitUndo(u, "", { kind:"ps-tick", text:(c1.name || "A character") + " — " + tk.dmg + " Persistent damage (" + tk.cause + "), ignores DR" +
-            (tk.armour ? ", " + tk.armour + " off the plate" : "") + (tk.rads ? ", " + tk.rads + " off maximum HP (" + (tk.max + tk.rads) + " → " + tk.max + ")" : tk.immune ? ", immune to radiation: nothing lands" : "") + " (HP " + u.hp0 + " → " + u.hp1 + (u.pl0 != null && u.pl0 !== u.pl1 ? ", plate " + u.pl0 + " → " + u.pl1 : "") + ")" });
+          var tkWhat = tk.dmg + " Persistent damage (" + tk.cause + "), ignores DR" +
+            (tk.armour ? ", " + tk.armour + " off the plate" : "") + (tk.rads ? ", " + tk.rads + " off maximum HP (" + (tk.max + tk.rads) + " → " + tk.max + ")" : tk.immune ? ", immune to radiation: nothing lands" : "") + " (HP " + u.hp0 + " → " + u.hp1 + (u.pl0 != null && u.pl0 !== u.pl1 ? ", plate " + u.pl0 + " → " + u.pl1 : "") + ")";
+          pcHitUndo(u, "", { kind:"ps-tick", text:(c1.name || "A character") + " — " + tkWhat });
+          /* F31 (REVIEW 11-23 08): the tick answers where it was pressed - its own line, under the row it came from (or where
+             that row stood, when this was its last round), until the next Tick or another sheet */
+          PS_SAID = { id:String(c1.id), i:i, cause:String(tk.cause || "Persistent"), text:tkWhat, gone:!(c1.persistent && c1.persistent[i] && b4.persistent && b4.persistent.length === c1.persistent.length),
+                      len:(c1.persistent || []).length, rounds:c1.persistent && c1.persistent[i] ? Math.round(+c1.persistent[i].rounds || 0) : null };
         }
       })();
       setVal("cs-hp", me().hp); renderConditions(me()); renderDerived(); break;
-    case "ps-del": i = +b.closest("[data-ps]").getAttribute("data-ps"); edit(function(c){ c.persistent.splice(i, 1); }); renderConditions(me()); break;
-    case "inv-del": i = +b.closest("tr[data-inv]").getAttribute("data-inv"); edit(function(c){ c.inventory.splice(i, 1); }); renderInventory(me()); renderDerived(); break;
+    case "ps-del": i = +b.closest("[data-ps]").getAttribute("data-ps"); PS_SAID = null; edit(function(c){ c.persistent.splice(i, 1); }); renderConditions(me()); break;
+    case "inv-del": i = +b.closest("tr[data-inv]").getAttribute("data-inv"); edit(function(c){ c.inventory.splice(i, 1); }); INV_OPEN = Object.create(null); /* the rows below moved up: none stays open by a stale index */ renderInventory(me()); renderDerived(); break;
     /* ---- WAVE 11 (2026-09-28): player → ledger, and the syringer roll ---- */
     case "inv-put": (function(){
       wrap = b.closest("tr[data-inv]"); if(!wrap) return;
@@ -46545,7 +46697,7 @@ $("cs-inj-add").onclick = function(){
   renderConditions(me());
   var ih = $("cs-inj-hint");
   if(ih && n) ih.innerHTML = "Added <b>" + esc(loc) + "</b> — <b>" + n + "</b> carried. " +
-    "It is in the shared bucket: Fight’s Encounter pane, Camp’s Party Medical pane and any map token read it too.";
+    "It is in the shared bucket: Encounter, the Medical board and any map token read it too.";
 };
 $("cs-inj-note").addEventListener("keydown", function(e){ if(e.key === "Enter") $("cs-inj-add").click(); });
 $("cs-inv-add").onclick = function(){
@@ -73128,8 +73280,10 @@ function travelCore(env){
     if(min == null) return refuse("Minutes in the water is a whole number from 0 to " + TV.SWIM.minMax + ". Nothing was rolled.");
     var hrs = TV.swimHours(cs);
     if(hrs == null) return refuse(nm + " is a robot: robots cannot swim, they sink and work on the bottom (Guide p.ix). Nothing was rolled.");
-    var past = min > hrs * 60 ? " That is past the " + TV.plural(hrs, "hour", "hours") + " " + nm + " can swim before Fatigue." : "";
-    var lim = nm + " can swim " + TV.plural(hrs, "hour", "hours") + " before Fatigue (half END, rounded down, +1; Guide p.ix).";
+    var past = min > hrs * 60 ? " That is past the " + TV.plural(hrs, "hour", "hours") + " " + nm + " can swim before exhaustion." : "";
+    /* CMD Z055 §4: "before exhaustion" (it said "before Fatigue", the Guide's word on p.ix; Fatigue was retired by NR-130 and what
+       gave Fatigue gives exhaustion).  Words only: the swim still writes nothing for a swim past its time, as before. */
+    var lim = nm + " can swim " + TV.plural(hrs, "hour", "hours") + " before exhaustion (half END, rounded down, +1; Guide p.ix).";
     if(!o.rad) return { ok:true, note:lim + past + " Clean water: no radiation." };
     if(TV.swimAqua(cs) >= 1) return { ok:true, note:nm + " is Aquaboy/Aquagirl: irradiated water deals no radiation (the perk, rank 1). " + lim + past };
     var n = TV.swimDice(min, cs);
@@ -73355,7 +73509,7 @@ function renderSwim(){
   var id = $("tv-s-who").value, cs = null; (chars() || []).forEach(function(c){ if(c && String(c.id) === String(id)) cs = c; });
   var hrs = cs ? TV.swimHours(cs) : null, min = TV.int($("tv-s-min").value, 0, TV.SWIM.minMax), n = cs && min != null ? TV.swimDice(min, cs) : 0;
   var t = !cs ? "" : hrs == null ? (cs.name || "A robot") + " cannot swim: a robot sinks and works on the bottom." :
-          (cs.name || "unnamed") + ": " + TV.plural(hrs, "hour", "hours") + " before Fatigue." + ($("tv-s-rad").checked ? (TV.swimAqua(cs) ? " Aquaboy/Aquagirl: no radiation." : " Irradiated: " + n + "CD Radiation.") : "");
+          (cs.name || "unnamed") + ": " + TV.plural(hrs, "hour", "hours") + " before exhaustion." + ($("tv-s-rad").checked ? (TV.swimAqua(cs) ? " Aquaboy/Aquagirl: no radiation." : " Irradiated: " + n + "CD Radiation.") : "");
   txt($("tv-s-hint"), t);
 }
 function render(){
@@ -86144,6 +86298,7 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
     { key:"notes",  label:"Notes",      ids:["cs-notes-card", "cs-f-journal", "cs-companion"] }
   ];
   var LEFT = ["cx-portrait", "@.cs-head", "cs-xp-stale", "cs-special", "cs-f-cond"];
+  var IDENTITY = ["cx-portrait", "@.cs-head", "cs-xp-stale"];      /* CMD Z055 §3: these three go inside the Identity fold */
   var CENTRE = ["cx-doll", "cs-f-health", "cs-f-robot"];   /* CMD Z042: the Robot card (shown only with the Robot tick) under Health */
   var FULL = ["cs-f-wpn"];                          /* Z037: the weapons table needs the sheet's whole width, under the columns */
   var moved = [], wrap = null, page = "skills", paintQ = false;
@@ -86182,8 +86337,16 @@ window.CINDER_COMBAT = { paint:function(){ paint(true); }, select:pick, selected
     var L = el("div", "cx-col cx-L"), C = el("div", "cx-col cx-C"), R = el("div", "cx-col cx-R");
     wrap.appendChild(L); wrap.appendChild(C); wrap.appendChild(R);
     s.insertBefore(wrap, s.firstChild);
-    var h = el("h3", "cx-h"); h.textContent = "Identity"; L.appendChild(h);
-    LEFT.forEach(function(r){ put(r, L); });
+    /* CMD Z055 §3: IDENTITY IS A FOLD.  The portrait, the name, also known as, the player and the XP held the top-left of the page;
+       what a player needs in a fight is the card above the sheet now (src/cinder-zp-phone.js), and Identity folds under it: open
+       where the sheet has its three columns, shut on a phone (one column) until it is tapped.  The choice is this device's
+       (localStorage), as the sheet's page is.  The parts inside are the sheet's own, moved and put back like every other. */
+    var idf = el("details", "cx-idfold", "cx-idfold"), ids = el("summary", "cx-h cx-idsum"); ids.textContent = "Identity";
+    idf.appendChild(ids); L.appendChild(idf);
+    var idPref = null; try{ idPref = localStorage.getItem("cinder-sheet-identity"); }catch(e){ idPref = null; }
+    idf.open = idPref === "open" ? true : idPref === "shut" ? false : !(window.matchMedia && window.matchMedia("(max-width:900px)").matches);   /* 900 px: where the stylesheet makes the sheet one column */
+    idf.addEventListener("toggle", function(){ try{ localStorage.setItem("cinder-sheet-identity", idf.open ? "open" : "shut"); }catch(e){} });
+    LEFT.forEach(function(r){ put(r, IDENTITY.indexOf(r) >= 0 ? idf : L); });
     var hc = el("h3", "cx-h"); hc.textContent = "The worn set"; C.appendChild(hc);
     CENTRE.forEach(function(r){ put(r, C); });
     var tabs = el("div", "cx-pages"); tabs.setAttribute("role", "tablist");
@@ -86659,7 +86822,10 @@ function textOf(id){ var e = $(id); return e ? (e.textContent || "").replace(/\s
 var SEATS = [
   { k:"scav",  role:"Scavenger",      test:"Scavenging — the Scavenger's Tables",
     rolls:[{ id:"lf-roll", label:"Roll scavenging", out:"lf-sent" }] },
-  { k:"watch", role:"Watch",          test:"Camp Visitors and Prior Tenants (Guide p.ccxci)",
+  /* CMD Z055 (REVIEW-18 F13): the seat was labelled "Watch"; watches were retired.  It rolls the camp's own dice for Uninvited
+     Guests and the Guide's two d20 tables, Camp Visitors and Prior Tenants (p.ccxci), so it is named for them.  The seat's key
+     stays "watch": it is the room's saved seat. */
+  { k:"watch", role:"Visitors",       test:"Uninvited Guests, Camp Visitors and Prior Tenants (Guide p.ccxci)",
     rolls:[{ id:"cp-guests", label:"Uninvited Guests", out:"cp-guests-out" },
            { id:"cp-visitors", label:"Camp Visitors", out:"cp-table-out" },
            { id:"cp-tenants", label:"Prior Tenants", out:"cp-table-out" }] },
@@ -87303,11 +87469,11 @@ function paint(){
   var mine = p.where === "road" ? log.filter(function(x){ return x && x.to === p.to; }) : [];
   var key = JSON.stringify([p, mine.length]); if(key === last) return; last = key;
   box.innerHTML = "";
-  box.appendChild(el("h2", "rd-title", "The road"));
-  if(p.where !== "road"){
-    box.appendChild(el("p", "rd-sub", (p.town ? "In " + p.town : "In town") + " — a town is safe. Rest in town below, or name the next town and press Set out."));
-    return;
-  }
+  /* CMD Z055 §4 (REVIEW-00 N2, REVIEW-04 F4): ONE LINE SAYS WHERE THE PARTY IS, and it is the Travel pane's own ("Where the
+     party is").  In town this box said the same thing a second time under a second heading ("THE ROAD: In town, a town is
+     safe…"), above the first control: in town it does not show.  On the road it is the strip, with no heading of its own. */
+  box.hidden = p.where !== "road";
+  if(p.where !== "road") return;
   var raw = s.place || {}, from = raw.town || p.town || "";
   box.appendChild(el("p", "rd-sub", "On the road" + (from ? " from " + from : "") + " to " + p.to + " · road scene " + p.scene + (raw.vname ? " · by " + raw.vname : " · on foot")));
   var strip = el("ol", "rd-strip"); strip.setAttribute("aria-label", "Road scenes of the journey");
@@ -88186,6 +88352,108 @@ function sheetAttack(id, wi, target){
     else { var o = $("cs-wpn-out"); ui.msg = o ? String(o.textContent || "").replace(/\s+/g, " ").slice(0, 160) : ""; }
   }
 }
+/* ------------------------------------------------------------------ 4. the first screen of Character (CMD Z055 §3, REVIEW-04 F3)
+   "The first screen of the Character page is what a player needs in a fight: HP, plate HP, DR, exhaustion, attacks with a Roll
+   button, then Eat and Heal from the reserve."  One card at the top of the page, in the page (not fixed), in both views and at
+   every width, for the sheet ON SCREEN (HELENA_CHAR.current()), whoever is looking.  Every button is an existing press: Roll is
+   the sheet's own Attack on that weapon's row (sheetAttack, as the quick bar's), Eat is the pool's own eat from the party ledger,
+   Heal the pool's own spend from the HP reserve; each keeps its own line, its own Undo and its own gate (a sheet another player
+   holds answers with the pool's or the sheet's own refusal).  Reads only; writes nothing itself; nothing is stored.
+   Where the fixed quick bar is up (a player on a phone, in a room, on their own sheet) the card steps aside: one of them, never both. */
+var pui = { id:"", open:"", msg:"" }, card = null, lastC = "";
+function shown(){ var H = W.HELENA_CHAR, id = null; try{ id = H && typeof H.current === "function" ? H.current() : null; }catch(e){ id = null; }
+  if(id == null) return null; var c = null; chars().forEach(function(x){ if(x && String(x.id) === String(id)) c = x; }); return c; }
+function exhaust(c){ var H = W.HELENA_CHAR; try{ return H && typeof H.exhaustOf === "function" ? Math.max(0, Math.round(+H.exhaustOf(c) || 0)) : 0; }catch(e){ return 0; } }
+function plateFull(c){
+  var a = c && c.armour; if(!a || typeof a !== "object" || !String(a.name || "").trim()) return null;
+  var H = W.HELENA_CHAR, plus = 0, mx = 0;
+  try{ plus = H && typeof H.robotPlate === "function" ? +H.robotPlate(c) || 0 : 0; }catch(e){ plus = 0; }
+  try{ mx = (a.hpMaxOverride != null ? +a.hpMaxOverride || 0 : (H && typeof H.armourHp === "function" ? +H.armourHp(a.phys, a.en, a.rarity) || 0 : 0)) + plus; }catch(e){ mx = plus; }
+  return { name:String(a.name), now:Math.max(0, Math.round(+a.hp || 0)), max:Math.max(0, Math.round(mx)), phys:a.phys == null ? 0 : a.phys, en:a.en == null ? 0 : a.en, rad:a.rad == null ? 0 : a.rad };
+}
+function cardHtml(c){
+  var id = String(c.id), hp = Math.max(0, Math.round(+c.hp || 0)), mx = maxHP(c), p = plateFull(c), ex = exhaust(c), res = reserve(), fight = inFight();
+  var h = '<div class="cn-top"><div class="cn-hp" aria-label="HP"><b>' + hp + "</b><small>/ " + mx + " HP</small></div>" +
+          '<div class="cn-who">' + esc(c.name || "This sheet") + "</div></div>" +
+          '<div class="cn-line">' + (p ? "<span>Plate <b>" + p.now + "</b> / " + p.max + "</span>" : "<span>No armour worn</span>") +
+            "<span>DR <b>" + esc(p ? p.phys : 0) + "</b> Phys · <b>" + esc(p ? p.en : 0) + "</b> En · <b>" + esc(p ? p.rad : 0) + "</b> Rad</span>" +
+            "<span>Exhaustion <b>" + ex + "</b>" + (ex ? " (−" + ex + " max HP)" : "") + "</span></div>";
+  if(pui.open === "eat"){
+    var ed = edibles(id);
+    h += '<div class="cn-panel"><div class="cn-ph">Eat or drink, from the party</div>' +
+         (ed.length ? '<div class="cn-acts">' + ed.map(function(x){ return '<button type="button" class="qb-btn" data-cn="eat" data-row="' + esc(x.id) + '">' + (x.bowl === "water" ? "Drink " : "Eat ") + esc(x.name) + " <small>×" + x.qty + "</small></button>"; }).join("") + "</div>"
+                    : '<p class="cn-note">' + (fight ? "Not in a fight — eat between fights." : "Nothing on the party ledger to eat or drink.") + "</p>") +
+         '<div class="cn-acts"><button type="button" class="qb-btn" data-cn="close">Back</button></div></div>';
+  } else {
+    var ws = weapons(c);
+    h += ws.length ? '<div class="cn-atks">' + ws.map(function(x){ var w = x.w || {}, cd = Math.round(+w.cd || 0);
+           return '<div class="cn-atk"><span class="cn-wn">' + esc(x.name) + (cd ? " <small>" + cd + " CD" + (w.type ? " " + esc(w.type) : "") + "</small>" : "") + "</span>" +
+                  '<button type="button" class="qb-btn qb-atk" data-cn="attack" data-wi="' + x.i + '" aria-label="Roll ' + esc(x.name) + '">Roll</button></div>'; }).join("") + "</div>"
+                   : '<p class="cn-note">No weapon on this sheet yet.</p>';
+    h += '<div class="cn-acts">' +
+           '<button type="button" class="qb-btn" data-cn="eatlist"' + (fight ? ' disabled title="Not in a fight — eat between fights"' : "") + ">Eat</button>" +
+           '<button type="button" class="qb-btn" data-cn="heal"' + (!res || hp >= mx || fight ? " disabled" : "") + ' title="' + (fight ? "Not in a fight" : !res ? "The party’s HP reserve is empty" : hp >= mx ? "Already at full HP" : "Heal from the party’s HP reserve") + '">Heal <small>(' + res + " in reserve)</small></button>" +
+         "</div>";
+  }
+  if(pui.msg) h += '<p class="cn-msg" role="status">' + esc(pui.msg) + "</p>";
+  return h;
+}
+/* what a box of the sheet says, piece by piece with a space between pieces (its text alone runs two dice together: "713"), read
+   whether or not the fold it stands in is open */
+function wordsOf(el){
+  if(!el) return "";
+  var parts = [];
+  try{ var tw = D.createTreeWalker(el, 4, null), n; while((n = tw.nextNode())){ var t = String(n.nodeValue || "").replace(/\s+/g, " ").trim(); if(t) parts.push(t); } }
+  catch(e){ return String(el.textContent || "").replace(/\s+/g, " ").trim(); }
+  return parts.join(" ");
+}
+function onCard(e){
+  var b = e.target && e.target.closest ? e.target.closest("button[data-cn]") : null;
+  if(!b || b.disabled) return;
+  var c = shown(); if(!c) return;
+  var id = String(c.id), a = b.getAttribute("data-cn"), P = W.HELENA_POOL, r = null;
+  pui.msg = "";
+  if(a === "close") pui.open = "";
+  else if(a === "eatlist") pui.open = "eat";
+  else if(a === "eat"){ try{ r = P.eat(id, b.getAttribute("data-row"), { from:"ledger" }); }catch(x){ r = { ok:false, note:"That did not go through." }; } pui.msg = (r && r.note) || ""; pui.open = ""; }
+  else if(a === "heal"){ try{ r = P.spendHP(id, "full"); }catch(x){ r = { ok:false, note:"That did not go through." }; } pui.msg = (r && r.note) || ""; }
+  else if(a === "attack"){
+    /* the sheet's own Attack on that row.  In a fight it opens the sheet's own "Declare" form beside the weapon: the page goes
+       to it.  Out of one it rolls at once, and what the sheet said is said here too */
+    var wi = +b.getAttribute("data-wi"), row = D.querySelector('#cs-sheet .cs-wpn[data-w="' + wi + '"] button[data-act="attack"]') || D.querySelector('.cs-wpn[data-w="' + wi + '"] button[data-act="attack"]');
+    if(!row) pui.msg = "That weapon is not on the sheet.";
+    else {
+      row.click();
+      var go = $("cs-fight-go"), out = $("cs-wpn-out");
+      if(go && !go.hidden && go.offsetParent !== null){
+        /* the form stands beside the weapons, whose card may be a shut fold: it is opened, as a tap on its header would */
+        for(var up = go.parentNode; up && up !== D.body; up = up.parentNode) if(up.tagName === "DETAILS" && !up.open) up.open = true;
+        pui.msg = "Pick the target and declare, at the weapon."; try{ go.scrollIntoView({ block:"center" }); }catch(x){}
+      }
+      else { var said = wordsOf(out); pui.msg = said ? said.slice(0, 260) : "Rolled on the sheet — see the weapon’s result."; }
+    }
+  }
+  paintCard(true);
+}
+function ensureCard(){
+  if(card && card.parentNode) return card;
+  var root = $("cs-root"), strip = $("cs-strip"); if(!root) return null;
+  card = D.createElement("div"); card.id = "cn-card"; card.className = "cn-card"; card.hidden = true;
+  card.setAttribute("role", "region"); card.setAttribute("aria-label", "In a fight: HP, armour, attacks, eat and heal");
+  root.insertBefore(card, strip && strip.parentNode === root ? strip : root.firstChild);
+  card.addEventListener("click", onCard);
+  return card;
+}
+function paintCard(force){
+  var el = ensureCard(); if(!el) return;
+  var c = charShown() && !(bar && !bar.hidden) ? shown() : null;
+  if(!c){ if(!el.hidden) el.hidden = true; return; }
+  if(pui.id !== String(c.id)){ pui.id = String(c.id); pui.open = ""; pui.msg = ""; }
+  var h = cardHtml(c);
+  if(force || h !== lastC){ el.innerHTML = h; lastC = h; }
+  if(el.hidden) el.hidden = false;
+}
+
 var lastH = "", timer = null;
 /* the dice drawer is up (a roll in progress): the quick bar steps aside so the drawer's own buttons are never under it */
 function drawerUp(){
@@ -88204,7 +88472,7 @@ function paint(force){
   var pb = $("cinder-phonebar"), pr = pb ? pb.getBoundingClientRect() : null, off = pr && pr.height > 0 && getComputedStyle(pb).display !== "none" ? Math.round(pr.height) : 0;
   b.style.bottom = off + "px";
 }
-function soon(){ if(timer) return; timer = setTimeout(function(){ timer = null; openMine(); paint(false); }, 120); }
+function soon(){ if(timer) return; timer = setTimeout(function(){ timer = null; openMine(); paint(false); paintCard(false); }, 120); }
 function boot(){
   try{ if(W.SUITE_STATE && typeof W.SUITE_STATE.subscribe === "function") W.SUITE_STATE.subscribe(soon); }catch(e){}
   try{ var SY = W.SUITE_SYNC; if(SY){ if(typeof SY.onOwners === "function") SY.onOwners(soon); if(typeof SY.onStatus === "function") SY.onStatus(soon); } }catch(e){}
@@ -88255,7 +88523,18 @@ var hl = el("ul", "rt-how-l");
  "Wins build Adrenaline; a rest resets it.",
  "Skirmish plays a quick fight for you."].forEach(function(t){ hl.appendChild(el("li", null, t)); });
 how.appendChild(hl);
-host.insertBefore(how, host.firstChild);
+
+/* ---- CMD Z055 §4 (REVIEW-00 N2, REVIEW-04 F4): THE ORDER OF THE PAGE, AND EVERYTHING ELSE A SHUT FOLD.
+   From the top: the bowls and the reserve, Adrenaline, the trip (where the party is, Rest in town, from, to, Set out), the fights,
+   this trip so far (the tokens and the road scenes paid).  Under them, shut until tapped: A swim, Vehicles, How the road works,
+   Why, Camp - and in Cinder the Medical and Fusion panes that ride on this tab.  Nothing is deleted and no id changes: the parts
+   are the Travel pane's and the vehicle card's own, MOVED into a fold each, as Camp was.  Which folds are open is kept in the
+   page only (nothing is stored). */
+var more = el("section", "rt-more"); more.id = "rt-more"; more.setAttribute("aria-label", "More of the road");
+function foldOf(id, label){ var d = D.createElement("details"); d.className = "rt-fold"; d.id = id; d.appendChild(el("summary", "rt-fold-s", label)); return d; }
+var fSwim = foldOf("rt-f-swim", "A swim"), fVeh = foldOf("rt-f-veh", "Vehicles");
+more.appendChild(fSwim); more.appendChild(fVeh); more.appendChild(how);
+function seat(id, into, before){ var x = D.getElementById(id); if(x && x.parentNode !== into) into.insertBefore(x, before || null); return x; }
 
 /* ---- the fight row, the trip's tokens, the Camp fold (kept at the foot of the pane) ---- */
 var acts = el("section", "rt-acts"); acts.id = "rt-acts"; acts.setAttribute("aria-label", "Fights");
@@ -88277,21 +88556,50 @@ var fold = D.createElement("details"); fold.className = "rt-camp"; fold.id = "rt
 var sum = el("summary", "rt-camp-s", "Camp — build, traits, Uninvited Guests"); fold.appendChild(sum);
 if(camp) fold.appendChild(camp);
 function keepFoot(){
-  if(acts.nextSibling !== toks || toks.nextSibling !== fold || host.lastChild !== fold){ host.appendChild(acts); host.appendChild(toks); host.appendChild(fold); }
+  var log = D.getElementById("tv-log");
+  if(acts.nextSibling !== toks || toks.nextSibling !== (log || more) || (log && log.nextSibling !== more) || more.nextSibling !== fold || host.lastChild !== fold){
+    host.appendChild(acts); host.appendChild(toks); if(log) host.appendChild(log); host.appendChild(more); host.appendChild(fold); }
   if(camp && camp.hidden) camp.hidden = false;
+  /* Z055 §4: the Travel pane's swim and Why, and the vehicle card, each in its fold; the road scenes paid go with the trip's tokens */
+  var sw = seat("tv-swim", fSwim), vh = seat("vh-box", fVeh); seat("tv-why", more);
+  if(sw && fSwim.hidden !== sw.hidden) fSwim.hidden = sw.hidden;      /* the swim is the Overseer's: its fold shows when it does */
+  if(!vh && !fVeh.hidden) fVeh.hidden = true; else if(vh && fVeh.hidden) fVeh.hidden = false;
 }
+/* the vehicle card opened from a map token (HELENA_VEH.open) opens its fold first */
+try{ var V0 = W.HELENA_VEH; if(V0 && typeof V0.open === "function"){ var vo = V0.open; V0.open = function(){ fVeh.open = true; return vo.apply(this, arguments); }; } }catch(e){}
+
+/* ---- Z055 §4, Cinder: the Medical and Fusion panes on this tab are shut until their header is tapped.  They rode open under the
+   Road (2,100 px of the page at 1440).  A shut pane keeps its header and its live number (who is hurt, whose frame is low).  It
+   opens by a tap on the header, when something brings that pane on top (showTool, a Camp seat's "Show it below"), and stays as
+   left until the page is reloaded.  Classic keeps Medical and Fusion as tabs of their own, untouched. */
+var PANES = ["med", "fuse"], paneOpen = { med:false, fuse:false };
+function onRoad(){ var b = D.body; return !!(b && b.classList.contains("view-cinder") && b.getAttribute("data-cl-tab") === "road"); }
+function paintPanes(){
+  PANES.forEach(function(k){
+    var f = D.getElementById("fold-" + k); if(!f) return;
+    var shut = !paneOpen[k]; if(f.classList.contains("rt-shut") !== shut) f.classList.toggle("rt-shut", shut);
+    var h = D.getElementById("fold-h-" + k); if(h && onRoad() && h.getAttribute("aria-expanded") !== String(!shut)) h.setAttribute("aria-expanded", String(!shut));
+  });
+}
+function pane(k, on){ if(!Object.prototype.hasOwnProperty.call(paneOpen, k)) return false; paneOpen[k] = on == null ? !paneOpen[k] : !!on; paintPanes(); return paneOpen[k]; }
+PANES.forEach(function(k){ var h = D.getElementById("fold-h-" + k); if(h) h.addEventListener("click", function(){ if(onRoad()) pane(k); }); });
+D.addEventListener("suite-mode", function(e){ var m = e && e.detail && e.detail.mode; if(m === "med" || m === "fuse") pane(m, true); });
+D.addEventListener("click", function(e){ var b = e.target && e.target.closest ? e.target.closest("[data-jump]") : null; var j = b ? String(b.getAttribute("data-jump") || "") : ""; if(j === "fold-med" || j === "fold-fuse") pane(j.slice(5), true); }, true);
 
 function state(){ try{ return W.SUITE_STATE && W.SUITE_STATE.get ? W.SUITE_STATE.get() : {}; }catch(e){ return {}; } }
 var last = "";
 function paint(){
-  keepFoot();
+  keepFoot(); paintPanes();
   var P = W.HELENA_POOL, A = W.HELENA_ADREN, h = "";
   try{ if(P && typeof P.railHtml === "function") h += '<div class="rt-cell">' + noIds(P.railHtml()) + "</div>"; }catch(e){}
   try{ if(A && typeof A.railHtml === "function") h += '<div class="rt-cell">' + noIds(A.railHtml()) + "</div>"; }catch(e){}
   var tk = [], sp = null, m = state();
   try{ tk = P && typeof P.read === "function" ? (P.read().tokens || []) : []; }catch(e){ tk = []; }
   try{ var lo = m && m.tools && m.tools.loot; sp = lo && typeof lo === "object" ? Math.max(0, Math.round(+lo.tokens || 0)) : null; }catch(e){ sp = null; }
-  var t = '<h3 class="rt-h">This trip’s tokens</h3>' +
+  var nv = 0; try{ var vs = m && m.tools && m.tools.vehicles; nv = vs && Array.isArray(vs.list) ? vs.list.length : 0; }catch(e){ nv = 0; }
+  var vlab = "Vehicles — " + (nv ? nv + " at the table" : "none at the table");
+  if(fVeh.firstChild && fVeh.firstChild.textContent !== vlab) fVeh.firstChild.textContent = vlab;
+  var t = '<h3 class="rt-h">This trip so far</h3>' +
     '<div class="rt-tk"><b>Buffs waiting for a fight:</b> ' + (tk.length ? tk.map(function(x){ return '<span class="rt-chip" title="' + esc(x.buff) + '">' + esc(x.name) + (x.from ? " <small>(" + esc(x.from) + ")</small>" : "") + "</span>"; }).join(" ") : "none") + "</div>" +
     '<div class="rt-tk"><b>Spoils tokens:</b> ' + (sp == null ? "no loot counter on this table" : sp + " on the loot counter") + "</div>";
   var lab = ""; try{ lab = W.HELENA_LEADIN && typeof W.HELENA_LEADIN.label === "function" ? W.HELENA_LEADIN.label() : ""; }catch(e){ lab = ""; }
@@ -88314,7 +88622,7 @@ try{ var s0 = SH(); if(s0 && s0.active && s0.active() === "camp") toRoad(); }cat
 try{ if(W.SUITE_STATE && typeof W.SUITE_STATE.subscribe === "function") W.SUITE_STATE.subscribe(function(){ paint(); }); }catch(e){}
 try{ if(W.SUITE_SYNC && typeof W.SUITE_SYNC.onStatus === "function") W.SUITE_SYNC.onStatus(function(){ paint(); }); }catch(e){}
 setInterval(paint, 2000);
-W.HELENA_ROADTAB = { paint:paint, fold:function(){ return fold; }, openCamp:toRoad };
+W.HELENA_ROADTAB = { paint:paint, fold:function(){ return fold; }, openCamp:toRoad, pane:pane, paneOpen:function(k){ return !!paneOpen[k]; } };
 })(window);
 </script>
 <script data-suite="cinder-zr-rule-tips">/* src/cinder-zr-rule-tips.js - RULE TIPS (night shift A5, CMD Z053), both views.  A rules term on screen (a label, a heading, a
