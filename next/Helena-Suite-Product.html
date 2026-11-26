@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"8bfead81",at:"2026-11-24 06:30 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"becb55b2",at:"2026-11-26 00:34 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -1487,6 +1487,8 @@
 #tool-char .cs-dmg-out .crit{color:var(--red);font-weight:700}
 #tool-char #cs-inv-prompt{color:var(--faint)}
 #tool-char #cs-inv-prompt .cs-refused{color:var(--z-dmg, var(--red))}
+#tool-char #cs-sheet .cs-inv tr.cs-inv-said > td{padding:2px 0 8px;border:0}
+#tool-char #cs-sheet .cs-inv tr.cs-inv-said #cs-inv-prompt{margin:0}
 #tool-char .cs-ps-said{flex-basis:100%;font-size:15px;line-height:1.5;color:var(--faint);padding:2px 0 7px;border-bottom:1px solid #232a1b}
 #tool-char .cs-ps-said b{color:var(--ink)}
 #tool-char .cs-armmods{font-size:15px;line-height:1.4;color:var(--faint);margin-top:3px}
@@ -1956,6 +1958,7 @@
 #tool-char #cs-sheet .cs-inv tr[data-inv] > td.pr b::after{content:" · ";color:var(--faint)}
 #tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-armmods.cs-armmods.cs-armmods{order:7;flex:0 0 100%;margin:0}
 #tool-char #cs-sheet .cs-inv tr[data-inv]::after{content:"";order:8;flex:0 0 100%;height:0}
+#tool-char #cs-sheet .cs-inv tr.cs-inv-said, #tool-char #cs-sheet .cs-inv tr.cs-inv-said > td{display:block;width:100%;box-sizing:border-box}
 #tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > div:not(.cs-hint):not(.cs-armmods), #tool-char #cs-sheet .cs-inv tr[data-inv] > td:first-child > .cs-invctl{order:9;margin:4px 0 0}
 #tool-char #cs-sheet .cs-inv tr[data-inv] > td:nth-child(3){order:10}
 #tool-char #cs-sheet .cs-inv tr[data-inv] > td:last-child{order:11;margin-left:auto}
@@ -1977,6 +1980,9 @@
 @container (min-width:760.1px){
 #tool-char #cs-sheet .cs-head{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) 84px 120px minmax(0,1.1fr) 58px auto}
 #tool-char #cs-sheet .cs-cols [data-card="equip"][open], #tool-char #cs-sheet .cs-cols #cs-notes-card{grid-column:1 / -1;grid-row:auto}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td.pr{white-space:nowrap}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td.pr br{display:none}
+#tool-char #cs-sheet .cs-inv tr[data-inv] > td.pr b::after{content:" · ";color:var(--faint)}
 }
 }
 @media screen{
@@ -4136,6 +4142,18 @@
 #tool-med details.proc > summary h2::before{ content:"\25B8  "; }
 #tool-med details.proc[open] > summary h2::before{ content:"\25BE  "; }
 #tool-med details.proc > summary:focus-visible{ outline:2px solid var(--bone); outline-offset:2px; }
+#tool-med .proc-foot{ margin:14px 0 0; }
+#tool-med .proc-back{ min-height:44px; padding:6px 14px; font:inherit; letter-spacing:.06em; cursor:pointer; background:transparent; color:var(--amber); border:1px solid var(--amber-dim); border-radius:3px; }
+#tool-med .proc-back:focus-visible{ outline:2px solid var(--bone); outline-offset:2px; }
+@media (min-width:861px){
+#tool-med .body:has(#md-proc[open]){ grid-template-columns:1fr; }
+#tool-med .body:has(#md-proc[open]) > .roster{ border-right:none; border-bottom:var(--rule); }
+#tool-med #md-proc[open] > .proc-body{ columns:3 340px; column-gap:32px; }
+#tool-med #md-proc[open] > .proc-body > .ent{ margin-bottom:11px; padding-bottom:10px; }
+#tool-med #md-proc[open] > .proc-foot{ margin-top:6px; }
+#tool-med #md-proc[open] > .proc-body h3{ break-after:avoid; }
+#tool-med #md-proc[open] > .proc-body p, #tool-med #md-proc[open] > .proc-body li, #tool-med #md-proc[open] > .proc-body > .margin{ break-inside:avoid; }
+}
 @media (max-width:860px){
 #tool-med{ padding:9px; font-size:15px; }
 #tool-med .body{ grid-template-columns:1fr; }
@@ -4294,6 +4312,42 @@ button[id*="heal"], #cs-healed, .ms-heal{ border-color:var(--z-heal) !important;
 #vh-box .tv-row button,#vh-box .tv-form button{min-height:32px}
 #vh-box select,#vh-box input{max-width:100%}
 @media (max-width:560px){ #vh-box .vh-card{padding:6px} #vh-box label.tv-lab{flex:1 1 100%} }
+
+/* GAME NIGHT 2026-11-24: THE SEAT PLAN (src/vehicles.js seatPlan) - the machine from above: who sits where, what is free, how full the back is */
+.vh-plan{ margin:8px 0 12px; }
+.vh-plan-sum{ display:flex; flex-wrap:wrap; gap:6px 16px; margin:0 0 8px; font-size:var(--fs-md, 13px); opacity:.9; }
+.vh-plan-sum b{ font-size:var(--fs-lg, 17px); }
+.vh-car{ --vh-body:#2B241D; --vh-edge:#9C7A3C; --vh-seat:#3A2F25; --vh-in:#D9A13B; --vh-gun:#C0392B; --vh-ink:#E8DFCC;
+  position:relative; max-width:300px; margin:0 auto; padding:0 14px 14px; background:var(--vh-body); color:var(--vh-ink);
+  border:2px solid var(--vh-edge); border-radius:46px 46px 18px 18px; box-shadow:inset 0 0 0 5px #17130F, 0 6px 18px rgba(0,0,0,.35); }
+.vh-car::before, .vh-car::after{ content:""; position:absolute; width:12px; height:44px; background:#0E0B08; border-radius:4px; top:52px; }
+.vh-car::before{ left:-9px; } .vh-car::after{ right:-9px; }
+.vh-car.is-down{ filter:grayscale(.7) brightness(.8); }
+.vh-car.is-fire{ box-shadow:inset 0 0 0 5px #17130F, 0 0 0 3px #E8692C, 0 0 22px rgba(232,105,44,.55); }
+.vh-car-hood{ height:40px; display:flex; justify-content:space-between; align-items:flex-start; padding:12px 18px 0; border-bottom:2px solid rgba(156,122,60,.5); margin:0 -14px 10px;
+  background:linear-gradient(180deg, rgba(255,255,255,.06), transparent); border-radius:44px 44px 0 0; }
+.vh-car-lamp{ width:26px; height:10px; border-radius:6px; background:#E9C46A; opacity:.7; }
+.vh-car-cab{ display:grid; gap:8px; }
+.vh-seat{ position:relative; min-height:64px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 4px;
+  background:var(--vh-seat); border:2px dashed rgba(232,223,204,.25); border-radius:12px 12px 8px 8px; text-align:center; overflow:hidden; }
+.vh-seat.is-in{ border:2px solid var(--vh-in); background:#3F3222; }
+.vh-seat.is-gun{ border-color:var(--vh-gun); }
+.vh-seat.is-wheel::after{ content:""; position:absolute; top:4px; right:5px; width:14px; height:14px; border:2px solid rgba(232,223,204,.45); border-radius:50%; }
+.vh-seat.is-pilot::after{ border-color:var(--vh-in); }
+.vh-seat-i{ width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--vh-in); color:#17130F; font-weight:700; font-size:var(--fs-base, 15px); }
+.vh-seat.is-gun .vh-seat-i{ background:var(--vh-gun); color:#fff; }
+.vh-seat-n{ max-width:100%; font-size:var(--fs-sm, 12px); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.vh-seat-r{ font-size:var(--fs-sm, 12px); text-transform:uppercase; letter-spacing:.06em; color:var(--vh-in); }
+.vh-seat.is-gun .vh-seat-r{ color:#F08A7E; }
+.vh-seat-e{ font-size:var(--fs-sm, 12px); text-transform:uppercase; letter-spacing:.06em; opacity:.55; }
+.vh-seat.is-over{ grid-column:1 / -1; min-height:32px; border-color:var(--vh-gun); font-size:var(--fs-sm, 12px); }
+.vh-car-bed{ margin:12px 0 0; padding:10px; border:2px solid rgba(156,122,60,.5); border-radius:8px; background:repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 10px, transparent 10px 20px); }
+.vh-bed-h{ font-size:var(--fs-sm, 12px); text-transform:uppercase; letter-spacing:.06em; margin:0 0 6px; }
+.vh-bed-bar{ height:10px; border-radius:5px; background:#17130F; overflow:hidden; }
+.vh-bed-bar span{ display:block; height:100%; background:#2BA39A; border-radius:5px; }
+.vh-bed-bar span.is-full{ background:#C0392B; }
+.vh-bed-riders{ display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0; }
+.vh-rider{ padding:2px 8px; border-radius:10px; background:var(--vh-in); color:#17130F; font-size:var(--fs-sm, 12px); font-weight:600; }
 </style>
 <style data-suite="settlement">/* Helena Suite — the settlements card (src/settlement.js; CMD Z050 Phase 5, G.15).  It sits inside #tool-camp and wears the Camp
    pane's own tokens (--panel, --edge, --amber …) and its cp-card; these are its few extras.  Both views: Cinder re-skins
@@ -4887,6 +4941,24 @@ body:not(.view-cinder) #cl-ms{ display:none !important; }
 #tt-auto .ap-sk select{padding:3px}
 #tt-auto .ap-sk-log ol{max-height:220px;overflow:auto;font-size:var(--fs-sm);padding-left:22px}
 /* Z051P2 auto:end */
+
+/* ---- REVIEW 2026-11-22 04, F5 (CMD Z055 section 2): THE ACTION BAR AT 1440, NOTHING CUT OFF.  The bar is 112 px tall and wraps to two
+   rows, but its rows were 70 and 56 px and the dice and AUTO stood one over the other (114 px): out of a fight the dice were
+   cut off by the bottom of the window, and IN a fight the whole second row was (the Overseer's AP, Place, the weapon slots
+   and END TURN, reachable only by scrolling inside the bar).  Now two rows of 48 px fit the same 112 px, so the map is the
+   size it was and does not move when a fight starts; the dice and AUTO stand side by side. ---- */
+@media (min-width:701px){
+  html body.view-cinder[data-cl-tab="fight"] #cinder-ov-bottom #cl-bar{ height:112px; min-height:112px; max-height:112px; gap:4px 10px; padding:4px 12px; align-content:center; overflow:hidden; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar .cl-med{ min-width:0; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar .cl-med .cl-disc{ flex:0 0 auto; width:42px; height:42px; font-size:var(--fs-base); }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar .cl-med > div{ max-width:150px; line-height:1.15; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar .cl-med big{ font-size:var(--fs-xl); line-height:1; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar :is(.cl-pip, .cl-end, .cl-dice, .cl-place){ height:48px; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar .cl-slot{ height:48px; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar .cl-tools{ flex-direction:row; gap:4px; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar .cl-slots{ flex:1 1 190px; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar .cl-acts{ min-height:32px; }
+}
 </style>
 <style data-suite="cinder-2-loot">/* Z032 — Cinder Ledger, part 2: the Loot Window.  A3 rarity edges: 0 grey · 1 bone · 2 green · 3–4 blue ·
    5–6 blue with a brass double edge · Legendary brass star + gold edge.  No purple on items. */
@@ -5433,6 +5505,8 @@ body #tool-map .bkbar.bk-shut .bk-set{ opacity:1; text-decoration:line-through; 
 #tr-room .tr-pane{ min-width:0; }
 #tr-room .tr-h{ margin:0 0 6px; font-size:var(--fs-base); letter-spacing:.08em; text-transform:uppercase; color:var(--amber); border-bottom:2px dashed var(--edge); padding-bottom:4px; }
 #tr-room .tr-pane > .card{ margin:0 0 12px; }
+/* F9: a card's own heading that the column's heading already says (or said wrongly: the stock list was "The Counter") */
+#tr-room .tr-dup{ display:none; }
 #tr-room .tr-counter{ position:sticky; top:8px; }
 body.view-cinder #tr-room .tr-counter{ top:calc(var(--cl-top, 88px) + 8px); }
 /* Z050 P4: when the counter is the full-width first row it must not stick: on a phone it covered every card under it */
@@ -5719,9 +5793,13 @@ body:not(.view-cinder) .qb-bar{ background:#0d130b; color:#d5e6b8; border-top-co
 .cn-who{ font-size:var(--fs-base, 15px); font-weight:700; text-align:right; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .cn-line{ display:flex; flex-wrap:wrap; gap:4px 16px; margin:0 0 10px; font-size:var(--fs-md, 13px); line-height:1.4; }
 .cn-line b{ font-size:var(--fs-base, 15px); }
-.cn-atks{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:8px 12px; margin:0 0 10px; }
+/* F47 (REVIEW 2026-11-24 00): AT 1440 THE WEAPONS TAKE THE CARD'S WIDTH AND NO NAME IS CUT.  The grid was auto-fill, which keeps
+   empty 260 px tracks: three weapons on a 1,340 px card sat in three 260 px cells with 560 px of blank card beside them, each
+   name cut with "…".  auto-fit folds the empty tracks away, so the weapons share the whole line; and a name that is still too
+   long for its cell goes to a second line instead of being cut, at every width. */
+.cn-atks{ display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:8px 12px; margin:0 0 10px; }
 .cn-atk{ display:flex; align-items:center; justify-content:space-between; gap:10px; min-width:0; }
-.cn-wn{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:var(--fs-base, 15px); }
+.cn-wn{ min-width:0; overflow-wrap:anywhere; font-size:var(--fs-base, 15px); line-height:1.25; }
 .cn-wn small{ font-size:var(--fs-sm, 12px); opacity:.85; margin-left:6px; }
 /* the sheet's own button rules (two ids deep) would shrink these: the card's buttons keep the quick bar's 44 px */
 #cn-card .qb-btn{ min-height:44px !important; min-width:44px !important; padding:8px 10px !important; font-size:var(--fs-base, 15px) !important; line-height:1.2 !important; }
@@ -5731,6 +5809,7 @@ body:not(.view-cinder) .qb-bar{ background:#0d130b; color:#d5e6b8; border-top-co
 .cn-ph{ font-weight:700; margin:0 0 6px; }
 .cn-note, .cn-msg{ margin:4px 0 0; font-size:var(--fs-md, 13px); line-height:1.4; }
 .cn-msg{ color:#F7D9A6; }
+.cn-msg.cn-said{ color:inherit; }   /* F44: a roll said back is not a warning: the card's own ink, not the amber */
 body:not(.view-cinder) .cn-card{ background:#0d130b; color:#d5e6b8; border-color:#2c3a22; border-left-color:#b9a44a; }
 @media print{ .cn-card{ display:none !important; } }
 
@@ -5742,6 +5821,42 @@ body:not(.view-cinder) .cn-card{ background:#0d130b; color:#d5e6b8; border-color
   body.view-cinder #cl-bar{ height:auto !important; max-height:none; overflow:visible; row-gap:6px; }
   body.view-cinder #cl-bar .cl-pips, body.view-cinder #cl-bar .cl-ap{ flex-wrap:wrap; overflow:visible; }
   body.view-cinder #cl-bar button{ min-height:44px; min-width:44px; }
+}
+
+/* ---- REVIEW 2026-11-22 04, F2 (CMD Z055 section 2): FIGHT ON A PHONE.  Measured at 390 x 844 before this block: the bottom dock kept its
+   desktop cap (30vh, said with an id, so the phone's "no cap" lost to it) while the fight bar inside it grew to 326 px out of a
+   fight and 446 px in one, so the bar ran UP out of its dock and under the map: in a fight the medallion, the Major and Minor
+   pips and Party AP were hidden behind the map pane.  The map's fit reads the bar's top as its limit, so the map was drawn
+   219 x 158 px in a 342 px box, with 111 px of nothing between the bar and the bottom nav.
+   Now: the dock has no cap on a phone; the map pane has no side padding and starts right under the ribbon; the pane takes
+   whatever height the bar does not need (cinder-8-maps.js writes --cl-fight-pane; never under 46vh); and the bar's first row
+   is the medallion, End turn and the dice, so End turn is right under the map and on the first screen. ---- */
+@media (max-width:700px){
+  html body.view-cinder[data-cl-tab="fight"] #cinder-ov-bottom{ max-height:none; }
+  /* the ribbon's circles are 44 px targets (they were 40) */
+  body.view-cinder[data-cl-tab="fight"] #cl-ribbon{ height:56px; padding:4px 10px; box-sizing:border-box; }
+  body.view-cinder[data-cl-tab="fight"] #cl-ribbon .cl-card{ flex-basis:44px; width:44px; height:44px; }
+  /* the map pane: under the ribbon (6 + 56 + 4), the whole width, as tall as the bar leaves */
+  html body.view-cinder[data-cl-tab="fight"] #suite-stage{ padding-top:var(--cl-fight-pane, 46vh); }
+  html body.view-cinder[data-cl-tab="fight"] #suite-stage > #fold-map{ height:var(--cl-fight-pane, 46vh) !important; max-height:var(--cl-fight-pane, 46vh) !important; padding-top:66px; overflow-x:hidden; }
+  html body.view-cinder[data-cl-tab="fight"] #tool-map, html body.view-cinder[data-cl-tab="fight"] #tool-map > main{ padding-left:0; padding-right:0; padding-top:0; margin-left:0; margin-right:0; }
+  body.view-cinder[data-cl-tab="fight"] #tool-map #zm_pt{ margin:0 8px 4px; }
+  body.view-cinder[data-cl-tab="fight"] #tool-map #stage{ border-left:0; border-right:0; border-radius:0; }
+  /* the map is as wide as the phone and cannot grow further; what height the pane has to spare stands evenly above and below it
+     ("safe": a zoomed map still starts at its own top edge) */
+  body.view-cinder[data-cl-tab="fight"] #tool-map #stage:not([data-cl-zoom]){ align-content:safe center; }
+  /* the bar: End turn first, the dice and AUTO beside it (they stood one over the other, 114 px tall, with the right half of
+     that row empty); then the turn's own row, the weapon slots, and the party's numbers last */
+  body.view-cinder[data-cl-tab="fight"] #cinder-ov-bottom #cl-bar{ gap:6px 8px; padding:8px 10px; align-items:center; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar > *{ order:20; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar > .cl-med{ order:1; flex:1 1 110px; min-width:0; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar > .cl-med .cl-disc{ flex:0 0 auto; width:48px; height:48px; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar > .cl-med > div{ min-width:0; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar > .cl-end{ order:2; flex:0 0 112px; width:112px; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar > .cl-tools{ order:3; flex-direction:row; gap:4px; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar > .cl-eco{ order:4; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar > .cl-ap-pilot{ order:5; }
+  body.view-cinder[data-cl-tab="fight"] #cl-bar > .cl-slots{ order:6; flex-basis:100%; }
 }
 </style>
 <style data-suite="cinder-zr-road-tab">/* Z051 tabs (lane road): the Road tab's own parts, both views (src/cinder-zr-road-tab.js).  Classic's Camp tab is hidden: Camp is
@@ -5788,6 +5903,42 @@ body.view-cinder[data-cl-tab="road"] #suite-stage > :is(#fold-med, #fold-fuse).r
 #tool-travel > #tv-log{ margin:.2em 0 .6em; }
 #rt-more .rt-how-l{ margin:0 0 .6em; }
 
+/* ---- REVIEW 2026-11-24 04, F49 to F54: Road's rest ---- */
+/* F54: the two rail headings on Road ("Food and water", "Adrenaline") were 10 px */
+#rt-top .rail-h{ font-size:var(--fs-sm); }
+/* F53: the swim's tick is a row like the weather's two: the box, then its words, and the whole row is the target */
+#rt-f-swim label.tv-tk{ display:flex; align-items:center; gap:8px; }
+@media (max-width:480px){
+  /* F52: on a phone a pane header is its name and its live number (the blurb was cut to nothing: "Who has b…"), and the Camp
+     fold's heading is "Camp", one line like its neighbours */
+  body.view-cinder[data-cl-tab="road"] #suite-stage > :is(#fold-med, #fold-fuse) > .suite-fold-bar .suite-fold-b{ display:none; }
+  /* the live number is never cut on a phone (WAVE 17 X5, the shell's own rule): beside the name when the two fit, on a line of
+     its own under it when they do not.  That rule stands here; only the blurb is gone. */
+  #rt-camp > summary .rt-camp-more{ display:none; }
+  /* F49: ON THE ROAD, PAY AND TRAVEL IS ON THE FIRST SCREEN.  It started 1,194 px down a 786 px reach.  The strip keeps its track
+     (the town left, the scene, the town ahead) and drops the sentence that said the same; and the road scene is laid out with
+     what the scene costs and the buttons that move the trip FIRST, and what can change that cost (the weather's two ticks,
+     the Pathfinder roll) under them.  Order only: every part is the Travel pane's own, in its own markup order for a keyboard
+     and a screen reader; wider than a phone nothing moves. */
+  #tool-travel #rd-road .rd-sub{ display:none; }
+  #tool-travel #tv-road:not([hidden]){ display:flex; flex-direction:column; }
+  #tool-travel #tv-road > *{ order:9; }
+  #tool-travel #tv-road > #tv-r-h{ order:1; }
+  #tool-travel #tv-road > #tv-r-cost{ order:2; }
+  #tool-travel #tv-road > #tv-r-bowls{ order:3; }
+  #tool-travel #tv-road > .tv-row:has(> #tv-r-pay){ order:4; }
+  #tool-travel #tv-road > #tv-trip-row{ order:5; }
+  /* F54: Road's own controls are 44 px on a phone (Rest in town was 113 × 35, Set out 76 × 35, the four Fights buttons 36, the
+     ticks 24 × 24: a tick's whole row is its target now).  Camp's insides are not this piece. */
+  #tool-travel :is(#tv-root, #tv-swim) :is(button, select, input:not([type=checkbox]):not([type=radio])){ min-height:44px; }
+  #tool-travel :is(#tv-root, #tv-swim) label.tv-tk{ min-height:44px; }
+  #rt-acts .rt-btn{ min-height:44px; }
+  #tool-travel > #tv-log > summary, #tool-travel #rt-camp > summary.rt-camp-s{ min-height:44px !important; display:flex; align-items:center; gap:8px; }
+  html body #fold-h-travel{ min-height:44px !important; }
+}
+/* F49: the label is hidden by its attribute while a trip runs (src/travel.html render); the pane's own rule for .tv-bh would show it */
+#tool-travel #tv-where-h[hidden], #tool-travel #tv-j-now[hidden]{ display:none !important; }
+
 /* Z051 pre-game: How the road works, a shut fold (with the other folds since Z055) */
 .rt-how{margin:0 0 10px;padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:4px}
 .rt-how-s{cursor:pointer;font-weight:600}
@@ -5805,6 +5956,132 @@ body.view-cinder[data-cl-tab="road"] #suite-stage > :is(#fold-med, #fold-fuse).r
 .rt-pop .rt-l{ margin:0; }
 .rt-pop .rt-cite{ display:block; margin-top:5px; font-size:var(--fs-sm); opacity:.8; font-style:italic; }
 .rt-pop.rt-sheet{ left:12px !important; right:12px; top:auto !important; bottom:12px; width:auto; }
+</style>
+<style data-suite="cinder-zs-settings">/* ============================================================================
+   Helena Suite - THE TABLE MENU (game night 2026-11-24; cinder-zs-settings.js).  A dark title card over the page in both
+   views, the same in paper and Night Shift.  Sizes from the type scale (cinder-zz-one-look.css), no raw px font sizes.
+   ========================================================================== */
+#zs-menu{
+  --zs-bg:#17130F; --zs-card:#221C17; --zs-line:#3A2C20; --zs-ink:#E8DFCC; --zs-ink2:#BFB39C; --zs-brass:#D9A13B; --zs-brass2:#9C7A3C;
+  --zs-teal:#2BA39A; --zs-serif:"EB Garamond", Garamond, "Iowan Old Style", Georgia, serif;
+  --zs-label:"Cinder Special Elite", "Special Elite", "Courier New", monospace;
+  position:fixed; inset:0; z-index:2147482000; display:flex; align-items:center; justify-content:center; padding:16px;
+  background:rgba(10,8,6,.78); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+}
+#zs-menu[hidden]{ display:none; }
+body.zs-open{ overflow:hidden; }
+#zs-menu .zs-card{
+  box-sizing:border-box; width:min(720px, 100%); max-height:min(88vh, 860px); display:flex; flex-direction:column;
+  background:var(--zs-card); color:var(--zs-ink); border:1px solid var(--zs-brass2); border-radius:10px;
+  box-shadow:0 24px 64px rgba(0,0,0,.6), inset 0 0 0 4px var(--zs-bg), inset 0 0 0 5px var(--zs-line);
+  font-family:var(--zs-serif); font-size:var(--fs-base); line-height:1.45; overflow:hidden;
+  animation:zs-in .16s ease-out;
+}
+@keyframes zs-in{ from{ opacity:0; transform:translateY(8px) scale(.985); } to{ opacity:1; transform:none; } }
+@media (prefers-reduced-motion:reduce){ #zs-menu .zs-card{ animation:none; } }
+#zs-menu .zs-top{ display:flex; align-items:center; gap:12px; padding:18px 18px 10px 24px; }
+#zs-menu .zs-title{ display:flex; flex-direction:column; gap:2px; flex:1 1 auto; min-width:0; }
+#zs-menu .zs-word{ font-family:var(--zs-label); font-size:var(--fs-3xl); letter-spacing:.32em; color:var(--zs-brass); line-height:1.05; }
+#zs-menu .zs-sub{ font-family:var(--zs-label); font-size:var(--fs-sm); letter-spacing:.14em; text-transform:uppercase; color:var(--zs-ink2); }
+#zs-menu .zs-build{ font-family:var(--zs-label); font-size:var(--fs-sm); color:var(--zs-ink2); white-space:nowrap; }
+#zs-menu button{ font:inherit; color:inherit; cursor:pointer; }
+#zs-menu button:focus-visible, #zs-menu input:focus-visible{ outline:2px solid var(--zs-brass); outline-offset:2px; }
+#zs-menu .zs-x{ flex:0 0 auto; width:44px; height:44px; border-radius:50%; background:transparent; border:1px solid var(--zs-line); font-size:var(--fs-2xl); line-height:1; }
+#zs-menu .zs-x:hover{ border-color:var(--zs-brass); color:var(--zs-brass); }
+#zs-menu .zs-nav{ display:flex; gap:4px; padding:0 18px; border-bottom:1px solid var(--zs-line); overflow-x:auto; scrollbar-width:none; }
+#zs-menu .zs-tab{ flex:0 0 auto; min-height:44px; padding:0 16px; background:transparent; border:0; border-bottom:3px solid transparent;
+  font-family:var(--zs-label); font-size:var(--fs-md); letter-spacing:.08em; text-transform:uppercase; color:var(--zs-ink2); }
+#zs-menu .zs-tab[aria-selected="true"]{ color:var(--zs-ink); border-bottom-color:var(--zs-brass); }
+#zs-menu .zs-tab:hover{ color:var(--zs-ink); }
+#zs-menu .zs-body{ flex:1 1 auto; overflow:auto; padding:8px 24px 16px; }
+#zs-menu .zs-row{ display:flex; align-items:center; gap:16px; padding:14px 0; border-bottom:1px solid var(--zs-line); }
+#zs-menu .zs-row.zs-off{ opacity:.5; }
+#zs-menu .zs-lab{ flex:1 1 200px; display:flex; flex-direction:column; gap:2px; min-width:0; }
+#zs-menu .zs-lab b{ font-size:var(--fs-lg); font-weight:600; }
+#zs-menu .zs-hint, #zs-menu .zs-note{ color:var(--zs-ink2); font-size:var(--fs-md); }
+#zs-menu .zs-note{ margin:14px 0 0; }
+#zs-menu .zs-ctl{ flex:0 1 auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+#zs-menu .zs-step{ min-width:44px; height:44px; border-radius:8px; background:var(--zs-bg); border:1px solid var(--zs-line); font-family:var(--zs-label); font-size:var(--fs-md); }
+#zs-menu .zs-step:hover:not([disabled]){ border-color:var(--zs-brass); }
+#zs-menu .zs-range{ width:180px; height:44px; margin:0; accent-color:var(--zs-brass); background:transparent; cursor:pointer; }
+#zs-menu .zs-val{ min-width:3.2em; text-align:right; font-family:var(--zs-label); font-size:var(--fs-md); color:var(--zs-brass); }
+#zs-menu .zs-preview{ margin:12px 0 0; padding:12px 14px; border-left:3px solid var(--zs-brass2); background:var(--zs-bg); border-radius:0 6px 6px 0; color:var(--zs-ink); }
+#zs-menu .zs-switch{ position:relative; display:inline-flex; align-items:center; gap:10px; min-height:44px; padding:0 14px 0 6px; border-radius:22px;
+  background:var(--zs-bg); border:1px solid var(--zs-line); font-family:var(--zs-label); font-size:var(--fs-md); text-transform:uppercase; letter-spacing:.08em; }
+#zs-menu .zs-knob{ width:44px; height:24px; border-radius:12px; background:var(--zs-line); position:relative; transition:background .15s; }
+#zs-menu .zs-knob::after{ content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--zs-ink2); transition:transform .15s, background .15s; }
+#zs-menu .zs-switch[aria-checked="true"] .zs-knob{ background:var(--zs-teal); }
+#zs-menu .zs-switch[aria-checked="true"] .zs-knob::after{ transform:translateX(20px); background:#fff; }
+#zs-menu .zs-switch[disabled]{ cursor:not-allowed; }
+#zs-menu .zs-segs{ display:inline-flex; border:1px solid var(--zs-line); border-radius:8px; overflow:hidden; }
+#zs-menu .zs-seg{ min-height:44px; padding:0 16px; background:var(--zs-bg); border:0; font-family:var(--zs-label); font-size:var(--fs-md); letter-spacing:.06em; text-transform:uppercase; color:var(--zs-ink2); }
+#zs-menu .zs-seg + .zs-seg{ border-left:1px solid var(--zs-line); }
+#zs-menu .zs-seg[aria-pressed="true"]{ background:var(--zs-brass); color:#17130F; }
+#zs-menu .zs-block{ padding:12px 0 4px; }
+#zs-menu .zs-h{ margin:0 0 6px; font-family:var(--zs-label); font-size:var(--fs-md); font-weight:400; letter-spacing:.1em; text-transform:uppercase; color:var(--zs-brass); }
+#zs-menu .zs-list{ margin:0; padding:0 0 0 18px; }
+#zs-menu .zs-list li{ margin:0 0 6px; }
+#zs-menu .zs-act{ min-height:44px; padding:0 18px; margin:12px 0 0; border-radius:8px; background:transparent; border:1px solid var(--zs-brass2);
+  font-family:var(--zs-label); font-size:var(--fs-md); letter-spacing:.06em; text-transform:uppercase; color:var(--zs-brass); }
+#zs-menu .zs-act:hover{ background:rgba(217,161,59,.12); }
+#zs-menu .zs-act-sm{ margin:0; padding:0 12px; }
+#zs-menu .zs-holds{ list-style:none; margin:12px 0 0; padding:0; border-top:1px solid var(--zs-line); }
+#zs-menu .zs-hold{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; min-height:52px; padding:4px 0; border-bottom:1px solid var(--zs-line); }
+#zs-menu .zs-hold b{ flex:1 1 140px; font-size:var(--fs-lg); font-weight:600; }
+#zs-menu .zs-hold-who{ color:var(--zs-ink); font-size:var(--fs-md); }
+#zs-menu .zs-hold-who.zs-free{ color:var(--zs-ink2); font-style:italic; }
+#zs-menu .zs-said{ min-height:1.4em; margin:8px 0 0; color:var(--zs-teal); font-size:var(--fs-md); }
+#zs-menu .zs-keys{ display:grid; grid-template-columns:max-content 1fr; gap:10px 18px; margin:14px 0 0; }
+#zs-menu .zs-keys dt{ font-family:var(--zs-label); font-size:var(--fs-md); color:var(--zs-brass); padding:3px 8px; border:1px solid var(--zs-line); border-radius:5px; background:var(--zs-bg); justify-self:start; }
+#zs-menu .zs-keys dd{ margin:0; align-self:center; }
+#zs-menu .zs-foot{ display:flex; justify-content:flex-end; padding:12px 18px; border-top:1px solid var(--zs-line); background:var(--zs-bg); }
+#zs-menu .zs-resume{ min-height:44px; padding:0 22px; border-radius:8px; background:var(--zs-brass); color:#17130F; border:0;
+  font-family:var(--zs-label); font-size:var(--fs-md); letter-spacing:.08em; text-transform:uppercase; }
+#zs-menu .zs-resume:hover{ filter:brightness(1.08); }
+@media (max-width:700px){
+  #zs-menu{ padding:0; align-items:stretch; }
+  #zs-menu .zs-card{ width:100%; max-height:none; height:100%; border-radius:0; border:0; box-shadow:none; }
+  #zs-menu .zs-top{ padding:12px 12px 6px 16px; }
+  #zs-menu .zs-word{ font-size:var(--fs-2xl); }
+  #zs-menu .zs-build{ order:3; flex-basis:100%; }
+  #zs-menu .zs-top{ flex-wrap:wrap; }
+  #zs-menu .zs-nav{ padding:0 8px; }
+  #zs-menu .zs-tab{ padding:0 12px; }
+  #zs-menu .zs-body{ padding:4px 16px 16px; }
+  #zs-menu .zs-row{ flex-direction:column; align-items:stretch; gap:10px; }
+  #zs-menu .zs-lab{ flex:0 0 auto; }
+  #zs-menu .zs-ctl{ justify-content:flex-start; }
+  #zs-menu .zs-range{ flex:1 1 120px; width:auto; }
+  #zs-menu .zs-resume{ flex:1 1 auto; }
+}
+
+/* the ways in: the Cinder header's Menu button, the phone's More grid, Classic's bar */
+body.view-cinder #cinder-head .zs-menu-btn{ display:inline-flex; align-items:center; gap:6px; margin-right:6px; }
+body.view-cinder #cinder-head .zs-burger{ font-size:var(--fs-lg); line-height:1; }
+@media (max-width:700px){
+  body.view-cinder #cinder-head .zs-menu-btn{ min-width:44px; min-height:44px; justify-content:center; padding:0 6px; margin-right:2px; }
+  body.view-cinder #cinder-head .zs-menu-word{ display:none; }
+  /* game night: the phone header was HELENA, the build, a three-line pill, Room and a cut-off Lead-in.  The menu card carries the
+     name and the build now, so the phone header is the menu, the clock on one line, Room and Lead-in */
+  body.view-cinder #cinder-head .cl-word, body.view-cinder #cinder-head #cinder-build{ display:none; }
+  body.view-cinder #cinder-head #cinder-clock-pill{ white-space:nowrap; }
+}
+#suite-menu.zs-classic-btn{ min-height:32px; padding:0 10px; margin-right:6px; border-radius:4px; background:#2a2a22; color:#f0e6c8; border:1px solid #9C7A3C; font:inherit; font-size:var(--fs-md); cursor:pointer; }
+body.view-cinder #suite-menu.zs-classic-btn{ display:none; }
+
+/* game night 11-24: phone tap targets on the screens the table uses tonight (METRICS at 390 on d1071b92: the Trader's 80 buy
+   and sell buttons were 46 x 29; the shell's pane headers 35-36 px; Journal's folds 32 px; the first-run card's Not now 42 x 32) */
+@media (max-width:700px){
+  body.view-cinder #tool-shop .hit > button.b-buy, body.view-cinder #tool-shop .hit > button.b-sell{ min-height:44px; min-width:52px; }
+  body.view-cinder #tool-shop .hit{ align-items:center; }
+  html body.view-cinder button[id^="fold-h-"]{ min-height:44px !important; }
+  body.view-cinder #tool-quests summary{ min-height:44px; display:flex; align-items:center; }
+  body.view-cinder #tool-quests .qs-link{ min-height:44px; display:inline-flex; align-items:center; vertical-align:middle; }
+  body.view-cinder #fr-later{ min-height:44px; min-width:64px; }
+}
+/* F62: the Journal's Start session is the button that starts the night (it was 99 x 24 at both widths) */
+html body.view-cinder #tb-session-go{ min-height:32px; padding-left:12px; padding-right:12px; }
+@media (max-width:700px){ html body.view-cinder #tb-session-go{ min-height:44px; } }
 </style>
 <style data-suite="cinder-zt-trip-window">/* Helena Suite - THE TRIP WINDOW (2026-11-20): a window over the page for the whole journey, both views; full screen on a phone */
 .tw-veil{position:fixed;inset:0;z-index:9000;background:rgba(10,8,6,.62);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:var(--sp-6) var(--sp-4)}
@@ -6422,7 +6699,7 @@ html body #tool-char .cs-rollopts > label.cs-lab{ min-width:0; max-width:100%; }
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-24 06:30 UTC">8bfead81</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 00:34 UTC">becb55b2</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -6433,7 +6710,7 @@ html body #tool-char .cs-rollopts > label.cs-lab{ min-width:0; max-width:100%; }
     <button class="suite-mode" role="tab" id="mode-suite-fuse" data-mode="fuse" aria-controls="suite-stage" aria-selected="false">Fusion<small>Fusion core charges</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-travel" data-mode="travel" aria-controls="suite-stage" aria-selected="false">Road<small>Bowls, Adrenaline, the road, fights, camp</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-craft" data-mode="craft" aria-controls="suite-stage" aria-selected="false">Craft<small>Recipes, materials, salvage</small></button>
-    <button class="suite-mode" role="tab" id="mode-suite-shop" data-mode="shop" aria-controls="suite-stage" aria-selected="false">Merchant<small>Buy, sell and haggle</small></button>
+    <button class="suite-mode" role="tab" id="mode-suite-shop" data-mode="shop" aria-controls="suite-stage" aria-selected="false">Trader<small>Buy and sell</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-loot" data-mode="loot" aria-controls="suite-stage" aria-selected="false">Loot<small>Scavenger's tables</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-quests" data-mode="quests" aria-controls="suite-stage" aria-selected="false">Quests<small>Quests and milestones</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-chat" data-mode="chat" aria-controls="suite-stage" aria-selected="false">Chat<small>The fight chat</small></button>
@@ -8585,7 +8862,7 @@ end $$;
 </div>
 
 <div class="suite-fold" id="fold-shop" data-mode="shop" data-pane="shop" hidden>
-<div class="suite-fold-bar"><button type="button" class="suite-fold-h" id="fold-h-shop" aria-expanded="true" aria-controls="tool-shop"><span class="suite-fold-t" id="fold-t-shop">Merchant</span><span class="suite-fold-b" id="fold-b-shop">Buy, sell and haggle</span><span class="suite-fold-n" id="fold-n-shop"></span></button></div>
+<div class="suite-fold-bar"><button type="button" class="suite-fold-h" id="fold-h-shop" aria-expanded="true" aria-controls="tool-shop"><span class="suite-fold-t" id="fold-t-shop">Trader</span><span class="suite-fold-b" id="fold-b-shop">Buy and sell</span><span class="suite-fold-n" id="fold-n-shop"></span></button></div>
 <section class="tool" id="tool-shop" role="region" aria-labelledby="fold-h-shop">
 <div class="top">
   <div>
@@ -8638,9 +8915,10 @@ end $$;
 
   <div>
     <div class="card">
-      <h2>Haggling</h2>
+      <!-- CMD Z055 section 5: this card read "Haggling" and holds no haggle (Z010 struck the roll); it is named for the one thing in it -->
+      <h2>Cap Collector</h2>
       <div class="mod" id="mc-capcol" data-on="0">
-        <div class="mod-name">Cap Collector</div>
+        <div class="mod-name">The buyer has the perk</div>
         <div class="mod-txt">Buy 10% cheaper, sell 10% dearer.</div>
       </div>
 
@@ -8679,8 +8957,9 @@ end $$;
       <details class="why"><summary>why &mdash; what the town sells</summary>
       <div class="mod-txt">
         <b>A meal or a drink</b> is its own Food or Drink row at the counter&rsquo;s price (the house rate), eaten on the
-        spot: the printed consume rules, exactly as the sheet&rsquo;s own <b>Eat</b> / <b>Drink</b> &mdash; a food raises
-        Hunger one level (a cooked dish two), a drink Thirst one, one step at a time, never above Sound. <b>A room</b> is
+        spot: it goes into the party&rsquo;s bowls, exactly as eating from a pack does &mdash; a food puts 1 in the Food bowl
+        (a cooked dish 2), a drink 1 in the Water bowl (purified water 2), and whatever HP the item prints goes into the
+        party&rsquo;s reserve, to heal from between fights. One line in the log, one Undo for the caps and the bowl. <b>A room</b> is
         Nightfall as printed for whoever sleeps there (the table&rsquo;s night: the drain, Sleep to Sound, the heal), in
         warm shelter, and they wake <b>Well Rested</b>: +2 Maximum HP until they next sleep (Guide p.ccviii). No HP beyond
         what Nightfall prints. The Guide prints no price for a room; the Overseer rules one and it is kept for the table.
@@ -8898,7 +9177,7 @@ end $$;
     <div class="tv-form">
       <label class="tv-lab tv-wide">Who swims <select id="tv-s-who" aria-label="who swims"></select></label>
       <label class="tv-lab">Minutes in the water <input type="number" id="tv-s-min" min="0" max="1440" step="30" value="30"></label>
-      <label class="tv-lab"><input type="checkbox" id="tv-s-rad"> Irradiated water</label>
+      <label class="tv-tk"><input type="checkbox" id="tv-s-rad"> <span>Irradiated water</span></label>
     </div>
     <p class="tv-hint" id="tv-s-hint"></p>
     <div class="tv-row"><button type="button" class="tv-go" id="tv-s-go">Swim</button></div>
@@ -9195,6 +9474,8 @@ end $$;
       <summary><h2>The procedure</h2>
       <div class="sub">What the tick means, and how a wound closes.</div></summary>
 
+      <!-- F22 (REVIEW 2026-11-23 00): the entries stand in a body of their own, so a wide screen can set them in columns under the board -->
+      <div class="proc-body">
       <div class="ent">
         <h3>The twin law <span class="tag t-ours">Guide p.lvi</span></h3>
         <p><b>Medicine mends a person once per person per day.</b> Repair mends a thing once per thing per day. Salvage and stimpaks are how you cheat both.</p>
@@ -9240,13 +9521,13 @@ end $$;
       <div class="ent">
         <h3>What bends the odds <span class="tag t-ours">Guide</span></h3>
         <ul>
-          <li><b>Doctor's Bag</b> &mdash; &minus;1 Difficulty to Medicine tests (p.clxxx).</li>
-          <li><b>First Aid Kit</b> &mdash; +2 HP when your First Aid succeeds (p.clxxx).</li>
-          <li><b>Debilitating</b> &mdash; injuries this weapon deals are +1 Difficulty to treat (p.lii).</li>
-          <li><b>Cauterising</b> &mdash; what it takes off cannot be put back by stimpak or Medicine for the rest of the scene. Rest and chems still work (p.lii).</li>
-          <li><b>Hydra</b> &mdash; heals 1 Injury, instant. Addictive (3), 60c (p.cl).</li>
-          <li><b>Tombstone</b> &mdash; one Injury forgets itself until the scene ends (p.clxx).</li>
-          <li><b>Massachusetts Surgical Journal</b> &mdash; treated injuries heal one day faster; +1 HP on a successful Medicine test (p.clxxxviii).</li>
+          <li><b>Doctor's Bag</b> &mdash; &minus;1 Difficulty to Medicine tests (Guide p.clxxx).</li>
+          <li><b>First Aid Kit</b> &mdash; +2 HP when your First Aid succeeds (Guide p.clxxx).</li>
+          <li><b>Debilitating</b> &mdash; injuries this weapon deals are +1 Difficulty to treat (Guide p.lii).</li>
+          <li><b>Cauterising</b> &mdash; what it takes off cannot be put back by stimpak or Medicine for the rest of the scene. Rest and chems still work (Guide p.lii).</li>
+          <li><b>Hydra</b> &mdash; heals 1 Injury, instant. Addictive (3), 60c (Guide p.cl).</li>
+          <li><b>Tombstone</b> &mdash; one Injury forgets itself until the scene ends (Guide p.clxx).</li>
+          <li><b>Massachusetts Surgical Journal</b> &mdash; treated injuries heal one day faster; +1 HP on a successful Medicine test (Guide p.clxxxviii).</li>
         </ul>
       </div>
 
@@ -9260,6 +9541,9 @@ end $$;
         <div class="by">Joel &mdash; the shotgun surgeon</div>
         <p>One set of hands a day, per person. That is the whole rule and it is the one people forget at the worst moment. Tick the box when you use it. A man who thinks he has a heal left and does not is a man who takes a fight he should have walked away from.</p>
       </div>
+      </div>
+      <!-- F23 (REVIEW 2026-11-23 00): two folds deep, with the party a screen or more above: a way back up, at the fold's foot -->
+      <div class="proc-foot"><button type="button" class="proc-back" id="md-proc-back">&uarr; Back to the party</button></div>
       </details>
     </aside>
   </div>
@@ -31133,13 +31417,29 @@ function fillPicker(){
     opts.push({ name:b.name, key:b.key, xp:b.xp, lvl:b.lvl });
   });
   opts.sort(function(a,b){ return a.name.localeCompare(b.name); });
-  opts.forEach(function(o){
+  /* Game night 11-25 (Howl: "a very easily findable area for custom monsters ... Dylan's 5-tier wizards"): the table's own
+     creatures (a bestiary record marked homebrew, e.g. the Church Dragons) sit in their own group at the TOP of the list,
+     strongest last, each with its faction; the printed bestiary follows in its own group.  The default pick is unchanged. */
+  function isCustom(o){ var c = o.key && CR[o.key]; return !!(c && (c.homebrew || c.page === "Homebrew")); }
+  function mk(o, custom){
     var el = document.createElement("option");
     el.value = o.key || "";
-    el.textContent = o.name + "  (" + o.xp + " xp" + (o.lvl ? ", lvl " + o.lvl : "") + (CR[o.key] && CR[o.key].homebrew ? ", homebrew" : "") + ")";
+    el.textContent = (custom ? "\u2605 " : "") + o.name + "  (" + o.xp + " xp" + (o.lvl ? ", lvl " + o.lvl : "") + (CR[o.key] && CR[o.key].homebrew ? ", homebrew" : "") + ")";
     el.dataset.xp = o.xp; el.dataset.name = o.name;
-    sel.appendChild(el);
-  });
+    if(custom) el.dataset.custom = "1";
+    return el;
+  }
+  var mine = opts.filter(isCustom), rest = opts.filter(function(o){ return !isCustom(o); });
+  mine.sort(function(a, b){ return (+a.lvl || 0) - (+b.lvl || 0) || a.name.localeCompare(b.name); });
+  if(mine.length){
+    var gC = document.createElement("optgroup"), gB = document.createElement("optgroup");
+    gC.label = "\u2605 Custom monsters (the table's own)"; gC.id = "eb-pick-custom";
+    gB.label = "Bestiary"; gB.id = "eb-pick-bestiary";
+    mine.forEach(function(o){ gC.appendChild(mk(o, true)); });
+    rest.forEach(function(o){ gB.appendChild(mk(o, false)); });
+    sel.appendChild(gC); sel.appendChild(gB);
+    sel.value = rest.length ? (rest[0].key || "") : sel.value;
+  } else rest.forEach(function(o){ sel.appendChild(mk(o, false)); });
 }
 
 $("eb-add").onclick = function(){
@@ -40176,9 +40476,61 @@ function psSaidEl(s, ended){
    an argument and not a second function so every block that is lifted into a vm with invPrompt stubbed still runs. */
 function invPrompt(html, how){
   var box = $("cs-inv-prompt"); if(!box) return;
-  if(!html){ box.hidden = true; box.innerHTML = ""; return; }
+  if(!html){ box.hidden = true; box.innerHTML = ""; if(typeof invSaidSeat === "function") invSaidSeat(true); return; }
   box.hidden = false; box.innerHTML = how === "refused" ? '<span class="cs-refused">' + html + "</span>" : html;
+  if(typeof invSaidSeat === "function") invSaidSeat(true);      /* F40: the answer stands under the row that was pressed */
 }
+/* F40 (REVIEW 2026-11-24 00): THE ANSWER TO A PACK PRESS PRINTS WHERE THE PLAYER IS LOOKING.  The Pack's one answer box stood under the
+   whole list: at 390 with six rows a Wear's line started 735 px down an 844 px screen, behind the bottom nav, and with a real
+   pack it was a scroll away.  The box is still ONE box, with its id, written by invPrompt alone (about fifty calls, and nine
+   test files, read or write it by that id).  What moves is where it stands: after a press on a row, the same element is seated in
+   a row of its own directly under that row, and it goes home (under the list, where the markup has it) when it is emptied, when
+   the press was not on a row (the Guide search's add, the mods card's fit), and on another sheet.  It "goes at the next press":
+   a press on a row's button empties the last answer before that button's own code runs (More and Less are not such a press:
+   they open and shut a row, and an answer the player is still reading stays).
+   Two places are kept: where the LAST PRESS was (INV_SAID.at), and where the answer ON SHOW was given (INV_SAID.cur, taken
+   from the last press at the moment invPrompt writes).  So a press somewhere else on the page does not move an answer that is
+   already up; only its own answer, or a render, seats the box, and a render seats it where it was given.
+   The table's body is rebuilt on every render, so renderInventory takes the box home first and seats it again after (both
+   calls typeof-guarded there: that function runs alone in a vm in several tests).  Which row was pressed is this page's, in
+   memory: no save field, nothing stored. */
+var INV_SAID = { at:null, sheet:"", name:"", cur:null };
+function invSaidTable(){ var tb = document.getElementById("cs-inv"); return tb && tb.closest ? tb.closest("table") : null; }
+function invSaidHome(){
+  var box = document.getElementById("cs-inv-prompt"), tb = document.getElementById("cs-inv"), table = invSaidTable(); if(!box || !tb || !table || !table.parentNode) return;
+  if(typeof tb.contains !== "function" || !tb.contains(box)) return;      /* it is at home already */
+  /* whatever child of the table's body holds it is its row (found by where it is, not by a class name: other code may mark rows) */
+  var holder = box; while(holder.parentNode && holder.parentNode !== tb) holder = holder.parentNode;
+  var after = table.nextElementSibling && /(^| )cs-row( |$)/.test(table.nextElementSibling.className) ? table.nextElementSibling : table;
+  after.parentNode.insertBefore(box, after.nextSibling);
+  if(holder.parentNode) holder.parentNode.removeChild(holder);
+}
+function invSaidSeat(fresh){
+  var box = document.getElementById("cs-inv-prompt"), tb = document.getElementById("cs-inv"); if(!box || !tb) return;
+  invSaidHome();
+  if(fresh) INV_SAID.cur = INV_SAID.at == null ? null : { at:INV_SAID.at, sheet:INV_SAID.sheet, name:INV_SAID.name };
+  var c = typeof me === "function" ? me() : null, cur = INV_SAID.cur;
+  if(box.hidden || !cur || !c || String(c.id) !== cur.sheet) return;
+  var tr = tb.querySelector('tr[data-inv="' + cur.at + '"]'), row = Array.isArray(c.inventory) ? c.inventory[cur.at] : null;
+  var same = !!tr && !!row && String(row.name || "") === cur.name;
+  var holder = document.createElement("tr"); holder.className = "cs-inv-said";
+  var td = document.createElement("td"); td.colSpan = 5; holder.appendChild(td); td.appendChild(box);
+  /* the row pressed is still there: under it.  It is gone (dropped, or put on the ledger whole) and the rows below moved up:
+     where it was, above the row that took its place, or where the list ends */
+  if(same) tb.insertBefore(holder, tr.nextSibling); else if(tr) tb.insertBefore(holder, tr); else tb.appendChild(holder);
+}
+function invSaidNote(e){
+  var t = e && e.target, box = document.getElementById("cs-inv-prompt"); if(!t || !t.closest || (box && box.contains(t))) return;   /* a button inside the answer (its Undo) keeps the answer where it is */
+  var tr = t.closest("#cs-inv tr[data-inv]"), c = typeof me === "function" ? me() : null;
+  if(tr && c){
+    var i = +tr.getAttribute("data-inv");
+    INV_SAID.at = i; INV_SAID.sheet = String(c.id); INV_SAID.name = String(((c.inventory || [])[i] || {}).name || "");
+    var b = e.type === "click" ? t.closest("button[data-act]") : null;
+    if(b && b.getAttribute("data-act") !== "inv-more" && box && !box.hidden) invPrompt("");      /* the last answer goes at the next press */
+  }
+  else if(t.closest("button, input, select, textarea, summary, a")) INV_SAID.at = null;
+}
+try{ document.addEventListener("click", invSaidNote, true); document.addEventListener("change", invSaidNote, true); }catch(e){}
 /* ================================================================== WAVE 11 (2026-09-28)
    PLAYER → LEDGER.  WAVE10_ADDENDA.md item 3 — "Joel is trying to put the excess loot he has
    into the party ledger but can't."  The ledger has only ever run one way (wave 7 built
@@ -41053,6 +41405,7 @@ function invSyringer(i, rand){
 }
 /* INVSYR:end */
 function renderInventory(c){
+  if(typeof invSaidHome === "function") invSaidHome();     /* F40: the answer box may be seated in this table; it leaves before the rows are thrown away */
   var host = $("cs-inv"); host.innerHTML = "";
   if(!c.inventory.length){ host.innerHTML = '<tr><td class="cs-empty">Nothing carried.</td></tr>'; }
   /* the ledger's "n / cap" once per render, handed to every row (wave 11 second skeptic);
@@ -41138,6 +41491,7 @@ function renderInventory(c){
       '<td><button class="cs-x" data-act="inv-del" title="drop">&times;</button></td>';
     host.appendChild(tr);
   });
+  if(typeof invSaidSeat === "function") invSaidSeat();     /* F40: …and is seated under the row pressed again */
 }
 
 function renderHits(){
@@ -71055,7 +71409,7 @@ function renderPay(){
     sel.innerHTML = '<option value="">— no sheets here —</option>';
     $("mc-purse").textContent = "";
     $("mc-confirm").disabled = true;
-    say("mc-msg", "plain", "Open the Merchant inside Helena-Suite.html to confirm a deal — on its own this page has no sheets and no ledger.");
+    say("mc-msg", "plain", "Open the Trader inside Helena-Suite.html to confirm a deal — on its own this page has no sheets and no ledger.");
     return;
   }
   /* Z050 (R.22 AMENDED, Howl 2026-11-02): WHO PAYS?  The party's caps (the default, preselected), any one character at the
@@ -71752,7 +72106,7 @@ function dealWords(payWho){
 }
 
 $("mc-confirm").onclick = function(){
-  if(!OPS){ say("mc-msg", "bad", "No shared store on this page — open the Merchant inside the suite."); return; }
+  if(!OPS){ say("mc-msg", "bad", "No shared store on this page — open the Trader inside the suite."); return; }
   var stamp = env.now(), loose = looseCredit(), payId = $("mc-payer").value, payWho = typeof OPS.payerName === "function" ? OPS.payerName(payId) : "the payer";
   /* the deal's own id: confirm() refuses a replay of it before a single cap moves.
      WAVE 11: the sell side is the counter's HOLDS — credit is Σ sellPrice over the
@@ -73568,6 +73922,10 @@ function render(){
   txt(gate, may ? "" : "The Overseer sets out and travels the road — you can follow the trip here.");
   try{ var rt = $("tv-root"); if(rt) rt.classList.toggle("tv-ro", !may); }catch(e){}
   paint("tv-j-now", tvJourney(s));
+  /* F49 (REVIEW 2026-11-24 04): ON THE ROAD THE PAGE SAID WHERE THE PARTY IS FOUR TIMES.  While a trip runs the page header and the road
+     strip's track (the town left, the scene, the town ahead) say it; this label and its sentence show in town only, where they
+     are the one line that does.  Words and layout: the trip's rule and its cost are not touched. */
+  hide($("tv-where-h"), road); hide($("tv-j-now"), road);
   hide($("tv-town"), road);
   hide($("tv-road"), !road);
   if(road) renderRoad(s); else renderTown(s);
@@ -78989,6 +79347,16 @@ var document = new Proxy(__rdoc, {
     render();
     wirePaste("p_firstaid", "firstaid", "s_firstaid", DEFAULT_FIRSTAID);
     wirePaste("p_rest",     "rest",     "s_rest",     DEFAULT_REST);
+    /* F23 (REVIEW 2026-11-23 00): "Back to the party" at the procedure's foot brings the board's roster to the top of the screen,
+       clear of whatever is fixed there (the shell's own measure, where there is a shell).  It moves the page and nothing else:
+       the procedure stays as the reader left it. */
+    var back = document.getElementById("md-proc-back");
+    if (back) back.addEventListener("click", function(){
+      var b = back.closest ? back.closest(".body") : null, r = b ? b.querySelector(".roster") : null;
+      if (!r) return;
+      try { r.scrollIntoView({ block:"start" }); } catch(e){}
+      try { var C = window.CINDER; if (C && typeof C.clearHead === "function") C.clearHead(r); } catch(e){}
+    });
     if (SUITE){
       /* a Nightfall pressed on a character sheet bumps SUITE_STATE.night — that
          is a new day here too: clear every "Medicine spent" tick */
@@ -82370,9 +82738,39 @@ function momentum(v){
   return "";
 }
 
+/* GAME NIGHT 2026-11-24 (Howl: "a car model based on back seat spaces, what's filled, current capacity"): THE SEAT PLAN.  A drawing of
+   the machine from above, read from what the card already shows (V.stats: seats, seated, riders, the pilot; the crew's gun roles;
+   the cargo used and the room left).  It changes nothing and holds no rule: every press stays on the buttons under it. */
+function seatPlan(v, st){
+  var sp = st.spec, n = Math.max(0, sp.pass | 0), crew = Array.isArray(v.crew) ? v.crew : [];
+  var seated = crew.filter(function(c){ return c.seat !== "cargo"; }), back = crew.filter(function(c){ return c.seat === "cargo"; });
+  seated.sort(function(a, b){ return (b.pilot ? 1 : 0) - (a.pilot ? 1 : 0); });
+  var cols = n > 8 ? 3 : n > 1 ? 2 : 1, cells = "";
+  function first(id){ var nm = cname(id); return nm.split(/\s+/)[0] || nm; }
+  for(var i = 0; i < n; i++){
+    var c = seated[i] || null, k = "vh-seat" + (c ? " is-in" : "") + (c && c.pilot ? " is-pilot" : "") + (c && c.gunner ? " is-gun" : "") + (i === 0 ? " is-wheel" : "");
+    cells += '<div class="' + k + '" title="' + esc(c ? cname(c.id) + (c.pilot ? ", at the wheel" : "") + (c.gunner ? ", on a gun" : "") : (i === 0 ? "The driver's seat: empty" : "An empty seat")) + '">' +
+      (c ? '<span class="vh-seat-i">' + esc(first(c.id).charAt(0).toUpperCase()) + '</span><span class="vh-seat-n">' + esc(first(c.id)) + "</span>" +
+           (c.pilot ? '<span class="vh-seat-r">Wheel</span>' : c.gunner ? '<span class="vh-seat-r">Gun</span>' : "")
+        : '<span class="vh-seat-e">' + (i === 0 ? "Driver" : "Empty") + "</span>") + "</div>";
+  }
+  if(seated.length > n) cells += '<div class="vh-seat is-in is-over">+' + (seated.length - n) + " over</div>";
+  var used = st.cargoUsed | 0, max = Math.max(0, st.cargoMax | 0), pct = max ? Math.min(100, Math.round(100 * used / max)) : (used ? 100 : 0);
+  var riders = back.map(function(c){ return '<span class="vh-rider">' + esc(first(c.id)) + "</span>"; }).join("");
+  return '<div class="vh-plan" role="img" aria-label="' + esc(v.name + ": " + seated.length + " of " + n + " seats taken" + (back.length ? ", " + back.length + " in the back" : "") + ", cargo " + used + " of " + max + " slots") + '">' +
+    '<div class="vh-plan-sum"><span><b>' + seated.length + "</b> of " + n + " seats</span><span>" + Math.max(0, n - seated.length) + " free</span>" +
+      (back.length ? "<span>" + back.length + " in the back</span>" : "") + "<span>Cargo <b>" + used + "</b> / " + max + "</span></div>" +
+    '<div class="vh-car' + (st.working ? "" : " is-down") + (v.fire ? " is-fire" : "") + '">' +
+      '<div class="vh-car-hood"><span class="vh-car-lamp"></span><span class="vh-car-lamp"></span></div>' +
+      '<div class="vh-car-cab" style="grid-template-columns:repeat(' + cols + ', minmax(0, 1fr))">' + cells + "</div>" +
+      '<div class="vh-car-bed"><div class="vh-bed-h">The back · ' + used + " of " + max + " slots</div>" +
+        '<div class="vh-bed-bar" aria-hidden="true"><span style="width:' + pct + '%"' + (pct >= 100 ? ' class="is-full"' : "") + "></span></div>" +
+        (riders ? '<div class="vh-bed-riders">' + riders + "</div>" : "") + "</div>" +
+    "</div></div>";
+}
 function crewHtml(v, st){
   var sp = st.spec, h = '<div class="tv-block"><div class="tv-bh">Aboard — ' + st.seated + " of " + sp.pass + " seat" + (sp.pass === 1 ? "" : "s") +
-          (sp.passNote ? " (" + esc(sp.passNote) + ")" : "") + (st.riders ? " · " + st.riders + " in the back" : "") + "</div>";
+          (sp.passNote ? " (" + esc(sp.passNote) + ")" : "") + (st.riders ? " · " + st.riders + " in the back" : "") + "</div>" + seatPlan(v, st);
   if(v.crew.length){
     h += '<ul class="vh-crew">' + v.crew.map(function(c){
       return "<li><b>" + esc(cname(c.id)) + "</b> " + (c.pilot ? badge("Pilot", "vh-ok") : "") + (c.gunner ? badge("Gunner") : "") + (c.seat === "cargo" ? badge("in the back") : "") +
@@ -85093,6 +85491,10 @@ W.CINDER = {
     return d;
   },
   docks: docks,
+  /* game night 11-24: the table menu (cinder-zs-settings.js) works the same text size and Night Shift as the header */
+  scale: { get:function(){ return scale; }, set:function(v){ setScale(+v || 100); } },
+  night: { get:function(){ return night; }, set:function(v){ setNight(!!v); } },
+  clearHead: clearHead,      /* F50: the Road tab's panes land clear of the header by the same measure the Pack jump uses (F41) */
   win: null, claimTool: null
 };
 
@@ -87103,8 +87505,14 @@ if(!stock || !deal) return;
 function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
 var room = el("div", "tr-room"); room.id = "tr-room";
 var pS = el("section", "tr-pane tr-stock"), pL = el("section", "tr-pane tr-ledger"), pC = el("section", "tr-pane tr-counter");
-pS.setAttribute("aria-label", "The trader's stock"); pL.setAttribute("aria-label", "The party ledger"); pC.setAttribute("aria-label", "The counter");
-pS.appendChild(el("h3", "tr-h", "The trader's stock")); pL.appendChild(el("h3", "tr-h", "The party ledger")); pC.appendChild(el("h3", "tr-h", "The counter"));
+/* REVIEW 2026-11-22 18, F9: ONE HEADING PER COLUMN.  The columns read THE TRADER'S STOCK, THE PARTY LEDGER, THE COUNTER and the cards under
+   them THE COUNTER, THE PARTY LEDGER, THE DEAL: two different things were "The Counter" and The Party Ledger was printed twice,
+   one over the other.  The columns are The Trader's Stock, The Party Ledger, The Deal, and the three cards' own headings,
+   which said the same thing a second time or said the wrong one, are not shown in the room (tr-dup; the Merchant page opened
+   on its own, with no room, keeps them). */
+pS.setAttribute("aria-label", "The trader's stock"); pL.setAttribute("aria-label", "The party ledger"); pC.setAttribute("aria-label", "The deal");
+pS.appendChild(el("h3", "tr-h", "The Trader's Stock")); pL.appendChild(el("h3", "tr-h", "The Party Ledger")); pC.appendChild(el("h3", "tr-h", "The Deal"));
+[stock, deal, lg].forEach(function(c){ var h = c && c.querySelector ? c.querySelector("h2") : null; if(h && h.classList) h.classList.add("tr-dup"); });
 top.parentNode.insertBefore(room, top);
 pS.appendChild(stock); if(haggle) pS.appendChild(haggle);
 /* Z037: the town's services (a meal, a drink, a room) are sold over the same counter, under the stock */
@@ -87343,9 +87751,27 @@ function watch(id){
   var e = D.getElementById(id); if(!e || watched.indexOf(e) >= 0 || typeof W.ResizeObserver !== "function") return;
   watched.push(e); new W.ResizeObserver(function(){ fit(); }).observe(e);
 }
+/* REVIEW 2026-11-22 04, F2 (CMD Z055 section 2): ON A PHONE THE MAP TAKES WHAT THE BAR LEAVES.  The map pane was 46vh whatever stood under it,
+   so out of a fight about 110 px of nothing lay between the bar and the bottom nav.  pane() writes --cl-fight-pane on the body:
+   the window, less the header above the pane, the bottom nav and the dock the bar stands in; never under 46vh (the pane's old
+   height, which a long bar in a fight still gets: the page scrolls then, as it did).  Written only when it changed; taken
+   off again wider than a phone.  The bar is under the pane, so its height does not depend on the pane's: no loop. */
+function pane(){
+  try{
+    var st = B.style; if(!st || typeof st.setProperty !== "function" || typeof st.getPropertyValue !== "function") return;
+    var dock = D.getElementById("cinder-ov-bottom"), vh = +W.innerHeight, v = "";
+    if(dock && +W.innerWidth <= 700 && vh > 0){
+      var top = fold.getBoundingClientRect().top, nav = D.getElementById("cinder-phonebar"), n = nav ? nav.getBoundingClientRect() : null;
+      var foot = n && n.height > 0 ? vh - n.top : 0, dh = dock.getBoundingClientRect().height;
+      if(dh > 0) v = Math.max(Math.round(vh * .46), Math.floor(vh - top - foot - dh - 4)) + "px";
+    }
+    if((st.getPropertyValue("--cl-fight-pane") || "") !== v){ if(v) st.setProperty("--cl-fight-pane", v); else st.removeProperty("--cl-fight-pane"); }
+  }catch(e){}
+}
 function fit(){
   if(!fight()) return;
   watch("zm-bar"); watch("cl-bar");
+  pane();
   var f = fold.getBoundingClientRect(); if(!(f.height > 0)) return;
   var r = stage.getBoundingClientRect(), top = r.top + fold.scrollTop, lim = f.bottom;
   /* the action bar, where it stands over the map pane (a desktop); on a phone it is under the pane, which is the limit */
@@ -88375,15 +88801,15 @@ function html(c){
     var ed = edibles(id);
     h += '<div class="qb-panel"><div class="qb-ph">Eat or drink, from the party</div>' +
          (ed.length ? '<div class="qb-list">' + ed.map(function(x){ return '<button type="button" class="qb-btn" data-qb="eat" data-row="' + esc(x.id) + '">' + (x.bowl === "water" ? "Drink " : "Eat ") + esc(x.name) + " <small>×" + x.qty + "</small></button>"; }).join("") + "</div>"
-                    : '<p class="qb-note">' + (inFight() ? "Not in a fight — eat between fights." : "Nothing on the party ledger to eat or drink.") + "</p>") +
+                    : '<p class="qb-note">' + (inFight() ? WAIT_LINE : "Nothing on the party ledger to eat or drink.") + "</p>") +
          '<div class="qb-row"><button type="button" class="qb-btn" data-qb="close">Back</button></div></div>';
   } else {
     var ws = weapons(c);
     h += '<div class="qb-acts">' + ws.map(function(x){ return '<button type="button" class="qb-btn qb-atk" data-qb="attack" data-wi="' + x.i + '">' + esc(x.name) + "</button>"; }).join("") + "</div>" +
          '<div class="qb-acts">' +
-           '<button type="button" class="qb-btn" data-qb="eatlist"' + (inFight() ? ' disabled title="Not in a fight — eat between fights"' : "") + ">Eat</button>" +
-           '<button type="button" class="qb-btn" data-qb="heal"' + (!res || hp >= mx || inFight() ? " disabled" : "") + ' title="' + (inFight() ? "Not in a fight" : !res ? "The party’s HP reserve is empty" : hp >= mx ? "Already at full HP" : "Heal from the party’s HP reserve") + '">Heal <small>(' + res + " in reserve)</small></button>" +
-         "</div>";
+           '<button type="button" class="qb-btn" data-qb="eatlist"' + (inFight() ? " disabled" : "") + ">Eat</button>" +
+           '<button type="button" class="qb-btn" data-qb="heal"' + (!res || hp >= mx || inFight() ? " disabled" : "") + (inFight() ? "" : ' title="' + (!res ? "The party’s HP reserve is empty" : hp >= mx ? "Already at full HP" : "Heal from the party’s HP reserve") + '"') + ">Heal <small>(" + res + " in reserve)</small></button>" +
+         "</div>" + (inFight() ? '<p class="qb-note">' + WAIT_LINE + "</p>" : "");   /* F46: the reason in words, as on the card (a phone shows no title) */
   }
   /* after a declaration: what the drawer answered, as the sheet says it back (its fightHeard line in #cs-wpn-out) */
   if(ui.watch){ var o = $("cs-wpn-out"), said = o ? String(o.textContent || "").replace(/\s+/g, " ").trim() : ""; if(said){ var k = said.lastIndexOf("Sent"); ui.msg = (k >= 0 ? said.slice(k) : said.slice(-220)).slice(0, 220); } }
@@ -88432,6 +88858,7 @@ function sheetAttack(id, wi, target){
    holds answers with the pool's or the sheet's own refusal).  Reads only; writes nothing itself; nothing is stored.
    Where the fixed quick bar is up (a player on a phone, in a room, on their own sheet) the card steps aside: one of them, never both. */
 var pui = { id:"", open:"", msg:"" }, card = null, lastC = "";
+var WAIT_LINE = "Eating and healing from the reserve wait until the fight is over.";   /* F46: said on the card and on the quick bar */
 function shown(){ var H = W.HELENA_CHAR, id = null; try{ id = H && typeof H.current === "function" ? H.current() : null; }catch(e){ id = null; }
   if(id == null) return null; var c = null; chars().forEach(function(x){ if(x && String(x.id) === String(id)) c = x; }); return c; }
 function exhaust(c){ var H = W.HELENA_CHAR; try{ return H && typeof H.exhaustOf === "function" ? Math.max(0, Math.round(+H.exhaustOf(c) || 0)) : 0; }catch(e){ return 0; } }
@@ -88453,7 +88880,7 @@ function cardHtml(c){
     var ed = edibles(id);
     h += '<div class="cn-panel"><div class="cn-ph">Eat or drink, from the party</div>' +
          (ed.length ? '<div class="cn-acts">' + ed.map(function(x){ return '<button type="button" class="qb-btn" data-cn="eat" data-row="' + esc(x.id) + '">' + (x.bowl === "water" ? "Drink " : "Eat ") + esc(x.name) + " <small>×" + x.qty + "</small></button>"; }).join("") + "</div>"
-                    : '<p class="cn-note">' + (fight ? "Not in a fight — eat between fights." : "Nothing on the party ledger to eat or drink.") + "</p>") +
+                    : '<p class="cn-note">' + (fight ? WAIT_LINE : "Nothing on the party ledger to eat or drink.") + "</p>") +
          '<div class="cn-acts"><button type="button" class="qb-btn" data-cn="close">Back</button></div></div>';
   } else {
     var ws = weapons(c);
@@ -88461,29 +88888,51 @@ function cardHtml(c){
            return '<div class="cn-atk"><span class="cn-wn">' + esc(x.name) + (cd ? " <small>" + cd + " CD" + (w.type ? " " + esc(w.type) : "") + "</small>" : "") + "</span>" +
                   '<button type="button" class="qb-btn qb-atk" data-cn="attack" data-wi="' + x.i + '" aria-label="Roll ' + esc(x.name) + '">Roll</button></div>'; }).join("") + "</div>"
                    : '<p class="cn-note">No weapon on this sheet yet.</p>';
+    /* F46 (REVIEW 2026-11-24 00): IN A FIGHT THE CARD SAYS WHY EAT AND HEAL ARE OFF, IN WORDS.  The reason was each button's title, which
+       a phone never shows, and it read "Not in a fight — eat between fights", which a new player takes to mean that no fight is on.
+       One line under the two buttons while a fight runs; no title on a button the fight has turned off.  The pool's rule is not
+       touched: the buttons are off exactly when they were. */
     h += '<div class="cn-acts">' +
-           '<button type="button" class="qb-btn" data-cn="eatlist"' + (fight ? ' disabled title="Not in a fight — eat between fights"' : "") + ">Eat</button>" +
-           '<button type="button" class="qb-btn" data-cn="heal"' + (!res || hp >= mx || fight ? " disabled" : "") + ' title="' + (fight ? "Not in a fight" : !res ? "The party’s HP reserve is empty" : hp >= mx ? "Already at full HP" : "Heal from the party’s HP reserve") + '">Heal <small>(' + res + " in reserve)</small></button>" +
-         "</div>";
+           '<button type="button" class="qb-btn" data-cn="eatlist"' + (fight ? " disabled" : "") + ">Eat</button>" +
+           '<button type="button" class="qb-btn" data-cn="heal"' + (!res || hp >= mx || fight ? " disabled" : "") + (fight ? "" : ' title="' + (!res ? "The party’s HP reserve is empty" : hp >= mx ? "Already at full HP" : "Heal from the party’s HP reserve") + '"') + ">Heal <small>(" + res + " in reserve)</small></button>" +
+         "</div>" + (fight ? '<p class="cn-note cn-wait">' + WAIT_LINE + "</p>" : "");
   }
-  if(pui.msg) h += '<p class="cn-msg" role="status">' + esc(pui.msg) + "</p>";
+  if(pui.msg) h += '<p class="cn-msg' + (pui.tone === "hint" ? " cn-said" : "") + '" role="status">' + esc(pui.msg) + "</p>";
   return h;
 }
-/* what a box of the sheet says, piece by piece with a space between pieces (its text alone runs two dice together: "713"), read
-   whether or not the fold it stands in is open */
-function wordsOf(el){
-  if(!el) return "";
-  var parts = [];
-  try{ var tw = D.createTreeWalker(el, 4, null), n; while((n = tw.nextNode())){ var t = String(n.nodeValue || "").replace(/\s+/g, " ").trim(); if(t) parts.push(t); } }
-  catch(e){ return String(el.textContent || "").replace(/\s+/g, " ").trim(); }
-  return parts.join(" ");
+/* F44 (REVIEW 2026-11-24 00): THE CARD'S ROLL LINE IS THE ROLL AND NOTHING ELSE.  It was the sheet's whole result box read as one run
+   of words and cut at 260 characters: the AP question's labels and its button's name were glued in ("AP to spend Spend"), the
+   sentence stopped mid-word, and a miss carried the box's Book One pointer.  The sheet's box holds the roll as its own first line
+   (the weapon, the TN, the dice, the successes: everything that is not inside one of the box's own blocks), and says what was
+   used up in two named blocks (#cs-unit-note: a thrown unit; #cs-ammo-note: rounds).  The card says those, whole, and then where
+   the rest is.  A box with no roll in it is a question (how many rounds) or a refusal: a question is pointed to, a refusal is
+   said whole, to the end of a sentence.  The box is read piece by piece with a space between pieces (its text alone runs two dice
+   together: "713"), whether or not the fold it stands in is open.  Reads only. */
+function rollSaid(out){
+  if(!out) return "";
+  var roll = [], used = [], rest = [];
+  try{
+    var tw = D.createTreeWalker(out, 4, null), n;
+    while((n = tw.nextNode())){
+      var t = String(n.nodeValue || "").replace(/\s+/g, " ").trim(); if(!t) continue;
+      var box = null; for(var up = n.parentNode; up && up !== out; up = up.parentNode) if(up.tagName === "DIV") box = up;
+      if(!box) roll.push(t); else if(box.id === "cs-unit-note" || box.id === "cs-ammo-note") used.push(t); else rest.push(t);
+    }
+  }catch(e){ return ""; }
+  var tidy = function(a){ return a.join(" ").replace(/ ([,.;:])/g, "$1").replace(/\( /g, "(").replace(/ \)/g, ")").trim(); };
+  var stop = function(s){ return !s || /[.!?]$/.test(s) ? s : s + "."; };
+  var r = tidy(roll), u = tidy(used);
+  if(r) return stop(r) + (u ? " " + stop(u) : "") + " The rest is at the weapon.";
+  if(typeof out.querySelector === "function" && out.querySelector(".cs-ask")) return "The sheet asks first — answer at the weapon.";
+  var s = tidy(rest); if(s.length <= 200) return s;
+  var cut = s.lastIndexOf(". ", 200); return cut > 40 ? s.slice(0, cut + 1) : s.slice(0, s.lastIndexOf(" ", 200)) + " …";
 }
 function onCard(e){
   var b = e.target && e.target.closest ? e.target.closest("button[data-cn]") : null;
   if(!b || b.disabled) return;
   var c = shown(); if(!c) return;
   var id = String(c.id), a = b.getAttribute("data-cn"), P = W.HELENA_POOL, r = null;
-  pui.msg = "";
+  pui.msg = ""; pui.tone = "";
   if(a === "close") pui.open = "";
   else if(a === "eatlist") pui.open = "eat";
   else if(a === "eat"){ try{ r = P.eat(id, b.getAttribute("data-row"), { from:"ledger" }); }catch(x){ r = { ok:false, note:"That did not go through." }; } pui.msg = (r && r.note) || ""; pui.open = ""; }
@@ -88499,9 +88948,9 @@ function onCard(e){
       if(go && !go.hidden && go.offsetParent !== null){
         /* the form stands beside the weapons, whose card may be a shut fold: it is opened, as a tap on its header would */
         for(var up = go.parentNode; up && up !== D.body; up = up.parentNode) if(up.tagName === "DETAILS" && !up.open) up.open = true;
-        pui.msg = "Pick the target and declare, at the weapon."; try{ go.scrollIntoView({ block:"center" }); }catch(x){}
+        pui.msg = "Pick the target and declare, at the weapon."; pui.tone = "hint"; try{ go.scrollIntoView({ block:"center" }); }catch(x){}
       }
-      else { var said = wordsOf(out); pui.msg = said ? said.slice(0, 260) : "Rolled on the sheet — see the weapon’s result."; }
+      else { var said = rollSaid(out); pui.msg = said || "Rolled on the sheet — see the weapon’s result."; pui.tone = "hint"; }   /* F44: the roll, in the hint colour */
     }
   }
   paintCard(true);
@@ -88544,13 +88993,22 @@ function paint(force){
   b.style.bottom = off + "px";
 }
 function soon(){ if(timer) return; timer = setTimeout(function(){ timer = null; openMine(); paint(false); paintCard(false); }, 120); }
+/* F48 (REVIEW 2026-11-24 04): THE CARD IS PAINTED IN THE SAME TURN THE CHARACTER PAGE IS SHOWN.  It was painted only by soon(): 120 ms
+   after a click or a change of state, and otherwise on the 1.5 second timer.  So a page brought up by the shell (SUITE_SHELL.show,
+   CINDER.tab, a reload's own mode) showed the sheet first and the card up to a second and a half later, and the sheet tabs under
+   it jumped down 200 px at 1440 and 329 px on a phone: a tap aimed at a tab landed on a Roll.  The shell announces every change of
+   page on the document, in the same turn and after the page is on top ("suite-mode"; Cinder's own tab and view changes are
+   "cinder-tab" and "cinder-view"): the card and the quick bar are painted there and then, before the browser draws a frame.
+   The timer stays as the backstop.  Opening my own sheet (openMine) stays with the timer: it is a change of sheet, not a paint. */
+function atOnce(){ try{ paint(false); paintCard(false); }catch(e){} }
 function boot(){
+  try{ D.addEventListener("suite-mode", atOnce); D.addEventListener("cinder-tab", atOnce); D.addEventListener("cinder-view", atOnce); }catch(e){}
   try{ if(W.SUITE_STATE && typeof W.SUITE_STATE.subscribe === "function") W.SUITE_STATE.subscribe(soon); }catch(e){}
   try{ var SY = W.SUITE_SYNC; if(SY){ if(typeof SY.onOwners === "function") SY.onOwners(soon); if(typeof SY.onStatus === "function") SY.onStatus(soon); } }catch(e){}
   W.addEventListener("resize", soon);
   D.addEventListener("click", function(e){ if(!bar || !bar.contains(e.target)) soon(); }, true);
   setInterval(function(){ if(!D.hidden) soon(); }, 1500);
-  soon();
+  atOnce(); soon();
 }
 if(D.readyState === "loading") D.addEventListener("DOMContentLoaded", boot); else boot();
 })(window);
@@ -88624,7 +89082,9 @@ var bSk = btn("rt-skirmish", "Skirmish…", "The Auto-fight window: the skirmish
 });
 var toks = el("section", "rt-toks"); toks.id = "rt-toks"; toks.setAttribute("aria-label", "This trip's tokens");
 var fold = D.createElement("details"); fold.className = "rt-camp"; fold.id = "rt-camp";
-var sum = el("summary", "rt-camp-s", "Camp — build, traits, Uninvited Guests"); fold.appendChild(sum);
+/* F52 (REVIEW 2026-11-24 04): on a phone the Camp fold's heading wrapped to two lines where its four neighbours take one.  Its name is
+   "Camp"; what is inside it is said after the name in a part of its own, which the stylesheet does not show on a phone. */
+var sum = el("summary", "rt-camp-s", "Camp"); sum.appendChild(el("span", "rt-camp-more", " — build, traits, Uninvited Guests")); fold.appendChild(sum);
 if(camp) fold.appendChild(camp);
 function keepFoot(){
   var log = D.getElementById("tv-log");
@@ -88653,12 +89113,25 @@ function paintPanes(){
   });
 }
 function pane(k, on){ if(!Object.prototype.hasOwnProperty.call(paneOpen, k)) return false; paneOpen[k] = on == null ? !paneOpen[k] : !!on; paintPanes(); return paneOpen[k]; }
-PANES.forEach(function(k){ var h = D.getElementById("fold-h-" + k); if(h) h.addEventListener("click", function(){ if(onRoad()) pane(k); }); });
+/* F50 (REVIEW 2026-11-24 04): A PANE OPENED AT THE FOOT OF THE PAGE OPENED OUT OF SIGHT.  With the folds shut Party Medical's header
+   sits just above the phone's nav; a tap turned its arrow and nothing else on the screen changed, the pane being below.  A tap
+   that OPENS a pane now brings its header to the top of the screen, clear of whatever is fixed there (the shell's own measure,
+   CINDER.clearHead, as the Pack jump uses: F41).  A tap that shuts it moves nothing. */
+function toTop(h){
+  try{ h.scrollIntoView({ block:"start" }); }catch(e){}
+  try{ var C0 = W.CINDER; if(C0 && typeof C0.clearHead === "function") C0.clearHead(h); }catch(e){}
+}
+PANES.forEach(function(k){ var h = D.getElementById("fold-h-" + k); if(h) h.addEventListener("click", function(){ if(onRoad() && pane(k)) toTop(h); }); });
+/* F51 (REVIEW 2026-11-24 04): BOTH PANE HEADERS SAID "EXPANDED" WHILE THEY WERE SHUT.  The shell writes aria-expanded on a fold's header
+   when it shows a page; this file corrected it at its next repaint, up to two seconds later, so a screen reader was told the
+   wrong thing on arriving at Road.  Cinder says "cinder-tab" on the document at the end of every change of tab, after the shell
+   has written: the headers are put right there, in the same turn, before a frame is drawn. */
+try{ D.addEventListener("cinder-tab", paintPanes); D.addEventListener("cinder-view", paintPanes); }catch(e){}
 D.addEventListener("suite-mode", function(e){ var m = e && e.detail && e.detail.mode; if(m === "med" || m === "fuse") pane(m, true); });
 D.addEventListener("click", function(e){ var b = e.target && e.target.closest ? e.target.closest("[data-jump]") : null; var j = b ? String(b.getAttribute("data-jump") || "") : ""; if(j === "fold-med" || j === "fold-fuse") pane(j.slice(5), true); }, true);
 
 function state(){ try{ return W.SUITE_STATE && W.SUITE_STATE.get ? W.SUITE_STATE.get() : {}; }catch(e){ return {}; } }
-var last = "";
+var last = "", vehWas = null;
 function paint(){
   keepFoot(); paintPanes();
   var P = W.HELENA_POOL, A = W.HELENA_ADREN, h = "";
@@ -88670,6 +89143,12 @@ function paint(){
   var nv = 0; try{ var vs = m && m.tools && m.tools.vehicles; nv = vs && Array.isArray(vs.list) ? vs.list.length : 0; }catch(e){ nv = 0; }
   var vlab = "Vehicles — " + (nv ? nv + " at the table" : "none at the table");
   if(fVeh.firstChild && fVeh.firstChild.textContent !== vlab) fVeh.firstChild.textContent = vlab;
+  /* REVIEW 2026-11-24 04 §3 (a design call): THE VEHICLES FOLD IS OPEN WHILE THE TRIP IN HAND IS BY A VEHICLE, SHUT OTHERWISE.  A vehicle's
+     HP and Breakdowns matter on that trip and nowhere else.  Read from what the trip already holds (tools.travel: on the road,
+     with a vehicle's id as its "How"): no new save field.  The fold is moved only when that answer CHANGES (setting out by a
+     vehicle opens it, arriving or setting out on foot shuts it), so a tap on its heading in between stands. */
+  var byVeh = false; try{ var pl = m && m.tools && m.tools.travel && m.tools.travel.place; byVeh = !!(pl && pl.where === "road" && pl.vid); }catch(e){ byVeh = false; }
+  if(byVeh !== vehWas){ vehWas = byVeh; if(fVeh.open !== byVeh) fVeh.open = byVeh; }
   var t = '<h3 class="rt-h">This trip so far</h3>' +
     '<div class="rt-tk"><b>Buffs waiting for a fight:</b> ' + (tk.length ? tk.map(function(x){ return '<span class="rt-chip" title="' + esc(x.buff) + '">' + esc(x.name) + (x.from ? " <small>(" + esc(x.from) + ")</small>" : "") + "</span>"; }).join(" ") : "none") + "</div>" +
     '<div class="rt-tk"><b>Spoils tokens:</b> ' + (sp == null ? "no loot counter on this table" : sp + " on the loot counter") + "</div>";
@@ -88813,6 +89292,329 @@ W.HELENA_ROADTAB = { paint:paint, fold:function(){ return fold; }, openCamp:toRo
 
   W.HELENA_RULE_TIPS_UI = { SEL:SEL.slice(), pass:pass, open:open, close:close, isOpen:function(){ return !!(pop && !pop.hidden); } };
 })();
+</script>
+<script data-suite="cinder-zs-settings">/* ============================================================================
+   Helena Suite - THE TABLE MENU (game night 2026-11-24, Howl: "a title card button like an esc that brings you to settings").
+   One window over the page, in both views: the header's Menu button (Cinder), the More grid's Settings (a phone), a Menu button
+   beside Classic's room, and Esc when nothing else is open.  Five pages:
+     Display  the text size (the header's own A- / A+ scale, 80-200%), Night Shift, the view (Cinder or Classic)
+     Map      how to read and work the map (words only)
+     Sound    a soft sound when a line lands in the session log (a roll: a dice rattle), on or off, and its volume
+     Sheets   who holds which sheet and what that lets each device write; the Overseer lets a hold go from here
+              (SUITE_SYNC.letGo, the same press as the sheet's Release, logged the same way)
+     Keys     the keys the page answers
+   Nothing here is a rule, a save field or a room write but the one existing Release press.  The sound's two keys
+   (helena-sound, helena-sound-vol) are this device's own, like the text size, and never travel with the table.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document;
+if(!D || !D.body || !W.CINDER) return;
+var SND_KEY = "helena-sound", VOL_KEY = "helena-sound-vol";
+function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+function $(id){ return D.getElementById(id); }
+function get(k){ try{ return W.localStorage.getItem(k); }catch(e){ return null; } }
+function put(k, v){ try{ W.localStorage.setItem(k, v); }catch(e){} }
+
+/* ---------------------------------------------------------------- the window */
+var veil = el("div", "zs-veil"); veil.id = "zs-menu"; veil.hidden = true;
+var card = el("div", "zs-card"); card.setAttribute("role", "dialog"); card.setAttribute("aria-modal", "true"); card.setAttribute("aria-labelledby", "zs-title");
+var top = el("div", "zs-top");
+var title = el("div", "zs-title"); title.id = "zs-title";
+title.appendChild(el("span", "zs-word", "HELENA"));
+title.appendChild(el("span", "zs-sub", "The table menu"));
+var buildTag = el("span", "zs-build"); buildTag.id = "zs-build";
+function paintBuild(){ try{ var cb = $("cinder-build"), t = cb && cb.textContent ? cb.textContent : (W.SUITE_BUILD && W.SUITE_BUILD.id) || ""; buildTag.textContent = t ? "build " + t : ""; }catch(e){} }
+paintBuild();
+var xBtn = el("button", "zs-x", "×"); xBtn.type = "button"; xBtn.id = "zs-close"; xBtn.title = "Back to the table (Esc)"; xBtn.setAttribute("aria-label", "Close the menu");
+top.appendChild(title); top.appendChild(buildTag); top.appendChild(xBtn);
+var nav = el("div", "zs-nav"); nav.setAttribute("role", "tablist"); nav.setAttribute("aria-label", "Menu pages");
+var body = el("div", "zs-body");
+var foot = el("div", "zs-foot");
+var resume = el("button", "zs-resume", "Back to the table"); resume.type = "button"; resume.id = "zs-resume";
+foot.appendChild(resume);
+card.appendChild(top); card.appendChild(nav); card.appendChild(body); card.appendChild(foot);
+veil.appendChild(card);
+D.body.appendChild(veil);
+
+var PAGES = [["display","Display"],["map","Map"],["sound","Sound"],["sheets","Sheets"],["keys","Keys"]];
+var pages = {}, navBtns = {}, curPage = "display";
+PAGES.forEach(function(p){
+  var b = el("button", "zs-tab", p[1]); b.type = "button"; b.id = "zs-tab-" + p[0]; b.setAttribute("role", "tab"); b.setAttribute("aria-controls", "zs-page-" + p[0]);
+  b.addEventListener("click", function(){ show(p[0]); });
+  nav.appendChild(b); navBtns[p[0]] = b;
+  var s = el("section", "zs-page"); s.id = "zs-page-" + p[0]; s.setAttribute("role", "tabpanel"); s.setAttribute("aria-labelledby", b.id); s.hidden = true;
+  body.appendChild(s); pages[p[0]] = s;
+});
+function show(k){
+  curPage = k;
+  PAGES.forEach(function(p){ var on = p[0] === k; pages[p[0]].hidden = !on; navBtns[p[0]].setAttribute("aria-selected", String(on)); });
+  paint();
+}
+function row(page, label, hint){
+  var r = el("div", "zs-row"), l = el("div", "zs-lab");
+  l.appendChild(el("b", "", label)); if(hint) l.appendChild(el("span", "zs-hint", hint));
+  r.appendChild(l); var c = el("div", "zs-ctl"); r.appendChild(c); page.appendChild(r); return c;
+}
+function sw(id, onChange){
+  var b = el("button", "zs-switch"); b.type = "button"; b.id = id; b.setAttribute("role", "switch"); b.setAttribute("aria-checked", "false");
+  b.appendChild(el("span", "zs-knob"));
+  var w = el("span", "zs-sw-word", "Off");
+  b.appendChild(w);
+  b.addEventListener("click", function(){ onChange(b.getAttribute("aria-checked") !== "true"); paint(); });
+  b.setOn = function(v){ if(b.getAttribute("aria-checked") !== String(!!v)) b.setAttribute("aria-checked", String(!!v)); w.textContent = v ? "On" : "Off"; };
+  return b;
+}
+
+/* ---------------------------------------------------------------- Display */
+var P = pages.display;
+var sizeCtl = row(P, "Text size", "Every word on the page, on this device only");
+var sDown = el("button", "zs-step", "A−"); sDown.type = "button"; sDown.id = "zs-size-down"; sDown.setAttribute("aria-label", "Smaller text");
+var range = el("input", "zs-range"); range.type = "range"; range.id = "zs-size"; range.min = "80"; range.max = "200"; range.step = "10"; range.setAttribute("aria-label", "Text size");
+var sUp = el("button", "zs-step", "A+"); sUp.type = "button"; sUp.id = "zs-size-up"; sUp.setAttribute("aria-label", "Larger text");
+var sVal = el("output", "zs-val"); sVal.id = "zs-size-val";
+[sDown, range, sUp, sVal].forEach(function(n){ sizeCtl.appendChild(n); });
+function scaleNow(){ var c = W.CINDER.scale; return c && typeof c.get === "function" ? c.get() : 100; }
+function scaleTo(v){ var c = W.CINDER.scale; if(c && typeof c.set === "function") c.set(v); paint(); }
+range.addEventListener("input", function(){ scaleTo(parseInt(range.value, 10) || 100); });
+sDown.addEventListener("click", function(){ scaleTo(scaleNow() - 10); });
+sUp.addEventListener("click", function(){ scaleTo(scaleNow() + 10); });
+var preview = el("p", "zs-preview", "Zoe draws her Throwing Tomahawk: AGI + Melee Weapons, TN 11, 2d20.");
+P.appendChild(preview);
+var nightCtl = row(P, "Night Shift", "All dark, light text, for evening sessions");
+var nightSw = sw("zs-night", function(v){ var n = W.CINDER.night; if(n && typeof n.set === "function") n.set(v); });
+nightCtl.appendChild(nightSw);
+var viewCtl = row(P, "View", "Cinder is the new table; Classic is one pane per tab, as it was");
+var vC = el("button", "zs-seg", "Cinder"); vC.type = "button"; vC.id = "zs-view-cinder";
+var vK = el("button", "zs-seg", "Classic"); vK.type = "button"; vK.id = "zs-view-classic";
+var seg = el("span", "zs-segs"); seg.appendChild(vC); seg.appendChild(vK); viewCtl.appendChild(seg);
+vC.addEventListener("click", function(){ W.CINDER.set(true); paint(); });
+vK.addEventListener("click", function(){ W.CINDER.set(false); paint(); });
+
+/* ---------------------------------------------------------------- Map */
+var M = pages.map;
+function para(page, head, lines){
+  var s = el("div", "zs-block"); s.appendChild(el("h3", "zs-h", head));
+  var ul = el("ul", "zs-list"); lines.forEach(function(t){ ul.appendChild(el("li", "", t)); }); s.appendChild(ul); page.appendChild(s);
+}
+para(M, "Reading the map", [
+  "The map is on Fight. Each round disc is a character or a creature, marked with its initial; a disc in your player colour is yours.",
+  "The shaded patches are cover: L light, M medium, H heavy. Hold a disc to see what it can see and how far each zone is.",
+  "Show the key (the Key button on the map) for every mark at once."
+]);
+para(M, "Moving around it", [
+  "− and + zoom; Fit shows the whole map again. On a phone, pinch to zoom and drag with two fingers to pan.",
+  "Paint and tokens opens the strip of discs: drag one onto the map to place it, then drag it zone to zone.",
+  "Tap a disc to open its sheet (a character) or its card (a creature). The Overseer moves the creatures."
+]);
+para(M, "Making a map", [
+  "The Overseer makes and swaps maps on the Maps tab: a style, a size and how open it is, then Generate. The same seed gives the same map."
+]);
+var goMap = el("button", "zs-act", "Go to the map"); goMap.type = "button"; goMap.id = "zs-go-map";
+goMap.addEventListener("click", function(){ close(); try{ if(W.CINDER.on()) W.CINDER.tab("fight"); else if(W.SUITE_SHELL) W.SUITE_SHELL.show("fight"); }catch(e){} });
+M.appendChild(goMap);
+
+/* ---------------------------------------------------------------- Sound */
+var S = pages.sound;
+var sndOn = get(SND_KEY) === "1", vol = parseInt(get(VOL_KEY), 10); if(!(vol >= 0 && vol <= 100)) vol = 60;
+var sndCtl = row(S, "Table sounds", "A soft click when a line lands in the session log, a dice rattle when it is a roll. This device only");
+var sndSw = sw("zs-sound", function(v){ sndOn = v; put(SND_KEY, v ? "1" : "0"); if(v){ wake(); play("dice"); } });
+sndCtl.appendChild(sndSw);
+var volCtl = row(S, "Volume", "");
+var vol0 = el("input", "zs-range"); vol0.type = "range"; vol0.id = "zs-volume"; vol0.min = "0"; vol0.max = "100"; vol0.step = "5"; vol0.setAttribute("aria-label", "Volume");
+var volVal = el("output", "zs-val"); volVal.id = "zs-volume-val";
+var test = el("button", "zs-act zs-act-sm", "Test"); test.type = "button"; test.id = "zs-sound-test";
+volCtl.appendChild(vol0); volCtl.appendChild(volVal); volCtl.appendChild(test);
+vol0.addEventListener("input", function(){ vol = parseInt(vol0.value, 10) || 0; put(VOL_KEY, String(vol)); paint(); });
+vol0.addEventListener("change", function(){ if(sndOn){ wake(); play("tick"); } });
+test.addEventListener("click", function(){ wake(); play("dice", true); });
+S.appendChild(el("p", "zs-note", "Sounds start off on every device. Each player turns them on for themselves; nothing is sent to the room."));
+
+var AC = null;
+function wake(){
+  try{ if(!AC){ var C = W.AudioContext || W.webkitAudioContext; if(!C) return null; AC = new C(); } if(AC.state === "suspended") AC.resume(); }catch(e){ AC = null; }
+  return AC;
+}
+function play(kind, force){
+  if((!sndOn && !force) || !vol) return;
+  var a = AC; if(!a) return;
+  try{
+    var g = a.createGain(), t0 = a.currentTime, v = (vol / 100) * 0.35;
+    g.gain.value = 0; g.connect(a.destination);
+    if(kind === "dice"){
+      /* three short knocks of filtered noise: dice on a table */
+      var len = Math.floor(a.sampleRate * 0.05), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+      for(var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+      [0, 0.07, 0.15, 0.21].forEach(function(dt, j){
+        var s = a.createBufferSource(); s.buffer = buf;
+        var f = a.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = 1800 + j * 400; f.Q.value = 1.2;
+        var gg = a.createGain(); gg.gain.value = v * (j === 3 ? 0.5 : 1);
+        s.connect(f); f.connect(gg); gg.connect(a.destination); s.start(t0 + dt);
+      });
+    } else {
+      var o = a.createOscillator(); o.type = "triangle"; o.frequency.setValueAtTime(880, t0); o.frequency.exponentialRampToValueAtTime(440, t0 + 0.08);
+      g.gain.setValueAtTime(v * 0.6, t0); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.12);
+      o.connect(g); o.start(t0); o.stop(t0 + 0.14);
+    }
+  }catch(e){}
+}
+/* the browser lets a page make sound only after a press: the first press anywhere wakes it when sound is on */
+D.addEventListener("pointerdown", function(){ if(sndOn && !AC) wake(); }, true);
+/* a new line in the session log (the ticker is newest first) */
+var seenTop = null;
+function watchLog(){
+  var t = $("tb-ticker"); if(!t || typeof W.MutationObserver !== "function") return false;
+  seenTop = t.firstElementChild;
+  new W.MutationObserver(function(){
+    var f = t.firstElementChild; if(!f || f === seenTop) return; seenTop = f;
+    if(!sndOn || !AC) return;
+    var txt = String(f.textContent || "");
+    play(/\bd20\b|\bd6\b|\bCD\b|success|rolls?\b|rolled/i.test(txt) ? "dice" : "tick");
+  }).observe(t, { childList:true });
+  return true;
+}
+if(!watchLog()){ var tries = 0, iv = setInterval(function(){ if(watchLog() || ++tries > 20) clearInterval(iv); }, 1000); }
+
+/* ---------------------------------------------------------------- Sheets */
+var H = pages.sheets;
+var who = el("p", "zs-note"); who.id = "zs-sheets-who"; H.appendChild(who);
+var list = el("ul", "zs-holds"); list.id = "zs-holds"; H.appendChild(list);
+var said = el("p", "zs-said"); said.id = "zs-sheets-said"; said.setAttribute("aria-live", "polite"); H.appendChild(said);
+para(H, "Who can write a sheet", [
+  "A player writes the sheet they hold. Nobody else can write it except the Overseer.",
+  "While the Overseer is in the room, a sheet nobody holds is open to everyone at the table.",
+  "With no Overseer in, a sheet nobody holds is read-only. A player presses Hold on it to take it.",
+  "The Overseer writes every sheet, and can let any hold go from this list. The sheet's own Release does the same."
+]);
+var roomBtn = el("button", "zs-act", "Open the Room panel"); roomBtn.type = "button"; roomBtn.id = "zs-open-room";
+roomBtn.addEventListener("click", function(){ close(); try{ var T = W.SUITE_TABLEBOX; if(T && typeof T.open === "function") T.open(); else { var r = $("cinder-room-btn"); if(r) r.click(); } }catch(e){} });
+H.appendChild(roomBtn);
+function SY(){ return W.SUITE_SYNC || null; }
+function chars(){ try{ return ((W.SUITE_STATE && W.SUITE_STATE.get().chars) || []).filter(function(c){ return c && c.id; }); }catch(e){ return []; } }
+function nickOf(pid, peers){ for(var i = 0; i < peers.length; i++) if(peers[i].id === pid) return (peers[i].me ? "you" : (peers[i].nick || peers[i].name || "a player")) + (peers[i].gm ? " (Overseer)" : ""); return "someone who has left"; }
+var holdsKey = "";
+function paintSheets(){
+  var sy = SY(), on = false, gm = true, owners = {}, peers = [];
+  try{ on = !!(sy && sy.status && sy.status().connected); }catch(e){ on = false; }
+  try{ if(sy){ gm = sy.isGM(); owners = sy.owners() || {}; peers = sy.peers() || []; } }catch(e){}
+  var cs = chars();
+  var k = JSON.stringify([on, gm, owners, peers.map(function(p){ return [p.id, p.nick, p.gm, p.me]; }), cs.map(function(c){ return [c.id, c.name]; })]);
+  if(k === holdsKey) return; holdsKey = k;
+  who.textContent = !on ? "Solo: this device is not in a room, so every sheet here is yours to write." :
+    gm ? "You are the Overseer. You can write every sheet; let a hold go here when a player needs a sheet back." :
+         "You are a player. You write the sheet you hold.";
+  list.textContent = "";
+  cs.forEach(function(c){
+    var li = el("li", "zs-hold"), o = owners[c.id] || null;
+    li.appendChild(el("b", "", c.name || "unnamed"));
+    li.appendChild(el("span", "zs-hold-who" + (o ? "" : " zs-free"), !on ? "yours (Solo)" : o ? "held by " + nickOf(o, peers) : "nobody holds it"));
+    if(on && gm && o){
+      var b = el("button", "zs-act zs-act-sm", "Let go"); b.type = "button"; b.setAttribute("data-zs-letgo", c.id);
+      b.addEventListener("click", function(){
+        var s = SY(); if(!s || typeof s.letGo !== "function") return;
+        s.letGo(c.id, c.name).then(function(r){ said.textContent = r && r.note ? r.note : ""; holdsKey = ""; paintSheets(); });
+      });
+      li.appendChild(b);
+    }
+    list.appendChild(li);
+  });
+  if(!cs.length) list.appendChild(el("li", "zs-hold", "No sheets at this table yet."));
+}
+
+/* ---------------------------------------------------------------- Keys */
+var K = pages.keys;
+var keys = [["Esc", "Open or shut this menu (and shut a window first)"], ["Alt + 1 … 9", "Go to a tab, in the order of the tab row"],
+  ["Space", "End turn, on Fight"], ["R", "Roll the dice, on Fight"], ["L", "Open or shut the Ledger: the log and the chat"]];
+var dl = el("dl", "zs-keys"); keys.forEach(function(k){ dl.appendChild(el("dt", "", k[0])); dl.appendChild(el("dd", "", k[1])); }); K.appendChild(dl);
+
+/* ---------------------------------------------------------------- paint, open, shut */
+function paint(){
+  var sc = scaleNow();
+  if(range.value !== String(sc)) range.value = String(sc);
+  sVal.textContent = sc + "%";
+  var n = W.CINDER.night; nightSw.setOn(n && typeof n.get === "function" ? n.get() : D.body.classList.contains("cl-night"));
+  var cin = W.CINDER.on();
+  vC.setAttribute("aria-pressed", String(cin)); vK.setAttribute("aria-pressed", String(!cin));
+  nightSw.disabled = !cin; sDown.disabled = range.disabled = sUp.disabled = !cin;
+  sizeCtl.parentNode.classList.toggle("zs-off", !cin); nightCtl.parentNode.classList.toggle("zs-off", !cin);
+  sndSw.setOn(sndOn);
+  if(vol0.value !== String(vol)) vol0.value = String(vol);
+  volVal.textContent = vol + "%";
+  if(curPage === "sheets") paintSheets();
+}
+var lastFocus = null;
+function open(page){
+  lastFocus = D.activeElement;
+  try{ var mo = $("cinder-more"); if(mo) mo.hidden = true; }catch(e){}
+  paintBuild(); veil.hidden = false; D.body.classList.add("zs-open");
+  show(page || curPage);
+  try{ navBtns[curPage].focus(); }catch(e){}
+}
+function close(){
+  if(veil.hidden) return;
+  veil.hidden = true; D.body.classList.remove("zs-open");
+  try{ if(lastFocus && lastFocus.focus) lastFocus.focus(); }catch(e){}
+}
+function isOpen(){ return !veil.hidden; }
+xBtn.addEventListener("click", close); resume.addEventListener("click", close);
+veil.addEventListener("click", function(e){ if(e.target === veil) close(); });
+nav.addEventListener("keydown", function(e){
+  if(e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+  var i = PAGES.findIndex(function(p){ return p[0] === curPage; }); i = (i + (e.key === "ArrowRight" ? 1 : PAGES.length - 1)) % PAGES.length;
+  show(PAGES[i][0]); navBtns[PAGES[i][0]].focus(); e.preventDefault();
+});
+setInterval(function(){ if(isOpen() && curPage === "sheets") paintSheets(); }, 1500);
+
+/* Esc: shuts the menu; opens it only when nothing else on the page would take the key (a window, the open rail, a dialog, a field) */
+/* Z061 (the PC's presses): every dialog, menu and tip on the page is asked, not the first one found (it may be a hidden one), and
+   the key is read at the window, before a tip or a window has shut itself on the same press */
+var OTHERS = '[role="dialog"], [role="alertdialog"], [role="menu"], [role="tooltip"], dialog[open], [aria-modal="true"], #cl-ms, .cl-win';
+function somethingElseOpen(){
+  if(W.CINDER.on() && !D.body.classList.contains("rail-shut")) return true;
+  if(D.body.classList.contains("suite-docked") || D.body.classList.contains("fr-open") || D.body.classList.contains("tv-gear-open")) return true;   /* the dice drawer, the first-run card, the Table view's gear */
+  return [].slice.call(D.querySelectorAll(OTHERS)).some(function(n){ return !veil.contains(n) && n.getClientRects().length > 0; });
+}
+W.addEventListener("keydown", function(e){
+  if(e.key !== "Escape" || e.altKey || e.ctrlKey || e.metaKey) return;
+  if(isOpen()){ e.preventDefault(); e.stopImmediatePropagation(); close(); return; }
+  var t = e.target; if(t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable)) return;
+  if(e.defaultPrevented || somethingElseOpen()) return;
+  open();
+}, true);
+/* focus stays in the menu while it is up */
+veil.addEventListener("keydown", function(e){
+  if(e.key !== "Tab") return;
+  var f = [].slice.call(card.querySelectorAll("button:not([disabled]), input:not([disabled]), [tabindex]")).filter(function(n){ return n.getClientRects().length; });
+  if(!f.length) return;
+  if(e.shiftKey && D.activeElement === f[0]){ f[f.length - 1].focus(); e.preventDefault(); }
+  else if(!e.shiftKey && D.activeElement === f[f.length - 1]){ f[0].focus(); e.preventDefault(); }
+});
+
+/* ---------------------------------------------------------------- the ways in */
+var head = $("cinder-head");
+if(head){
+  var mb = el("button", "cl-hbtn cl-label zs-menu-btn"); mb.type = "button"; mb.id = "cinder-menu"; mb.title = "The table menu: display, map, sound, sheets (Esc)";
+  mb.setAttribute("aria-label", "Menu"); mb.setAttribute("aria-haspopup", "dialog");
+  mb.appendChild(el("span", "zs-burger", "☰")); mb.appendChild(el("span", "zs-menu-word", "Menu"));
+  mb.addEventListener("click", function(){ open(); });
+  head.insertBefore(mb, head.firstChild);
+}
+var more = $("cinder-more");
+if(more){
+  var mm = el("button", "cl-mbtn cl-label zs-more-btn", "Settings"); mm.type = "button"; mm.id = "cinder-more-settings";
+  mm.addEventListener("click", function(){ more.hidden = true; open(); });
+  more.insertBefore(mm, more.firstChild);
+}
+var where = $("suite-where");
+if(where){
+  var cb = el("button", "zs-classic-btn", "☰ Menu"); cb.type = "button"; cb.id = "suite-menu"; cb.title = "The table menu (Esc)";
+  cb.addEventListener("click", function(){ open(); });
+  where.insertBefore(cb, where.firstChild);
+}
+
+W.HELENA_MENU = { open:open, close:close, isOpen:isOpen, page:function(){ return curPage; } };
+show("display"); veil.hidden = true;
+})(window);
 </script>
 <script data-suite="cinder-zt-trip-window">/* ============================================================================
    Helena Suite - THE TRIP WINDOW (Howl, 2026-11-20: "its own pop-up special tab"), both views.
