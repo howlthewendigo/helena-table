@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"f07d1c49",at:"2026-11-26 02:45 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"7b135130",at:"2026-11-26 02:51 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6176,7 +6176,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:45 UTC">f07d1c49</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:51 UTC">7b135130</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -41197,10 +41197,11 @@ function resetRollOut(who){
    the key no longer matches and it is gone.  partyAP() counts it, so a price check sees what may be spent now. */
 function turnKeyNow(){
   try{
-    var T = window.HELENA_TURN, b = T && T.cinder, sn = b && b.snap ? b.snap() : null;
-    if(!sn || sn.phase === "idle" || sn.cur == null) return null;
-    var f = CH.fightNow();
-    return { key:String(f && f.id || "") + "|" + sn.round + "|" + sn.cur, cur:sn.cur, rowOf:function(id){ try{ return b.rowOf ? b.rowOf("c:" + id) : null; }catch(e){ return null; } } };
+    /* never the snapshot: its rows read partyAP, which reads this (a loop that pinned a CPU core) - the cheap current row instead */
+    var T = window.HELENA_TURN, f = CH.fightNow();
+    if(!f || !T || typeof T.curNow !== "function") return null;
+    var cur = T.curNow(); if(cur == null) return null;
+    return { key:String(f.id || "") + "|" + f.round + "|" + cur, cur:cur, rowOf:function(id){ return "c:" + id; } };
   }catch(e){ return null; }
 }
 function turnAPLive(c, tk){ return (c && c.turnAP && tk && c.turnAP.key === tk.key) ? Math.max(0, Math.round(+c.turnAP.n || 0)) : 0; }
@@ -59801,6 +59802,19 @@ document.addEventListener("helena-enc-hp", function(ev){ bleedHeard(ev && ev.det
    tvLoot, spendAP/refundAP and TT.undoAction. */
 /* Howl 2026-10-29: THE FIGHT, FOR THE STEALTH SUIT'S COMBAT MODE (HELENA_CHAR.stealthField) — null when no fight runs, else the
    fight's shared name (st.fid, written at Start combat and riding the room) and its round, the opening turn as round 0.  A read. */
+/* game night 11-25 (Howl): WHOSE TURN IT IS, CHEAPLY - the current row's id, held 400 ms (the sheet's personal turn AP asks on every
+   AP read; it used to take the whole snapshot, whose rows read the AP back, a loop) */
+var curMemo = null, curBusy = false;
+window.HELENA_TURN.curNow = function(){
+  if(st.phase === "idle") return null;
+  var now = Date.now();
+  if(curMemo && now - curMemo.at < 400 && curMemo.round === st.round && curMemo.phase === st.phase) return curMemo.cur;
+  if(curBusy) return curMemo ? curMemo.cur : null;
+  curBusy = true;
+  try{ var c = TT.currentOf(st, orderOf(combatants())); curMemo = { at:now, cur:c, round:st.round, phase:st.phase }; return c; }
+  catch(e){ return null; }
+  finally{ curBusy = false; }
+};
 window.HELENA_TURN.fightNow = function(){
   if(st.phase === "idle") return null;
   return { id:String(st.fid || "s" + (Math.max(0, Math.round(+st.sceneAt || 0)))), round:st.phase === "opening" ? 0 : Math.max(1, Math.round(+st.round || 1)) };
@@ -87504,6 +87518,58 @@ if(!addButton()){ var tries = 0, iv = setInterval(function(){ if(addButton() || 
 
 W.HELENA_TRIPWIN = { show:show, hide:hide, paint:paint, snap:twSnap, diff:twDiff, spoils:twSpoils, story:twStory, total:totRead, KEY:TW_KEY };
 })(window);
+</script>
+<script data-suite="cinder-zu-autoupdate">/* game night 11-25 (Howl): THE PAGE REFRESHES ITSELF WHEN A NEW BUILD IS LIVE.  Players stayed on old copies and the table
+   desynced.  Every 60 s (and when the tab comes back into view) the page asks the site for the first 1 KB of itself (a Range
+   request: the build id, window.SUITE_BUILD, sits at the top) and, when that id is not its own, shows a bar and reloads 10 s
+   later - held while someone is typing in a box or dragging a token, and "Not now" holds it 5 minutes.  Only on a served page
+   (http/https); a file opened from disk never checks. */
+(function(){
+  "use strict";
+  var mine = (window.SUITE_BUILD && window.SUITE_BUILD.id) || "", bar = null, due = 0, hold = 0, newId = "";
+  if(!/^https?:$/.test(location.protocol) || !/^[0-9a-f]{8}$/.test(mine)) return;
+  function busy(){
+    var a = document.activeElement, tag = a && a.tagName;
+    if(a && (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || a.isContentEditable)) return true;
+    try{ if(window.SUITE_TOKENS && window.SUITE_TOKENS.dragging && window.SUITE_TOKENS.dragging()) return true; }catch(e){}
+    return false;
+  }
+  function check(){
+    if(due || Date.now() < hold) return;
+    var url = location.origin + location.pathname + "?v=" + Date.now();
+    try{
+      fetch(url, { headers:{ Range:"bytes=0-1023" }, cache:"no-store" }).then(function(r){ return r.ok ? r.text() : ""; }).then(function(t){
+        var m = /SUITE_BUILD=\{id:"([0-9a-f]{8})"/.exec(t || "");
+        if(m && m[1] !== mine){ newId = m[1]; due = Date.now() + 10000; show(); }
+      }).catch(function(){});
+    }catch(e){}
+  }
+  function show(){
+    if(!bar){
+      bar = document.createElement("div"); bar.id = "suite-upd";
+      bar.setAttribute("role", "status");
+      bar.style.cssText = "position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:99999;background:#1b1f14;color:#f2eedc;border:1px solid #f0b429;" +
+        "border-radius:4px;padding:6px 10px;font:14px/1.3 Georgia,serif;box-shadow:0 6px 18px rgba(0,0,0,.5);display:flex;gap:8px;align-items:center;max-width:92vw";
+      bar.innerHTML = '<span id="suite-upd-t"></span><button type="button" id="suite-upd-now" style="min-height:28px">Reload now</button><button type="button" id="suite-upd-no" style="min-height:28px">Not now</button>';
+      document.body.appendChild(bar);
+      bar.querySelector("#suite-upd-now").onclick = function(){ location.reload(); };
+      bar.querySelector("#suite-upd-no").onclick = function(){ due = 0; hold = Date.now() + 5 * 60000; bar.hidden = true; };
+    }
+    bar.hidden = false;
+  }
+  function tick(){
+    if(!due || !bar) return;
+    var left = Math.ceil((due - Date.now()) / 1000), t = bar.querySelector("#suite-upd-t");
+    if(left > 0){ t.textContent = "A new version of the table is live - reloading in " + left + " s."; return; }
+    if(busy()){ t.textContent = "A new version of the table is live - reloading when you finish typing or dragging."; return; }
+    location.reload();
+  }
+  setInterval(check, 60000);
+  setInterval(tick, 1000);
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden) check(); });
+  setTimeout(check, 15000);
+  window.SUITE_UPDATE = { check:check, id:function(){ return newId; } };
+})();
 </script>
 
 </body>
