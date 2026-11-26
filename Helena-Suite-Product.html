@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"fb0e7098",at:"2026-11-26 03:06 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"fc22c830",at:"2026-11-26 03:12 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6219,7 +6219,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:06 UTC">fb0e7098</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:12 UTC">fc22c830</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -54677,10 +54677,14 @@ try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.reverser === "function")
 /* window.HELENA_AUTOPILOT.turn: the turn of the sheet whose turn it is, played now */
 function apTurnPlay(charId){
   var id = String(charId == null ? "" : charId), c = charOf(id), rid = "c:" + id;
+  /* game night 11-25 (Howl): AUTO MY TURN - the sheet's own player may have this one turn played by the autopilot's rules, with
+     no toggle and no Overseer: arguments[1] === "mine", refused on a sheet this device may not edit */
+  var mine = arguments.length > 1 && arguments[1] === "mine";
   var no = function(t){ apSaid = t; apSaidFor = rid; try{ render(); }catch(e){} return { ok:false, note:t }; };
   if(!c) return no("No sheet answers to that.");
-  if(!apOverseer()) return no("Only the Overseer plays an autopilot turn.");
-  if(!apIsOn(id)) return no((c.name || "That sheet") + " is not on autopilot.");
+  if(mine){ try{ if(SY && typeof SY.canEdit === "function" && SY.status && SY.status().connected && !SY.canEdit(id)) return no("Not your sheet - its player auto-plays it."); }catch(e){} }
+  if(!mine && !apOverseer()) return no("Only the Overseer plays an autopilot turn.");
+  if(!mine && !apIsOn(id)) return no((c.name || "That sheet") + " is not on autopilot.");
   if(st.phase === "idle") return no("No fight is running: Start combat first.");
   var cur = curNow();
   if(cur !== rid) return no("It is not " + (c.name || "that sheet") + "’s turn.");
@@ -54792,6 +54796,7 @@ function apRowEl(e, cur, running){
   return el;
 }
 function apPress(act, id){
+  if(act === "mine") return apTurnPlay(id, "mine");   /* game night 11-25: AUTO MY TURN */
   if(act === "toggle"){ var r = apSet(id, !apIsOn(id)); if(!r.ok){ msg = { cls:"warn", hd:"Autopilot", body:esc(r.note) }; } apSaid = ""; render(); return r; }
   if(act === "play") return apTurnPlay(id);
   return null;
@@ -54804,11 +54809,16 @@ try{ $("tt-list").addEventListener("click", function(ev){
 function apBarHtml(a){
   if(!a || a.kind !== "char") return "";
   var id = String(a.ref), on = apIsOn(id), gm = apOverseer(), running = st.phase !== "idle";
-  if(!on && !gm) return "";
+  /* game night 11-25 (Howl): AUTO MY TURN for the sheet's own player, on its turn (the Overseer's autopilot below is unchanged) */
+  var mineOk = false; try{ mineOk = !(SY && typeof SY.canEdit === "function" && SY.status && SY.status().connected && !SY.canEdit(id)); }catch(e){ mineOk = true; }
+  var mineB = running && !on && mineOk && curNow() === a.id && !apDone(a.id) ? '<button type="button" class="pri" data-apt="mine" data-apid="' + esc(id) + '" title="Play this turn for me by the autopilot\u2019s rules: move, attack the best target, then press Next turn yourself">AUTO MY TURN</button>' : "";
+  var mineS = !on && apSaid && apSaidFor === a.id && curNow() === a.id ? '<p class="cl-ap-said">' + esc(apSaid) + "</p>" : "";
+  if(!on && !gm) return mineB || mineS ? '<div class="cl-ap-pilot">' + mineB + mineS + "</div>" : "";
   return '<div class="cl-ap-pilot' + (on ? " on" : "") + '">' +
     (gm ? '<button type="button" data-apt="toggle" data-apid="' + esc(id) + '" aria-pressed="' + (on ? "true" : "false") + '" title="The Overseer plays this sheet’s turns by its priority list (house rule)">AUTOPILOT<small>' + (on ? "ON" : "off") + "</small></button>"
         : '<span title="The Overseer plays this turn">AUTOPILOT<small>ON</small></span>') +
     (on && gm && running && curNow() === a.id && !apDone(a.id) ? '<button type="button" class="pri" data-apt="play" data-apid="' + esc(id) + '">PLAY THIS TURN</button>' : "") +
+    (!on ? mineB + mineS : "") +
     (on && gm && apSaid && apSaidFor === a.id && curNow() === a.id ? '<p class="cl-ap-said">' + esc(apSaid) + "</p>" : "") + "</div>";
 }
 window.HELENA_AUTOPILOT = {
@@ -59865,7 +59875,48 @@ window.HELENA_TURN.quick = {
     try{ render(); }catch(x){}
     return { ok:true, note:(e.name || "Someone") + ": " + word + "." };
   },
-  clear: function(id, key){ if(!writable()) return { ok:false }; st = TT.condClear(st, id, key); push(); try{ render(); }catch(x){} return { ok:true }; }
+  clear: function(id, key){ if(!writable()) return { ok:false }; st = TT.condClear(st, id, key); push(); try{ render(); }catch(x){} return { ok:true }; },
+  /* damage that lands like a hit: mode "dr" - the armour's plate first, less DR (the sheet's CH.takeDamage, as a struck sheet takes
+     it); "pierce" - the plate first, DR pierced; "hp" - straight to HP.  A creature has no plate: less its DR for the type, or all
+     of it.  One line in the fight's log and one Undo each. */
+  dmg: function(id, n, type, mode){
+    n = Math.max(0, Math.round(+n || 0)); type = type === "En" || type === "Rad" ? type : "Phys";
+    var e = entryOf(everyone(), id); if(!e || !n) return { ok:false, note:"Pick someone and an amount." };
+    var how = mode === "pierce" ? "pierces DR" : mode === "hp" ? "straight to HP" : "less DR";
+    if(e.kind !== "char"){
+      var E = window.HELENA_ENC, r0 = null; try{ r0 = E && E.read ? E.read(e.ref) : null; }catch(x){}
+      var drk = type === "En" ? "e" : type === "Rad" ? "r" : "p", dr = r0 && r0.dr ? Math.max(0, +r0.dr[drk] || 0) : 0;
+      var past = mode === "dr" ? Math.max(0, n - dr) : n;
+      if(!past) return { ok:true, note:(e.name || "It") + ": " + n + " " + type + " - all stopped by DR " + dr + "." };
+      var hr = tvHpCommit(e, "-" + past);
+      return { ok:!(hr && hr.ok === false), note:(e.name || "It") + ": " + n + " " + type + (mode === "dr" ? " less DR " + dr : " (" + how + ")") + " = " + past + " damage." };
+    }
+    var CHx = window.HELENA_CHAR; if(!CHx || typeof CHx.takeDamage !== "function") return { ok:false, note:"No sheet damage door on this build." };
+    var res = null, before = null, after = null, name = e.name || "Someone";
+    S.update(function(m){
+      res = null;
+      (m.chars || []).forEach(function(c){
+        if(!c || String(c.id) !== String(e.ref)) return;
+        before = JSON.parse(JSON.stringify({ hp:c.hp, armour:c.armour, rads:c.rads }));
+        if(mode === "hp"){ var h0 = Math.max(0, +c.hp || 0); c.hp = Math.max(0, h0 - n); res = { health:h0 - c.hp, armour:0, dr:0 }; }
+        else res = CHx.takeDamage(c, n, type, mode === "pierce" ? { piercing:999 } : {});
+        after = { hp:c.hp };
+      });
+    });
+    if(!res) return { ok:false, note:name + ": that sheet was not found." };
+    var bits = [];
+    if(res.armour) bits.push(res.armour + " to armour" + (res.wrecked ? " (wrecked)" : ""));
+    if(res.health) bits.push(res.health + " to HP");
+    if(res.rads) bits.push(res.rads + " Rads");
+    var line = name + " takes " + n + " " + type + " (" + how + (mode === "dr" && res.dr ? ", DR " + res.dr : "") + "): " + (bits.join(", ") || "no harm") + (res.crit ? " - a critical (5+ past DR)" : "") + ".";
+    var U = window.SUITE_UNDO, rv = { id:String(e.ref), before:before };
+    try{ if(U && typeof U.keep === "function") U.keep("quick-dmg", { text:line, rev:rv, chars:[rv.id], revert:function(v){
+      S.update(function(m){ (m.chars || []).forEach(function(c){ if(c && String(c.id) === v.id) Object.keys(v.before).forEach(function(k){ if(v.before[k] === undefined) delete c[k]; else c[k] = JSON.parse(JSON.stringify(v.before[k])); }); }); });
+      return { ok:true }; } }); }catch(x){}
+    try{ if(SY && typeof SY.emit === "function") SY.emit("roll", { name:name, charId:e.ref, token:"c:" + e.ref, text:line }); }catch(x){}
+    try{ render(); }catch(x){}
+    return { ok:true, note:line, crit:!!res.crit };
+  }
 };
 /* game night 11-25 (Howl): WHOSE TURN IT IS, CHEAPLY - the current row's id, held 400 ms (the sheet's personal turn AP asks on every
    AP read; it used to take the whole snapshot, whose rows read the AP back, a loop) */
@@ -87321,9 +87372,12 @@ W.HELENA_JOIN = { linkFor:linkFor };
       var t = e.target, id = t && t.id;
       if(id === "cl-q-hd"){ open = !open; try{ localStorage.setItem(KEY, open ? "open" : "shut"); }catch(x){} paint(true); return; }
       if(id === "cl-q-none"){ sel = {}; paint(true); return; }
-      if(id === "cl-q-dmg" || id === "cl-q-heal"){ var n = num("cl-q-n", 0); if(!n){ msg = "Type how much."; paint(true); return; }
-        run(function(q, rid){ var r = q.hp(rid, (id === "cl-q-dmg" ? "-" : "+") + n); return { note:r && r.ok === false ? (r.why || "refused") : "" }; });
-        if(!msg || msg === "Done.") msg = (id === "cl-q-dmg" ? n + " damage" : n + " healed") + " - " + picked().length + " picked. Undo is on the log line."; paint(true); return; }
+      if(id === "cl-q-heal"){ var nh = num("cl-q-n", 0); if(!nh){ msg = "Type how much."; paint(true); return; }
+        run(function(q, rid){ var r = q.hp(rid, "+" + nh); return { note:r && r.ok === false ? (r.why || "refused") : "" }; });
+        if(!msg || msg === "Done.") msg = nh + " healed - " + picked().length + " picked. Undo is on the log line."; paint(true); return; }
+      if(id === "cl-q-dmg"){ var n = num("cl-q-n", 0); if(!n){ msg = "Type how much."; paint(true); return; }
+        var ty = (document.getElementById("cl-q-ty") || {}).value || "Phys", md = (document.getElementById("cl-q-md") || {}).value || "dr";
+        run(function(q, rid){ return q.dmg ? q.dmg(rid, n, ty, md) : q.hp(rid, "-" + n); }); return; }
       if(id === "cl-q-per"){ var d = num("cl-q-pd", 3), rr = num("cl-q-pr", d), cause = (document.getElementById("cl-q-pc") || {}).value || "Fire";
         run(function(q, rid){ return q.cond(rid, { key:"persist", dmg:d, rounds:rr, cause:cause }); }); return; }
       var k = t && t.getAttribute && t.getAttribute("data-c");
@@ -87341,7 +87395,9 @@ W.HELENA_JOIN = { linkFor:linkFor };
       h += '<div class="cl-q-who">' + (rows.length ? rows.map(function(r){
              return '<label class="' + (r.kind === "char" ? "pc" : "foe") + '"><input type="checkbox" data-q="' + esc(r.id) + '"' + (sel[r.id] ? " checked" : "") + "> " + esc(r.name) + "</label>"; }).join("")
              : "<em>Start the fight to pick who.</em>") + '<button type="button" id="cl-q-none" class="cl-q-mini">Untick all</button></div>' +
-        '<div class="cl-q-row"><input id="cl-q-n" type="number" min="1" max="99" placeholder="N"><button type="button" id="cl-q-dmg" class="cl-q-b bad">Damage</button><button type="button" id="cl-q-heal" class="cl-q-b">Heal</button><small>no DR</small></div>' +
+        '<div class="cl-q-row"><input id="cl-q-n" type="number" min="1" max="99" placeholder="N"><select id="cl-q-ty"><option value="Phys">Physical</option><option value="En">Energy</option><option value="Rad">Radiation</option></select>' +
+          '<select id="cl-q-md"><option value="dr">Armour, less DR</option><option value="pierce">Armour, pierces DR</option><option value="hp">Straight to HP</option></select></div>' +
+        '<div class="cl-q-row"><button type="button" id="cl-q-dmg" class="cl-q-b bad">Damage</button><button type="button" id="cl-q-heal" class="cl-q-b">Heal</button></div>' +
         '<div class="cl-q-row">Persistent <input id="cl-q-pd" type="number" min="1" max="20" value="3" title="damage a round"> for <input id="cl-q-pr" type="number" min="1" max="20" value="3" title="rounds"> rounds, <select id="cl-q-pc"><option>Fire</option><option>Poison</option><option>Bleeding</option><option>Radiation</option><option>Acid</option></select><button type="button" id="cl-q-per" class="cl-q-b bad">Apply</button></div>' +
         '<div class="cl-q-row"><button type="button" data-c="stun" class="cl-q-b">Stunned</button><button type="button" data-c="prone" class="cl-q-b">Prone</button><button type="button" data-c="marked" class="cl-q-b">Marked</button> for <input id="cl-q-cr" type="number" min="1" max="9" value="1"> rd</div>' +
         (msg ? '<div class="cl-q-say">' + esc(msg) + "</div>" : "");
@@ -87349,7 +87405,7 @@ W.HELENA_JOIN = { linkFor:linkFor };
     var sig = h + JSON.stringify(rows);
     if(force || box.getAttribute("data-h") !== sig){
       var ae = document.activeElement; if(!force && ae && box.contains(ae) && /INPUT|SELECT/.test(ae.tagName)) return;
-      var keep = {}; ["cl-q-n", "cl-q-pd", "cl-q-pr", "cl-q-pc", "cl-q-cr"].forEach(function(i){ var e = document.getElementById(i); if(e) keep[i] = e.value; });
+      var keep = {}; ["cl-q-n", "cl-q-ty", "cl-q-md", "cl-q-pd", "cl-q-pr", "cl-q-pc", "cl-q-cr"].forEach(function(i){ var e = document.getElementById(i); if(e) keep[i] = e.value; });
       box.innerHTML = h; box.setAttribute("data-h", sig);
       Object.keys(keep).forEach(function(i){ var e = document.getElementById(i); if(e && keep[i] !== "") e.value = keep[i]; });
     }
