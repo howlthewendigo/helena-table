@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"fc22c830",at:"2026-11-26 03:12 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"be371c2a",at:"2026-11-26 03:18 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5654,6 +5654,8 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 #fold-turn.cl-atk-focus #tt-scene, #fold-turn.cl-atk-focus #tt-lift, #fold-turn.cl-atk-focus #tt-ms, #fold-turn.cl-atk-focus #tt-foes,
 #fold-turn.cl-atk-focus .row[data-id], #fold-turn.cl-atk-focus .sbx[data-sbfor]{ display:none !important; }
 #fold-turn .cl-atk-all{ display:block; margin:8px auto 4px; min-height:30px; padding:0 12px; background:#23281b; color:#f2eedc; border:1px solid #6d7360; border-radius:4px; font:inherit; cursor:pointer; }
+/* the roll as a window (Declare it on Cinder's Fight tab): over the map, its own scroll, clear of the bar */
+body.view-cinder[data-cl-tab="fight"] #suite-stage > #fold-dice.cl-win{ display:block !important; top:120px; bottom:auto; left:50% !important; right:auto !important; transform:translateX(-50%) !important; width:min(720px, 94vw) !important; max-height:calc(100vh - 280px); }
 </style>
 <style data-suite="cinder-zl-fightlog">/* game night 11-25 (Howl): the combat log - right column, above the Quick jab and the Mysterious Stranger (bottom set by the script) */
 #cl-flog{ position:fixed; right:12px; bottom:12px; width:336px; box-sizing:border-box; z-index:33; display:flex; flex-direction:column; padding:6px 10px;
@@ -6219,7 +6221,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:12 UTC">fc22c830</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:18 UTC">be371c2a</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -59987,7 +59989,11 @@ window.HELENA_TURN.cinder = {
     if(!a) return "none";
     try{ var SH = window.SUITE_SHELL; if(SH && typeof SH.showTool === "function") SH.showTool("turn"); }catch(err){}
     if(tid && tid !== a.id && a.kind !== "char" && writable() && statOf(a.ref)){ sbPick[a.id] = tid; rollHere(a, wi, tid); return "rolled"; }
-    openAttack(a, list, ord, wi, tid && tid !== a.id ? tid : null); render(); return "panel";
+    openAttack(a, list, ord, wi, tid && tid !== a.id ? tid : null); render();
+    /* game night 11-25 (Howl): a Cinder weapon press with its target already picked goes straight to the roll (the dice, AP, Luck):
+       Declare it is pressed for them.  A refusal (no line of sight, a Blast's zone to pick, the Overseer's OK) leaves the card up. */
+    if(tid && tid !== a.id) setTimeout(function(){ var g = $("tt-atk-go"); if(g && !g.disabled && atk && atk.id === a.id) g.click(); }, 0);
+    return "panel";
   },
   hp: function(id, raw){ var e = entryOf(everyone(), id); return e ? tvHpCommit(e, raw) : null; },
   loot: function(){ return tvLoot(); },
@@ -87255,7 +87261,8 @@ W.HELENA_JOIN = { linkFor:linkFor };
   "use strict";
   var lifted = null, btn = null;
   function fold(){ return document.getElementById("fold-turn"); }
-  function atkOpen(f){ return !!(f && (f.querySelector(".atkx") || f.querySelector("#tt-out #tt-atk-w, #tt-out #tt-atk-t"))); }
+  /* an open attack card, or (after Declare) the read-out's card with the roll's result and Apply it */
+  function atkOpen(f){ return !!(f && (f.querySelector(".atkx") || f.querySelector("#tt-out #tt-atk-w, #tt-out #tt-atk-t") || f.querySelector("#tt-out .card"))); }
   function sig(f){ var a = f && (f.querySelector(".atkx") || f.querySelector("#tt-out .card")); return a ? (a.getAttribute("data-panelfor") || "out") : ""; }
   function tick(){
     var f = fold(); if(!f) return;
@@ -87269,6 +87276,22 @@ W.HELENA_JOIN = { linkFor:linkFor };
     }
     if(want){ if(btn.parentNode !== f) f.appendChild(btn); } else if(btn.parentNode) btn.parentNode.removeChild(btn);
   }
+  /* game night 11-25 (Howl): Declare it on Cinder's Fight tab opens the dice pane (the roll: dice, AP, Luck) - on Fight in Cinder
+     the pane is the toggle above the bar (body.cl-dice-open), which Declare never set, so the roll waited out of sight */
+  document.addEventListener("click", function(e){
+    var t = e.target; if(!t || t.id !== "tt-atk-go") return;
+    var B = document.body; if(!(B.classList.contains("view-cinder") && B.getAttribute("data-cl-tab") === "fight")) return;
+    setTimeout(function(){
+      var out = document.getElementById("tt-out"), handed = out && /roll is open|Handed to the roll/i.test(out.textContent || "");
+      if(!handed) return;                                  /* refused (sight, a Blast's zone, the OK): the card stays up */
+      if(!B.classList.contains("cl-dice-open")) B.classList.add("cl-dice-open");
+      /* the window would cover the dice: shut it - the result comes back to the turn order and is applied there */
+      try{ if(window.CINDER && CINDER.win && CINDER.win.isOpen("turn")) CINDER.win.close("turn"); }catch(x){}
+      /* and the roll opens as a window over the map, all of it in view (the strip above the bar held a third of it) */
+      try{ var fd = document.getElementById("fold-dice"); if(fd && window.CINDER && CINDER.win){ CINDER.win.open("dice", fd, { wide:true, onClose:function(){ B.classList.remove("cl-dice-open"); } }); fd.scrollTop = 0; } }catch(x){}
+      tick();
+    }, 0);
+  }, true);
   setInterval(tick, 250);
   if(typeof MutationObserver === "function") document.addEventListener("DOMContentLoaded", function(){ var f = fold(); if(f) new MutationObserver(tick).observe(f, { childList:true, subtree:true, attributes:true, attributeFilter:["class"] }); });
   window.CINDER_ATKFOCUS = { tick:tick };
