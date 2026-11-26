@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"2afc6a99",at:"2026-11-26 02:30 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"f70b1f43",at:"2026-11-26 02:33 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5629,6 +5629,9 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 #cl-jab .cl-jab-go:disabled{ opacity:.5; cursor:default; }
 #cl-jab .cl-jab-say{ color:#f0b429; font-size:12px; margin-top:4px; }
 @media (max-width:700px){ #cl-jab{ left:8px; right:8px; width:auto; bottom:auto; top:120px; } }
+#cl-jab .cl-sa-name{ color:#f0b429; font-weight:700; margin:2px 0 4px; }
+#cl-jab .cl-sa-hr{ border:0; border-top:1px solid #3a4130; margin:8px 0 4px; }
+#cl-jab{ max-height:calc(100vh - 140px); overflow:auto; }
 </style>
 <style data-suite="cinder-zj-join">/* the join link's card (game night 2026-11-25) - over every view, the first-run card included */
 .zj-veil{ position:fixed; inset:0; z-index:10050; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(10,8,6,.78); }
@@ -6171,7 +6174,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:30 UTC">2afc6a99</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:33 UTC">f70b1f43</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -37191,6 +37194,31 @@ function warPress(kind){
   edit(function(x){ res = CH.warSet(x, CH.fightNow(), kind, { id:hit.id, name:hit.name }); });
   return say(res && res.ok ? (call ? "Called " : "Marked ") + (hit.name || "it") + " through Round " + res.until + "." + (call ? note : " 1 AP spent.") : (res ? res.why : "Nothing was changed.")) || !!(res && res.ok);
 }
+/* game night 11-25 (Howl): THE SHEET'S FIGHT BUTTONS FOR CINDER.  Cinder's Fight tab (cinder-zh-jab.js) shows the open sheet's
+   Stealth suit and Wasteland Warlord / Tenderizer as Classic does; each press IS Classic's press (stealthBoyPress, warPress, the
+   low-power tick through edit()), so the action, the AP and the refusals are the same, and the line is Classic's own line. */
+window.HELENA_SHEETACT = {
+  state: function(){
+    var c = me(); if(!c) return null;
+    var f = CH.fightNow(), rk = CH.warRanks(c), suit = !!CH.stealthSuit(c);
+    try{ stealthPaint(c); warPaint(c); }catch(e){}
+    var ss = $("cs-stealth-say"), ws = $("cs-war-say");
+    return { id:String(c.id), name:c.name || "", fight:!!f, locked:!!locked(c),
+             stealth:suit ? { low:c.stealthOn === true, line:ss ? ss.textContent : "" } : null,
+             war:(f && (rk.cmd || rk.mark)) ? { cmd:rk.cmd, mark:rk.mark, enemies:warEnemies().map(function(r){ return { id:r.id, name:r.name || r.id }; }), line:ws ? ws.textContent : "" } : null };
+  },
+  stealth: function(){
+    var c = me(); if(!c) return false;
+    if(CH.fightNow()) return stealthBoyPress();
+    if(locked(c)) return false;
+    edit(function(x){ x.stealthOn = !(x.stealthOn === true); }); renderDerived(); return true;
+  },
+  war: function(kind, targetId){
+    warPaint(me() || {});
+    var sel = $("cs-war-target"); if(sel) sel.value = String(targetId == null ? "" : targetId);
+    return warPress(kind === "mark" ? "mark" : "call");
+  }
+};
 /* HELDCRIT:begin */
 /* PROJECT H, FIGHT (house rule, Howl 2026-10-13, final; R11) — CRIT OR FLESH, ON THE STRUCK SHEET.  A critical held by the damage
    door (CH.critHold: the turn order's hit, a Blast from a sheet, this sheet's own Take damage) shows here, in the Health card, with
@@ -86842,6 +86870,9 @@ last = get(); follow();
       box.addEventListener("click", function(e){
         var t = e.target;
         if(t.id === "cl-jab-hd"){ open = !open; box.removeAttribute("data-h"); paint(); return; }
+        var A = window.HELENA_SHEETACT;
+        if(A && t.id === "cl-sa-stealth"){ try{ A.stealth(); }catch(err){} box.removeAttribute("data-h"); setTimeout(paint, 50); return; }
+        if(A && (t.id === "cl-sa-call" || t.id === "cl-sa-mark")){ try{ A.war(t.id === "cl-sa-mark" ? "mark" : "call", val("cl-sa-war-t")); }catch(err){} box.removeAttribute("data-h"); setTimeout(paint, 50); return; }
         if(t.id === "cl-jab-go"){
           var from = val("cl-jab-from"), row = val("cl-jab-chem"), to = val("cl-jab-to");
           if(row === ""){ msg = "Pick a chem."; }
@@ -86855,7 +86886,23 @@ last = get(); follow();
     var from = val("cl-jab-from"), own = J.me ? J.me() : null;
     if(!me.some(function(c){ return String(c.id) === from; })) from = own && me.some(function(c){ return String(c.id) === own; }) ? own : String(me[0].id);
     var to = val("cl-jab-to"), rows = J.rows(from), chem = val("cl-jab-chem");
-    var h = '<button type="button" id="cl-jab-hd" class="cl-jab-hd" aria-expanded="' + open + '">' + (open ? "▾" : "▸") + " Quick jab (chems)</button>";
+    /* the open sheet's own fight buttons (Classic's presses, HELENA_SHEETACT): the Stealth suit, the Warlord's call and the mark */
+    var A = window.HELENA_SHEETACT, st = null; try{ st = A ? A.state() : null; }catch(e){ st = null; }
+    var sa = "";
+    if(st && !st.locked && (st.stealth || st.war)){
+      sa += '<div class="cl-sa-name">' + esc(st.name || "Your sheet") + "</div>";
+      if(st.stealth) sa += '<button type="button" id="cl-sa-stealth" class="cl-jab-go">' + (st.fight ? "Stealth suit: combat mode (minor action)" : st.stealth.low ? "Stealth suit: turn low power off" : "Stealth suit: low power on") + "</button>" +
+                           '<div class="cl-jab-who">' + esc(st.stealth.line) + "</div>";
+      if(st.war){
+        var wt = val("cl-sa-war-t");
+        sa += '<label>Target <select id="cl-sa-war-t">' + (st.war.enemies.length ? st.war.enemies.map(function(r){ return '<option value="' + esc(r.id) + '"' + (r.id === wt ? " selected" : "") + ">" + esc(r.name) + "</option>"; }).join("") : '<option value="">No enemies standing</option>') + "</select></label>" +
+              (st.war.cmd ? '<button type="button" id="cl-sa-call" class="cl-jab-go">Wasteland Warlord: call target (+' + st.war.cmd + " d20, minor)</button>" : "") +
+              (st.war.mark ? '<button type="button" id="cl-sa-mark" class="cl-jab-go">Tenderizer: mark target (+' + st.war.mark + " CD, 1 AP)</button>" : "") +
+              '<div class="cl-jab-who">' + esc(st.war.line) + "</div>";
+      }
+      sa += '<hr class="cl-sa-hr">';
+    }
+    var h = sa + '<button type="button" id="cl-jab-hd" class="cl-jab-hd" aria-expanded="' + open + '">' + (open ? "▾" : "▸") + " Quick jab (chems)</button>";
     if(open){
       h += (me.length > 1 ? '<label>From <select id="cl-jab-from">' + me.map(function(c){ return '<option value="' + esc(c.id) + '"' + (String(c.id) === from ? " selected" : "") + ">" + esc(c.name || "unnamed") + "</option>"; }).join("") + "</select></label>"
                           : '<input type="hidden" id="cl-jab-from" value="' + esc(from) + '"><div class="cl-jab-who">From ' + esc(me[0].name || "your sheet") + "</div>") +
