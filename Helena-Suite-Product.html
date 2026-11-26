@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"f70b1f43",at:"2026-11-26 02:33 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"e162b1cf",at:"2026-11-26 02:37 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5632,6 +5632,8 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 #cl-jab .cl-sa-name{ color:#f0b429; font-weight:700; margin:2px 0 4px; }
 #cl-jab .cl-sa-hr{ border:0; border-top:1px solid #3a4130; margin:8px 0 4px; }
 #cl-jab{ max-height:calc(100vh - 140px); overflow:auto; }
+#cl-jab .cl-sa-ap{ color:#7ac74f; margin:2px 0 6px; }
+#cl-jab .cl-sa-mj{ background:#23281b; border-color:#c9c4b2; }
 </style>
 <style data-suite="cinder-zj-join">/* the join link's card (game night 2026-11-25) - over every view, the first-run card included */
 .zj-veil{ position:fixed; inset:0; z-index:10050; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(10,8,6,.78); }
@@ -6174,7 +6176,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:33 UTC">f70b1f43</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:37 UTC">e162b1cf</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -37057,6 +37059,8 @@ function stealthPaint(c){
 var stealthSaid = null;
 /* CMD Z050 (S.11): the turn-order row whose bought action the room just confirmed - the press it resumes does not buy it again */
 var actPaid = null;
+/* game night 11-25 (Howl): set for one press by HELENA_SHEETACT - "major" spends the major action instead of the minor */
+var actAs = null;
 function stealthKey(c, f){ return String(c && c.id) + "|" + (f ? f.id + ":" + f.round : "-"); }
 function stealthBoyPress(){
   var c = me(); if(!c) return false;
@@ -37071,7 +37075,8 @@ function stealthBoyPress(){
       var rid = bt.rowOf ? bt.rowOf("c:" + c.id) : null;
       if(!rid || rid !== sn.cur) return say("A minor action - it is not " + (c.name || "her") + "’s turn. Nothing was spent.");
       /* CMD Z050 (S.11): a bought minor waits for the room - the press runs again once it is taken (actPaid: not bought twice) */
-      var ar = typeof actPaid !== "undefined" && actPaid === rid ? (actPaid = null, { ok:true }) : bt.act(rid, "minor", function(){ actPaid = rid; stealthBoyPress(); });
+      /* game night 11-25: Cinder's "with a major action" press (actAs = "major") spends the major instead */
+      var ar = typeof actPaid !== "undefined" && actPaid === rid ? (actPaid = null, { ok:true }) : (typeof actAs !== "undefined" && actAs === "major") ? bt.act(rid, "major", function(){ actPaid = rid; actAs = "major"; try{ stealthBoyPress(); }finally{ actAs = null; } }) : bt.act(rid, "minor", function(){ actPaid = rid; stealthBoyPress(); });
       if(ar && ar.wait) return say(ar.note);
       if(ar && ar.ok === false){
         if(/GM/.test(ar.note || "")) note = " The minor action is the Overseer’s to mark.";
@@ -37182,11 +37187,12 @@ function warPress(kind){
     var sn = bt && bt.snap ? bt.snap() : null, rid = bt && bt.rowOf ? bt.rowOf("c:" + c.id) : null;
     if(!sn || !rid || rid !== sn.cur) return say("It is not " + (c.name || "her") + "’s turn. Nothing was " + (call ? "called." : "marked."));
     if(call){
-      var ar = typeof actPaid !== "undefined" && actPaid === rid ? (actPaid = null, { ok:true }) : bt.act(rid, "minor", function(){ actPaid = rid; warPress(kind); });   /* Z050 (S.11) */
+      var wK = (typeof actAs !== "undefined" && actAs === "major") ? "major" : "minor";   /* game night 11-25: Cinder's "with a major action" press */
+      var ar = typeof actPaid !== "undefined" && actPaid === rid ? (actPaid = null, { ok:true }) : wK === "major" ? bt.act(rid, "major", function(){ actPaid = rid; actAs = "major"; try{ warPress(kind); }finally{ actAs = null; } }) : bt.act(rid, "minor", function(){ actPaid = rid; warPress(kind); });   /* Z050 (S.11) */
       if(ar && ar.wait) return say(ar.note);
       if(ar && ar.ok === false){
-        if(/GM/.test(ar.note || "")) note = " The minor action is the Overseer’s to mark.";
-        else return say("No minor action: " + (ar.note || "refused") + " Nothing was called.");
+        if(/GM/.test(ar.note || "")) note = " The " + wK + " action is the Overseer’s to mark.";
+        else return say("No " + wK + " action: " + (ar.note || "refused") + " Nothing was called.");
       }
     } else if(!(typeof CH.spendParty === "function" && CH.spendParty(1) >= 1)) return say("The party pool has no AP. Nothing was marked.");
   }catch(e){ return say("The turn order could not be read. Nothing was " + (call ? "called." : "marked.")); }
@@ -37207,16 +37213,17 @@ window.HELENA_SHEETACT = {
              stealth:suit ? { low:c.stealthOn === true, line:ss ? ss.textContent : "" } : null,
              war:(f && (rk.cmd || rk.mark)) ? { cmd:rk.cmd, mark:rk.mark, enemies:warEnemies().map(function(r){ return { id:r.id, name:r.name || r.id }; }), line:ws ? ws.textContent : "" } : null };
   },
-  stealth: function(){
+  stealth: function(act){
     var c = me(); if(!c) return false;
-    if(CH.fightNow()) return stealthBoyPress();
+    if(CH.fightNow()){ actAs = act === "major" ? "major" : null; try{ return stealthBoyPress(); }finally{ actAs = null; } }
     if(locked(c)) return false;
     edit(function(x){ x.stealthOn = !(x.stealthOn === true); }); renderDerived(); return true;
   },
-  war: function(kind, targetId){
+  war: function(kind, targetId, act){
     warPaint(me() || {});
     var sel = $("cs-war-target"); if(sel) sel.value = String(targetId == null ? "" : targetId);
-    return warPress(kind === "mark" ? "mark" : "call");
+    actAs = act === "major" ? "major" : null;
+    try{ return warPress(kind === "mark" ? "mark" : "call"); }finally{ actAs = null; }
   }
 };
 /* HELDCRIT:begin */
@@ -40076,7 +40083,7 @@ window.HELENA_JAB = {
       if(!g || !t) return;
       var r = g.inventory[i]; if(!r || invNone(r) || r.name !== row0.name) return;
       rev = { giver:String(g.id), row:i, qty:Math.round(+r.qty || 0), to:String(t.id),
-              was:JSON.parse(JSON.stringify({ hp:t.hp, rads:t.rads, boosts:t.boosts, addictions:t.addictions, doses:t.doses })) };
+              was:JSON.parse(JSON.stringify({ hp:t.hp, rads:t.rads, boosts:t.boosts, addictions:t.addictions, doses:t.doses, turnAP:t.turnAP })) };
       r.qty = Math.max(0, Math.round(+r.qty || 0) - 1);
       rep = consumeCore(t, { U:U, i:-1, day:ctx.day, seq:ctx.seq, rr:rr });
     });
@@ -40086,6 +40093,8 @@ window.HELENA_JAB = {
       (rep.said.join(", ") || "given") + (U.effect ? " (it prints: " + String(U.effect).replace(/\.\s*$/, "") + ")" : "") +
       (rr ? "; Rads " + U.rads + "CD → " + rep.radsTaken + " Radiation" : "") +
       (rep.test ? "; addiction test " + (rep.hooked ? "failed - " + (tgt0.name || "they") + " is hooked" : "passed") : "") + ".";
+    var apN = HELENA_TURNAP.printed(U.effect), apG = null;
+    if(apN && CH.fightNow()){ apG = HELENA_TURNAP.give(tgt0.id, apN, U.name); line += " " + apG.note; }
     var x = rev;
     try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.keep === "function")
       window.SUITE_UNDO.keep("jab", { text:line, rev:x, chars:[x.giver, x.to], revert:function(v){
@@ -40212,6 +40221,8 @@ function invUse(i){
             testLine("Addiction — END + Survival vs " + test.rating + " (Guide p.clxxii)", test.tn, test.roll) +
             (hooked ? " — <b>hooked</b>: +1 Difficulty to everything while you crave, until three days clean, Addictol or the Fixer." : " — not hooked.")
           : (U.rating && !said.some(function(x){ return /^Chem Resistant/.test(x); }) ? " (the first dose today: no addiction test)" : ""));
+  /* game night 11-25: a chem's printed AP ("+4 AP") taken on your own turn is your personal turn AP */
+  if(rep.done && U.kind === "chem" && CH.fightNow() && window.HELENA_TURNAP){ var apU = HELENA_TURNAP.printed(U.effect); if(apU){ var gU = HELENA_TURNAP.give(c.id, apU, U.name); line += " " + esc(gU.note); } }
   invPrompt(line);
   if(!(rep.done && bskHaul)) tableRoll(after, U.name + " — " + consumeLogged(U, rep, rr).join("; "));   /* Z051P2 first: the Blood Pack's one line is below */
   renderInventory(after); renderDerived(); renderConditions(after); render();
@@ -41180,13 +41191,56 @@ function resetRollOut(who){
    pool can refuse: spendParty returns what it could actually pay and the caller only gets
    the dice it paid for.  `quiet` keeps the store's own subscriber from re-rendering the
    sheet out from under the roll output. */
-function partyAP(){ var m = S.get(); return Math.max(0, +m.pcAP || 0); }
+/* game night 11-25 (Howl): PERSONAL TURN AP.  AP given to one character for their turn (a chem's "+4 AP", jabbed or taken on their
+   turn) sits on their sheet as c.turnAP = { key, n, from }, key = the fight, the round and their turn-order row.  While that turn
+   runs, every party-AP spend on this page (spendParty, payParty) takes it FIRST, then the party pool; once the turn moves on
+   the key no longer matches and it is gone.  partyAP() counts it, so a price check sees what may be spent now. */
+function turnKeyNow(){
+  try{
+    var T = window.HELENA_TURN, b = T && T.cinder, sn = b && b.snap ? b.snap() : null;
+    if(!sn || sn.phase === "idle" || sn.cur == null) return null;
+    var f = CH.fightNow();
+    return { key:String(f && f.id || "") + "|" + sn.round + "|" + sn.cur, cur:sn.cur, rowOf:function(id){ try{ return b.rowOf ? b.rowOf("c:" + id) : null; }catch(e){ return null; } } };
+  }catch(e){ return null; }
+}
+function turnAPLive(c, tk){ return (c && c.turnAP && tk && c.turnAP.key === tk.key) ? Math.max(0, Math.round(+c.turnAP.n || 0)) : 0; }
+function turnAPHolder(m, tk){
+  var h = null; if(!tk) return null;
+  ((m && m.chars) || []).forEach(function(c){ if(!h && turnAPLive(c, tk) > 0) h = c; });
+  return h;
+}
+/* take up to n off the turn's personal AP inside an update closure -> what it took */
+function turnAPTake(m, tk, n){
+  var h = turnAPHolder(m, tk); if(!h || n <= 0) return 0;
+  var have = turnAPLive(h, tk), t = Math.min(have, n);
+  h.turnAP = { key:h.turnAP.key, n:have - t, from:h.turnAP.from };
+  return t;
+}
+window.HELENA_TURNAP = {
+  /* AP for charId's own turn, only while it is their turn -> { ok, n, note } */
+  give: function(charId, n, from){
+    n = Math.max(0, Math.round(+n || 0)); if(!n) return { ok:false, note:"No AP to give." };
+    var tk = turnKeyNow(), c = null;
+    (S.get().chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)) c = x; });
+    if(!c) return { ok:false, note:"No such sheet." };
+    if(!tk || tk.rowOf(c.id) !== tk.cur) return { ok:false, note:"It is not " + (c.name || "their") + "’s turn, so the " + n + " AP was not added - give it on their turn (or add it to the pool by hand)." };
+    var got = 0;
+    S.update(function(m){ (m.chars || []).forEach(function(x){ if(x && String(x.id) === String(c.id)){
+      var have = turnAPLive(x, tk); x.turnAP = { key:tk.key, n:have + n, from:String(from || "").slice(0, 80) }; got = have + n; } }); });
+    return { ok:true, n:got, note:"+" + n + " personal AP for " + (c.name || "their") + "’s turn (" + got + " now) - spent before the party pool, gone when the turn ends." };
+  },
+  /* the live personal AP this turn: { id, name, n, from } or null */
+  now: function(){ var tk = turnKeyNow(), h = turnAPHolder(S.get(), tk); return h ? { id:String(h.id), name:h.name || "", n:turnAPLive(h, tk), from:h.turnAP.from || "" } : null; },
+  /* the AP a chem prints: "+4 AP", "gain 1 AP" -> 4, 1; else 0 */
+  printed: function(effect){ var m = /(?:\+|gain\s+)(\d+)\s*AP\b/i.exec(String(effect || "")); return m ? +m[1] : 0; }
+};
+function partyAP(){ var m = S.get(), tk = turnKeyNow(), h = turnAPHolder(m, tk); return Math.max(0, +m.pcAP || 0) + (h ? turnAPLive(h, tk) : 0); }
 function spendParty(n){
   n = Math.max(0, Math.round(+n || 0));
   if(!n) return 0;
-  var got = 0;
+  var got = 0, tk = turnKeyNow();
   quiet = true;
-  try{ S.update(function(m){ var r = CH.apSpend(m.pcAP, n); m.pcAP = r.left; got = r.spent; }); }
+  try{ S.update(function(m){ var own = turnAPTake(m, tk, n); var r = CH.apSpend(m.pcAP, n - own); m.pcAP = r.left; got = own + r.spent; }); }
   finally{ quiet = false; }
   return got;
 }
@@ -41205,10 +41259,13 @@ function payParty(n){
   var said = arguments.length > 1 ? !!(arguments[1] && arguments[1].said) : (typeof apPartyOn === "function" && apPartyOn());
   quiet = true;
   try{
+    var tk = turnKeyNow();
     S.update(function(m){
-      var have = Math.max(0, +m.pcAP || 0), ok = have >= n;
-      if(first){ out.have = have; out.ok = ok; out.paid = ok ? n : 0; first = false; }
-      if(ok) m.pcAP = have - n;
+      /* game night 11-25: the turn's personal AP first, then the pool (all or nothing, as before) */
+      var h = turnAPHolder(m, tk), own = h ? turnAPLive(h, tk) : 0;
+      var have = Math.max(0, +m.pcAP || 0), ok = have + own >= n;
+      if(first){ out.have = have + own; out.ok = ok; out.paid = ok ? n : 0; out.own = ok ? Math.min(own, n) : 0; first = false; }
+      if(ok){ var t = turnAPTake(m, tk, n); m.pcAP = have - (n - t); }
     }, said ? { apSaid:true } : undefined);
   }finally{ quiet = false; }
   if(said) out.said = true;
@@ -86871,8 +86928,8 @@ last = get(); follow();
         var t = e.target;
         if(t.id === "cl-jab-hd"){ open = !open; box.removeAttribute("data-h"); paint(); return; }
         var A = window.HELENA_SHEETACT;
-        if(A && t.id === "cl-sa-stealth"){ try{ A.stealth(); }catch(err){} box.removeAttribute("data-h"); setTimeout(paint, 50); return; }
-        if(A && (t.id === "cl-sa-call" || t.id === "cl-sa-mark")){ try{ A.war(t.id === "cl-sa-mark" ? "mark" : "call", val("cl-sa-war-t")); }catch(err){} box.removeAttribute("data-h"); setTimeout(paint, 50); return; }
+        if(A && (t.id === "cl-sa-stealth" || t.id === "cl-sa-stealth-mj")){ try{ A.stealth(t.id === "cl-sa-stealth-mj" ? "major" : ""); }catch(err){} box.removeAttribute("data-h"); setTimeout(paint, 50); return; }
+        if(A && (t.id === "cl-sa-call" || t.id === "cl-sa-call-mj" || t.id === "cl-sa-mark")){ try{ A.war(t.id === "cl-sa-mark" ? "mark" : "call", val("cl-sa-war-t"), t.id === "cl-sa-call-mj" ? "major" : ""); }catch(err){} box.removeAttribute("data-h"); setTimeout(paint, 50); return; }
         if(t.id === "cl-jab-go"){
           var from = val("cl-jab-from"), row = val("cl-jab-chem"), to = val("cl-jab-to");
           if(row === ""){ msg = "Pick a chem."; }
@@ -86888,15 +86945,18 @@ last = get(); follow();
     var to = val("cl-jab-to"), rows = J.rows(from), chem = val("cl-jab-chem");
     /* the open sheet's own fight buttons (Classic's presses, HELENA_SHEETACT): the Stealth suit, the Warlord's call and the mark */
     var A = window.HELENA_SHEETACT, st = null; try{ st = A ? A.state() : null; }catch(e){ st = null; }
-    var sa = "";
+    var sa = "", TA = window.HELENA_TURNAP, ta = null; try{ ta = TA ? TA.now() : null; }catch(e){ ta = null; }
+    if(ta && ta.n > 0) sa += '<div class="cl-sa-ap"><b>' + esc(ta.name) + ": " + ta.n + " personal AP</b> this turn" + (ta.from ? " (" + esc(ta.from) + ")" : "") + " - spent before the party pool, gone when the turn ends.</div>";
     if(st && !st.locked && (st.stealth || st.war)){
       sa += '<div class="cl-sa-name">' + esc(st.name || "Your sheet") + "</div>";
-      if(st.stealth) sa += '<button type="button" id="cl-sa-stealth" class="cl-jab-go">' + (st.fight ? "Stealth suit: combat mode (minor action)" : st.stealth.low ? "Stealth suit: turn low power off" : "Stealth suit: low power on") + "</button>" +
+      if(st.stealth) sa += '<button type="button" id="cl-sa-stealth" class="cl-jab-go">' + (st.fight ? "Stealth charge (minor action)" : st.stealth.low ? "Stealth suit: turn low power off" : "Stealth suit: low power on") + "</button>" +
+                           (st.fight ? '<button type="button" id="cl-sa-stealth-mj" class="cl-jab-go cl-sa-mj">Stealth charge (major action)</button>' : "") +
                            '<div class="cl-jab-who">' + esc(st.stealth.line) + "</div>";
       if(st.war){
         var wt = val("cl-sa-war-t");
         sa += '<label>Target <select id="cl-sa-war-t">' + (st.war.enemies.length ? st.war.enemies.map(function(r){ return '<option value="' + esc(r.id) + '"' + (r.id === wt ? " selected" : "") + ">" + esc(r.name) + "</option>"; }).join("") : '<option value="">No enemies standing</option>') + "</select></label>" +
-              (st.war.cmd ? '<button type="button" id="cl-sa-call" class="cl-jab-go">Wasteland Warlord: call target (+' + st.war.cmd + " d20, minor)</button>" : "") +
+              (st.war.cmd ? '<button type="button" id="cl-sa-call" class="cl-jab-go">Warlord callout (+' + st.war.cmd + " d20, minor action)</button>" +
+                            '<button type="button" id="cl-sa-call-mj" class="cl-jab-go cl-sa-mj">Warlord callout (+' + st.war.cmd + " d20, major action)</button>" : "") +
               (st.war.mark ? '<button type="button" id="cl-sa-mark" class="cl-jab-go">Tenderizer: mark target (+' + st.war.mark + " CD, 1 AP)</button>" : "") +
               '<div class="cl-jab-who">' + esc(st.war.line) + "</div>";
       }
