@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"7b135130",at:"2026-11-26 02:51 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"2d7a8a24",at:"2026-11-26 02:53 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5649,6 +5649,24 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 .zj-said{ min-height:1.4em; margin:10px 0 0; font-size:14px; color:#e9d9b0; }
 .zj-out{ display:block; width:100%; box-sizing:border-box; margin-top:6px; font-size:12px; }
 </style>
+<style data-suite="cinder-zl-fightlog">/* game night 11-25 (Howl): the combat log - right column, above the Quick jab and the Mysterious Stranger (bottom set by the script) */
+#cl-flog{ position:fixed; right:12px; bottom:12px; width:336px; box-sizing:border-box; z-index:33; display:flex; flex-direction:column; padding:6px 10px;
+  border:1px solid #6d7360; border-radius:4px; background:#1b1f14; color:#e8e4d4; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.5); font-family:"EB Garamond", Georgia, serif; }
+#cl-flog[hidden]{ display:none !important; }
+#cl-flog .cl-flog-hd{ text-align:left; background:none; border:0; color:#f2eedc; font:inherit; font-weight:700; padding:2px 0; cursor:pointer; min-height:28px; }
+#cl-flog .cl-flog-log{ flex:1 1 auto; min-height:80px; max-height:260px; overflow-y:auto; border-top:1px solid #3a4130; padding-top:4px; }
+#cl-flog .cl-flog-log[hidden], #cl-flog .cl-flog-f[hidden]{ display:none; }
+#cl-flog .cl-flog-l{ padding:2px 0; border-bottom:1px solid #262b1e; line-height:1.3; word-wrap:break-word; }
+#cl-flog .cl-flog-l .t{ color:#9aa08a; font-size:11px; margin-right:5px; }
+#cl-flog .cl-flog-l b{ color:#f0b429; }
+#cl-flog .cl-flog-l.chat{ color:#cfe8ff; }
+#cl-flog .cl-flog-f{ display:flex; gap:6px; margin-top:6px; }
+#cl-flog .cl-flog-f input{ flex:1; min-height:30px; background:#23281b; color:#f2eedc; border:1px solid #6d7360; border-radius:4px; font:inherit; padding:0 6px; }
+#cl-flog .cl-flog-f button{ min-height:30px; background:#2f3a20; color:#f2eedc; border:1px solid #7ac74f; border-radius:4px; font:inherit; cursor:pointer; }
+#cl-flog .cl-flog-say{ color:#f0b429; font-size:12px; }
+/* a phone has the Chat tab's Fight chat; the right column has no room for a third box there */
+@media (max-width:700px){ #cl-flog{ display:none !important; } }
+</style>
 <style data-suite="cinder-zr-road-tab">/* Z051 tabs (lane road): the Road tab's own parts, both views (src/cinder-zr-road-tab.js).  Classic's Camp tab is hidden: Camp is
    the fold at the foot of Road. */
 #mode-suite-camp{ display:none !important; }
@@ -6176,7 +6194,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:51 UTC">7b135130</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:53 UTC">2d7a8a24</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -88844,6 +88862,77 @@ function addCopy(){
 if(!addCopy()){ var tries = 0, iv = setInterval(function(){ if(addCopy() || ++tries > 20) clearInterval(iv); }, 1000); }
 W.HELENA_JOIN = { linkFor:linkFor };
 })(window);
+</script>
+<script data-suite="cinder-zl-fightlog">/* game night 11-25 (Howl): THE COMBAT LOG ON CINDER'S FIGHT TAB, on the right above the Quick jab and the Mysterious Stranger.
+   The same lines as the Chat tab's Fight chat (SUITE_FIGHTCHAT.lines: the turn order, attacks, damage, rolls, AP, moves and
+   messages), the newest 80, and a box to send a message (SUITE_FIGHTCHAT.send, its own rules).  Read-only otherwise; shown with
+   textContent, never markup.  Shut with its header; this device remembers. */
+(function(){
+  "use strict";
+  var box = null, log = null, inp = null, say = null, lastSig = "", KEY = "helena.cinderFightLog", open = true;
+  try{ open = localStorage.getItem(KEY) !== "shut"; }catch(e){}
+  function on(){ return !!(document.body && document.body.classList.contains("view-cinder")) && document.body.getAttribute("data-cl-tab") === "fight"; }
+  function FC(){ var f = window.SUITE_FIGHTCHAT; return f && typeof f.lines === "function" ? f : null; }
+  function vis(id){ var e = document.getElementById(id); return e && !e.hidden && e.getBoundingClientRect().height ? e : null; }
+  function place(){
+    if(!box) return;
+    var under = vis("cl-jab") || vis("cl-ms"), b = 12;
+    if(under && window.innerWidth > 700) b = Math.round(window.innerHeight - under.getBoundingClientRect().top + 8);
+    box.style.bottom = b + "px";
+    box.style.maxHeight = Math.max(140, window.innerHeight - b - 90) + "px";
+  }
+  function build(){
+    box = document.createElement("div"); box.id = "cl-flog"; box.setAttribute("role", "log"); box.setAttribute("aria-label", "Combat log");
+    box.innerHTML = '<button type="button" class="cl-flog-hd" id="cl-flog-hd"></button><div class="cl-flog-log" id="cl-flog-log"></div>' +
+      '<form class="cl-flog-f" id="cl-flog-f"><input id="cl-flog-in" maxlength="300" autocomplete="off" placeholder="Say something to the table"><button type="submit">Send</button></form>' +
+      '<div class="cl-flog-say" id="cl-flog-say"></div>';
+    document.body.appendChild(box);
+    log = box.querySelector("#cl-flog-log"); inp = box.querySelector("#cl-flog-in"); say = box.querySelector("#cl-flog-say");
+    box.querySelector("#cl-flog-hd").addEventListener("click", function(){ open = !open; try{ localStorage.setItem(KEY, open ? "open" : "shut"); }catch(e){} lastSig = ""; paint(); });
+    box.querySelector("#cl-flog-f").addEventListener("submit", function(e){
+      e.preventDefault();
+      var f = FC(), t = inp.value; if(!f || !t.trim()) return;
+      var r = null; try{ r = f.send(t); }catch(err){ r = { ok:false, note:"That message could not be sent." }; }
+      if(r && r.ok){ inp.value = ""; say.textContent = ""; } else say.textContent = (r && (r.note || r.why)) || "Not sent.";
+      lastSig = ""; setTimeout(paint, 300);
+    });
+  }
+  function paint(){
+    var f = FC();
+    if(!on() || !f){ if(box && !box.hidden) box.hidden = true; return; }
+    if(!box) build();
+    if(box.hidden) box.hidden = false;
+    var ls = []; try{ ls = f.lines() || []; }catch(e){ ls = []; }
+    ls = ls.slice(-80);
+    var hd = box.querySelector("#cl-flog-hd"), ht = (open ? "▾" : "▸") + " Combat log" + (ls.length ? " (" + ls.length + ")" : "");
+    if(hd.textContent !== ht) hd.textContent = ht;
+    log.hidden = !open; box.querySelector("#cl-flog-f").hidden = !open;
+    var sig = open + "|" + ls.length + "|" + (ls.length ? (ls[ls.length - 1].id || ls[ls.length - 1].at) : "");
+    if(sig !== lastSig){
+      lastSig = sig;
+      var atEnd = log.scrollHeight - log.scrollTop - log.clientHeight < 30;
+      log.textContent = "";
+      ls.forEach(function(l){
+        var s = typeof f.shape === "function" ? f.shape(l) : { time:"", lead:"", rest:l.text, chat:l.topic === "chat" };
+        var row = document.createElement("div"); row.className = "cl-flog-l" + (s.chat ? " chat" : "");
+        var tm = document.createElement("span"); tm.className = "t"; tm.textContent = s.time || "";
+        var ld = document.createElement("b"); ld.textContent = s.lead || "";
+        row.appendChild(tm); row.appendChild(ld); row.appendChild(document.createTextNode(s.rest || ""));
+        log.appendChild(row);
+      });
+      if(!ls.length){ var n = document.createElement("div"); n.className = "cl-flog-l"; n.textContent = "Nothing yet - attacks, damage and turns show here."; log.appendChild(n); }
+      if(atEnd || log.scrollTop === 0) log.scrollTop = log.scrollHeight;
+    }
+    place();
+  }
+  function start(){
+    setInterval(paint, 1200);
+    window.addEventListener("resize", place);
+    paint();
+  }
+  window.CINDER_FIGHTLOG = { paint:paint };
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
 </script>
 <script data-suite="cinder-zr-road-tab">/* ============================================================================
    Helena Suite - Z051 tabs (lane road, CMD "Cores + Road tab + Character tab", 2026-11-13): ONE ROAD TAB, both views.
