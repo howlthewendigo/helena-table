@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"b183559c",at:"2026-11-26 03:38 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"f8703a7b",at:"2026-11-26 03:43 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6229,7 +6229,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:38 UTC">b183559c</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:43 UTC">f8703a7b</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -65487,8 +65487,22 @@ var API = {
     var tmk = clampInt(d.damageMark, 0, 3);
     if(tmk) parts.push({ what:d.damageMarkWhy || "Tenderizer: the target is marked", cd:tmk });
     if(demo) parts.push({ what:"Demolitions Expert: a Blast weapon already Vicious", cd:demo });
-    return { cd:base + lane + ammo + extra + sneak + mom + tmk + demo, base:base, lane:lane, ammo:ammo,
-             extra:extra, sneak:sneak, momentum:mom, mark:tmk, demo:demo, parts:parts, known:full > 0, degr:dg };
+    /* game night 11-25 (Howl, house rule): A BLAST INTO A SWARM - +1 CD for every member of the target swarm still standing.  Read
+       off the Encounter pane's door for the declared target (its swarm's alive count); opts.swarmBlast overrides.  0 for a lone
+       creature, a split swarm, a character, or no Blast. */
+    var swb = 0;
+    if(API.hasQuality(w, "Blast")){
+      if(opts.swarmBlast != null) swb = Math.max(0, int(opts.swarmBlast, 0));
+      else try{
+        var EN = typeof window !== "undefined" ? window.HELENA_ENC : null, tg = d.target;
+        var rd = EN && typeof EN.read === "function" && tg && (tg.id || tg.ref) ? EN.read(String(tg.id || tg.ref)) : null;
+        if(rd && rd.ok !== false && rd.swarm && int(rd.swarm.alive, 0) > 1) swb = int(rd.swarm.alive, 0);
+      }catch(e){ swb = 0; }
+      swb = Math.min(20, swb);
+    }
+    if(swb) parts.push({ what:"Blast into a swarm: +1 CD for each of its " + swb + " standing (house rule)", cd:swb });
+    return { cd:base + lane + ammo + extra + sneak + mom + tmk + demo + swb, base:base, lane:lane, ammo:ammo,
+             extra:extra, sneak:sneak, momentum:mom, mark:tmk, demo:demo, swarmBlast:swb, parts:parts, known:full > 0, degr:dg };
   },
 
   /* WAVE 17, Z4 (Zoe 2026-10-07, ruled) — A MISSED BLAST STILL LANDS, AS PRINTED.  Guide L1645-1647 (the 2026-10-06
