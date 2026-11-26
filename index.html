@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"335ea02f",at:"2026-11-26 03:51 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"a6e26c08",at:"2026-11-26 03:56 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5612,6 +5612,17 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 .z35-cur-bar select{ font:inherit; font-size:14px; padding:3px 6px; min-height:32px; max-width:200px; }
 .z35-is-cur{ outline:2px solid #D9A13B !important; outline-offset:-2px; }
 </style>
+<style data-suite="cinder-zb-burn">/* game night 11-25 (Howl): the burn pop-up - centred over the map */
+#cl-burnpop{ position:fixed; left:50%; top:28%; transform:translateX(-50%); z-index:90; width:min(380px, 92vw); box-sizing:border-box; padding:12px 14px;
+  background:#2a1a14; color:#f2eedc; border:2px solid #e05c4b; border-radius:6px; box-shadow:0 18px 50px rgba(0,0,0,.65); font:15px/1.45 "EB Garamond", Georgia, serif; }
+#cl-burnpop[hidden]{ display:none !important; }
+#cl-burnpop .cl-bp-hd{ font-weight:700; font-size:17px; color:#f2a17a; margin-bottom:6px; padding-right:30px; }
+#cl-burnpop .cl-bp-n{ margin:8px 0; }
+#cl-burnpop .cl-bp-out{ display:block; width:100%; min-height:38px; background:#3a201b; color:#f2eedc; border:1px solid #e05c4b; border-radius:4px; font:inherit; font-weight:700; cursor:pointer; }
+#cl-burnpop .cl-bp-x{ position:absolute; top:6px; right:6px; width:30px; height:30px; background:#221C17; color:#f2eedc; border:1px solid #9C7A3C; border-radius:4px; font-size:18px; cursor:pointer; }
+#cl-burnpop .cl-bp-say{ color:#f0b429; font-size:13px; margin-top:6px; }
+#cl-burnpop .cl-bp-s{ color:#b9ae98; font-size:12px; margin-top:6px; }
+</style>
 <style data-suite="cinder-zg-group">/* game night 11-25 (Howl): One token per group - docked beside the Mysterious Stranger (#cl-ms sits right:12px, 336px wide) */
 #cl-grp{ position:fixed; right:356px; bottom:12px; width:260px; box-sizing:border-box; z-index:33; padding:6px 36px 6px 10px; border:1px solid #f0b429; border-radius:4px;
   background:#1b1f14; color:#e8e4d4; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.5); font-family:"EB Garamond", Georgia, serif; }
@@ -6236,7 +6247,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:51 UTC">335ea02f</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:56 UTC">a6e26c08</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -86404,7 +86415,6 @@ function paintBar(){
     try{ if(a.kind === "char"){ var dc = null; (S().chars || []).forEach(function(x){ if(x && "c:" + x.id === a.id) dc = x; });
       var dps = dc && (dc.persistent || []).filter(function(p){ return p && +p.rounds > 0; });
       var bdue = 0; try{ var TQb = window.HELENA_TURN && window.HELENA_TURN.quick; bdue = TQb && TQb.burnDue ? TQb.burnDue(dc.id) : 0; }catch(e){ bdue = 0; }
-      if(bdue) sl += '<button type="button" class="cl-slot cl-douse cl-burn" data-burn="' + esc(dc.id) + '" title="Take this turn\u2019s Persistent now (' + bdue + '), or Put it out with the major instead">🔥 Take ' + bdue + '<small>burn</small></button>';
       if(dps && dps.length) sl += '<button type="button" class="cl-slot cl-douse" data-douse="' + esc(dc.id) + '" title="Major action: put out the highest source (' + esc(dps.slice().sort(function(x, y){ return (+y.dmg - +x.dmg) || (+y.rounds - +x.rounds); }).map(function(p){ return (p.cause || "Persistent") + " " + p.dmg; })[0]) + '); the rest keep burning">🔥 Put out<small>major</small></button>'; } }catch(e){}
     h += '<div class="cl-slots">' + sl + "</div>";
   }
@@ -88922,6 +88932,56 @@ try{
 mountPickers();
 last = get(); follow();
 })(window);
+</script>
+<script data-suite="cinder-zb-burn">/* game night 11-25 (Howl): THE BURN, AS A POP-UP.  At the start of a burning character's turn (the room's burnStart; the turn order's
+   burnDue) a card comes up on the devices that may play that sheet: what is burning, and ONE choice - Put it out (its major: the
+   highest source goes, HELENA_TURN.quick.douse).  Closing the card lets it burn now; left alone, Next turn takes it. */
+(function(){
+  "use strict";
+  var box = null, shownFor = "", said = "";
+  function Q(){ var T = window.HELENA_TURN; return T && T.quick && T.quick.burnDue ? T.quick : null; }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]; }); }
+  function mayPlay(id){ try{ var Y = window.SUITE_SYNC; if(!Y || !Y.status || !Y.status().connected) return true; return typeof Y.canEdit === "function" ? !!Y.canEdit(id) : true; }catch(e){ return true; } }
+  function due(){
+    var q = Q(); if(!q) return null;
+    var cur = null; try{ cur = window.HELENA_TURN.curNow ? window.HELENA_TURN.curNow() : null; }catch(e){ cur = null; }
+    if(!cur || String(cur).indexOf("c:") !== 0) return null;
+    var id = String(cur).slice(2), n = 0; try{ n = q.burnDue(id); }catch(e){ n = 0; }
+    if(!n || !mayPlay(id)) return null;
+    var c = null; try{ (window.SUITE_STATE.get().chars || []).forEach(function(x){ if(x && String(x.id) === id) c = x; }); }catch(e){}
+    return c ? { id:id, c:c, n:n, key:q.burnKey() } : null;
+  }
+  function close(burn){
+    var d = due(), q = Q();
+    if(burn && d && q){ try{ var r = q.burn(d.id); said = r && r.note || ""; }catch(e){} }
+    if(box) box.hidden = true;
+  }
+  function paint(){
+    var d = due();
+    if(!d){ if(box && !box.hidden) box.hidden = true; shownFor = ""; return; }
+    if(!box){
+      box = document.createElement("div"); box.id = "cl-burnpop"; box.setAttribute("role", "alertdialog"); box.setAttribute("aria-label", "On fire");
+      document.body.appendChild(box);
+      box.addEventListener("click", function(e){
+        var t = e.target, q = Q(); if(!t) return;
+        if(t.id === "cl-bp-out" && q){ var dd = due(); if(dd){ var r = q.douse(dd.id, function(){ q.douse(dd.id, null, true); paint(); }); said = r && r.note || ""; } paint(); return; }
+        if(t.id === "cl-bp-x"){ close(true); return; }
+      });
+    }
+    var srcs = (d.c.persistent || []).filter(function(p){ return p && +p.rounds > 0; });
+    var h = '<button type="button" class="cl-bp-x" id="cl-bp-x" title="Close: it burns now" aria-label="Close - it burns now">×</button>' +
+      "<div class=\"cl-bp-hd\">🔥 " + esc(d.c.name || "They") + " is burning</div>" +
+      "<div>" + srcs.map(function(p){ return esc(p.cause || "Persistent") + " <b>" + (+p.dmg || 0) + "</b> (" + (+p.rounds) + " rd left" + (p.toArmour ? ", onto the armour" : "") + ")"; }).join("<br>") + "</div>" +
+      "<div class=\"cl-bp-n\">This turn: <b>" + d.n + " damage</b> - unless the highest source is put out first.</div>" +
+      '<button type="button" class="cl-bp-out" id="cl-bp-out">Put it out (major action)</button>' +
+      (said ? '<div class="cl-bp-say">' + esc(said) + "</div>" : "") +
+      '<div class="cl-bp-s">Close (×) and it burns now; left alone, it burns when the turn passes.</div>';
+    if(box.getAttribute("data-h") !== h){ box.innerHTML = h; box.setAttribute("data-h", h); }
+    if(shownFor !== d.key){ shownFor = d.key; said = ""; box.hidden = false; }
+  }
+  setInterval(paint, 800);
+  window.CINDER_BURNPOP = { paint:paint };
+})();
 </script>
 <script data-suite="cinder-zg-group">/* game night 11-25 (Howl): ONE TOKEN.  Beside the Mysterious Stranger on Cinder's Fight tab, one tick per creature group (a roster
    row of more than one of a creature, e.g. Church Dragon x3, Nightrider x4, Sheet x7).  Ticked, the group draws as one disc with
