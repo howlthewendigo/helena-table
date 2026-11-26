@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"b78d2000",at:"2026-11-26 04:01 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"5f89af33",at:"2026-11-26 04:04 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6247,7 +6247,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 04:01 UTC">b78d2000</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 04:04 UTC">5f89af33</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -20290,6 +20290,14 @@ var INVITE = {
 function ownWords(msg){ return String(msg == null ? "" : msg).replace(/supabase\/SETUP\.md/g, "Set up a table").replace(/supabase\/schema\.sql/g, "the database script"); }
 
 /* ------------------------------------------------------------ the API */
+/* game night 11-25 (Howl): THE ROOM'S HELPERS - a device the server lists in room_helpers writes every sheet, as the Overseer's does.
+   The page knows a helper only by a hash of its id (FNV-1a), never the id itself. */
+var HELPER_H = { "b6655dbc":1 };
+function helperHere(){
+  try{ var id = String(st.me || ""), h = 0x811c9dc5; if(!id) return false;
+    for(var i = 0; i < id.length; i++){ h ^= id.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return HELPER_H[h.toString(16)] === 1; }catch(e){ return false; }
+}
 var API = {
   MODES: MODES,
   config: function(){ return assign({}, cfg); },   // no PIN in here: there is none to leak
@@ -20439,6 +20447,7 @@ var API = {
      row).  A player's device: a sheet it holds; a sheet someone else holds, never; a sheet nobody holds, only while the Overseer is in. */
   canEdit: function(charId){
     if(!st.connected || st.gm) return true;
+    if(helperHere()) return true;   /* game night 11-25: a room helper writes every sheet (the server's room_helpers agrees) */
     var o = holderOf(charId);
     return o ? o === st.me : overseerHere();
   },
