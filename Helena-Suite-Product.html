@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"3c0aadee",at:"2026-11-25 23:55 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"843f505a",at:"2026-11-26 01:01 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5605,6 +5605,20 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 .z35-cur-bar select{ font:inherit; font-size:14px; padding:3px 6px; min-height:32px; max-width:200px; }
 .z35-is-cur{ outline:2px solid #D9A13B !important; outline-offset:-2px; }
 </style>
+<style data-suite="cinder-zj-join">/* the join link's card (game night 2026-11-25) - over every view, the first-run card included */
+.zj-veil{ position:fixed; inset:0; z-index:10050; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(10,8,6,.78); }
+.zj-card{ width:min(420px, 100%); background:#1c1814; color:#efe6d4; border:1px solid #c9a24a; border-radius:8px; padding:20px 20px 14px; box-shadow:0 18px 60px rgba(0,0,0,.6); font-family:inherit; }
+.zj-h{ margin:0 0 8px; font-size:20px; letter-spacing:.04em; color:#e6b84f; }
+.zj-p{ margin:0 0 12px; font-size:15px; line-height:1.45; }
+.zj-lab{ display:block; font-size:13px; letter-spacing:.06em; text-transform:uppercase; margin:0 0 12px; }
+.zj-name{ display:block; width:100%; box-sizing:border-box; margin-top:6px; min-height:44px; font-size:17px; padding:8px 10px; background:#0f0d0b; color:#fff; border:1px solid #6b5a3a; border-radius:5px; }
+.zj-row{ display:flex; gap:10px; align-items:center; }
+.zj-go{ min-height:44px; min-width:120px; font-size:16px; font-weight:700; background:#e6b84f; color:#17130f; border:0; border-radius:5px; cursor:pointer; padding:0 18px; }
+.zj-go:disabled{ opacity:.6; cursor:wait; }
+.zj-later{ min-height:44px; background:transparent; color:#efe6d4; border:1px solid #6b5a3a; border-radius:5px; padding:0 14px; cursor:pointer; font-size:15px; }
+.zj-said{ min-height:1.4em; margin:10px 0 0; font-size:14px; color:#e9d9b0; }
+.zj-out{ display:block; width:100%; box-sizing:border-box; margin-top:6px; font-size:12px; }
+</style>
 <style data-suite="cinder-zr-road-tab">/* Z051 tabs (lane road): the Road tab's own parts, both views (src/cinder-zr-road-tab.js).  Classic's Camp tab is hidden: Camp is
    the fold at the foot of Road. */
 #mode-suite-camp{ display:none !important; }
@@ -6132,7 +6146,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-25 23:55 UTC">3c0aadee</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 01:01 UTC">843f505a</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -86618,6 +86632,113 @@ try{
 }catch(e){}
 mountPickers();
 last = get(); follow();
+})(window);
+</script>
+<script data-suite="cinder-zj-join">/* ============================================================================
+   Helena Suite - THE JOIN LINK (game night 2026-11-25, Howl: "a button to join the Helena table ... so we don't have to type in
+   the code and url and password").  An invite (src/table-sync.js SUITE_TABLE_INVITE: the project URL, the public key and the
+   room code - never the Overseer's PIN, never a name) carried in the page's address after a '#':
+       https://<the table>/#join=helena-table:1:...
+   The part after '#' is never sent to the web server.  Opening such a link shows one card: your name, and Join.  Join is the
+   Table box's own steps (Table mode, the invite's three values, the name, Connect).  The '#join=' is wiped from the address bar
+   at once, so it is not left in the bookmarks, the history or a screenshot.  A device that has joined before rejoins with one
+   tap ever after (the header's Rejoin), with no link.  Nothing here writes the table or a sheet.
+   "Copy join link" sits beside the Table box's "Copy invite" on a device that is in a room.
+   ========================================================================== */
+(function(W){
+"use strict";
+var D = W.document;
+if(!D || !D.body) return;
+var S = W.SUITE_SYNC, INV = W.SUITE_TABLE_INVITE;
+if(!S || !INV || typeof INV.decode !== "function") return;
+function el(tag, cls, txt){ var e = D.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+function here(){ try{ return W.location.origin + W.location.pathname; }catch(e){ return ""; } }
+function linkFor(line){ return here() + "#join=" + encodeURIComponent(line); }
+
+/* ---------------------------------------------------------------- reading a link */
+var m = null;
+try{ m = /[#&]join=([^&]+)/.exec(String(W.location.hash || "")); }catch(e){ m = null; }
+if(m){
+  var line = ""; try{ line = decodeURIComponent(m[1]); }catch(e){ line = m[1]; }
+  try{ W.history.replaceState(null, "", W.location.pathname + W.location.search); }catch(e){}
+  var inv = INV.decode(line);
+  var veil = el("div", "zj-veil"); veil.id = "zj-join";
+  var card = el("div", "zj-card"); card.setAttribute("role", "dialog"); card.setAttribute("aria-modal", "true"); card.setAttribute("aria-labelledby", "zj-h");
+  card.appendChild(el("h2", "zj-h", inv.ok ? "Join the Helena table" : "This join link does not work")).id = "zj-h";
+  var said = el("p", "zj-said"); said.id = "zj-said"; said.setAttribute("aria-live", "polite");
+  if(!inv.ok){
+    card.appendChild(el("p", "zj-p", inv.why + ". Ask the Overseer for a new link."));
+    var ok0 = el("button", "zj-go", "OK"); ok0.type = "button"; ok0.addEventListener("click", function(){ veil.remove(); }); card.appendChild(ok0);
+  } else {
+    var st = null; try{ st = S.status(); }catch(e){ st = null; }
+    var cfg = {}; try{ cfg = S.config() || {}; }catch(e){ cfg = {}; }
+    if(st && st.connected && st.room === inv.room){
+      card.appendChild(el("p", "zj-p", "You are already at this table (room " + inv.room + ")."));
+      var ok1 = el("button", "zj-go", "Back to the table"); ok1.type = "button"; ok1.addEventListener("click", function(){ veil.remove(); }); card.appendChild(ok1);
+    } else {
+      card.appendChild(el("p", "zj-p", "Type the name the table knows you by, then press Join. Next time this device rejoins with one tap."));
+      var lab = el("label", "zj-lab", "Your name");
+      var name = el("input", "zj-name"); name.id = "zj-name"; name.maxLength = 40; name.autocomplete = "nickname"; name.value = String(cfg.nick || "");
+      lab.appendChild(name); card.appendChild(lab);
+      var go = el("button", "zj-go", "Join"); go.type = "button"; go.id = "zj-go";
+      var later = el("button", "zj-later", "Not now"); later.type = "button"; later.id = "zj-later";
+      var row = el("div", "zj-row"); row.appendChild(go); row.appendChild(later); card.appendChild(row);
+      later.addEventListener("click", function(){ veil.remove(); });
+      var join = function(){
+        var n = String(name.value || "").trim();
+        if(!n){ said.textContent = "Type your name first."; try{ name.focus(); }catch(e){} return; }
+        go.disabled = true; said.textContent = "Joining room " + inv.room + "…";
+        try{
+          if(st && st.connected && typeof S.disconnect === "function") S.disconnect();
+          S.configure({ mode:"supabase", url:inv.url, key:inv.key, room:inv.room, nick:n, auto:true });
+          Promise.resolve(S.connect()).then(function(){
+            var s2 = S.status();
+            if(s2 && s2.connected){
+              said.textContent = "Joined room " + s2.room + " as " + n + ".";
+              /* the first-run card is not needed now: this device has a table */
+              try{ var fr = D.getElementById("fr-veil"); if(fr && !fr.hidden){ if(W.SUITE_STATE && typeof W.SUITE_STATE.firstRunSeen === "function") W.SUITE_STATE.firstRunSeen(); fr.hidden = true; D.body.classList.remove("fr-open"); } }catch(e){}
+              setTimeout(function(){ veil.remove(); }, 900);
+            } else { go.disabled = false; said.textContent = "Not joined: " + ((s2 && s2.note) || "the room did not answer") + ". Try Join again."; }
+          }, function(e){ go.disabled = false; said.textContent = "Not joined: " + String((e && e.message) || e).slice(0, 160) + ". Try Join again."; });
+        }catch(e){ go.disabled = false; said.textContent = "Not joined: " + String((e && e.message) || e).slice(0, 160); }
+      };
+      go.addEventListener("click", join);
+      name.addEventListener("keydown", function(e){ if(e.key === "Enter") join(); });
+      setTimeout(function(){ try{ name.focus(); }catch(e){} }, 50);
+    }
+  }
+  card.appendChild(said);
+  veil.appendChild(card);
+  veil.addEventListener("keydown", function(e){ if(e.key === "Escape") veil.remove(); });
+  D.body.appendChild(veil);
+}
+
+/* ---------------------------------------------------------------- making a link (beside Copy invite) */
+function addCopy(){
+  var copy = D.getElementById("tb-invite-copy");
+  if(!copy || D.getElementById("zj-copy")) return !!copy;
+  var b = el("button", "", "Copy join link"); b.type = "button"; b.id = "zj-copy";
+  b.title = "One link: a player opens it, types a name and presses Join. It carries the room code, never the Overseer's PIN.";
+  var out = el("input", "zj-out"); out.id = "zj-out"; out.readOnly = true; out.hidden = true; out.setAttribute("aria-label", "The join link");
+  var msg = D.getElementById("tb-invite-msg");
+  b.addEventListener("click", function(){
+    var c = {}; try{ c = S.config() || {}; }catch(e){}
+    var st = null; try{ st = S.status(); }catch(e){}
+    var say = function(t){ if(msg){ msg.textContent = t; msg.hidden = false; } };
+    if(!(st && st.connected && c.mode === "supabase")){ say("Join a Table room first; the link is for that room."); return; }
+    var r = INV.encode({ url:c.url, key:c.key, room:st.room || c.room });
+    if(!r.ok){ say(r.why); return; }
+    var link = linkFor(r.text);
+    var done = function(){ say("Copied the join link to room " + r.room + ". Post it in the group chat: a player opens it, types a name, presses Join."); };
+    try{ W.navigator.clipboard.writeText(link).then(done, function(){ out.value = link; out.hidden = false; out.select(); say("Copy the link from the box."); }); }
+    catch(e){ out.value = link; out.hidden = false; try{ out.select(); }catch(x){} say("Copy the link from the box."); }
+  });
+  copy.parentNode.insertBefore(b, copy.nextSibling);
+  copy.parentNode.insertBefore(out, b.nextSibling);
+  return true;
+}
+if(!addCopy()){ var tries = 0, iv = setInterval(function(){ if(addCopy() || ++tries > 20) clearInterval(iv); }, 1000); }
+W.HELENA_JOIN = { linkFor:linkFor };
 })(window);
 </script>
 <script data-suite="cinder-zr-road-tab">/* ============================================================================
