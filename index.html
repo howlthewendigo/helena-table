@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"01843df3",at:"2026-11-26 03:46 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"fff9bce8",at:"2026-11-26 03:48 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -4839,6 +4839,7 @@ body:not(.view-cinder) #cl-ms{ display:none !important; }
 #tt-auto .ap-sk-log ol{max-height:220px;overflow:auto;font-size:12px;padding-left:22px}
 /* Z051P2 auto:end */
 .cl-slot.cl-douse{ border-color:#e05c4b !important; }
+.cl-slot.cl-burn{ background:#3a201b !important; }
 </style>
 <style data-suite="cinder-2-loot">/* Z032 — Cinder Ledger, part 2: the Loot Window.  A3 rarity edges: 0 grey · 1 bone · 2 green · 3–4 blue ·
    5–6 blue with a brass double edge · Legendary brass star + gold edge.  No purple on items. */
@@ -6235,7 +6236,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:46 UTC">01843df3</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:48 UTC">fff9bce8</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -51084,6 +51085,7 @@ var TT = {
     /* Z051P2 auto:begin - the sheets on autopilot (their ids), carried only when present; End combat keeps them (a sheet's setting) */
     if(Array.isArray(d.auto)){ var apl = []; d.auto.forEach(function(x){ if(typeof x === "string" && x && x.length <= 80 && apl.indexOf(x) < 0) apl.push(x); }); if(apl.length) b.auto = apl.slice(0, 40); }
     /* Z051P2 auto:end */
+    if(d.burnStart === true) b.burnStart = true;   /* game night 11-25 (Howl): a character's Persistent at the start of its own turn */
     var stn = TT.normStance(d.stance);                 /* Howl 10-30: Aim and Defend, carried only when present */
     if(Object.keys(stn).length) b.stance = stn;
     var es = Math.round(+d.endSeq);
@@ -55334,7 +55336,7 @@ function sweepRound(){
   var all = everyone();
   var lines = [];
   /* characters — the sheet is where their Persistent lives */
-  var ticks = TT.roundTicks(charList(), all);
+  var ticks = st.burnStart ? [] : TT.roundTicks(charList(), all);   /* game night 11-25: burnStart - each burns at its own turn's start */
   /* Z050 P4 (G.13): breath, a round at a time; a drowning rides the round's tick (one line, one Undo) */
   var wet = typeof subRound === "function" ? subRound(ticks, lines) : null;
   if(ticks.length){
@@ -55423,6 +55425,8 @@ $("tt-end").onclick = function(){
 };
 $("tt-next").onclick = function(){
   var list = combatants(), ord = orderOf(list);
+  /* game night 11-25 (burnStart): the turn ending did not settle its burn - it is taken now, before the turn moves on */
+  try{ var bq = window.HELENA_TURN.quick, bc = TT.currentOf(st, ord); if(st.burnStart && bc && String(bc).indexOf("c:") === 0 && bq.burnDue(String(bc).slice(2)) > 0) bq.burn(String(bc).slice(2), "not put out"); }catch(err){}
   var r = TT.advance(st, ord);
   if(r.noop) return;
   if(!writable()){ mutate(function(){}); return; }
@@ -61622,6 +61626,35 @@ window.HELENA_TURN.quick = {
   reqs: function(){ try{ return encReqList().map(function(r){ return { key:r.key, attacker:r.attacker || "someone", name:r.name || r.ref,
     amount:Math.max(0, Math.round(+(r.spec && r.spec.amount) || 0)), type:(r.spec && r.spec.type) || "Phys", effects:(r.spec && r.spec.effects) || 0, weapon:r.weapon || "" }; }); }catch(e){ return []; } },
   reqDo: function(key, take){ var r = null; try{ r = encReqApply(String(key), !!take); }catch(e){ r = null; } try{ render(); }catch(e){} return r; },
+  /* game night 11-25 (Howl): THE BURN AT THE START OF ITS OWN TURN (st.burnStart).  burnDue(charId): its Persistent is live and this
+     turn has not settled it (c.burnTurn is the turn's key); burn(charId): take it now (TT.tickOne on the sheet - toArmour onto the
+     plate - one line, one Undo); douse() settles it too.  Next turn takes an unsettled burn before the turn moves on. */
+  burnKey: function(){ return st.phase === "idle" ? "" : String(st.fid || "") + "|" + st.round + "|" + (curNow() || ""); },
+  burnDue: function(charId){
+    if(!st.burnStart || st.phase === "idle" || curNow() !== "c:" + String(charId)) return 0;
+    var c = null; (S.get().chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)) c = x; });
+    if(!c || c.burnTurn === window.HELENA_TURN.quick.burnKey()) return 0;
+    var n = 0; (c.persistent || []).forEach(function(p){ if(p && +p.rounds > 0) n += Math.max(0, Math.round(+p.dmg || 0)); });
+    return n;
+  },
+  burn: function(charId, why){
+    var Q = window.HELENA_TURN.quick, key = Q.burnKey(); if(!key) return { ok:false, note:"No fight is running." };
+    var before = null, r = null, name = "";
+    S.update(function(m){ r = null; (m.chars || []).forEach(function(c){
+      if(!c || String(c.id) !== String(charId) || c.burnTurn === key) return;
+      before = JSON.parse(JSON.stringify({ hp:c.hp, armour:c.armour, persistent:c.persistent, burnTurn:c.burnTurn }));
+      r = TT.tickOne(c); c.burnTurn = key; name = c.name || "Someone";
+    }); });
+    if(!r) return { ok:false, note:"Nothing to burn this turn." };
+    var line = name + " burns at the start of the turn" + (why ? " (" + why + ")" : "") + ": " + (r.lines.join("; ") || "nothing") + " - " + r.hp + " HP.";
+    try{ var U = window.SUITE_UNDO; if(U && typeof U.keep === "function") U.keep("burn", { text:line, rev:{ id:String(charId), before:before }, chars:[String(charId)], revert:function(v){
+      S.update(function(m){ (m.chars || []).forEach(function(c){ if(c && String(c.id) === v.id) Object.keys(v.before).forEach(function(k){ if(v.before[k] === undefined) delete c[k]; else c[k] = JSON.parse(JSON.stringify(v.before[k])); }); }); }); return { ok:true }; } }); }catch(x){}
+    tick("turn", line);
+    try{ render(); }catch(x){}
+    return { ok:true, note:line };
+  },
+  /* the room's switch: true - the burn waits for each character's own turn (the bar offers Take it / Put out); false - the round's end */
+  burnStart: function(v){ if(v === undefined) return !!st.burnStart; var ok = mutate(function(){ if(v) st.burnStart = true; else delete st.burnStart; }); try{ render(); }catch(x){} return ok; },
   /* game night 11-25 (Howl): PUT IT OUT - on a character's own turn, its major action clears every Persistent on its sheet (the
      fire beaten out, the poison purged).  The major goes through the order's own door (takeAction, a bought one waits for the room). */
   douse: function(charId, resume, paid){
@@ -61635,7 +61668,8 @@ window.HELENA_TURN.quick = {
     if(ar && ar.wait) return { ok:false, wait:true, note:String(ar.note || "Waiting for the room.") };
     if(ar && ar.ok === false) return { ok:false, note:"No major action left: " + (ar.note || "refused") + " - nothing was put out." };
     var was = JSON.parse(JSON.stringify(c.persistent || []));
-    S.update(function(mm){ (mm.chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)) x.persistent = []; }); });
+    var bk = window.HELENA_TURN.quick.burnKey();
+    S.update(function(mm){ (mm.chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)){ x.persistent = []; x.burnTurn = bk; } }); });
     var line = (c.name || "Someone") + " spends a major action and puts it out: " + ps.map(function(p){ return (p.cause || "Persistent") + " " + p.dmg + " (" + p.rounds + " rd left)"; }).join(", ") + " - gone.";
     try{ var U = window.SUITE_UNDO; if(U && typeof U.keep === "function") U.keep("douse", { text:line, rev:{ id:String(charId), was:was }, chars:[String(charId)], revert:function(v){
       S.update(function(mm){ (mm.chars || []).forEach(function(x){ if(x && String(x.id) === v.id) x.persistent = JSON.parse(JSON.stringify(v.was)); }); }); return { ok:true }; } }); }catch(x){}
@@ -86359,6 +86393,8 @@ function paintBar(){
     /* game night 11-25 (Howl): a character carrying Persistent may spend its major to put it out (HELENA_TURN.quick.douse) */
     try{ if(a.kind === "char"){ var dc = null; (S().chars || []).forEach(function(x){ if(x && "c:" + x.id === a.id) dc = x; });
       var dps = dc && (dc.persistent || []).filter(function(p){ return p && +p.rounds > 0; });
+      var bdue = 0; try{ var TQb = window.HELENA_TURN && window.HELENA_TURN.quick; bdue = TQb && TQb.burnDue ? TQb.burnDue(dc.id) : 0; }catch(e){ bdue = 0; }
+      if(bdue) sl += '<button type="button" class="cl-slot cl-douse cl-burn" data-burn="' + esc(dc.id) + '" title="Take this turn\u2019s Persistent now (' + bdue + '), or Put it out with the major instead">🔥 Take ' + bdue + '<small>burn</small></button>';
       if(dps && dps.length) sl += '<button type="button" class="cl-slot cl-douse" data-douse="' + esc(dc.id) + '" title="Major action: put out ' + esc(dps.map(function(p){ return (p.cause || "Persistent") + " " + p.dmg; }).join(", ")) + '">🔥 Put out<small>major</small></button>'; } }catch(e){}
     h += '<div class="cl-slots">' + sl + "</div>";
   }
@@ -86400,6 +86436,7 @@ function onBarClick(e){
   /* Z050 P4: the token's own menu, on the card picked in the ribbon, else the row whose turn it is */
   if(t.hasAttribute("data-tokm") && a){ var T0 = window.HELENA_TURN, rb = t.getBoundingClientRect(); actsOpen = false; paint(true); if(T0 && typeof T0.tokMenu === "function") T0.tokMenu(sel || a.id, rb.left, Math.max(8, rb.top - 330)); return; }
   if(t.hasAttribute("data-named") && a && typeof b.named === "function"){ var nr = b.named(a.id, t.getAttribute("data-named")); actSay = nr ? nr.note : ""; if(nr && nr.ok) actsOpen = false; paint(true); return; }
+  if(t.hasAttribute("data-burn")){ var TQx = window.HELENA_TURN && window.HELENA_TURN.quick; if(TQx && TQx.burn){ var bx = TQx.burn(t.getAttribute("data-burn")); actSay = bx && bx.note ? bx.note : ""; } paint(true); return; }
   if(t.hasAttribute("data-douse")){ var TQd = window.HELENA_TURN && window.HELENA_TURN.quick, did = t.getAttribute("data-douse");
     if(TQd && TQd.douse){ var dr = TQd.douse(did, function(){ TQd.douse(did, null, true); paint(true); }); actSay = dr && dr.note ? dr.note : ""; } paint(true); return; }
   if(t.hasAttribute("data-wi")){ b.attack(+t.getAttribute("data-wi"), sel); paint(true); return; }
