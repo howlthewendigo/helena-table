@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"a6e26c08",at:"2026-11-26 03:56 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"b78d2000",at:"2026-11-26 04:01 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6247,7 +6247,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:56 UTC">a6e26c08</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 04:01 UTC">b78d2000</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -89849,6 +89849,9 @@ W.HELENA_TRIPWIN = { show:show, hide:hide, paint:paint, snap:twSnap, diff:twDiff
 (function(){
   "use strict";
   var mine = (window.SUITE_BUILD && window.SUITE_BUILD.id) || "", bar = null, due = 0, hold = 0, newId = "";
+  /* game night 11-25 (Howl): at most one reload every 15 minutes - a new build found sooner waits for the page's 15th minute, and
+     the bar shows only for the last 10 seconds */
+  var LOADED = Date.now(), GAP = 15 * 60000;
   if(!/^https?:$/.test(location.protocol) || !/^[0-9a-f]{8}$/.test(mine)) return;
   function busy(){
     var a = document.activeElement, tag = a && a.tagName;
@@ -89862,7 +89865,7 @@ W.HELENA_TRIPWIN = { show:show, hide:hide, paint:paint, snap:twSnap, diff:twDiff
     try{
       fetch(url, { headers:{ Range:"bytes=0-1023" }, cache:"no-store" }).then(function(r){ return r.ok ? r.text() : ""; }).then(function(t){
         var m = /SUITE_BUILD=\{id:"([0-9a-f]{8})"/.exec(t || "");
-        if(m && m[1] !== mine){ newId = m[1]; due = Date.now() + 10000; show(); }
+        if(m && m[1] !== mine){ newId = m[1]; due = Math.max(Date.now() + 10000, LOADED + GAP); }
       }).catch(function(){});
     }catch(e){}
   }
@@ -89880,8 +89883,11 @@ W.HELENA_TRIPWIN = { show:show, hide:hide, paint:paint, snap:twSnap, diff:twDiff
     bar.hidden = false;
   }
   function tick(){
-    if(!due || !bar) return;
-    var left = Math.ceil((due - Date.now()) / 1000), t = bar.querySelector("#suite-upd-t");
+    if(!due) return;
+    var left = Math.ceil((due - Date.now()) / 1000);
+    if(left > 10){ if(bar && !bar.hidden) bar.hidden = true; return; }
+    show();
+    var t = bar.querySelector("#suite-upd-t");
     if(left > 0){ t.textContent = "A new version of the table is live - reloading in " + left + " s."; return; }
     if(busy()){ t.textContent = "A new version of the table is live - reloading when you finish typing or dragging."; return; }
     location.reload();
