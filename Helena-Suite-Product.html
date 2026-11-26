@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"fff9bce8",at:"2026-11-26 03:48 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"335ea02f",at:"2026-11-26 03:51 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6236,7 +6236,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:48 UTC">fff9bce8</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:51 UTC">335ea02f</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -59954,9 +59954,19 @@ window.HELENA_TURN.quick = {
     if(ar && ar.wait) return { ok:false, wait:true, note:String(ar.note || "Waiting for the room.") };
     if(ar && ar.ok === false) return { ok:false, note:"No major action left: " + (ar.note || "refused") + " - nothing was put out." };
     var was = JSON.parse(JSON.stringify(c.persistent || []));
-    var bk = window.HELENA_TURN.quick.burnKey();
-    S.update(function(mm){ (mm.chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)){ x.persistent = []; x.burnTurn = bk; } }); });
-    var line = (c.name || "Someone") + " spends a major action and puts it out: " + ps.map(function(p){ return (p.cause || "Persistent") + " " + p.dmg + " (" + p.rounds + " rd left)"; }).join(", ") + " - gone.";
+    var bk = window.HELENA_TURN.quick.burnKey(), gone = null, left = [];
+    /* game night 11-25 (Howl): one major puts out ONE source - the highest (damage, then rounds left); the rest keep burning, and
+       this turn's burn is settled only when nothing is left */
+    S.update(function(mm){ (mm.chars || []).forEach(function(x){
+      if(!x || String(x.id) !== String(charId)) return;
+      var live = (x.persistent || []).filter(function(p){ return p && +p.rounds > 0; }), hi = -1;
+      live.forEach(function(p, i){ if(hi < 0 || +p.dmg > +live[hi].dmg || (+p.dmg === +live[hi].dmg && +p.rounds > +live[hi].rounds)) hi = i; });
+      gone = hi >= 0 ? live[hi] : null; left = live.filter(function(p, i){ return i !== hi; });
+      x.persistent = left;
+      if(!left.length) x.burnTurn = bk;
+    }); });
+    var line = (c.name || "Someone") + " spends a major action and puts out " + (gone ? (gone.cause || "Persistent") + " " + gone.dmg + " (" + gone.rounds + " rd left)" : "nothing") +
+               (left.length ? "; still burning: " + left.map(function(p){ return (p.cause || "Persistent") + " " + p.dmg + " (" + p.rounds + " rd)"; }).join(", ") : " - the fire is out") + ".";
     try{ var U = window.SUITE_UNDO; if(U && typeof U.keep === "function") U.keep("douse", { text:line, rev:{ id:String(charId), was:was }, chars:[String(charId)], revert:function(v){
       S.update(function(mm){ (mm.chars || []).forEach(function(x){ if(x && String(x.id) === v.id) x.persistent = JSON.parse(JSON.stringify(v.was)); }); }); return { ok:true }; } }); }catch(x){}
     tick("turn", line);
@@ -84681,7 +84691,7 @@ function paintBar(){
       var dps = dc && (dc.persistent || []).filter(function(p){ return p && +p.rounds > 0; });
       var bdue = 0; try{ var TQb = window.HELENA_TURN && window.HELENA_TURN.quick; bdue = TQb && TQb.burnDue ? TQb.burnDue(dc.id) : 0; }catch(e){ bdue = 0; }
       if(bdue) sl += '<button type="button" class="cl-slot cl-douse cl-burn" data-burn="' + esc(dc.id) + '" title="Take this turn\u2019s Persistent now (' + bdue + '), or Put it out with the major instead">🔥 Take ' + bdue + '<small>burn</small></button>';
-      if(dps && dps.length) sl += '<button type="button" class="cl-slot cl-douse" data-douse="' + esc(dc.id) + '" title="Major action: put out ' + esc(dps.map(function(p){ return (p.cause || "Persistent") + " " + p.dmg; }).join(", ")) + '">🔥 Put out<small>major</small></button>'; } }catch(e){}
+      if(dps && dps.length) sl += '<button type="button" class="cl-slot cl-douse" data-douse="' + esc(dc.id) + '" title="Major action: put out the highest source (' + esc(dps.slice().sort(function(x, y){ return (+y.dmg - +x.dmg) || (+y.rounds - +x.rounds); }).map(function(p){ return (p.cause || "Persistent") + " " + p.dmg; })[0]) + '); the rest keep burning">🔥 Put out<small>major</small></button>'; } }catch(e){}
     h += '<div class="cl-slots">' + sl + "</div>";
   }
   h += '<button type="button" class="cl-end" data-end="1"' + (snap.phase === "idle" || !snap.gm ? " disabled" : "") + ">END TURN<small>Space</small></button>";
