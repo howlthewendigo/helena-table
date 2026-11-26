@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"2357cde2",at:"2026-11-26 03:30 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"0bf3bb79",at:"2026-11-26 03:33 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6228,7 +6228,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:30 UTC">2357cde2</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:33 UTC">0bf3bb79</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -50045,19 +50045,27 @@ var TT = {
      does; roundTicks works on copies and returns the plan, so the read-out can be
      printed before anything is written. */
   tickOne: function(c){
-    var dealt = 0, lines = [], keep = [];
+    var dealt = 0, lines = [], keep = [], plate = 0;
+    /* game night 11-25 (Howl): a Persistent marked toArmour (Purity's doubled Fire) skips DR and lands on the armour's plate
+       first (HELENA_CHAR.drain: the plate, then HP once it is gone); every other one stays the house rule - straight to HP */
+    var CHx = (typeof window !== "undefined") ? window.HELENA_CHAR : null;
     ((c && c.persistent) || []).forEach(function(p){
       if(!p) return;
       var rounds = Math.round(+p.rounds || 0);
       if(rounds <= 0) return;
       var dmg = Math.max(0, Math.round(+p.dmg || 0));
-      dealt += dmg;
-      lines.push((p.cause || "Persistent") + " — " + dmg + ", ignores DR");
-      if(rounds - 1 > 0) keep.push({ cause:p.cause, dmg:p.dmg, rounds:rounds - 1 });
+      if(p.toArmour && CHx && typeof CHx.drain === "function"){
+        var d = CHx.drain(c, dmg); plate += d.armour;
+        lines.push((p.cause || "Persistent") + " — " + dmg + ", ignores DR, to the armour first (" + d.armour + " plate, " + d.health + " HP" + (d.wrecked ? ", wrecked" : "") + ")");
+      } else {
+        dealt += dmg;
+        lines.push((p.cause || "Persistent") + " — " + dmg + ", ignores DR");
+      }
+      if(rounds - 1 > 0){ var nx = { cause:p.cause, dmg:p.dmg, rounds:rounds - 1 }; if(p.toArmour) nx.toArmour = true; keep.push(nx); }
     });
     c.persistent = keep;
     c.hp = Math.max(0, Math.round(+c.hp || 0) - dealt);
-    return { damage:dealt, hp:c.hp, lines:lines, left:keep.length };
+    return { damage:dealt, hp:c.hp, lines:lines, left:keep.length, plate:plate };
   },
   roundTicks: function(chars, list){
     var want = {};
@@ -50068,7 +50076,8 @@ var TT = {
       if(!((c.persistent || []).some(function(p){ return p && Math.round(+p.rounds || 0) > 0; }))) return;
       var copy = TT.clone(c), r = TT.tickOne(copy);
       out.push({ id:String(c.id), name:c.name || "unnamed", damage:r.damage, hp:r.hp, lines:r.lines, left:r.left,
-                 text:(c.name || "unnamed") + " — " + r.damage + " Persistent damage, ignores DR → " + r.hp + " HP" });
+                 text:(c.name || "unnamed") + " — " + (r.plate ? r.lines.join("; ") + " → " + r.hp + " HP" + (copy.armour && copy.armour.hp != null ? ", plate " + copy.armour.hp : "")
+                                                                 : r.damage + " Persistent damage, ignores DR → " + r.hp + " HP") });
     });
     return out;
   },
