@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"be371c2a",at:"2026-11-26 03:18 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"b6cfb0f6",at:"2026-11-26 03:28 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -2716,6 +2716,11 @@
 #tool-dice .die.crit.comp .face, #tool-dice .die.crit.comp .tag{color:#1D2119}
 #tool-dice .die.eff{background:var(--amber);border-color:var(--amber)}
 #tool-dice .die.eff .face, #tool-dice .die.eff .tag{color:#2A1F06}
+#tool-dice button.die{cursor:pointer;font:inherit}
+#tool-dice button.die.picked{outline:3px solid var(--amber);outline-offset:2px}
+#tool-dice button.die.rerolled{opacity:.75;cursor:default}
+#tool-dice .gp-dmg-luck{flex-basis:100%;margin-top:8px;line-height:1.6}
+#tool-dice .gp-dmg-luck button{min-height:32px;margin:2px 4px 2px 0}
 @keyframes dice-stamp{
     from{opacity:0;transform:scale(1.35)}
     to{opacity:1;transform:scale(1)}
@@ -6221,7 +6226,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:18 UTC">be371c2a</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:28 UTC">b6cfb0f6</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -42994,13 +42999,13 @@ window.HELENA_TURNAP = {
   /* the AP a chem prints: "+4 AP", "gain 1 AP" -> 4, 1; else 0 */
   printed: function(effect){ var m = /(?:\+|gain\s+)(\d+)\s*AP\b/i.exec(String(effect || "")); return m ? +m[1] : 0; }
 };
-function partyAP(){ var m = S.get(), tk = turnKeyNow(), h = turnAPHolder(m, tk); return Math.max(0, +m.pcAP || 0) + (h ? turnAPLive(h, tk) : 0); }
+function partyAP(){ var m = S.get(); if(typeof turnKeyNow !== "function") return Math.max(0, +m.pcAP || 0); var tk = turnKeyNow(), h = turnAPHolder(m, tk); return Math.max(0, +m.pcAP || 0) + (h ? turnAPLive(h, tk) : 0); }
 function spendParty(n){
   n = Math.max(0, Math.round(+n || 0));
   if(!n) return 0;
-  var got = 0, tk = turnKeyNow();
+  var got = 0, tk = typeof turnKeyNow === "function" ? turnKeyNow() : null;
   quiet = true;
-  try{ S.update(function(m){ var own = turnAPTake(m, tk, n); var r = CH.apSpend(m.pcAP, n - own); m.pcAP = r.left; got = own + r.spent; }); }
+  try{ S.update(function(m){ var own = typeof turnAPTake === "function" ? turnAPTake(m, tk, n) : 0; var r = CH.apSpend(m.pcAP, n - own); m.pcAP = r.left; got = own + r.spent; }); }
   finally{ quiet = false; }
   return got;
 }
@@ -43019,13 +43024,13 @@ function payParty(n){
   var said = arguments.length > 1 ? !!(arguments[1] && arguments[1].said) : (typeof apPartyOn === "function" && apPartyOn());
   quiet = true;
   try{
-    var tk = turnKeyNow();
+    var tk = typeof turnKeyNow === "function" ? turnKeyNow() : null;
     S.update(function(m){
       /* game night 11-25: the turn's personal AP first, then the pool (all or nothing, as before) */
-      var h = turnAPHolder(m, tk), own = h ? turnAPLive(h, tk) : 0;
+      var h = typeof turnAPHolder === "function" ? turnAPHolder(m, tk) : null, own = h ? turnAPLive(h, tk) : 0;
       var have = Math.max(0, +m.pcAP || 0), ok = have + own >= n;
       if(first){ out.have = have + own; out.ok = ok; out.paid = ok ? n : 0; out.own = ok ? Math.min(own, n) : 0; first = false; }
-      if(ok){ var t = turnAPTake(m, tk, n); m.pcAP = have - (n - t); }
+      if(ok){ var t = typeof turnAPTake === "function" ? turnAPTake(m, tk, n) : 0; m.pcAP = have - (n - t); }
     }, said ? { apSaid:true } : undefined);
   }finally{ quiet = false; }
   if(said) out.said = true;
@@ -68733,6 +68738,49 @@ function paintComp(){
    goes straight back so the tracker can record it. */
 /* PROJECT H, FIGHT (R3): the sneak attack the roll step applied — the step's own tick on an attack against a known Defense,
    the declaration's flag otherwise (sneakNow) — is the one that gives Vicious, or +2 CD on a weapon that has it */
+/* game night 11-25: the damage roll's result from its faces (was inline in the Roll damage press) - also what a Luck re-roll rebuilds */
+var dmgPick = [];       /* the combat dice picked for a Luck re-roll (indices) */
+function dmgBuild(faces, spent){
+  var pool = dmgPool();
+      var cdr = RL.countCD(faces);
+      /* WAVE 7 — VICIOUS, WHICH THIS PIPELINE HAD NEVER APPLIED.  Until now the damage
+         build read exactly one quality (Persistent), so every Vicious weapon in the
+         suite under-reported its damage through the guided roll while the character
+         sheet's own Damage button added it correctly.  Two answers for one weapon is
+         worse than either.  `raw` keeps the faces' own total so the read-out can show
+         the arithmetic instead of a number that does not match the dice on screen. */
+      var vic = RL.viciousFrom(decl.weapon, cdr.effects, sneakNow() ||
+        (decl.demolition && RL.hasQuality(decl.weapon, "Blast") ? "Demolitions Expert" : false));
+      /* Q9 (WAVE8_ANSWERS): a dual damage type — seven instances, all plasma — is the
+         ATTACKER'S CHOICE, declared before the DR is read, and the card records which.
+         `typePick` is that choice, made in the Turn Order tab's panel; with no choice to
+         make it is the weapon's single type and nothing changes.  `types` rides along so
+         the applying side can SAY it was a choice rather than presenting it as the only
+         reading the Guide allows — the Guide does not say what a dual type means. */
+      var tpick = RL.damageTypeOf(decl.weapon);
+      var dmg = { cd:pool.cd, parts:pool.parts, faces:faces, dice:cdr.dice,
+              raw:cdr.damage, vicious:vic, lane:pool.lane,
+              damage:cdr.damage + (vic ? vic.add : 0), effects:cdr.effects,
+              type:tpick,
+              types:(decl.weapon && decl.weapon.types) ? decl.weapon.types.slice() : [],
+              apSpent:spent,
+              persistent:RL.persistentFrom(decl.weapon, cdr.effects), sent:"" };
+      /* PROJECT H, FIGHT (Zoe 2026-10-13, on Howl's word): R8 — Spread's extra hits on the same target, each half the damage
+         reported (its Vicious in it), rounded down; R9 — Burst's offer, one button per Effect, nothing paid until one is pressed */
+      dmg.spread = RL.spreadFrom(decl.weapon, cdr.effects, dmg.damage);
+      var bf = RL.burstFrom(decl.weapon, cdr.effects, decl.attackerKind);
+      dmg.burst = bf ? { n:bf.n, pay:bf.pay, label:bf.label, line:bf.line, added:[], tries:{}, done:false, note:"" } : null;
+  return dmg;
+}
+/* the damage goes back to the caller (the turn order applies it), with its ticker line */
+function dmgSend(){
+  if(!dmg) return;
+  dmg.held = false;
+  reportBack("damage");
+  paint();
+  ticker(plural(dmg.damage, "damage", "damage") + " on " + ((decl.target && decl.target.name) || "the target") + (dmg.lucked ? " (" + dmg.lucked + " re-rolled with Luck)" : "") +
+         (dmg.effects ? ", " + plural(dmg.effects, "Effect", "Effects") : ""), decl.charId, tickWho());
+}
 function dmgPool(){ return RL.damagePool(decl, { extraCd:dmgBuy, sneak:typeof sneakNow === "function" ? sneakNow() : !!(decl && decl.sneak) }); }
 /* WAVE 17, Z4 (Zoe 2026-10-07, ruled; Guide L1645-1647): a DECLARED Blast whose thrown dice MISSED owes its half dice
    (RL.blastMissPool) as a hit owes its damage — step 7 offers them; the miss goes back with them, or without them when
@@ -68865,6 +68913,21 @@ function paintDamage(){
     var d = dmg.dice[i], cls = d.effect ? "eff" : (d.damage ? "hit" : "");
     h += '<div class="die ' + cls + '"><span class="face">' + d.face + '</span><span class="tag">' +
          (d.effect ? "1 + eff" : d.damage ? d.damage + " dmg" : "nothing") + "</span></div>";
+  }
+  if(dmg && dmg.held){
+    /* game night 11-25: the held damage - tap up to three dice, re-roll them for 1 Luck (each die once), then apply */
+    h = "";
+    for(i = 0; i < dmg.dice.length; i++){
+      var dd = dmg.dice[i], dc = dd.effect ? "eff" : (dd.damage ? "hit" : ""), was = dmg.rr[i];
+      h += '<button type="button" class="die ' + dc + (dmgPick.indexOf(i) >= 0 ? " picked" : "") + (was ? " rerolled" : "") + '" data-dmgpick="' + i + '"' + (was ? " disabled" : "") +
+           ' title="' + (was ? "Re-rolled already (was " + was + ")" : "Tap to pick for a Luck re-roll") + '"><span class="face">' + dd.face + '</span><span class="tag">' +
+           (dd.effect ? "1 + eff" : dd.damage ? dd.damage + " dmg" : "nothing") + (was ? " \u21bb" : "") + "</span></button>";
+    }
+    var lk = luckOf(decl.charId);
+    h += '<div class="gp-dmg-luck"><b>' + dmg.damage + " damage" + (dmg.effects ? ", " + plural(dmg.effects, "Effect", "Effects") : "") + "</b> - not sent yet. " +
+         (lk > 0 ? "Tap up to 3 dice and re-roll them for <b>1 Luck</b> (" + lk + " left; each die once). " : "No Luck left. ") +
+         '<button type="button" id="gp-dmg-luck"' + (lk > 0 && dmgPick.length ? "" : " disabled") + ">Re-roll " + (dmgPick.length || "") + " for 1 Luck</button> " +
+         '<button type="button" id="gp-dmg-send" class="pri">Apply the damage</button></div>';
   }
   $("gp-dmg-tray").innerHTML = h;
 
@@ -69167,7 +69230,7 @@ function paint(){
   lockSec("gp-s6", !done, done);
   /* step 7 is open only for a declared attack that has resolved.  A hand-rolled test
      never unlocks it and it is hidden as well as locked, so it cannot be tabbed into. */
-  lockSec("gp-s7", !(done && decl && decl.kind === "attack"), !!dmg);
+  lockSec("gp-s7", !(done && decl && decl.kind === "attack"), !!dmg && !dmg.held);   /* game night 11-25: held for Luck = still live */
   $("gp-d0-acts").classList.toggle("hidden", !(T && T.difficulty === 0 && cur < 2));
   var encNow = encOnNow();
   $("gp-enc-acts").classList.toggle("hidden",
@@ -69593,38 +69656,12 @@ panel.addEventListener("click", function(e){
       dmgPaid = spent;
       var pool = dmgPool(), faces = [], i;
       for(i = 0; i < pool.cd; i++) faces.push(1 + Math.floor(Math.random() * 6));
-      var cdr = RL.countCD(faces);
-      /* WAVE 7 — VICIOUS, WHICH THIS PIPELINE HAD NEVER APPLIED.  Until now the damage
-         build read exactly one quality (Persistent), so every Vicious weapon in the
-         suite under-reported its damage through the guided roll while the character
-         sheet's own Damage button added it correctly.  Two answers for one weapon is
-         worse than either.  `raw` keeps the faces' own total so the read-out can show
-         the arithmetic instead of a number that does not match the dice on screen. */
-      var vic = RL.viciousFrom(decl.weapon, cdr.effects, sneakNow() ||
-        (decl.demolition && RL.hasQuality(decl.weapon, "Blast") ? "Demolitions Expert" : false));
-      /* Q9 (WAVE8_ANSWERS): a dual damage type — seven instances, all plasma — is the
-         ATTACKER'S CHOICE, declared before the DR is read, and the card records which.
-         `typePick` is that choice, made in the Turn Order tab's panel; with no choice to
-         make it is the weapon's single type and nothing changes.  `types` rides along so
-         the applying side can SAY it was a choice rather than presenting it as the only
-         reading the Guide allows — the Guide does not say what a dual type means. */
-      var tpick = RL.damageTypeOf(decl.weapon);
-      dmg = { cd:pool.cd, parts:pool.parts, faces:faces, dice:cdr.dice,
-              raw:cdr.damage, vicious:vic, lane:pool.lane,
-              damage:cdr.damage + (vic ? vic.add : 0), effects:cdr.effects,
-              type:tpick,
-              types:(decl.weapon && decl.weapon.types) ? decl.weapon.types.slice() : [],
-              apSpent:spent,
-              persistent:RL.persistentFrom(decl.weapon, cdr.effects), sent:"" };
-      /* PROJECT H, FIGHT (Zoe 2026-10-13, on Howl's word): R8 — Spread's extra hits on the same target, each half the damage
-         reported (its Vicious in it), rounded down; R9 — Burst's offer, one button per Effect, nothing paid until one is pressed */
-      dmg.spread = RL.spreadFrom(decl.weapon, cdr.effects, dmg.damage);
-      var bf = RL.burstFrom(decl.weapon, cdr.effects, decl.attackerKind);
-      dmg.burst = bf ? { n:bf.n, pay:bf.pay, label:bf.label, line:bf.line, added:[], tries:{}, done:false, note:"" } : null;
-      reportBack("damage");
-      paint();
-      ticker(plural(dmg.damage, "damage", "damage") + " on " + ((decl.target && decl.target.name) || "the target") +
-             (dmg.effects ? ", " + plural(dmg.effects, "Effect", "Effects") : ""), decl.charId, tickWho());
+      dmg = dmgBuild(faces, spent);
+      /* game night 11-25 (Howl): A CHARACTER WITH LUCK MAY RE-ROLL UP TO THREE COMBAT DICE FOR 1 LUCK (Book One p.15) before the damage
+         goes back - the turn order applies it the moment it arrives, so it is held here until "Apply the damage" */
+      var cinderUp = false; try{ var CIx = window.CINDER; cinderUp = !!(CIx && typeof CIx.on === "function" && CIx.on()); }catch(e){}   /* Cinder's roll window; Classic sends at once, as before */
+      if(cinderUp && decl && decl.attackerKind === "char" && !dmg.blastMiss && luckOf(decl.charId) > 0){ dmg.held = true; dmg.rr = {}; dmgPick = []; paint(); return; }
+      dmgSend();
     };
     var spent = 0;
     /* CRB p.18: the extra dice are bought AFTER the hit, and only for melee or thrown.
@@ -69652,6 +69689,26 @@ panel.addEventListener("click", function(e){
   /* PROJECT H, FIGHT (R9): Burst — one more target per press, paid and sent back; or no more */
   if(b.hasAttribute("data-burst")){ burstPress(+b.getAttribute("data-burst")); return; }
   if(b.id === "gp-burst-done"){ burstDone(); return; }
+  /* game night 11-25: the held damage's Luck re-roll and send */
+  if(b.hasAttribute("data-dmgpick")){
+    if(!(dmg && dmg.held)) return;
+    var pi = +b.getAttribute("data-dmgpick"), at = dmgPick.indexOf(pi);
+    if(dmg.rr[pi]) return;
+    if(at >= 0) dmgPick.splice(at, 1); else if(dmgPick.length < 3) dmgPick.push(pi);
+    paint(); return;
+  }
+  if(b.id === "gp-dmg-luck"){
+    if(!(dmg && dmg.held) || !dmgPick.length) return;
+    if(luckOf(decl.charId) < 1 || !spendLuck(decl.charId, 1)) { paint(); return; }
+    var nf = dmg.faces.slice(), rr = dmg.rr, lucked = (dmg.lucked || 0) + dmgPick.length;
+    dmgPick.forEach(function(ix){ rr[ix] = nf[ix]; nf[ix] = 1 + Math.floor(Math.random() * 6); });
+    dmgPick = [];
+    var keep = dmg.apSpent;
+    dmg = dmgBuild(nf, keep); dmg.held = true; dmg.rr = rr; dmg.lucked = lucked;
+    if(luckOf(decl.charId) < 1){ paint(); return; }
+    paint(); return;
+  }
+  if(b.id === "gp-dmg-send"){ if(dmg && dmg.held) dmgSend(); return; }
   if(b.id === "gp-dmg-skip"){
     if(!decl || dmg) return;
     dmgClosed = true;                 /* THIS is what closes the damage step, not "reported" */
@@ -89006,6 +89063,18 @@ W.HELENA_JOIN = { linkFor:linkFor };
       tick();
     }, 0);
   }, true);
+  /* the roll window follows the roll: the step it is on (the first open one, not done) is brought to the window's top */
+  var stepWas = "";
+  function follow(){
+    var fd = document.getElementById("fold-dice");
+    if(!fd || !fd.classList.contains("cl-win")){ stepWas = ""; return; }
+    var sec = fd.querySelector(".gp-step:not(.locked):not(.done):not(.hidden)") || fd.querySelector("#gp-s7:not(.hidden)");
+    var id = sec ? sec.id + (sec.id === "gp-s7" ? "|" + (fd.querySelector("#gp-dmg-send") ? "held" : "") : "") : "";
+    if(!sec || id === stepWas) return;
+    stepWas = id;
+    try{ var top = sec.getBoundingClientRect().top - fd.getBoundingClientRect().top + fd.scrollTop - 44; fd.scrollTo({ top:Math.max(0, top), behavior:"smooth" }); }catch(e){}
+  }
+  setInterval(follow, 300);
   setInterval(tick, 250);
   if(typeof MutationObserver === "function") document.addEventListener("DOMContentLoaded", function(){ var f = fold(); if(f) new MutationObserver(tick).observe(f, { childList:true, subtree:true, attributes:true, attributeFilter:["class"] }); });
   window.CINDER_ATKFOCUS = { tick:tick };
