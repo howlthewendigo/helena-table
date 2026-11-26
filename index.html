@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"2d7a8a24",at:"2026-11-26 02:53 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"cc4c8f35",at:"2026-11-26 02:56 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5649,6 +5649,12 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 .zj-said{ min-height:1.4em; margin:10px 0 0; font-size:14px; color:#e9d9b0; }
 .zj-out{ display:block; width:100%; box-sizing:border-box; margin-top:6px; font-size:12px; }
 </style>
+<style data-suite="cinder-zk-atkfocus">/* game night 11-25 (Howl): the attack window shows just the attack (cinder-zk-atkfocus.js) */
+#fold-turn.cl-atk-focus #tt-gm, #fold-turn.cl-atk-focus #tt-bar, #fold-turn.cl-atk-focus #tt-phase, #fold-turn.cl-atk-focus #tt-adren,
+#fold-turn.cl-atk-focus #tt-scene, #fold-turn.cl-atk-focus #tt-lift, #fold-turn.cl-atk-focus #tt-ms, #fold-turn.cl-atk-focus #tt-foes,
+#fold-turn.cl-atk-focus .row[data-id], #fold-turn.cl-atk-focus .sbx[data-sbfor]{ display:none !important; }
+#fold-turn .cl-atk-all{ display:block; margin:8px auto 4px; min-height:30px; padding:0 12px; background:#23281b; color:#f2eedc; border:1px solid #6d7360; border-radius:4px; font:inherit; cursor:pointer; }
+</style>
 <style data-suite="cinder-zl-fightlog">/* game night 11-25 (Howl): the combat log - right column, above the Quick jab and the Mysterious Stranger (bottom set by the script) */
 #cl-flog{ position:fixed; right:12px; bottom:12px; width:336px; box-sizing:border-box; z-index:33; display:flex; flex-direction:column; padding:6px 10px;
   border:1px solid #6d7360; border-radius:4px; background:#1b1f14; color:#e8e4d4; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.5); font-family:"EB Garamond", Georgia, serif; }
@@ -6194,7 +6200,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:53 UTC">2d7a8a24</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:56 UTC">cc4c8f35</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -88862,6 +88868,33 @@ function addCopy(){
 if(!addCopy()){ var tries = 0, iv = setInterval(function(){ if(addCopy() || ++tries > 20) clearInterval(iv); }, 1000); }
 W.HELENA_JOIN = { linkFor:linkFor };
 })(window);
+</script>
+<script data-suite="cinder-zk-atkfocus">/* game night 11-25 (Howl): AN ATTACK FROM CINDER OPENS JUST THE ATTACK.  A weapon pressed on Cinder's Fight tab opened the whole
+   Classic turn order in a window (CINDER.claimTool "turn") with the Declare card somewhere down it.  While that window holds an
+   open attack (the row's .atkx card, or the read-out's when its row is gone), the window shows only that card, the read-out
+   (the dice and the result) and the Overseer's waiting confirmations; "Show the whole turn order" lifts it until the next attack. */
+(function(){
+  "use strict";
+  var lifted = null, btn = null;
+  function fold(){ return document.getElementById("fold-turn"); }
+  function atkOpen(f){ return !!(f && (f.querySelector(".atkx") || f.querySelector("#tt-out #tt-atk-w, #tt-out #tt-atk-t"))); }
+  function sig(f){ var a = f && (f.querySelector(".atkx") || f.querySelector("#tt-out .card")); return a ? (a.getAttribute("data-panelfor") || "out") : ""; }
+  function tick(){
+    var f = fold(); if(!f) return;
+    var inWin = f.classList.contains("cl-win") && document.body.classList.contains("view-cinder");
+    var want = inWin && atkOpen(f) && lifted !== sig(f);
+    if(f.classList.contains("cl-atk-focus") !== want) f.classList.toggle("cl-atk-focus", want);
+    if(!atkOpen(f)) lifted = null;
+    if(!btn){
+      btn = document.createElement("button"); btn.type = "button"; btn.id = "cl-atk-all"; btn.className = "cl-atk-all"; btn.textContent = "Show the whole turn order";
+      btn.addEventListener("click", function(){ lifted = sig(fold()); tick(); });
+    }
+    if(want){ if(btn.parentNode !== f) f.appendChild(btn); } else if(btn.parentNode) btn.parentNode.removeChild(btn);
+  }
+  setInterval(tick, 250);
+  if(typeof MutationObserver === "function") document.addEventListener("DOMContentLoaded", function(){ var f = fold(); if(f) new MutationObserver(tick).observe(f, { childList:true, subtree:true, attributes:true, attributeFilter:["class"] }); });
+  window.CINDER_ATKFOCUS = { tick:tick };
+})();
 </script>
 <script data-suite="cinder-zl-fightlog">/* game night 11-25 (Howl): THE COMBAT LOG ON CINDER'S FIGHT TAB, on the right above the Quick jab and the Mysterious Stranger.
    The same lines as the Chat tab's Fight chat (SUITE_FIGHTCHAT.lines: the turn order, attacks, damage, rolls, AP, moves and
