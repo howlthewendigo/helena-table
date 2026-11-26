@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"b6f703fe",at:"2026-11-26 02:39 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"f07d1c49",at:"2026-11-26 02:45 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6176,7 +6176,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:39 UTC">b6f703fe</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:45 UTC">f07d1c49</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -82025,6 +82025,16 @@ function drawLayer(){
       var ti = document.createElementNS(NS, "title");
       ti.textContent = (t.kind === "comp" ? t.name + ", " + t.keeper + "’s companion" : t.kind === "veh" ? t.name + ", a vehicle (its crew rides with it)" : t.name) + " — " + (zoneTitle(modelZone(zp.z)) || a.label || ("zone " + zp.z)) +
         (said.length ? " — " + said.join(" · ") : "") + (tv ? " (click to select, double-click to open, right-click for its menu)" : " (drag to move, click to open)");
+      /* game night 11-25 (Howl): AN ENEMY'S MARK, which no character has - a spiked red sawblade ring behind the disc and a dark-red
+         rim, so a foe never reads as a player whatever its colour.  Inert (pointer-events none); the disc stays the r=11 hit target. */
+      if(t.kind === "enemy"){
+        var spk = []; for(var si = 0; si < 16; si++){ var sa0 = si * Math.PI / 8, sr = si % 2 ? 12.2 : 15.4; spk.push((Math.cos(sa0) * sr).toFixed(1) + "," + (Math.sin(sa0) * sr).toFixed(1)); }
+        var ring = document.createElementNS(NS, "polygon");
+        ring.setAttribute("points", spk.join(" ")); ring.setAttribute("fill", "#7a1f16"); ring.setAttribute("stroke", "#0b0c08"); ring.setAttribute("stroke-width", "1");
+        ring.setAttribute("class", "zm-foe-ring"); ring.setAttribute("pointer-events", "none");
+        tg.appendChild(ring);
+        c.setAttribute("stroke", "#e05c4b"); c.setAttribute("stroke-width", "2.2");
+      }
       tg.appendChild(c); tg.appendChild(tx); tg.appendChild(ti); g.appendChild(tg);
       if(t.kind === "comp") compMark(tg);                     /* BLOCK 5: the C, on top of the disc and inert */
       if(t.kind === "veh" && typeof vehMark === "function") vehMark(tg);   /* BLOCK 7: the V */
