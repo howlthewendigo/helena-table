@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"cc4c8f35",at:"2026-11-26 02:56 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"fb0e7098",at:"2026-11-26 03:06 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5660,7 +5660,7 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
   border:1px solid #6d7360; border-radius:4px; background:#1b1f14; color:#e8e4d4; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.5); font-family:"EB Garamond", Georgia, serif; }
 #cl-flog[hidden]{ display:none !important; }
 #cl-flog .cl-flog-hd{ text-align:left; background:none; border:0; color:#f2eedc; font:inherit; font-weight:700; padding:2px 0; cursor:pointer; min-height:28px; }
-#cl-flog .cl-flog-log{ flex:1 1 auto; min-height:80px; max-height:260px; overflow-y:auto; border-top:1px solid #3a4130; padding-top:4px; }
+#cl-flog .cl-flog-log{ flex:1 1 auto; min-height:24px; max-height:260px; overflow-y:auto; border-top:1px solid #3a4130; padding-top:4px; }
 #cl-flog .cl-flog-log[hidden], #cl-flog .cl-flog-f[hidden]{ display:none; }
 #cl-flog .cl-flog-l{ padding:2px 0; border-bottom:1px solid #262b1e; line-height:1.3; word-wrap:break-word; }
 #cl-flog .cl-flog-l .t{ color:#9aa08a; font-size:11px; margin-right:5px; }
@@ -5672,6 +5672,25 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 #cl-flog .cl-flog-say{ color:#f0b429; font-size:12px; }
 /* a phone has the Chat tab's Fight chat; the right column has no room for a third box there */
 @media (max-width:700px){ #cl-flog{ display:none !important; } }
+#cl-flog{ overflow:hidden; } #cl-flog .cl-flog-log{ min-height:0; }
+</style>
+<style data-suite="cinder-zo-quick">/* game night 11-25 (Howl): the Overseer's quick box - top right of Cinder's Fight tab */
+#cl-quick{ position:fixed; right:12px; top:96px; width:336px; box-sizing:border-box; z-index:34; padding:6px 10px; border:1px solid #c86fd4; border-radius:4px;
+  background:#1b1f14; color:#e8e4d4; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.5); font-family:"EB Garamond", Georgia, serif; max-height:calc(100vh - 120px); overflow:auto; }
+#cl-quick[hidden]{ display:none !important; }
+#cl-quick .cl-q-hd{ display:block; width:100%; text-align:left; background:none; border:0; color:#e3a8ec; font:inherit; font-weight:700; padding:2px 0; cursor:pointer; min-height:28px; }
+#cl-quick .cl-q-who{ display:flex; flex-wrap:wrap; gap:4px 10px; margin:4px 0 6px; padding-bottom:6px; border-bottom:1px solid #3a4130; }
+#cl-quick .cl-q-who label{ cursor:pointer; white-space:nowrap; min-height:24px; display:inline-flex; align-items:center; gap:3px; }
+#cl-quick .cl-q-who label.foe{ color:#f2a17a; }
+#cl-quick .cl-q-row{ display:flex; flex-wrap:wrap; align-items:center; gap:5px; margin:5px 0; }
+#cl-quick input[type=number]{ width:46px; min-height:28px; background:#23281b; color:#f2eedc; border:1px solid #6d7360; border-radius:4px; font:inherit; padding:0 4px; }
+#cl-quick select{ min-height:28px; background:#23281b; color:#f2eedc; border:1px solid #6d7360; border-radius:4px; font:inherit; }
+#cl-quick .cl-q-b, #cl-quick .cl-q-mini{ min-height:28px; padding:0 9px; background:#2f3a20; color:#f2eedc; border:1px solid #7ac74f; border-radius:4px; font:inherit; cursor:pointer; }
+#cl-quick .cl-q-b.bad{ background:#3a201b; border-color:#e05c4b; }
+#cl-quick .cl-q-mini{ background:none; border-color:#6d7360; min-height:24px; font-size:12px; }
+#cl-quick small{ color:#9aa08a; }
+#cl-quick .cl-q-say{ color:#f0b429; font-size:12px; margin-top:4px; }
+@media (max-width:700px){ #cl-quick{ left:8px; right:8px; width:auto; top:60px; } }
 </style>
 <style data-suite="cinder-zr-road-tab">/* Z051 tabs (lane road): the Road tab's own parts, both views (src/cinder-zr-road-tab.js).  Classic's Camp tab is hidden: Camp is
    the fold at the foot of Road. */
@@ -6200,7 +6219,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:56 UTC">cc4c8f35</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:06 UTC">fb0e7098</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -61540,6 +61559,28 @@ document.addEventListener("helena-enc-hp", function(ev){ bleedHeard(ev && ev.det
    tvLoot, spendAP/refundAP and TT.undoAction. */
 /* Howl 2026-10-29: THE FIGHT, FOR THE STEALTH SUIT'S COMBAT MODE (HELENA_CHAR.stealthField) — null when no fight runs, else the
    fight's shared name (st.fid, written at Start combat and riding the room) and its round, the opening turn as round 0.  A read. */
+/* game night 11-25 (Howl): THE OVERSEER'S QUICK DOOR (Cinder's Overseer box, cinder-zo-quick.js).  rows(): everyone in the fight;
+   hp(id, "-3" / "+3" / "12"): the typed-HP door (tvHpCommit: sets HP, no DR, one Undo); cond(id, c): a condition laid as an
+   attack lays it - a character's Persistent on its sheet (addPersistent, ticked by the round's sweep), a creature's and every
+   other condition on the turn order (TT.condApply), both logged to the fight's lines. */
+window.HELENA_TURN.quick = {
+  rows: function(){ return combatants().map(function(e){ return { id:e.id, kind:e.kind, ref:e.ref, name:e.name || e.id }; }); },
+  hp: function(id, raw){ var e = entryOf(everyone(), id); if(!e) return null; var r = tvHpCommit(e, raw); try{ render(); }catch(x){} return r; },
+  cond: function(id, c){
+    var e = entryOf(everyone(), id); if(!e || !c || !c.key) return { ok:false, note:"Pick someone." };
+    var word = c.key === "persist" ? "Persistent (" + (c.cause || "Fire") + ") " + c.dmg + " for " + c.rounds + " rounds" : c.key === "stun" ? "Stunned for " + (c.rounds || 1) + " round" + ((c.rounds || 1) === 1 ? "" : "s") : c.key === "prone" ? "Prone" : c.key === "marked" ? "Marked for " + (c.rounds || 1) + " rounds" : c.key;
+    if(c.key === "persist" && e.kind === "char"){
+      if(!addPersistent(e.ref, c.cause || "Fire", c.dmg, c.rounds)) return { ok:false, note:"That sheet was not found." };
+    } else {
+      if(!writable()) return { ok:false, note:"The turn order belongs to the Overseer - not recorded." };
+      st = TT.condApply(st, e.id, [{ key:c.key, cause:c.cause || "Fire", dmg:c.dmg, rounds:c.rounds }], st.round); push();
+    }
+    try{ if(SY && typeof SY.emit === "function") SY.emit("turn", { text:"set " + (e.name || "someone") + ": " + word }); }catch(x){}
+    try{ render(); }catch(x){}
+    return { ok:true, note:(e.name || "Someone") + ": " + word + "." };
+  },
+  clear: function(id, key){ if(!writable()) return { ok:false }; st = TT.condClear(st, id, key); push(); try{ render(); }catch(x){} return { ok:true }; }
+};
 /* game night 11-25 (Howl): WHOSE TURN IT IS, CHEAPLY - the current row's id, held 400 ms (the sheet's personal turn AP asks on every
    AP read; it used to take the whole snapshot, whose rows read the AP back, a loop) */
 var curMemo = null, curBusy = false;
@@ -88912,7 +88953,8 @@ W.HELENA_JOIN = { linkFor:linkFor };
     var under = vis("cl-jab") || vis("cl-ms"), b = 12;
     if(under && window.innerWidth > 700) b = Math.round(window.innerHeight - under.getBoundingClientRect().top + 8);
     box.style.bottom = b + "px";
-    box.style.maxHeight = Math.max(140, window.innerHeight - b - 90) + "px";
+    var q = vis("cl-quick"), topLim = q ? Math.round(q.getBoundingClientRect().bottom + 8) : 90;   /* below the Overseer box */
+    box.style.maxHeight = Math.max(70, window.innerHeight - b - topLim) + "px";
   }
   function build(){
     box = document.createElement("div"); box.id = "cl-flog"; box.setAttribute("role", "log"); box.setAttribute("aria-label", "Combat log");
@@ -88965,6 +89007,70 @@ W.HELENA_JOIN = { linkFor:linkFor };
   }
   window.CINDER_FIGHTLOG = { paint:paint };
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+</script>
+<script data-suite="cinder-zo-quick">/* game night 11-25 (Howl): THE OVERSEER'S QUICK BOX on Cinder's Fight tab (top right, shut until pressed).  Tick who, then:
+   Damage / Heal N (the typed-HP door: no DR, one Undo each), or an effect - Persistent N for N rounds (house rule: X damage for
+   X rounds, ignores DR; "3 Effects of fire" = 3 for 3), Stunned, Prone, Marked.  Everything goes through HELENA_TURN.quick. */
+(function(){
+  "use strict";
+  var box = null, open = false, sel = {}, msg = "", KEY = "helena.cinderQuick";
+  try{ open = localStorage.getItem(KEY) === "open"; }catch(e){}
+  function on(){ return !!(document.body && document.body.classList.contains("view-cinder")) && document.body.getAttribute("data-cl-tab") === "fight"; }
+  function Q(){ var T = window.HELENA_TURN; return T && T.quick ? T.quick : null; }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]; }); }
+  function num(id, d){ var e = document.getElementById(id), v = e ? Math.round(+e.value) : NaN; return isFinite(v) && v > 0 ? v : d; }
+  function picked(){ return Object.keys(sel).filter(function(k){ return sel[k]; }); }
+  function run(fn){
+    var q = Q(), ids = picked(); if(!q){ return; }
+    if(!ids.length){ msg = "Tick who it hits first."; paint(true); return; }
+    var said = []; ids.forEach(function(id){ try{ var r = fn(q, id); if(r && r.note) said.push(r.note); }catch(e){} });
+    msg = said.join(" ") || "Done."; paint(true);
+  }
+  function build(){
+    box = document.createElement("div"); box.id = "cl-quick"; box.setAttribute("role", "group"); box.setAttribute("aria-label", "Overseer quick tools");
+    document.body.appendChild(box);
+    box.addEventListener("change", function(e){ var t = e.target; if(t.getAttribute && t.getAttribute("data-q") != null) sel[t.getAttribute("data-q")] = t.checked; });
+    box.addEventListener("click", function(e){
+      var t = e.target, id = t && t.id;
+      if(id === "cl-q-hd"){ open = !open; try{ localStorage.setItem(KEY, open ? "open" : "shut"); }catch(x){} paint(true); return; }
+      if(id === "cl-q-none"){ sel = {}; paint(true); return; }
+      if(id === "cl-q-dmg" || id === "cl-q-heal"){ var n = num("cl-q-n", 0); if(!n){ msg = "Type how much."; paint(true); return; }
+        run(function(q, rid){ var r = q.hp(rid, (id === "cl-q-dmg" ? "-" : "+") + n); return { note:r && r.ok === false ? (r.why || "refused") : "" }; });
+        if(!msg || msg === "Done.") msg = (id === "cl-q-dmg" ? n + " damage" : n + " healed") + " - " + picked().length + " picked. Undo is on the log line."; paint(true); return; }
+      if(id === "cl-q-per"){ var d = num("cl-q-pd", 3), rr = num("cl-q-pr", d), cause = (document.getElementById("cl-q-pc") || {}).value || "Fire";
+        run(function(q, rid){ return q.cond(rid, { key:"persist", dmg:d, rounds:rr, cause:cause }); }); return; }
+      var k = t && t.getAttribute && t.getAttribute("data-c");
+      if(k){ var rd = num("cl-q-cr", 1); run(function(q, rid){ return q.cond(rid, { key:k, rounds:rd }); }); }
+    });
+  }
+  function paint(force){
+    var q = Q();
+    if(!on() || !q){ if(box && !box.hidden) box.hidden = true; return; }
+    if(!box) build();
+    if(box.hidden) box.hidden = false;
+    var rows = []; try{ rows = q.rows(); }catch(e){ rows = []; }
+    var h = '<button type="button" id="cl-q-hd" class="cl-q-hd">' + (open ? "▾" : "▸") + " Overseer: quick damage &amp; effects</button>";
+    if(open){
+      h += '<div class="cl-q-who">' + (rows.length ? rows.map(function(r){
+             return '<label class="' + (r.kind === "char" ? "pc" : "foe") + '"><input type="checkbox" data-q="' + esc(r.id) + '"' + (sel[r.id] ? " checked" : "") + "> " + esc(r.name) + "</label>"; }).join("")
+             : "<em>Start the fight to pick who.</em>") + '<button type="button" id="cl-q-none" class="cl-q-mini">Untick all</button></div>' +
+        '<div class="cl-q-row"><input id="cl-q-n" type="number" min="1" max="99" placeholder="N"><button type="button" id="cl-q-dmg" class="cl-q-b bad">Damage</button><button type="button" id="cl-q-heal" class="cl-q-b">Heal</button><small>no DR</small></div>' +
+        '<div class="cl-q-row">Persistent <input id="cl-q-pd" type="number" min="1" max="20" value="3" title="damage a round"> for <input id="cl-q-pr" type="number" min="1" max="20" value="3" title="rounds"> rounds, <select id="cl-q-pc"><option>Fire</option><option>Poison</option><option>Bleeding</option><option>Radiation</option><option>Acid</option></select><button type="button" id="cl-q-per" class="cl-q-b bad">Apply</button></div>' +
+        '<div class="cl-q-row"><button type="button" data-c="stun" class="cl-q-b">Stunned</button><button type="button" data-c="prone" class="cl-q-b">Prone</button><button type="button" data-c="marked" class="cl-q-b">Marked</button> for <input id="cl-q-cr" type="number" min="1" max="9" value="1"> rd</div>' +
+        (msg ? '<div class="cl-q-say">' + esc(msg) + "</div>" : "");
+    }
+    var sig = h + JSON.stringify(rows);
+    if(force || box.getAttribute("data-h") !== sig){
+      var ae = document.activeElement; if(!force && ae && box.contains(ae) && /INPUT|SELECT/.test(ae.tagName)) return;
+      var keep = {}; ["cl-q-n", "cl-q-pd", "cl-q-pr", "cl-q-pc", "cl-q-cr"].forEach(function(i){ var e = document.getElementById(i); if(e) keep[i] = e.value; });
+      box.innerHTML = h; box.setAttribute("data-h", sig);
+      Object.keys(keep).forEach(function(i){ var e = document.getElementById(i); if(e && keep[i] !== "") e.value = keep[i]; });
+    }
+  }
+  setInterval(function(){ paint(false); }, 1500);
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", function(){ paint(true); }); else paint(true);
+  window.CINDER_QUICK = { paint:paint };
 })();
 </script>
 <script data-suite="cinder-zr-road-tab">/* ============================================================================
