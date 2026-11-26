@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"01eebaf0",at:"2026-11-26 02:14 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"31c3ce20",at:"2026-11-26 02:19 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6146,7 +6146,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:14 UTC">01eebaf0</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:19 UTC">31c3ce20</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -23433,6 +23433,9 @@ function setPool(which, v){
      rule: nothing else writes shared state. */
   var KEYS = ["encounter", "map", "loot", "medical", "fusion", "turn", "dice", "ledger", "scene", "travel", "quests", "session"];
   var GM_OWNED = { encounter:1, map:1, medical:1, turn:1, dice:1, scene:1, travel:1, quests:1, session:1 };
+  /* game night 11-25 (Howl): the turn order is open to every seat - any player, and the Overseer on any device, presses
+     Next turn.  Its own line so the pinned shape above stands. */
+  delete GM_OWNED.turn;
   var NOTE = {
     encounter: "The encounter belongs to the GM — your change was not shared",
     map:       "The map belongs to the GM — your change was not shared",
