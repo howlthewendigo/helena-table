@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"0bf3bb79",at:"2026-11-26 03:33 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"b183559c",at:"2026-11-26 03:38 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -4838,6 +4838,7 @@ body:not(.view-cinder) #cl-ms{ display:none !important; }
 #tt-auto .ap-sk select{padding:3px}
 #tt-auto .ap-sk-log ol{max-height:220px;overflow:auto;font-size:12px;padding-left:22px}
 /* Z051P2 auto:end */
+.cl-slot.cl-douse{ border-color:#e05c4b !important; }
 </style>
 <style data-suite="cinder-2-loot">/* Z032 — Cinder Ledger, part 2: the Loot Window.  A3 rarity edges: 0 grey · 1 bone · 2 green · 3–4 blue ·
    5–6 blue with a brass double edge · Legendary brass star + gold edge.  No purple on items. */
@@ -6228,7 +6229,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:33 UTC">0bf3bb79</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:38 UTC">b183559c</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -59896,6 +59897,27 @@ window.HELENA_TURN.quick = {
     return { ok:true, note:(e.name || "Someone") + ": " + word + "." };
   },
   clear: function(id, key){ if(!writable()) return { ok:false }; st = TT.condClear(st, id, key); push(); try{ render(); }catch(x){} return { ok:true }; },
+  /* game night 11-25 (Howl): PUT IT OUT - on a character's own turn, its major action clears every Persistent on its sheet (the
+     fire beaten out, the poison purged).  The major goes through the order's own door (takeAction, a bought one waits for the room). */
+  douse: function(charId, resume, paid){
+    var rid = "c:" + String(charId), e = entryOf(combatants(), rid), m = S.get(), c = null;
+    (m.chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)) c = x; });
+    if(!e || !c) return { ok:false, note:"No sheet in the fight answers to that." };
+    var ps = (c.persistent || []).filter(function(p){ return p && +p.rounds > 0; });
+    if(!ps.length) return { ok:false, note:(c.name || "They") + " has nothing burning." };
+    if(st.phase === "idle" || curNow() !== rid) return { ok:false, note:"Only on " + (c.name || "their") + "’s own turn." };
+    var ar = paid ? { ok:true } : takeAction(e, "major", resume);   /* paid: the resume after the room took a bought major */
+    if(ar && ar.wait) return { ok:false, wait:true, note:String(ar.note || "Waiting for the room.") };
+    if(ar && ar.ok === false) return { ok:false, note:"No major action left: " + (ar.note || "refused") + " - nothing was put out." };
+    var was = JSON.parse(JSON.stringify(c.persistent || []));
+    S.update(function(mm){ (mm.chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)) x.persistent = []; }); });
+    var line = (c.name || "Someone") + " spends a major action and puts it out: " + ps.map(function(p){ return (p.cause || "Persistent") + " " + p.dmg + " (" + p.rounds + " rd left)"; }).join(", ") + " - gone.";
+    try{ var U = window.SUITE_UNDO; if(U && typeof U.keep === "function") U.keep("douse", { text:line, rev:{ id:String(charId), was:was }, chars:[String(charId)], revert:function(v){
+      S.update(function(mm){ (mm.chars || []).forEach(function(x){ if(x && String(x.id) === v.id) x.persistent = JSON.parse(JSON.stringify(v.was)); }); }); return { ok:true }; } }); }catch(x){}
+    tick("turn", line);
+    try{ render(); }catch(x){}
+    return { ok:true, note:line };
+  },
   /* game night 11-25 (Howl): A COMPANION'S ATTACK DOG BITE BY HAND - charId's hound bites the enemy row tid now: its card's CD
      (companion.attackDog), +CD from a Tenderizer mark on that enemy (CH.warOn), Vicious added; through the Encounter pane's door
      where this device may write it, else sent to the Overseer as one press (as houndBite does). */
@@ -67559,7 +67581,7 @@ function paint(){
   lockSec("gp-s6", !done, done);
   /* step 7 is open only for a declared attack that has resolved.  A hand-rolled test
      never unlocks it and it is hidden as well as locked, so it cannot be tabbed into. */
-  lockSec("gp-s7", !(done && decl && decl.kind === "attack"), !!dmg && !dmg.held);   /* game night 11-25: held for Luck = still live */
+  lockSec("gp-s7", !(done && decl && decl.kind === "attack"), !!dmg && !dmg.held);
   $("gp-d0-acts").classList.toggle("hidden", !(T && T.difficulty === 0 && cur < 2));
   var encNow = encOnNow();
   $("gp-enc-acts").classList.toggle("hidden",
@@ -84591,6 +84613,10 @@ function paintBar(){
   if(a){
     var sl = "";
     (a.weapons || []).slice(0, 10).forEach(function(w, i){ sl += '<button type="button" class="cl-slot" data-wi="' + i + '" title="' + esc(w) + ' — attack the selected target">' + '<kbd>' + ((i + 1) % 10) + "</kbd>" + esc(w.length > 14 ? w.slice(0, 13) + "…" : w) + "</button>"; });
+    /* game night 11-25 (Howl): a character carrying Persistent may spend its major to put it out (HELENA_TURN.quick.douse) */
+    try{ if(a.kind === "char"){ var dc = null; (S().chars || []).forEach(function(x){ if(x && "c:" + x.id === a.id) dc = x; });
+      var dps = dc && (dc.persistent || []).filter(function(p){ return p && +p.rounds > 0; });
+      if(dps && dps.length) sl += '<button type="button" class="cl-slot cl-douse" data-douse="' + esc(dc.id) + '" title="Major action: put out ' + esc(dps.map(function(p){ return (p.cause || "Persistent") + " " + p.dmg; }).join(", ")) + '">🔥 Put out<small>major</small></button>'; } }catch(e){}
     h += '<div class="cl-slots">' + sl + "</div>";
   }
   h += '<button type="button" class="cl-end" data-end="1"' + (snap.phase === "idle" || !snap.gm ? " disabled" : "") + ">END TURN<small>Space</small></button>";
@@ -84631,6 +84657,8 @@ function onBarClick(e){
   /* Z050 P4: the token's own menu, on the card picked in the ribbon, else the row whose turn it is */
   if(t.hasAttribute("data-tokm") && a){ var T0 = window.HELENA_TURN, rb = t.getBoundingClientRect(); actsOpen = false; paint(true); if(T0 && typeof T0.tokMenu === "function") T0.tokMenu(sel || a.id, rb.left, Math.max(8, rb.top - 330)); return; }
   if(t.hasAttribute("data-named") && a && typeof b.named === "function"){ var nr = b.named(a.id, t.getAttribute("data-named")); actSay = nr ? nr.note : ""; if(nr && nr.ok) actsOpen = false; paint(true); return; }
+  if(t.hasAttribute("data-douse")){ var TQd = window.HELENA_TURN && window.HELENA_TURN.quick, did = t.getAttribute("data-douse");
+    if(TQd && TQd.douse){ var dr = TQd.douse(did, function(){ TQd.douse(did, null, true); paint(true); }); actSay = dr && dr.note ? dr.note : ""; } paint(true); return; }
   if(t.hasAttribute("data-wi")){ b.attack(+t.getAttribute("data-wi"), sel); paint(true); return; }
   if(t.hasAttribute("data-end")){ b.next(); paint(true); return; }
   if(t.hasAttribute("data-place")){ window.CINDER_MOVE.place(); return; }
