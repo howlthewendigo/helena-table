@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"e162b1cf",at:"2026-11-26 02:37 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"b6f703fe",at:"2026-11-26 02:39 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6176,7 +6176,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:37 UTC">e162b1cf</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:39 UTC">b6f703fe</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -80300,7 +80300,7 @@ function drawLayer(){
       tg.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ")" + (sc < 1 ? " scale(" + sc + ")" : ""));
       if(t.hidden) tg.setAttribute("opacity", ".45");                 /* Z037 (NR-16): hidden from the players - the Overseer sees it dimmed */
       var c = document.createElementNS(NS, "circle");
-      c.setAttribute("r", "11"); c.setAttribute("fill", ch ? whoFill(t.id) : "#e05c4b"); c.setAttribute("stroke", "#0b0c08"); c.setAttribute("stroke-width", "2");
+      c.setAttribute("r", "11"); c.setAttribute("fill", ch ? whoFill(t.id) : foeFill(t.ref)); c.setAttribute("stroke", "#0b0c08"); c.setAttribute("stroke-width", "2");
       if(t.kind === "comp") c.setAttribute("fill", COMP_FILL);   /* BLOCK 5: violet — never a character's blue */
       if(t.kind === "veh") c.setAttribute("fill", VEH_FILL);     /* BLOCK 7: amber — a machine, never a body */
       var tx = document.createElementNS(NS, "text");
@@ -80332,6 +80332,17 @@ function drawLayer(){
 var layerEl = null, layerHtml = null;
 /* CMD Z037 G: a character's disc in its own colour (SUITE_WHO, z031.js) from the first draw - it was drawn blue and
    recoloured a moment later, a flash on every redraw */
+/* game night 11-25 (Howl): EACH ENEMY TYPE ITS OWN COLOUR, until the pixel-art tokens come - a map of all-red discs read as one
+   blur.  The Church Dragons are set by hand; any other creature takes a steady colour off its key from the same palette.  Never
+   the old red (#e05c4b, the "down" colour) and never the characters' blue. */
+var FOE_FILL = { churchdragonsheet:"#e8c547", churchdragonnightrider:"#a77be0", churchdragon:"#ef8a3c", churchdragonwizard:"#3fc1a5", churchdragongrandwizard:"#ee77b8" };
+var FOE_PAL = ["#e8c547", "#a77be0", "#ef8a3c", "#3fc1a5", "#ee77b8", "#9ccc4a", "#d9b38c", "#c3c9d1", "#f2a17a", "#7fd0c0"];
+function foeFill(ref){
+  var key = String(ref == null ? "" : ref).split("|")[0];
+  if(Object.prototype.hasOwnProperty.call(FOE_FILL, key)) return FOE_FILL[key];
+  var h = 0; for(var i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  return key ? FOE_PAL[h % FOE_PAL.length] : "#d9b38c";
+}
 function whoFill(id){
   try{ var W = root.SUITE_WHO; if(W && typeof W.of === "function"){ var c = W.of(id); if(c) return c; } }catch(e){}
   return "#5aa9e6";
