@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"31c3ce20",at:"2026-11-26 02:19 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"b31efe10",at:"2026-11-26 02:22 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5605,6 +5605,18 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 .z35-cur-bar select{ font:inherit; font-size:14px; padding:3px 6px; min-height:32px; max-width:200px; }
 .z35-is-cur{ outline:2px solid #D9A13B !important; outline-offset:-2px; }
 </style>
+<style data-suite="cinder-zg-group">/* game night 11-25 (Howl): One token per group - docked beside the Mysterious Stranger (#cl-ms sits right:12px, 336px wide) */
+#cl-grp{ position:fixed; right:356px; bottom:12px; width:260px; box-sizing:border-box; z-index:33; padding:6px 36px 6px 10px; border:1px solid #f0b429; border-radius:4px;
+  background:#1b1f14; color:#e8e4d4; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.5); font-family:"EB Garamond", Georgia, serif; }
+#cl-grp[hidden]{ display:none !important; }
+#cl-grp .cl-grp-hd{ color:#f0b429; font-weight:700; margin-bottom:2px; }
+#cl-grp label{ display:block; cursor:pointer; min-height:24px; }
+#cl-grp small{ display:block; color:#9aa08a; font-size:12px; }
+#cl-grp .cl-grp-x{ position:absolute; top:4px; right:4px; width:28px; height:28px; padding:0; border:1px solid #6d7360; border-radius:4px;
+  background:#23281b; color:#f2eedc; font-size:18px; line-height:1; cursor:pointer; }
+#cl-grp .cl-grp-x:hover, #cl-grp .cl-grp-x:focus-visible{ border-color:#f0b429; color:#f0b429; }
+@media (max-width:700px){ #cl-grp{ left:8px; right:8px; width:auto; bottom:300px; } }
+</style>
 <style data-suite="cinder-zj-join">/* the join link's card (game night 2026-11-25) - over every view, the first-run card included */
 .zj-veil{ position:fixed; inset:0; z-index:10050; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(10,8,6,.78); }
 .zj-card{ width:min(420px, 100%); background:#1c1814; color:#efe6d4; border:1px solid #c9a24a; border-radius:8px; padding:20px 20px 14px; box-shadow:0 18px 60px rgba(0,0,0,.6); font-family:inherit; }
@@ -6146,7 +6158,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:19 UTC">31c3ce20</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:22 UTC">b31efe10</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -81402,11 +81414,29 @@ function tvSwarm(ref){
   try{ var r = E.read(String(ref)); return (r && r.ok !== false && r.swarm && typeof r.swarm === "object") ? r.swarm : null; }catch(e){ return null; }
 }
 function tvHead(id){ var m = /#(\d+)$/.exec(String(id || "")); return m ? +m[1] : 0; }
+/* game night 11-25 (Howl): ONE TOKEN, ticked per creature group beside the Mysterious Stranger (cinder-zg-group.js).  A ticked
+   group (a swarm row: more than one of a creature, not split) draws as one disc with its xN, as the table view draws it, and
+   dragging it moves every member (moveTo's swarm path).  Kept on this device; a tick off draws every body again. */
+var GRP_KEY = "helena.tokGroup";
+function grpRead(){ try{ var o = JSON.parse(root.localStorage.getItem(GRP_KEY) || "{}"); return o && typeof o === "object" ? o : {}; }catch(e){ return {}; } }
+function grpOn(ref){ return grpRead()[String(ref)] === true; }
+function grpAny(){ var o = grpRead(); for(var k in o) if(o[k] === true) return true; return false; }
+root.HELENA_TOKGROUP = {
+  on: grpOn,
+  set: function(ref, v){
+    var o = grpRead(); if(v) o[String(ref)] = true; else delete o[String(ref)];
+    try{ root.localStorage.setItem(GRP_KEY, JSON.stringify(o)); }catch(e){}
+    try{ if(typeof drawLayer === "function") drawLayer(); }catch(e){}
+    return !!v;
+  },
+  swarm: function(ref){ return !!tvSwarm(ref); }
+};
 function tvGroup(list){
-  if(!tvOn()) return list;
+  var tvAll = tvOn();
+  if(!tvAll && !grpAny()) return list;
   var by = {}, out = [];
   (list || []).forEach(function(t){
-    if(!t || t.kind !== "enemy" || !tvSwarm(t.ref)){ out.push(t); return; }
+    if(!t || t.kind !== "enemy" || !(tvAll || grpOn(t.ref)) || !tvSwarm(t.ref)){ out.push(t); return; }
     var g = by[t.ref];
     if(!g){ g = by[t.ref] = {}; for(var k in t) if(Object.prototype.hasOwnProperty.call(t, k)) g[k] = t[k]; g.members = []; g.group = true; out.push(g); }
     g.members.push(t.id);
@@ -81793,7 +81823,7 @@ function drawLayer(){
   var toks = tokens().filter(function(t){ return t && t.id && t.zone != null && !(typeof swarmGone === "function" && swarmGone(t)) && !(typeof hiddenFromMe === "function" && hiddenFromMe(t.id)); });
   toks = toks.concat(compList().filter(function(t){ return t.zone != null; }));   /* BLOCK 5: named companions, where they stand */
   if(typeof vehList === "function") toks = toks.concat(vehList().filter(function(t){ return t.zone != null; }));    /* BLOCK 7: the vehicles, where they stand */
-  var tv = typeof tvOn === "function" && tvOn(); if(tv) toks = tvGroup(toks);                 /* TABLEVIEW: a swarm is one token */
+  var tv = typeof tvOn === "function" && tvOn(); if(tv || grpAny()) toks = tvGroup(toks);   /* + game night 11-25: a ticked One token group */                 /* TABLEVIEW: a swarm is one token */
   var sight = typeof sightOn === "function" && sightOn();     /* BLOCK 6: the sight view draws with nobody on the map too */
   if(!toks.length && !sight){ gone(); return; }
   /* CMD Z037 G: BUILT APART, WRITTEN ONLY WHEN IT CHANGED.  The layer redraws on every state change, local or remote, and
@@ -88372,6 +88402,60 @@ try{
 mountPickers();
 last = get(); follow();
 })(window);
+</script>
+<script data-suite="cinder-zg-group">/* game night 11-25 (Howl): ONE TOKEN.  Beside the Mysterious Stranger on Cinder's Fight tab, one tick per creature group (a roster
+   row of more than one of a creature, e.g. Church Dragon x3, Nightrider x4, Sheet x7).  Ticked, the group draws as one disc with
+   its xN on the map and a drag moves the whole group; unticked, every body is its own token again.  The map side is
+   HELENA_TOKGROUP (table-tokens.js); this box only shows the ticks.  Kept on this device. */
+(function(){
+  "use strict";
+  var box = null, body = null, shut = null;
+  function on(){ return !!(document.body && document.body.classList.contains("view-cinder")) && document.body.getAttribute("data-cl-tab") === "fight"; }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]; }); }
+  function groups(){
+    var E = window.HELENA_ENC, G = window.HELENA_TOKGROUP, out = [];
+    if(!E || typeof E.roster !== "function" || !G) return out;
+    var r = []; try{ r = E.roster() || []; }catch(e){ r = []; }
+    r.forEach(function(e){
+      if(!e || !e.key || Math.round(+e.count || 0) < 2) return;
+      var ref = e.key + "|" + (e.rank || "");
+      out.push({ ref:ref, name:e.name || e.key, count:Math.round(+e.count), swarm:G.swarm(ref), on:G.on(ref) });
+    });
+    return out;
+  }
+  function close(){ if(!box) return; shut = box.getAttribute("data-t") || ""; box.hidden = true; }
+  function paint(){
+    var gs = on() ? groups() : [];
+    if(!gs.length){ if(box && !box.hidden) box.hidden = true; return; }
+    if(!box){
+      box = document.createElement("div"); box.id = "cl-grp"; box.className = "cl-grp";
+      box.setAttribute("role", "group"); box.setAttribute("aria-label", "One token per group");
+      var x = document.createElement("button"); x.type = "button"; x.className = "cl-grp-x"; x.setAttribute("aria-label", "Close"); x.title = "Close"; x.textContent = "×";
+      x.addEventListener("click", close);
+      body = document.createElement("div");
+      box.appendChild(x); box.appendChild(body); document.body.appendChild(box);
+      box.addEventListener("change", function(e){
+        var cb = e.target, G = window.HELENA_TOKGROUP; if(!cb || cb.getAttribute("data-grp") == null || !G) return;
+        G.set(cb.getAttribute("data-grp"), cb.checked); box.removeAttribute("data-t"); paint();
+      });
+    }
+    var t = '<div class="cl-grp-hd">One token per group</div>' + gs.map(function(g){
+      return '<label title="Ticked: the group is one token with its count on the map, and dragging it moves them all. Unticked: each one is its own token.">' +
+             '<input type="checkbox" data-grp="' + esc(g.ref) + '"' + (g.on ? " checked" : "") + (g.swarm ? "" : " disabled") + "> <b>" + esc(g.name) + "</b> ×" + g.count +
+             (g.swarm ? "" : "<small>Split into single creatures - it cannot be one token.</small>") + "</label>";
+    }).join("");
+    if(shut != null){ if(shut === t){ if(!box.hidden) box.hidden = true; return; } shut = null; }
+    if(box.hidden) box.hidden = false;
+    if(box.getAttribute("data-t") !== t){ body.innerHTML = t; box.setAttribute("data-t", t); }
+  }
+  function start(){
+    if(window.SUITE_STATE && typeof window.SUITE_STATE.subscribe === "function") window.SUITE_STATE.subscribe(function(){ setTimeout(paint, 0); });
+    setInterval(paint, 1500);
+    paint();
+  }
+  window.CINDER_GROUP = { paint:paint };
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
 </script>
 <script data-suite="cinder-zj-join">/* ============================================================================
    Helena Suite - THE JOIN LINK (game night 2026-11-25, Howl: "a button to join the Helena table ... so we don't have to type in
