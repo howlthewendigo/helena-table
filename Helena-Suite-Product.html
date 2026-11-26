@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"969d2211",at:"2026-11-26 02:04 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"01eebaf0",at:"2026-11-26 02:14 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6146,7 +6146,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:04 UTC">969d2211</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:14 UTC">01eebaf0</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -59676,6 +59676,8 @@ window.HELENA_TURN.cinder = {
   namedList: function(){ return TT.NAMED.map(function(a){ return { key:a.key, kind:a.kind, name:a.name, says:a.says }; }); },
   stance: function(id){ return { aim:aimGet(entryOf(combatants(), id)), defend:defendingNow(id) }; },
   select: function(id){ if(tvSel !== id) tvSelect(id); return tvSel; },
+  /* game night 11-25 (Howl): a second click on a picked row lets go of it - the highlight clears with no reload */
+  clear: function(){ if(tvSel != null) tvSelect(tvSel); return tvSel; },
   attack: function(wi, tid){
     var list = combatants(), ord = orderOf(list), cur = TT.currentOf(st, ord), a = cur != null ? entryOf(list, cur) : null;
     if(!a) return "none";
@@ -84028,7 +84030,7 @@ function showAll(v){ [ribbon, party, bar].forEach(function(x){ if(x && x.hidden 
   if(!v && tip) tip.hidden = true; if(!v) clearWash(); }
 
 function rowById(id){ var r = null; if(snap) snap.rows.concat(snap.fallen).forEach(function(x){ if(x.id === id) r = x; }); return r; }
-function pick(id){ sel = sel === id ? null : id; var b = B(); if(b && sel) try{ b.select(sel); }catch(e){} paint(true); }
+function pick(id){ sel = sel === id ? null : id; var b = B(); if(b) try{ if(sel) b.select(sel); else if(typeof b.clear === "function") b.clear(); }catch(e){} paint(true); }
 
 /* ------------------------------------------------------------------ 1. the Initiative Ribbon */
 function cardHtml(r, cur, next, burn){
