@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"b31efe10",at:"2026-11-26 02:22 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"2afc6a99",at:"2026-11-26 02:30 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5617,6 +5617,19 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 #cl-grp .cl-grp-x:hover, #cl-grp .cl-grp-x:focus-visible{ border-color:#f0b429; color:#f0b429; }
 @media (max-width:700px){ #cl-grp{ left:8px; right:8px; width:auto; bottom:300px; } }
 </style>
+<style data-suite="cinder-zh-jab">/* game night 11-25 (Howl): Quick jab - on the right, above the Mysterious Stranger's tick (bottom is set from #cl-ms by the script) */
+#cl-jab{ position:fixed; right:12px; bottom:12px; width:336px; box-sizing:border-box; z-index:33; padding:6px 10px; border:1px solid #7ac74f; border-radius:4px;
+  background:#1b1f14; color:#e8e4d4; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.5); font-family:"EB Garamond", Georgia, serif; }
+#cl-jab[hidden]{ display:none !important; }
+#cl-jab .cl-jab-hd{ display:block; width:100%; text-align:left; background:none; border:0; color:#7ac74f; font:inherit; font-weight:700; padding:2px 0; cursor:pointer; min-height:28px; }
+#cl-jab label{ display:flex; align-items:center; gap:6px; margin:4px 0; }
+#cl-jab select{ flex:1; min-height:30px; background:#23281b; color:#f2eedc; border:1px solid #6d7360; border-radius:4px; font:inherit; }
+#cl-jab .cl-jab-who{ margin:4px 0; color:#c9c4b2; }
+#cl-jab .cl-jab-go{ margin-top:4px; min-height:32px; width:100%; background:#2f3a20; color:#f2eedc; border:1px solid #7ac74f; border-radius:4px; font:inherit; font-weight:700; cursor:pointer; }
+#cl-jab .cl-jab-go:disabled{ opacity:.5; cursor:default; }
+#cl-jab .cl-jab-say{ color:#f0b429; font-size:12px; margin-top:4px; }
+@media (max-width:700px){ #cl-jab{ left:8px; right:8px; width:auto; bottom:auto; top:120px; } }
+</style>
 <style data-suite="cinder-zj-join">/* the join link's card (game night 2026-11-25) - over every view, the first-run card included */
 .zj-veil{ position:fixed; inset:0; z-index:10050; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(10,8,6,.78); }
 .zj-card{ width:min(420px, 100%); background:#1c1814; color:#efe6d4; border:1px solid #c9a24a; border-radius:8px; padding:20px 20px 14px; box-shadow:0 18px 60px rgba(0,0,0,.6); font-family:inherit; }
@@ -6158,7 +6171,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:22 UTC">b31efe10</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 02:30 UTC">2afc6a99</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -41712,6 +41725,67 @@ function fireStim(i, toId, as){
     });
   return go();
 }
+/* game night 11-25 (Howl): A QUICK JAB.  One character doses another with a chem or a med from their own pack (Joel gives Zoe Ultra
+   Jet).  One off the giver's row; the dose does to the one jabbed exactly what "Use one" does to the one who takes it
+   (consumeCore: its HP, its Rads, its timed slots, its cure, and for an Addictive chem the jabbed one's own dose count and
+   addiction test).  What it prints beyond that (+4 AP, Brief) is said in the line, as Use says it.  Logged, with one Undo.
+   Opened from Cinder's Fight tab (cinder-zh-jab.js); refused for a sheet this device cannot edit. */
+function jabRows(c){
+  var out = [];
+  ((c && c.inventory) || []).forEach(function(r, i){
+    if(!r || invNone(r)) return;
+    var U = CH.consumableOf(r.name, ITEMS, window.RECIPES);
+    if(U && (U.kind === "chem" || U.kind === "aid")) out.push({ i:i, name:r.name, qty:Math.max(0, Math.round(+r.qty || 0)) || 1, effect:U.effect || "" });
+  });
+  return out;
+}
+function jabMay(id){ try{ return !(roomOn() && SY && typeof SY.canEdit === "function" && !SY.canEdit(id)); }catch(e){ return true; } }
+window.HELENA_JAB = {
+  rows: function(fromId){ var c = null; (S.get().chars || []).forEach(function(x){ if(x && String(x.id) === String(fromId)) c = x; }); return jabRows(c); },
+  may: jabMay,
+  me: function(){ try{ var c = me(); return c && c.id != null ? String(c.id) : null; }catch(e){ return null; } },
+  jab: function(fromId, i, toId){
+    var m0 = S.get(), giver = null, tgt0 = null;
+    (m0.chars || []).forEach(function(x){ if(x && String(x.id) === String(fromId)) giver = x; if(x && String(x.id) === String(toId)) tgt0 = x; });
+    if(!giver || !tgt0) return { ok:false, note:"Pick who gives it and who gets it." };
+    if(!jabMay(giver.id)) return { ok:false, note:"Not your sheet - nothing was given." };
+    var row0 = giver.inventory && giver.inventory[i];
+    if(!row0 || invNone(row0)) return { ok:false, note:"None left - nothing was given." };
+    var U = CH.consumableOf(row0.name, ITEMS, window.RECIPES);
+    if(!U || !(U.kind === "chem" || U.kind === "aid")) return { ok:false, note:"That is not a chem or a med." };
+    if(!CH.tracksAtAll(tgt0)) return { ok:false, note:(tgt0.robot ? "A robot" : "A synth") + " gains nothing from " + U.name + " - nothing was given." };
+    var ctx = consumeCtx(U, -1), rr = ctx.rr, rep = null, rev = null;
+    S.update(function(m){
+      rep = null; rev = null;
+      var g = null, t = null;
+      (m.chars || []).forEach(function(x){ if(x && String(x.id) === String(giver.id)) g = x; if(x && String(x.id) === String(tgt0.id)) t = x; });
+      if(!g || !t) return;
+      var r = g.inventory[i]; if(!r || invNone(r) || r.name !== row0.name) return;
+      rev = { giver:String(g.id), row:i, qty:Math.round(+r.qty || 0), to:String(t.id),
+              was:JSON.parse(JSON.stringify({ hp:t.hp, rads:t.rads, boosts:t.boosts, addictions:t.addictions, doses:t.doses })) };
+      r.qty = Math.max(0, Math.round(+r.qty || 0) - 1);
+      rep = consumeCore(t, { U:U, i:-1, day:ctx.day, seq:ctx.seq, rr:rr });
+    });
+    if(!rep || !rev) return { ok:false, note:"Nothing was given - the sheets moved; try again." };
+    var self = String(giver.id) === String(tgt0.id);
+    var line = (giver.name || "Someone") + (self ? " doses themself with " : " jabs " + (tgt0.name || "someone") + " with ") + U.name + ": " +
+      (rep.said.join(", ") || "given") + (U.effect ? " (it prints: " + String(U.effect).replace(/\.\s*$/, "") + ")" : "") +
+      (rr ? "; Rads " + U.rads + "CD → " + rep.radsTaken + " Radiation" : "") +
+      (rep.test ? "; addiction test " + (rep.hooked ? "failed - " + (tgt0.name || "they") + " is hooked" : "passed") : "") + ".";
+    var x = rev;
+    try{ if(window.SUITE_UNDO && typeof window.SUITE_UNDO.keep === "function")
+      window.SUITE_UNDO.keep("jab", { text:line, rev:x, chars:[x.giver, x.to], revert:function(v){
+        S.update(function(m){ (m.chars || []).forEach(function(ch){
+          if(ch && String(ch.id) === v.giver && ch.inventory && ch.inventory[v.row]) ch.inventory[v.row].qty = v.qty;
+          if(ch && String(ch.id) === v.to) Object.keys(v.was).forEach(function(k){ if(v.was[k] === undefined) delete ch[k]; else ch[k] = JSON.parse(JSON.stringify(v.was[k])); });
+        }); });
+        return { ok:true };
+      } }); }catch(e){}
+    try{ if(SY && typeof SY.emit === "function") SY.emit("roll", { name:giver.name, charId:giver.id, token:"c:" + giver.id, text:line }); }catch(e){}
+    try{ renderInventory(me()); renderDerived(); render(); }catch(e){}
+    return { ok:true, note:line, hooked:rep.hooked };
+  }
+};
 /* Z037 (town services, the director 2026-10-26): ONE BODY FOR "USE ONE".  What a consumable does to the one who takes it —
    the printed consume rules (Z051 P1: no track any more — the bowls are the pool's), its HP,
    Rads, timed slots, the addiction test — lives here, and two doors run it: the inventory's Use (invUse: one off the row first,
@@ -88454,6 +88528,71 @@ last = get(); follow();
     paint();
   }
   window.CINDER_GROUP = { paint:paint };
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+</script>
+<script data-suite="cinder-zh-jab">/* game night 11-25 (Howl): QUICK JAB on Cinder's Fight tab, on the right above the tick boxes (the Mysterious Stranger's).
+   Pick your chem or med, pick who gets it, Jab: one dose off your row, its effects on them (HELENA_JAB, the sheet's rule). */
+(function(){
+  "use strict";
+  var box = null, msg = "", msgAt = 0, open = false;
+  function on(){ return !!(document.body && document.body.classList.contains("view-cinder")) && document.body.getAttribute("data-cl-tab") === "fight"; }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]; }); }
+  function chars(){ try{ return (window.SUITE_STATE.get().chars || []).filter(function(c){ return c && c.id; }); }catch(e){ return []; } }
+  function mine(){ var J = window.HELENA_JAB; return chars().filter(function(c){ return J && J.may(c.id); }); }
+  function val(id){ var e = document.getElementById(id); return e ? e.value : ""; }
+  function place(){
+    if(!box) return;
+    var ms = document.getElementById("cl-ms"), b = 12;
+    if(ms && !ms.hidden && window.innerWidth > 700){ var r = ms.getBoundingClientRect(); if(r.height) b = Math.round(window.innerHeight - r.top + 8); }
+    box.style.bottom = b + "px";
+  }
+  function paint(){
+    var J = window.HELENA_JAB, me = J ? mine() : [];
+    if(!on() || !J || !me.length){ if(box && !box.hidden) box.hidden = true; return; }
+    if(!box){
+      box = document.createElement("div"); box.id = "cl-jab"; box.className = "cl-jab"; box.setAttribute("role", "group"); box.setAttribute("aria-label", "Quick jab");
+      document.body.appendChild(box);
+      box.addEventListener("click", function(e){
+        var t = e.target;
+        if(t.id === "cl-jab-hd"){ open = !open; box.removeAttribute("data-h"); paint(); return; }
+        if(t.id === "cl-jab-go"){
+          var from = val("cl-jab-from"), row = val("cl-jab-chem"), to = val("cl-jab-to");
+          if(row === ""){ msg = "Pick a chem."; }
+          else { var r = J.jab(from, +row, to); msg = r.note || (r.ok ? "Done." : "Nothing was given."); }
+          msgAt = Date.now(); box.removeAttribute("data-h"); paint();
+        }
+      });
+      box.addEventListener("change", function(e){ if(e.target.id === "cl-jab-from"){ box.removeAttribute("data-h"); paint(); } });
+    }
+    if(msg && Date.now() - msgAt > 12000) msg = "";
+    var from = val("cl-jab-from"), own = J.me ? J.me() : null;
+    if(!me.some(function(c){ return String(c.id) === from; })) from = own && me.some(function(c){ return String(c.id) === own; }) ? own : String(me[0].id);
+    var to = val("cl-jab-to"), rows = J.rows(from), chem = val("cl-jab-chem");
+    var h = '<button type="button" id="cl-jab-hd" class="cl-jab-hd" aria-expanded="' + open + '">' + (open ? "▾" : "▸") + " Quick jab (chems)</button>";
+    if(open){
+      h += (me.length > 1 ? '<label>From <select id="cl-jab-from">' + me.map(function(c){ return '<option value="' + esc(c.id) + '"' + (String(c.id) === from ? " selected" : "") + ">" + esc(c.name || "unnamed") + "</option>"; }).join("") + "</select></label>"
+                          : '<input type="hidden" id="cl-jab-from" value="' + esc(from) + '"><div class="cl-jab-who">From ' + esc(me[0].name || "your sheet") + "</div>") +
+        (rows.length ? '<label>Chem <select id="cl-jab-chem">' + rows.map(function(r){ return '<option value="' + r.i + '"' + (String(r.i) === chem ? " selected" : "") + ' title="' + esc(r.effect) + '">' + esc(r.name) + " (" + r.qty + ")</option>"; }).join("") + "</select></label>"
+                     : '<input type="hidden" id="cl-jab-chem" value=""><div class="cl-jab-who">No chems or meds in this pack.</div>') +
+        '<label>Jab <select id="cl-jab-to">' + chars().map(function(c){ return '<option value="' + esc(c.id) + '"' + (String(c.id) === to ? " selected" : "") + ">" + esc(c.name || "unnamed") + "</option>"; }).join("") + "</select></label>" +
+        '<button type="button" id="cl-jab-go" class="cl-jab-go"' + (rows.length ? "" : " disabled") + ">Jab</button>" +
+        (msg ? '<div class="cl-jab-say">' + esc(msg) + "</div>" : "");
+    }
+    if(box.hidden) box.hidden = false;
+    var sig = h + "|" + JSON.stringify(rows);
+    if(box.getAttribute("data-h") !== sig){
+      var ae = document.activeElement, keep = ae && box.contains(ae) && ae.tagName === "SELECT";
+      if(!keep){ box.innerHTML = h; box.setAttribute("data-h", sig); }
+    }
+    place();
+  }
+  function start(){
+    if(window.SUITE_STATE && typeof window.SUITE_STATE.subscribe === "function") window.SUITE_STATE.subscribe(function(){ setTimeout(paint, 0); });
+    setInterval(paint, 1500); window.addEventListener("resize", place);
+    paint();
+  }
+  window.CINDER_JAB = { paint:paint };
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();
 </script>
