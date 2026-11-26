@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"f8703a7b",at:"2026-11-26 03:43 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"01843df3",at:"2026-11-26 03:46 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5701,6 +5701,12 @@ body.view-cinder[data-cl-tab="fight"] #suite-stage > #fold-dice.cl-win{ display:
 #cl-quick small{ color:#9aa08a; }
 #cl-quick .cl-q-say{ color:#f0b429; font-size:12px; margin-top:4px; }
 @media (max-width:700px){ #cl-quick{ left:8px; right:8px; width:auto; top:60px; } }
+#cl-quick .cl-q-req{ margin:2px 0 6px; padding:6px; border:1px solid #f0b429; border-radius:4px; background:#2a2416; }
+#cl-quick .cl-q-rq{ margin:4px 0; line-height:1.5; }
+#cl-quick .cl-q-rq button{ margin-left:4px; }
+#cl-quick .cl-q-req{ margin:2px 0 6px; padding:6px; border:1px solid #f0b429; border-radius:4px; background:#2a2416; }
+#cl-quick .cl-q-rq{ margin:4px 0; line-height:1.5; }
+#cl-quick .cl-q-rq button{ margin-left:4px; }
 </style>
 <style data-suite="cinder-zr-road-tab">/* Z051 tabs (lane road): the Road tab's own parts, both views (src/cinder-zr-road-tab.js).  Classic's Camp tab is hidden: Camp is
    the fold at the foot of Road. */
@@ -6229,7 +6235,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:43 UTC">f8703a7b</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:46 UTC">01843df3</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -61611,6 +61617,11 @@ window.HELENA_TURN.quick = {
     return { ok:true, note:(e.name || "Someone") + ": " + word + "." };
   },
   clear: function(id, key){ if(!writable()) return { ok:false }; st = TT.condClear(st, id, key); push(); try{ render(); }catch(x){} return { ok:true }; },
+  /* game night 11-25 (Howl): THE PLAYERS' HITS WAITING FOR THE OVERSEER (encReqList) - Cinder's Overseer box shows them, since
+     Cinder never shows the turn order's #tt-req; apply/reject are the same encReqApply the cards press */
+  reqs: function(){ try{ return encReqList().map(function(r){ return { key:r.key, attacker:r.attacker || "someone", name:r.name || r.ref,
+    amount:Math.max(0, Math.round(+(r.spec && r.spec.amount) || 0)), type:(r.spec && r.spec.type) || "Phys", effects:(r.spec && r.spec.effects) || 0, weapon:r.weapon || "" }; }); }catch(e){ return []; } },
+  reqDo: function(key, take){ var r = null; try{ r = encReqApply(String(key), !!take); }catch(e){ r = null; } try{ render(); }catch(e){} return r; },
   /* game night 11-25 (Howl): PUT IT OUT - on a character's own turn, its major action clears every Persistent on its sheet (the
      fire beaten out, the poison purged).  The major goes through the order's own door (takeAction, a bought one waits for the room). */
   douse: function(charId, resume, paid){
@@ -61776,7 +61787,11 @@ window.HELENA_TURN.cinder = {
     openAttack(a, list, ord, wi, tid && tid !== a.id ? tid : null); render();
     /* game night 11-25 (Howl): a Cinder weapon press with its target already picked goes straight to the roll (the dice, AP, Luck):
        Declare it is pressed for them.  A refusal (no line of sight, a Blast's zone to pick, the Overseer's OK) leaves the card up. */
-    if(tid && tid !== a.id) setTimeout(function(){ var g = $("tt-atk-go"); if(g && !g.disabled && atk && atk.id === a.id) g.click(); }, 0);
+    /* game night 11-25 (Howl): a Blast is aimed at a ZONE - its card stays up with Target zone to pick (everyone in it ticked), never
+       auto-declared on the picked target */
+    var bw = null; try{ var wl = weaponsFor(a), wx = wl[Math.round(+wi) || 0]; bw = wx && wx.w && typeof atkBlast === "function" && atkBlast(wx.w); }catch(err){ bw = null; }
+    if(tid && tid !== a.id && !bw) setTimeout(function(){ var g = $("tt-atk-go"); if(g && !g.disabled && atk && atk.id === a.id) g.click(); }, 0);
+    if(bw) setTimeout(function(){ var z = $("tt-atk-bzz"); if(z){ try{ z.scrollIntoView({ block:"center" }); z.focus(); }catch(err){} } }, 50);
     return "panel";
   },
   hp: function(id, raw){ var e = entryOf(everyone(), id); return e ? tvHpCommit(e, raw) : null; },
@@ -89280,6 +89295,8 @@ W.HELENA_JOIN = { linkFor:linkFor };
       var t = e.target, id = t && t.id;
       if(id === "cl-q-hd"){ open = !open; try{ localStorage.setItem(KEY, open ? "open" : "shut"); }catch(x){} paint(true); return; }
       if(id === "cl-q-none"){ sel = {}; paint(true); return; }
+      var rk = t && t.getAttribute && (t.getAttribute("data-rq") || t.getAttribute("data-rqx"));
+      if(rk){ var qq = Q(); if(qq && qq.reqDo){ qq.reqDo(rk, t.hasAttribute("data-rq")); msg = t.hasAttribute("data-rq") ? "Applied." : "Rejected."; } paint(true); return; }
       if(id === "cl-q-heal"){ var nh = num("cl-q-n", 0); if(!nh){ msg = "Type how much."; paint(true); return; }
         run(function(q, rid){ var r = q.hp(rid, "+" + nh); return { note:r && r.ok === false ? (r.why || "refused") : "" }; });
         if(!msg || msg === "Done.") msg = nh + " healed - " + picked().length + " picked. Undo is on the log line."; paint(true); return; }
@@ -89298,7 +89315,13 @@ W.HELENA_JOIN = { linkFor:linkFor };
     if(!box) build();
     if(box.hidden) box.hidden = false;
     var rows = []; try{ rows = q.rows(); }catch(e){ rows = []; }
-    var h = '<button type="button" id="cl-q-hd" class="cl-q-hd">' + (open ? "▾" : "▸") + " Overseer: quick damage &amp; effects</button>";
+    var rq = []; try{ rq = q.reqs ? q.reqs() : []; }catch(e){ rq = []; }
+    /* players' hits waiting for the Overseer - shown even when the box is shut */
+    var h = rq.length ? '<div class="cl-q-req"><b>Hits waiting for you (' + rq.length + ")</b>" + rq.map(function(r){
+        return '<div class="cl-q-rq">' + esc(r.attacker) + " → " + esc(r.name) + ": <b>" + r.amount + " " + esc(r.type) + "</b>" + (r.weapon ? " (" + esc(r.weapon) + ")" : "") +
+               (r.effects ? ", " + r.effects + " Effect" + (r.effects === 1 ? "" : "s") : "") +
+               ' <button type="button" class="cl-q-b bad" data-rq="' + esc(r.key) + '">Apply it</button><button type="button" class="cl-q-mini" data-rqx="' + esc(r.key) + '">Reject</button></div>'; }).join("") + "</div>" : "";
+    h += '<button type="button" id="cl-q-hd" class="cl-q-hd">' + (open ? "▾" : "▸") + " Overseer: quick damage &amp; effects</button>";
     if(open){
       h += '<div class="cl-q-who">' + (rows.length ? rows.map(function(r){
              return '<label class="' + (r.kind === "char" ? "pc" : "foe") + '"><input type="checkbox" data-q="' + esc(r.id) + '"' + (sel[r.id] ? " checked" : "") + "> " + esc(r.name) + "</label>"; }).join("")
