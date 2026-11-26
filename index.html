@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"843f505a",at:"2026-11-26 01:01 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"7016c8ab",at:"2026-11-26 01:57 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -6146,7 +6146,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 01:01 UTC">843f505a</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 01:57 UTC">7016c8ab</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -8338,6 +8338,7 @@ end $$;
         <span class="purse" id="mc-purse"></span>
         <span style="flex:1"></span>
         <button id="mc-confirm" class="b-confirm">Confirm the deal</button>
+        <button id="mc-free" class="b-confirm" hidden title="The Overseer gives what is on the Buying side to the party for nothing: no caps move; one line in the log, with its Undo">Give it free (Overseer)</button>
       </div>
       <div class="msg plain" id="mc-msg"></div>
 
@@ -72372,9 +72373,23 @@ function dealWords(payWho){
   return who.charAt(0).toUpperCase() + who.slice(1) + " — at the trader: " + [b.length ? "bought " + b.join(", ") : "", s2.length ? "sold " + s2.join(", ") : ""].filter(Boolean).join("; ");
 }
 
+/* Game night 11-25 (Howl: "a way to get it for free since the DM wants to give us a free food item"): THE OVERSEER'S GIFT.  The
+   same deal as Confirm with the price at nothing: the Buying side goes onto the party ledger, no caps move, one line in the
+   log with the deal's own Undo.  Only the Overseer (or a device at no table) sees it; the Selling side must be empty. */
+function mcIsOverseer(){ var Y = window.SUITE_SYNC; try{ var st = Y && Y.status ? Y.status() : null; return !st || !st.connected || !!st.gm; }catch(e){ return false; } }
+function mcFreeShow(){ var b = $("mc-free"); if(!b) return; var on = LIVE && mcIsOverseer(); if(b.hidden === on) b.hidden = !on; b.disabled = !state.buy.length; }
+setInterval(mcFreeShow, 1500);
+$("mc-free").onclick = function(){
+  if(!mcIsOverseer()){ say("mc-msg", "bad", "Only the Overseer can give something for free."); return; }
+  if(!state.buy.length){ say("mc-msg", "bad", "Put what you are giving on the Buying side first."); return; }
+  if(state.sell.length){ say("mc-msg", "bad", "Take the Selling side off the counter first: a gift buys nothing back."); return; }
+  window.__mcFree = true;
+  try{ $("mc-confirm").onclick(); }finally{ window.__mcFree = false; }
+};
 $("mc-confirm").onclick = function(){
+  var free = typeof window !== "undefined" && window.__mcFree === true;
   if(!OPS){ say("mc-msg", "bad", "No shared store on this page — open the Merchant inside the suite."); return; }
-  var stamp = env.now(), loose = looseCredit(), payId = $("mc-payer").value, payWho = typeof OPS.payerName === "function" ? OPS.payerName(payId) : "the payer";
+  var stamp = env.now(), loose = free ? 0 : looseCredit(), payId = $("mc-payer").value || (typeof LG !== "undefined" && LG ? LG.PARTY : ""), payWho = free ? "the Overseer (a gift)" : (typeof OPS.payerName === "function" ? OPS.payerName(payId) : "the payer");
   /* the deal's own id: confirm() refuses a replay of it before a single cap moves.
      WAVE 11: the sell side is the counter's HOLDS — credit is Σ sellPrice over the
      held lines, and confirm() re-checks every hold against the room's current slice
@@ -72388,7 +72403,7 @@ $("mc-confirm").onclick = function(){
     var hid = h && typeof h === "object" ? h.holdId : h;
     try{ if(hid) hb.tools.ledger = LG.release(hb.tools.ledger, hid).slice; }catch(e){}
   });
-  var r = OPS.confirm({ payer:payId, cost:sideTotal("buy"), credit:sideTotal("sell"),
+  var r = OPS.confirm({ payer:payId, cost:free ? 0 : sideTotal("buy"), credit:free ? 0 : sideTotal("sell"),
                         rows:buyRows(stamp, payWho), holds:holdRefs(), sold:soldRefs(), txn:dealTxn });
   /* A REFUSAL IS A REFUSAL OF THE WHOLE DEAL AND THE COUNTER IS LEFT ALONE.
      confirm() writes nothing at all unless every line can be honoured, so the
@@ -72409,7 +72424,8 @@ $("mc-confirm").onclick = function(){
   dealKeptWatch(r);                                 /* WAVE 17 SKEPTIC: the room may not keep the deal's ledger write */
   /* Z050 (R.22): the deal says on the session log who paid (the town's own "trade" topic) */
   /* Z050 P2 (V.7): every deal is one line - who, what, the caps, who paid - and that line carries the deal's Undo */
-  var dealSaid = dealLine + (r.paid > 0 ? " — " + r.paid + " caps, paid by " + payWho : r.paid < 0 ? " — " + Math.abs(r.paid) + " caps to " + payWho : " — no caps changed hands");
+  var dealSaid = free ? (dealLine ? dealLine.replace(/\s*$/, "") + " — a gift from the Overseer, no caps" : "The Overseer gave the party " + r.shelved.length + (r.shelved.length === 1 ? " row" : " rows") + " — free")
+                     : dealLine + (r.paid > 0 ? " — " + r.paid + " caps, paid by " + payWho : r.paid < 0 ? " — " + Math.abs(r.paid) + " caps to " + payWho : " — no caps changed hands");
   var dealIds = [typeof LG !== "undefined" && LG && payId === LG.PARTY ? "" : payId];
   if(dealLine && !(typeof haulKeep === "function" && haulKeep(hb, dealSaid, { chars:dealIds })) && typeof townSay === "function") townSay(dealSaid, dealIds);
   clearCounter();
