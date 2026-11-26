@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Helena Suite — Fallout 2d20 table tools</title>
-<script data-suite="build">window.SUITE_BUILD={id:"b6cfb0f6",at:"2026-11-26 03:28 UTC"};</script>
+<script data-suite="build">window.SUITE_BUILD={id:"2357cde2",at:"2026-11-26 03:30 UTC"};</script>
 <!-- Built by build-suite.js. Do not hand-edit: change the file under src/ (or the
      zone map generator in its own folder) and re-run `node build-suite.js`. -->
 <style>
@@ -5639,6 +5639,8 @@ body.cl-night ::placeholder{ color:#8C8173 !important; }
 #cl-jab{ max-height:calc(100vh - 140px); overflow:auto; }
 #cl-jab .cl-sa-ap{ color:#7ac74f; margin:2px 0 6px; }
 #cl-jab .cl-sa-mj{ background:#23281b; border-color:#c9c4b2; }
+#cl-jab .cl-sa-dog{ margin-top:6px; padding-top:6px; border-top:1px solid #3a4130; }
+#cl-jab .cl-sa-dog.cl-flash{ outline:2px solid #f0b429; outline-offset:3px; }
 </style>
 <style data-suite="cinder-zj-join">/* the join link's card (game night 2026-11-25) - over every view, the first-run card included */
 .zj-veil{ position:fixed; inset:0; z-index:10050; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(10,8,6,.78); }
@@ -6226,7 +6228,7 @@ html.tw-open body{overflow:hidden}
 <header class="suite-bar" role="tablist" aria-label="Modes">
   <div class="suite-brand"><b>Helena Suite</b><span>Alt+1&hellip;9, Alt+0 to switch</span></div>
   <!-- Z037 H: the room (a button to the rail's Table box), Rejoin while Solo, and this page's build -->
-  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:28 UTC">b6cfb0f6</small></div>
+  <div class="suite-where" id="suite-where"><button type="button" class="suite-room" id="suite-room" title="Solo: open the Table box to join a room">Solo</button><button type="button" class="suite-rejoin" id="suite-rejoin" hidden></button><small class="suite-build" id="suite-build" title="This page’s build — if two players see different ids, one needs to refresh (Ctrl+Shift+R) &middot; built 2026-11-26 03:30 UTC">2357cde2</small></div>
     <button class="suite-mode" role="tab" id="mode-suite-fight" data-mode="fight" aria-controls="suite-stage" aria-selected="true">Fight<small>Turn order</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-map" data-mode="map" aria-controls="suite-stage" aria-selected="false">Map<small>The zone map</small></button>
     <button class="suite-mode" role="tab" id="mode-suite-enc" data-mode="enc" aria-controls="suite-stage" aria-selected="false">Encounter<small>Encounter builder, stat blocks</small></button>
@@ -38975,6 +38977,8 @@ window.HELENA_SHEETACT = {
     var ss = $("cs-stealth-say"), ws = $("cs-war-say");
     return { id:String(c.id), name:c.name || "", fight:!!f, locked:!!locked(c),
              stealth:suit ? { low:c.stealthOn === true, line:ss ? ss.textContent : "" } : null,
+             dog:(function(){ var cp = c.companion, dg = cp && (cp.attackDog || (typeof CH.attackDogOf === "function" ? CH.attackDogOf(cp) : null)); return (f && cp && dg && +dg.cd > 0) ? { name:cp.name || "the hound", cd:Math.round(+dg.cd), vicious:!!dg.vicious } : null; })(),
+             foes:f ? warEnemies().map(function(r){ return { id:r.id, name:r.name || r.id }; }) : [],
              war:(f && (rk.cmd || rk.mark)) ? { cmd:rk.cmd, mark:rk.mark, enemies:warEnemies().map(function(r){ return { id:r.id, name:r.name || r.id }; }), line:ws ? ws.textContent : "" } : null };
   },
   stealth: function(act){
@@ -61597,6 +61601,36 @@ window.HELENA_TURN.quick = {
     return { ok:true, note:(e.name || "Someone") + ": " + word + "." };
   },
   clear: function(id, key){ if(!writable()) return { ok:false }; st = TT.condClear(st, id, key); push(); try{ render(); }catch(x){} return { ok:true }; },
+  /* game night 11-25 (Howl): A COMPANION'S ATTACK DOG BITE BY HAND - charId's hound bites the enemy row tid now: its card's CD
+     (companion.attackDog), +CD from a Tenderizer mark on that enemy (CH.warOn), Vicious added; through the Encounter pane's door
+     where this device may write it, else sent to the Overseer as one press (as houndBite does). */
+  bite: function(charId, tid){
+    var m = S.get(), c = null; (m.chars || []).forEach(function(x){ if(x && String(x.id) === String(charId)) c = x; });
+    var cp = c && c.companion, dog = cp && (cp.attackDog || (window.HELENA_CHAR && typeof HELENA_CHAR.attackDogOf === "function" ? HELENA_CHAR.attackDogOf(cp) : null));
+    if(!dog || !(+dog.cd > 0)) return { ok:false, note:"No Attack Dog bite on that card (Companion: Attack Dog bite CD)." };
+    if(cp.hpMax > 0 && !(+cp.hp > 0)) return { ok:false, note:(cp.name || "The hound") + " is knocked out." };
+    var tgt = entryOf(everyone(), tid); if(!tgt || tgt.kind === "char") return { ok:false, note:"Pick an enemy." };
+    var add = 0, why = "";
+    try{ var CH = window.HELENA_CHAR, f = window.HELENA_TURN.fightNow(); if(CH && typeof CH.warOn === "function" && f){ var w = CH.warOn(m.chars || [], f, tgt.id, null); if(w && w.mark){ add = +w.mark.cd || 0; why = w.mark.why || ""; } } }catch(e){}
+    var n = Math.round(+dog.cd) + add, faces = [], dmg = 0, eff = 0;
+    for(var k = 0; k < n; k++){ var fc = 1 + Math.floor(Math.random() * 6); faces.push(fc); if(fc === 1) dmg += 1; else if(fc === 2) dmg += 2; else if(fc >= 5){ dmg += 1; eff += 1; } }
+    if(dog.vicious) dmg += eff;
+    var name = cp.name || "The hound", line = name + " (" + (c.name || "") + "'s attack hound) bites " + (tgt.name || "the enemy") + ": " + n + "CD" + (add ? " (" + why + ")" : "") +
+               " [" + faces.join(", ") + "] = " + dmg + " damage" + (dog.vicious && eff ? " (Vicious +" + eff + ")" : "");
+    var spec = { amount:dmg, type:"Phys", declId:"bite:" + Date.now().toString(36), source:"turn-tracker" };
+    var E = encApi(), may = false; try{ may = !!(E && typeof E.canWrite === "function" && E.canWrite()); }catch(e){ may = false; }
+    if(may && E && typeof E.damage === "function"){
+      var res = null; try{ res = E.damage(tgt.ref, spec); }catch(e){ res = null; }
+      line += res && res.ok !== false ? " - " + (res.past != null ? res.past + " past DR" : "landed") + (res.after != null ? ", now " + res.after + " HP" : "") + "."
+                                      : " - not applied (" + ((res && (res.why || res.refused)) || "no answer") + "); the Overseer applies it by hand.";
+    } else {
+      try{ if(SY && typeof SY.emit === "function") SY.emit("encdmg", { ref:tgt.ref, id:tgt.id, name:tgt.name || "", spec:spec, conds:[], attacker:name, charId:String(c.id), weapon:"Attack Dog bite" }); }catch(e){}
+      line += " - sent to the Overseer to apply.";
+    }
+    tick("turn", line);
+    try{ render(); }catch(e){}
+    return { ok:true, note:line };
+  },
   /* damage that lands like a hit: mode "dr" - the armour's plate first, less DR (the sheet's CH.takeDamage, as a struck sheet takes
      it); "pierce" - the plate first, DR pierced; "hp" - straight to HP.  A creature has no plate: less its DR for the type, or all
      of it.  One line in the fight's log and one Undo each. */
@@ -88835,6 +88869,13 @@ last = get(); follow();
 (function(){
   "use strict";
   var box = null, msg = "", msgAt = 0, open = false;
+  var dogSay = "";
+  function st0(){ try{ return window.HELENA_SHEETACT ? window.HELENA_SHEETACT.state() : null; }catch(e){ return null; } }
+  /* clicking the companion's card on the left (the half frame with the paw) brings her bite into view */
+  document.addEventListener("click", function(e){
+    var f = e.target && e.target.closest ? e.target.closest(".cl-frame.half") : null; if(!f) return;
+    setTimeout(function(){ var d = document.getElementById("cl-sa-dog"); if(d){ d.scrollIntoView({ block:"nearest" }); d.classList.add("cl-flash"); setTimeout(function(){ d.classList.remove("cl-flash"); }, 1200); var s = document.getElementById("cl-sa-dog-t"); if(s) s.focus(); } }, 60);
+  }, true);
   function on(){ return !!(document.body && document.body.classList.contains("view-cinder")) && document.body.getAttribute("data-cl-tab") === "fight"; }
   function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]; }); }
   function chars(){ try{ return (window.SUITE_STATE.get().chars || []).filter(function(c){ return c && c.id; }); }catch(e){ return []; } }
@@ -88857,6 +88898,10 @@ last = get(); follow();
         if(t.id === "cl-jab-hd"){ open = !open; box.removeAttribute("data-h"); paint(); return; }
         var A = window.HELENA_SHEETACT;
         if(A && (t.id === "cl-sa-stealth" || t.id === "cl-sa-stealth-mj")){ try{ A.stealth(t.id === "cl-sa-stealth-mj" ? "major" : ""); }catch(err){} box.removeAttribute("data-h"); setTimeout(paint, 50); return; }
+        if(t.id === "cl-sa-bite"){
+          var TQ = window.HELENA_TURN && window.HELENA_TURN.quick, me0 = st0();
+          if(TQ && TQ.bite && me0){ var rb = TQ.bite(me0.id, val("cl-sa-dog-t")); dogSay = rb.note || ""; } box.removeAttribute("data-h"); setTimeout(paint, 50); return;
+        }
         if(A && (t.id === "cl-sa-call" || t.id === "cl-sa-call-mj" || t.id === "cl-sa-mark")){ try{ A.war(t.id === "cl-sa-mark" ? "mark" : "call", val("cl-sa-war-t"), t.id === "cl-sa-call-mj" ? "major" : ""); }catch(err){} box.removeAttribute("data-h"); setTimeout(paint, 50); return; }
         if(t.id === "cl-jab-go"){
           var from = val("cl-jab-from"), row = val("cl-jab-chem"), to = val("cl-jab-to");
@@ -88875,7 +88920,7 @@ last = get(); follow();
     var A = window.HELENA_SHEETACT, st = null; try{ st = A ? A.state() : null; }catch(e){ st = null; }
     var sa = "", TA = window.HELENA_TURNAP, ta = null; try{ ta = TA ? TA.now() : null; }catch(e){ ta = null; }
     if(ta && ta.n > 0) sa += '<div class="cl-sa-ap"><b>' + esc(ta.name) + ": " + ta.n + " personal AP</b> this turn" + (ta.from ? " (" + esc(ta.from) + ")" : "") + " - spent before the party pool, gone when the turn ends.</div>";
-    if(st && !st.locked && (st.stealth || st.war)){
+    if(st && !st.locked && (st.stealth || st.war || st.dog)){
       sa += '<div class="cl-sa-name">' + esc(st.name || "Your sheet") + "</div>";
       if(st.stealth) sa += '<button type="button" id="cl-sa-stealth" class="cl-jab-go">' + (st.fight ? "Stealth charge (minor action)" : st.stealth.low ? "Stealth suit: turn low power off" : "Stealth suit: low power on") + "</button>" +
                            (st.fight ? '<button type="button" id="cl-sa-stealth-mj" class="cl-jab-go cl-sa-mj">Stealth charge (major action)</button>' : "") +
@@ -88887,6 +88932,12 @@ last = get(); follow();
                             '<button type="button" id="cl-sa-call-mj" class="cl-jab-go cl-sa-mj">Warlord callout (+' + st.war.cmd + " d20, major action)</button>" : "") +
               (st.war.mark ? '<button type="button" id="cl-sa-mark" class="cl-jab-go">Tenderizer: mark target (+' + st.war.mark + " CD, 1 AP)</button>" : "") +
               '<div class="cl-jab-who">' + esc(st.war.line) + "</div>";
+      }
+      if(st.dog){
+        var dt = val("cl-sa-dog-t");
+        sa += '<div class="cl-sa-dog" id="cl-sa-dog"><b>' + esc(st.dog.name) + "</b>: Attack Dog bite, " + st.dog.cd + " CD" + (st.dog.vicious ? ", Vicious" : "") + " (+ a Tenderizer mark's CD)" +
+              '<label>Bite <select id="cl-sa-dog-t">' + (st.foes.length ? st.foes.map(function(r){ return '<option value="' + esc(r.id) + '"' + (r.id === dt ? " selected" : "") + ">" + esc(r.name) + "</option>"; }).join("") : '<option value="">No enemies standing</option>') + "</select></label>" +
+              '<button type="button" id="cl-sa-bite" class="cl-jab-go">' + esc(st.dog.name) + " bites</button>" + (dogSay ? '<div class="cl-jab-say">' + esc(dogSay) + "</div>" : "") + "</div>";
       }
       sa += '<hr class="cl-sa-hr">';
     }
